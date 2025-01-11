@@ -1,0 +1,56 @@
+# Node modules
+node_modules/
+
+# Expo and React Native
+.expo/
+.expo-shared/
+dist/
+
+# macOS system files
+.DS_Store
+
+# Logs and debugging
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+expo-error.log
+
+# OS-generated files
+Thumbs.db
+Desktop.ini
+
+# React Native and Metro Bundler
+android/app/build/
+ios/Pods/
+ios/build/
+*.lock
+*.log
+.expo/
+
+# Build outputs
+build/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+
+# Testing
+coverage/
+jest-html-reporters-*.html
+
+# Misc
+*.bak
+*.tmp
+*.orig
+
+# TypeScript
+*.tsbuildinfo
