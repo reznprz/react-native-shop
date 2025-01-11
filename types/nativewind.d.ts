@@ -1,4 +1,9 @@
-import { ViewProps, TextProps, TouchableOpacityProps } from "react-native";
+import {
+  ScrollViewProps,
+  ViewProps,
+  TextProps,
+  TouchableOpacityProps,
+} from "react-native";
 
 declare module "react-native" {
   interface ViewProps {
@@ -9,9 +14,9 @@ declare module "react-native" {
     className?: string;
   }
 
-  // interface ScrollView {
-  //   className?: string;
-  // }
+  interface ScrollViewProps {
+    className?: string;
+  }
 
   interface TouchableOpacityProps {
     className?: string;
