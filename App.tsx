@@ -1,17 +1,17 @@
 import "react-native-gesture-handler";
 import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
 import { enableScreens } from "react-native-screens";
 import "./global.css";
 
-import BottomTabsNavigator from "./app/navigation/BottomTabsNavigator";
+import StackNavigator from "./app/navigation/StackNavigator";
+import { FoodProvider } from "./app/context/FoodContext";
 
 enableScreens();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <BottomTabsNavigator />
-    </NavigationContainer>
+    <FoodProvider>
+      <StackNavigator />
+    </FoodProvider>
   );
 }

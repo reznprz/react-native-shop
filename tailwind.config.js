@@ -4,7 +4,16 @@ module.exports = {
   prtsesets: [require("nativewind/preset")],
   darkMode: "class",
   theme: {
-    extend: {},
+    extend: {
+      colors: { mocha: "#8b5e3c" },
+      fontFamily: {
+        roboto: ["Roboto", "sans-serif"],
+        custom: ["Georgia", "serif"],
+        anticSlab: ["Antic Slab", "serif"],
+        arsenal: ["Arsenal", "sans-serif"],
+        playfair: ['"Playfair Display"', "serif"],
+      },
+    },
   },
   plugins: [],
 };

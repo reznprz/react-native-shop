@@ -1,49 +1,72 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { Text } from "react-native";
+import {
+  bottomTabMetadata,
+  BottomTabParamList,
+  ScreenMetadata,
+} from "./navigationTypes";
 
 import HomeScreen from "../screens/HomeScreen";
 import MenuScreen from "../screens/MenuScreen";
 import OrderScreen from "../screens/OrderScreen";
 import FoodScreen from "../screens/FoodScreen";
 
-// If you use TypeScript, you can define the param list for routes
-export type BottomTabParamList = {
-  Home: undefined;
-  Menu: undefined;
-  Order: undefined;
-  Food: undefined;
-};
-
 const Tab = createBottomTabNavigator<BottomTabParamList>();
+
+const screenOptions = ({
+  route,
+}: {
+  route: { name: keyof BottomTabParamList };
+}) => {
+  const { showIcon, hoverEffect, iconName, title } =
+    bottomTabMetadata[route.name];
+
+  return {
+    headerShown: false, // Headers are managed by StackNavigator
+    tabBarIcon: ({
+      color,
+      size,
+      focused,
+    }: {
+      color: string;
+      size: number;
+      focused: boolean;
+    }) =>
+      showIcon && (
+        <Ionicons
+          name={iconName}
+          size={size}
+          color={focused ? undefined : color} // Color from Tailwind for focus state
+          style={{
+            transform: [{ scale: focused ? 1.1 : 1 }],
+            color: focused ? "#B08D68" : color, // 'text-mocha' corresponds to color "#B08D68"
+          }}
+        />
+      ),
+    tabBarLabel: ({ focused }: { focused: boolean }) => (
+      <Text
+        style={{
+          fontSize: 10,
+          textAlign: "center",
+          fontFamily: "Roboto", // Assuming 'font-roboto' corresponds to 'Roboto'
+          color: focused ? "#B08D68" : "#6B7280", // 'text-mocha' and 'text-gray-500'
+        }}
+      >
+        {title}
+      </Text>
+    ),
+    tabBarStyle: {
+      paddingVertical: 5,
+      backgroundColor: "white",
+    },
+  };
+};
 
 export default function BottomTabsNavigator() {
   return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        headerShown: false,
-        tabBarIcon: ({ color, size }) => {
-          let iconName = "";
-          switch (route.name) {
-            case "Home":
-              iconName = "home-outline";
-              break;
-            case "Menu":
-              iconName = "menu-outline";
-              break;
-            case "Order":
-              iconName = "cart-outline";
-              break;
-            case "Food":
-              iconName = "fast-food-outline";
-              break;
-          }
-          return <Ionicons className={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: "tomato",
-        tabBarInactiveTintColor: "gray",
-      })}
-    >
+    <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Menu" component={MenuScreen} />
       <Tab.Screen name="Order" component={OrderScreen} />

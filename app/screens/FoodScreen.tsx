@@ -5,7 +5,7 @@ import Svg, { Circle, Rect } from "react-native-svg";
 export default function FoodScreen() {
   return (
     <SafeAreaView className="flex-1">
-      <ScrollView className="flex-1 bg-white p-4">
+      <View className="flex-1 bg-white">
         <Text className="text-2xl font-bold text-gray-800 mb-4">
           Food Items
         </Text>
@@ -49,7 +49,7 @@ export default function FoodScreen() {
           Use react-native-svg for displaying custom vector graphics or icons
           that aren't in the icon sets.
         </Text>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
