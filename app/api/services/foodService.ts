@@ -17,6 +17,7 @@ export interface Food {
   price: number;
   categoryId: number | null;
   categoryName: string | null;
+  categoryNameTwo: string | null;
   img: string | null;
   ingredients: string | null;
   calories: number | null;

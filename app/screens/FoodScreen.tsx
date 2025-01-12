@@ -4,7 +4,7 @@ import Svg, { Circle, Rect } from "react-native-svg";
 
 export default function FoodScreen() {
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView className="flex-1 items-center justify-center">
       <View className="flex-1 bg-white">
         <Text className="text-2xl font-bold text-gray-800 mb-4">
           Food Items
