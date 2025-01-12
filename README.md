@@ -34,6 +34,34 @@ Before starting, ensure the following versions of dependencies are used:
 
 ### Use of local CLI
 
+### Use these command to install Dependencies
+
+```bash
+yarn add @expo/metro-runtime@~4.0.0
+yarn add @expo/vector-icons@^14.0.4
+yarn add @react-navigation/bottom-tabs@^7.2.0
+yarn add @react-navigation/native@^7.0.14
+yarn add @react-navigation/stack@^7.1.1
+yarn add axios@^1.7.9
+yarn add expo@^52.0.25
+yarn add nativewind@4.0.1
+yarn add react@18.3.1
+yarn add react-dom@18.3.1
+yarn add react-native@0.76.6
+yarn add react-native-config@^1.5.3
+yarn add react-native-dotenv@^3.4.11
+yarn add react-native-gesture-handler@^2.22.0
+yarn add react-native-reanimated@^3.16.6
+yarn add react-native-safe-area-context@^5.1.0
+yarn add react-native-screens@^4.5.0
+yarn add react-native-svg@15.8.0
+yarn add react-native-web@~0.19.13
+yarn add some-dev-library --dev
+yarn add react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context react-native-svg react-native-get-random-values
+
+
+```
+
 - **Node.js**: v14.x or later
 - **npm**: v6.x or later (or **Yarn** as an alternative)
 - **Expo CLI**: Local CLI is used (`npx expo`).
