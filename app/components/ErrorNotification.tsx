@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/FontAwesome";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface ErrorNotificationProps {
   message: string;
@@ -20,7 +20,7 @@ const ErrorNotification: React.FC<ErrorNotificationProps> = ({
       </View>
       <TouchableOpacity onPress={onClose} className="text-primary-font-color">
         {/* Replace with your icon component */}
-        <Icon name="facebook" size={24} color="#000" />
+        {/* <Ionicons name="" size={24} color="#000" /> */}
         <Text className="sr-only">Close notification</Text>
       </TouchableOpacity>
     </View>
