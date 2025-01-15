@@ -1,96 +1,123 @@
-import React from "react";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import React, { useCallback, useEffect } from "react";
+import {
+  createBottomTabNavigator,
+  BottomTabNavigationOptions,
+} from "@react-navigation/bottom-tabs";
+import { useNavigationState } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Text } from "react-native";
+import { Text, StyleSheet } from "react-native";
+import { TAB_CONFIG, TAB_SCREENS } from "./tabConfig";
+import { TabParamList, TabRouteName } from "app/types/navigation";
+import { useFood } from "app/hooks/useFood";
+import { navigate } from "./navigationService";
 
-import HomeScreen from "../screens/HomeScreen";
-import MenuScreen from "../screens/MenuScreen";
-import CartScreen from "../screens/CartScreen";
-import OrdersScreen from "../screens/OrdersScreen";
+const Tab = createBottomTabNavigator<TabParamList>();
 
-const Tab = createBottomTabNavigator();
+interface BottomTabNavigatorProps {
+  onTabChange: (tabName: TabRouteName) => void;
+}
 
-// Type-safe definition for tab icons
-const TAB_ICONS = {
-  Home: {
-    iconName: "home-outline",
-    filledIcon: "home",
-    title: "Home",
-  },
-  Menu: {
-    iconName: "menu-outline",
-    filledIcon: "menu",
-    title: "Menu",
-  },
-  Cart: {
-    iconName: "cart-outline",
-    filledIcon: "cart",
-    title: "Cart",
-  },
-  Orders: {
-    iconName: "fast-food-outline",
-    filledIcon: "fast-food",
-    title: "Orders",
-  },
-} as const;
+const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({
+  onTabChange,
+}) => {
+  const { refetch } = useFood();
 
-type TabRouteName = keyof typeof TAB_ICONS;
+  const renderTabBarLabel = useCallback(
+    (focused: boolean, title: string) => (
+      <Text
+        className={`text-xs text-center ${
+          focused ? "text-deepTeal" : "text-[#aaa]"
+        }`}
+      >
+        {title}
+      </Text>
+    ),
+    []
+  );
 
-export default function BottomTabNavigator() {
+  const handleQrMenuPress = useCallback(
+    async (e: { preventDefault: () => void }) => {
+      e.preventDefault();
+      try {
+        // await refetch();
+        navigate("BottomTabs", { screen: "QrMenu" });
+      } catch (error) {
+        console.error("Failed to fetch foods:", error);
+        // Optionally, display an alert or Toast here
+      }
+    },
+    [refetch]
+  );
+
+  // Track active tab from navigation state
+  const state = useNavigationState((navState) => navState);
+
+  // Monitor active tab and notify parent
+  useEffect(() => {
+    if (state) {
+      const parentRoute = state.routes[state.index]; // Get the currently active route
+      if (parentRoute.state) {
+        // Access the nested state of the BottomTabNavigator
+        const nestedState = parentRoute.state as any;
+        const currentTab = nestedState.routes[nestedState.index]
+          ?.name as TabRouteName;
+        console.log("currentTab", currentTab);
+        onTabChange(currentTab);
+      }
+    }
+  }, [state, onTabChange]);
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => {
-        const routeName = route.name as TabRouteName; // Ensure type safety
-
+        const routeName = route.name as TabRouteName;
+        const { tabBarShowLabel, iconName, filledIcon } = TAB_CONFIG[routeName];
         return {
           lazy: true,
-          tabBarShowLabel: false,
-          tabBarIcon: ({ focused, color, size }) => {
-            const { iconName, filledIcon } = TAB_ICONS[routeName];
-            return (
-              <Ionicons
-                name={focused ? filledIcon : iconName}
-                size={24}
-                color={focused ? "#8b5e3c" : color}
-              />
-            );
-          },
-          tabBarStyle: {
-            // Style tab bar if needed
-          },
-          tabBarActiveTintColor: "#8b5e3c",
+          tabBarShowLabel,
+          tabBarIcon: ({ focused, color, size }) => (
+            <Ionicons
+              name={focused ? filledIcon : iconName}
+              size={size}
+              color={focused ? "#2a4759" : color}
+            />
+          ),
+          tabBarStyle: styles.tabBar,
+          tabBarActiveTintColor: "#2a4759",
           tabBarInactiveTintColor: "#aaa",
-        };
+          headerShown: false,
+        } as BottomTabNavigationOptions;
       }}
     >
-      {Object.entries(TAB_ICONS).map(([name, { title }]) => (
+      {Object.entries(TAB_CONFIG).map(([name, config]) => (
         <Tab.Screen
           key={name}
           name={name as TabRouteName}
-          component={
-            name === "Home"
-              ? HomeScreen
-              : name === "Menu"
-              ? MenuScreen
-              : name === "Cart"
-              ? CartScreen
-              : OrdersScreen
-          }
+          component={TAB_SCREENS[name as TabRouteName]}
           options={{
-            tabBarLabel: ({ focused }) => (
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: focused ? "#8b5e3c" : "#aaa",
-                }}
-              >
-                {title}
-              </Text>
-            ),
+            tabBarLabel: config.tabBarShowLabel
+              ? ({ focused }) => renderTabBarLabel(focused, config.title)
+              : undefined,
           }}
+          listeners={
+            name === "QrMenu"
+              ? {
+                  tabPress: handleQrMenuPress,
+                }
+              : undefined
+          }
         />
       ))}
     </Tab.Navigator>
   );
-}
+};
+
+const styles = StyleSheet.create({
+  tabBar: {
+    height: 68,
+    paddingBottom: 5,
+  },
+});
+
+export default React.memo(BottomTabNavigator);

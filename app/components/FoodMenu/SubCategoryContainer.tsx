@@ -1,5 +1,11 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Pressable,
+} from "react-native";
 
 interface SubCategoryContainerProps {
   title: string;
@@ -11,14 +17,14 @@ const SubCategoryContainer: React.FC<SubCategoryContainerProps> = ({
   onSubCategoryClick,
 }) => {
   return (
-    <View className="bg-gray-200 mb-4 p-4 rounded-md">
-      <TouchableOpacity
+    <View className="bg-darkTan mb-4 p-6 m-2">
+      <Pressable
         onPress={() => {
           onSubCategoryClick(title);
         }}
       >
-        <Text className="text-black font-medium text-lg mb-2">{title}</Text>
-      </TouchableOpacity>
+        <Text className="text-white font-medium">{title}</Text>
+      </Pressable>
     </View>
   );
 };

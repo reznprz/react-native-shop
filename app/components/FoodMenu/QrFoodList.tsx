@@ -7,6 +7,7 @@ interface QrFoodListProps {
   categories: string[] | null;
   filteredFoods: Food[];
   onCategoryLayout: (category: string, event: any) => void;
+  foodItem: Food; // Added this line
 }
 
 const QrFoodList: React.FC<QrFoodListProps> = ({
@@ -22,7 +23,7 @@ const QrFoodList: React.FC<QrFoodListProps> = ({
           onLayout={(event) => onCategoryLayout(category, event)}
           className="mb-6"
         >
-          <Text className="text-xl font-bold mb-4 text-center text-secondary-background-color">
+          <Text className="text-xl font-bold mb-4 text-center text-deepTeal">
             {category}
           </Text>
           <View>

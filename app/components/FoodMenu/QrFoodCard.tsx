@@ -30,12 +30,12 @@ const QrFoodCard: React.FC<QrFoodCardProps> = ({ food }) => {
   }
 
   return (
-    <View className="mb-4 px-4">
+    <View className="mb-4 px-6">
       <View className="flex-row justify-between items-center">
-        <Text className="text-base font-normal text-primary-text-color">
+        <Text className="text-base font-normal text-deepTeal">
           {processedName}
         </Text>
-        <Text className="text-sm font-medium text-primary-text-color">
+        <Text className="text-sm font-medium text-deepTeal">
           रु {food.price}
         </Text>
       </View>

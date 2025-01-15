@@ -1,9 +1,9 @@
 export type ApiAction<T> =
   | { type: "FETCH_INIT" }
   | { type: "FETCH_SUCCESS"; payload: T }
-  | { type: "FETCH_FAILURE"; error: string };
+  | { type: "FETCH_FAILURE"; error: string }
+  | { type: "RESET" };
 
-// Define the state structure
 export interface ApiState<T> {
   data: T | null;
   loading: boolean;
@@ -22,6 +22,8 @@ export const apiReducer = <T>(
       return { ...state, loading: false, data: action.payload };
     case "FETCH_FAILURE":
       return { ...state, loading: false, error: action.error };
+    case "RESET":
+      return getInitialApiState<T>();
     default:
       throw new Error("Unhandled action type");
   }

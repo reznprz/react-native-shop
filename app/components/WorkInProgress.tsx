@@ -19,7 +19,7 @@ const WorkInProgress: React.FC<WorkInProgressProps> = ({
       <MaterialCommunityIcons
         name={iconName}
         size={100}
-        className="text-yellow-400"
+        className="text-deepTeal"
       />
 
       {/* Title */}

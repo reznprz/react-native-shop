@@ -1,10 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import WorkInProgress from "../../app/components/WorkInProgress";
-import { StackNavigationProp } from "@react-navigation/stack/lib/typescript/commonjs/src";
-import { BottomTabParamList } from "app/navigation/navigationTypes";
-
-type HomeScreenProp = StackNavigationProp<BottomTabParamList, "Home">;
 
 const HomeScreen: React.FC = () => {
   return (

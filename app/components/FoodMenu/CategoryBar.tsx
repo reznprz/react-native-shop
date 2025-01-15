@@ -6,6 +6,7 @@ import {
   StyleSheet,
   StyleProp,
   ViewStyle,
+  Pressable,
 } from "react-native";
 
 interface CategoryBarProps {
@@ -25,17 +26,26 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
       showsHorizontalScrollIndicator={false}
       style={styles.scrollView}
     >
-      {categories.map((category) => (
-        <TouchableOpacity
-          key={category}
+      {categories.map((category, index) => (
+        <Pressable
+          key={index}
           onPress={() => scrollToCategory(category)}
-          style={[
-            styles.categoryButton,
-            selectedCategory === category && styles.selectedCategory,
-          ]}
+          className={`px-4 py-2 whitespace-nowrap cursor-pointer border-b-2 ${
+            selectedCategory === category
+              ? "bg-darkTan border-transparent"
+              : "border-transparent hover:border-sand active:border-darkTan"
+          }`}
+          accessibilityRole="button"
+          accessibilityLabel={`Select ${category} category`}
         >
-          <Text style={styles.categoryText}>{category}</Text>
-        </TouchableOpacity>
+          <Text
+            className={` ${
+              selectedCategory === category ? "text-white " : "text-deepTeal "
+            }`}
+          >
+            {category}
+          </Text>
+        </Pressable>
       ))}
     </ScrollView>
   );
@@ -43,20 +53,12 @@ const CategoryBar: React.FC<CategoryBarProps> = ({
 
 const styles = StyleSheet.create({
   scrollView: {
-    display: "flex", // Ensure this is valid for React Native
+    display: "flex",
     flexDirection: "row",
-  },
-  categoryButton: {
-    padding: 10,
-    marginRight: 10,
-    backgroundColor: "#eee",
-    borderRadius: 5,
-  },
-  selectedCategory: {
-    backgroundColor: "#ccc",
-  },
-  categoryText: {
-    fontSize: 16,
+    padding: 8, // Equivalent to Tailwind's p-2
+    marginBottom: 16, // Equivalent to Tailwind's mb-4
+    borderBottomWidth: 1, // Equivalent to Tailwind's border-b
+    borderBottomColor: "#E5E7EB", // Equivalent to Tailwind's border-gray-200
   },
 });
 

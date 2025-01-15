@@ -1,8 +1,9 @@
-import { useReducer, useEffect, useCallback, useState } from "react";
+import { useReducer, useCallback, useState } from "react";
 import { fetchAllFoods, Food } from "../api/services/foodService";
 import { ApiResponse } from "../api/handlers/index";
 import { GetAllFoodsResponse } from "../api/services/foodService";
 import { apiReducer, getInitialApiState } from "./reducers/apiReducer";
+import { groupFoodBySubCategory } from "./utils/groupFoodBySubCategory";
 
 export enum SubCategory {
   MainCourses = "Main Courses",
@@ -19,9 +20,9 @@ export const useFood = () => {
     getInitialApiState<GetAllFoodsResponse["payload"]>()
   );
 
-  const [groupedFoods, setGroupedFoods] = useState<Record<SubCategory, Food[]>>(
-    {} as Record<SubCategory, Food[]>
-  );
+  const [allGroupedFoods, setAllGroupedFoods] = useState<
+    Record<SubCategory, Food[]>
+  >({} as Record<SubCategory, Food[]>);
 
   const fetchFoods = useCallback(async () => {
     dispatch({ type: "FETCH_INIT" });
@@ -30,7 +31,8 @@ export const useFood = () => {
       const response: ApiResponse<GetAllFoodsResponse> = await fetchAllFoods();
 
       if (response.status === "success") {
-        setGroupedFoods(groupFoodBySubCategory(response.data?.payload || []));
+        const grouped = groupFoodBySubCategory(response.data?.payload || []);
+        setAllGroupedFoods(grouped);
         dispatch({
           type: "FETCH_SUCCESS",
           payload: response.data?.payload || [],
@@ -46,81 +48,14 @@ export const useFood = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchFoods();
-  }, [fetchFoods]);
+  const resetState = useCallback(async () => {
+    dispatch({ type: "RESET" });
+  }, [dispatch]);
 
   return {
-    menuState: state, // ApiState<Food[]>
+    menuState: state,
     refetch: fetchFoods,
-    groupedFoods,
+    allGroupedFoods,
+    resetState,
   };
 };
-
-function groupFoodBySubCategory(foods: Food[]): Record<SubCategory, Food[]> {
-  return foods.reduce((acc, food) => {
-    let subCategory: SubCategory;
-
-    switch (food.categoryName) {
-      case "PIZZA":
-      case "CHOWMEIN":
-      case "THUKPA":
-      case "MOMO":
-      case "CHOPSUEY":
-      case "FRIED RICE":
-      case "NEWARI KHAJA SET":
-      case "NOODLES":
-      case "Wrap":
-        subCategory = SubCategory.MainCourses;
-        break;
-
-      case "SOUP":
-      case "SNACKS":
-      case "OUR SPECIAL":
-      case "OUR SPECIAL DRINKS":
-      case "SPECIAL WINGS":
-      case "COMBO SPECIAL MENU":
-        subCategory = SubCategory.AppetizersAndSides;
-        break;
-
-      case "TEA":
-      case "COFFEE":
-      case "ICED BREW":
-      case "LEMONADE":
-      case "LASSI":
-      case "DRINKS":
-      case "MOCKTAIL":
-      case "BUBBLE TEA":
-      case "FLAVORED LATTE":
-      case "SHAKE":
-      case "FRAPPE":
-        subCategory = SubCategory.Beverages;
-        break;
-
-      case "ICE CREAM":
-        subCategory = SubCategory.Desserts;
-        break;
-
-      case "HOOKAH":
-      case "CIGARETTE":
-        subCategory = SubCategory.SpecialtyItems;
-        break;
-
-      case "BREAKFAST":
-      case "SHA-JHYA WAFFLES":
-      case "SHA-JHYA BITES":
-        subCategory = SubCategory.Breakfast;
-        break;
-
-      default:
-        return acc; // Skip if no matching category is found
-    }
-
-    if (!acc[subCategory]) {
-      acc[subCategory] = [];
-    }
-
-    acc[subCategory].push(food);
-    return acc;
-  }, {} as Record<SubCategory, Food[]>);
-}
