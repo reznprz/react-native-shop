@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
-  ActivityIndicator,
-  Button,
   useWindowDimensions,
   TouchableOpacity,
 } from "react-native";
@@ -15,6 +13,7 @@ import { useNavigation } from "app/hooks/useNavigation";
 import debounce from "lodash/debounce";
 import LoadingSpinner from "app/components/LoadingSpinner";
 import ErrorNotification from "app/components/ErrorNotification";
+import { ERROR_MESSAGES } from "app/constants/constants";
 
 export default function QrMenuScreen() {
   const {
@@ -127,7 +126,9 @@ export default function QrMenuScreen() {
             )}
             ListEmptyComponent={
               <View className="mt-5 justify-center items-center">
-                <Text className="text-gray-500">No menu items available.</Text>
+                <Text className="text-gray-500">
+                  {ERROR_MESSAGES.MENU_DATA_NOT_AVAILABLE}
+                </Text>
               </View>
             }
             contentContainerStyle={{

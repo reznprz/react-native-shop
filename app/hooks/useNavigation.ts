@@ -9,12 +9,17 @@ export function useNavigation() {
     navigate("QrMenuItemsScreen", { subCategory });
   }, []);
 
+  const goToCartScreen = useCallback(() => {
+    navigate("CartScreen");
+  }, []);
+
   const goBack = useCallback(() => {
     navigationGoBack();
   }, []);
 
   return {
     goToMenuItemsDisplay,
+    goToCartScreen,
     goBack,
   };
 }

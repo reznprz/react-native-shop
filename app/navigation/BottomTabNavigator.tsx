@@ -5,9 +5,10 @@ import {
 } from "@react-navigation/bottom-tabs";
 import { useNavigationState } from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Text, StyleSheet } from "react-native";
 import { TAB_CONFIG, TAB_SCREENS } from "./tabConfig";
-import { TabParamList, TabRouteName } from "app/types/navigation";
+import { IconType, TabParamList, TabRouteName } from "app/types/navigation";
 import { useFood } from "app/hooks/useFood";
 import { navigate } from "./navigationService";
 
@@ -67,22 +68,66 @@ const BottomTabNavigator: React.FC<BottomTabNavigatorProps> = ({
     }
   }, [state, onTabChange]);
 
+  const getIconComponent = (type: string) => {
+    switch (type) {
+      case IconType.Ionicons:
+        return Ionicons;
+      case IconType.MaterialIcons:
+        return MaterialIcons;
+      default:
+        return Ionicons;
+    }
+  };
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={({ route }) => {
         const routeName = route.name as TabRouteName;
-        const { tabBarShowLabel, iconName, filledIcon } = TAB_CONFIG[routeName];
+        const { tabBarShowLabel, iconName, filledIcon, iconType } =
+          TAB_CONFIG[routeName];
         return {
           lazy: true,
           tabBarShowLabel,
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons
-              name={focused ? filledIcon : iconName}
-              size={size}
-              color={focused ? "#2a4759" : color}
-            />
-          ),
+          tabBarIcon: ({ focused, color, size }) => {
+            const IconComponent = getIconComponent(iconType);
+
+            switch (iconType) {
+              case IconType.MaterialIcons:
+                return (
+                  <MaterialIcons
+                    name={
+                      focused
+                        ? (filledIcon as React.ComponentProps<
+                            typeof MaterialIcons
+                          >["name"])
+                        : (iconName as React.ComponentProps<
+                            typeof MaterialIcons
+                          >["name"])
+                    }
+                    size={size}
+                    color={focused ? "#2a4759" : color}
+                  />
+                );
+              case IconType.Ionicons:
+              default:
+                return (
+                  <Ionicons
+                    name={
+                      focused
+                        ? (filledIcon as React.ComponentProps<
+                            typeof Ionicons
+                          >["name"])
+                        : (iconName as React.ComponentProps<
+                            typeof Ionicons
+                          >["name"])
+                    }
+                    size={size}
+                    color={focused ? "#2a4759" : color}
+                  />
+                );
+            }
+          },
           tabBarStyle: styles.tabBar,
           tabBarActiveTintColor: "#2a4759",
           tabBarInactiveTintColor: "#aaa",
