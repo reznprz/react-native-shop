@@ -6,7 +6,6 @@ import {
   LayoutChangeEvent,
   Image,
   useWindowDimensions,
-  ActivityIndicator,
 } from "react-native";
 import ResponsiveList, {
   ResponsiveListHandle,
@@ -16,6 +15,7 @@ import CategoryBar from "app/components/FoodMenu/CategoryBar";
 import QrFoodList from "app/components/FoodMenu/QrFoodList";
 import ErrorNotification from "app/components/ErrorNotification";
 import LoadingSpinner from "app/components/LoadingSpinner";
+import { ERROR_MESSAGES } from "app/constants/constants";
 
 const shajhyaImage = require("../../assets/shajhya.jpg");
 
@@ -87,18 +87,18 @@ const QrMenuItemsScreen: React.FC = () => {
       listRef.current.scrollToOffset({ offset: position - 8, animated: true });
       setSelectedCategory(category);
     } else {
-      setErrorMessage(
-        "Category not found, Unable to scroll to the selected category."
-      );
+      setErrorMessage(ERROR_MESSAGES.CATEGORY_NOT_FOUND);
     }
   };
 
   useEffect(() => {
     if (qrItemScreenState == "SUCCESS") {
       if (subCategoryNames.length === 0) {
-        setErrorMessage("No data available for the selected category.");
+        setErrorMessage(
+          `${ERROR_MESSAGES.DATA_NOT_AVAILABLE}: ${selectedCategory}`
+        );
       } else if (filteredFoods.length === 0) {
-        setErrorMessage("No food items found in this category.");
+        setErrorMessage(ERROR_MESSAGES.FOOD_DATA_NOT_AVAILABLE);
       } else {
         setErrorMessage("");
       }
@@ -170,7 +170,9 @@ const QrMenuItemsScreen: React.FC = () => {
       {qrItemScreenError && errorMessage && (
         <ErrorNotification
           message={
-            qrItemScreenError.message || errorMessage || "An error occurred."
+            qrItemScreenError.message ||
+            errorMessage ||
+            ERROR_MESSAGES.GENERAL_ERROR
           }
           onClose={() => {
             setErrorMessage("");

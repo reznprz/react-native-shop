@@ -3,12 +3,19 @@ import {
   createNativeStackNavigator,
   NativeStackNavigationOptions,
 } from "@react-navigation/native-stack";
-import { TabRouteName } from "app/types/navigation";
+import {
+  ScreenDisplayNames,
+  ScreenNames,
+  TabRouteName,
+} from "app/types/navigation";
 import BottomTabNavigator from "./BottomTabNavigator";
+
+import StickyHeader from "../components/StickyHeader";
+
 const QrMenuItemsScreen = React.lazy(
   () => import("app/screens/QrMenuItemsScreen")
 );
-import StickyHeader from "../components/StickyHeader";
+const CartScreen = React.lazy(() => import("app/screens/CartScreen"));
 
 const Stack = createNativeStackNavigator();
 
@@ -50,9 +57,22 @@ const RootNavigator: React.FC = () => {
       </Stack.Screen>
 
       <Stack.Screen
-        name="QrMenuItemsScreen"
+        name={ScreenNames.QR_MENU_ITEMS}
         component={QrMenuItemsScreen}
-        options={{ title: "Menu Items", headerShown: false }}
+        options={{
+          title: ScreenDisplayNames.QR_MENU_ITEMS,
+          headerShown: false,
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.CART}
+        component={CartScreen}
+        options={{
+          title: ScreenDisplayNames.CART,
+          headerShown: true,
+          navigationBarHidden: false,
+        }}
       />
     </Stack.Navigator>
   );

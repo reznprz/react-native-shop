@@ -28,6 +28,11 @@ export function navigate(
 export function navigate(routeName: "BottomTabs"): void;
 
 /**
+ * Overload #4: Navigate to "CartScreen" without params
+ */
+export function navigate(routeName: "CartScreen"): void;
+
+/**
  * Implementation signature (catch-all).
  */
 export function navigate(routeName: any, params?: any) {
