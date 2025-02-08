@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "Esnext",
     "module": "esnext",
-    "jsx": "react",
+    "jsx": "react-native",
     "strict": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
