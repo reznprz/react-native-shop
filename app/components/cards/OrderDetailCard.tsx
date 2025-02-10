@@ -13,7 +13,7 @@ const OrderDetailCard = () => {
         <Text>Table T-12</Text>
 
         <View className="mt-4">
-          <Text>Created at: Jan 15, 2025 10:30 AM</Text>
+          <Text>Created at: Jan 15, 2025 10:30 AM asd</Text>
           <Text>Completed at: Jan 15, 2025 10:30 AM</Text>
         </View>
       </View>
