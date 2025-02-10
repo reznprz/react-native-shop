@@ -6,7 +6,7 @@ const OrderDetailCard = () => {
       <View className="p-4 rounded-md shadow-md border-b border-b-gray-100">
         <View className="w-full flex-row items-center justify-between">
           <Text className="font-bold">#ORD-20250012</Text>
-          <Text className="bg-gray-200 px-3 py-1 rounded-2xl">Pending</Text>
+          <Text className="bg-gray-200 px-3 py-1 rounded-2xl">Pending+</Text>
         </View>
 
         <Text>John Doe</Text>
