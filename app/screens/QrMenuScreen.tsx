@@ -9,11 +9,12 @@ import { useFoodContext } from "../context/FoodContext";
 import SubCategoryContainer from "../components/FoodMenu/SubCategoryContainer";
 import { SubCategory } from "app/hooks/useFood";
 import ResponsiveList from "../components/common/ResponsiveList";
-import { useNavigation } from "app/hooks/useNavigation";
+import { navigate } from "app/navigation/navigationService";
 import debounce from "lodash/debounce";
 import LoadingSpinner from "app/components/LoadingSpinner";
 import ErrorNotification from "app/components/ErrorNotification";
 import { ERROR_MESSAGES } from "app/constants/constants";
+import { ScreenNames } from "app/types/navigation";
 
 export default function QrMenuScreen() {
   const {
@@ -25,8 +26,6 @@ export default function QrMenuScreen() {
     resetState,
   } = useFoodContext();
   const { loading, error } = menuState;
-
-  const { goToMenuItemsDisplay } = useNavigation();
 
   const { width: screenWidth } = useWindowDimensions();
 
@@ -62,12 +61,14 @@ export default function QrMenuScreen() {
 
       console.time("Navigation");
 
-      goToMenuItemsDisplay(selectedSubCategory);
+      navigate(ScreenNames.QR_MENU_ITEMS, {
+        category: selectedSubCategory.toString(),
+      });
       console.timeEnd("Navigation");
 
       debouncedFilter(selectedSubCategory);
     },
-    [goToMenuItemsDisplay, filterGroupeFoodsByCategory]
+    [navigate, filterGroupeFoodsByCategory]
   );
 
   return (

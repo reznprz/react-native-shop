@@ -10,7 +10,7 @@ import {
 } from "@react-navigation/native";
 import { navigationRef } from "./app/navigation/navigationService";
 import { FoodProvider } from "./app/context/FoodContext";
-import RootNavigator from "./app/navigation/RootNavigator";
+import RootNav from "./app/navigation/RootNav";
 import ErrorBoundary from "./app/components/ErrorBoundary";
 import SpinnerLoading from "./app/components/SpinnerLoading";
 
@@ -34,7 +34,7 @@ const App: React.FC = () => {
         <SafeAreaProvider>
           <NavigationContainer ref={navigationRef} theme={MyTheme}>
             <React.Suspense fallback={<SpinnerLoading />}>
-              <RootNavigator />
+              <RootNav />
             </React.Suspense>
           </NavigationContainer>
         </SafeAreaProvider>

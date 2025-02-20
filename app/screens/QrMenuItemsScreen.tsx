@@ -1,5 +1,4 @@
 import { useFoodContext } from "app/context/FoodContext";
-import { useNavigation } from "app/hooks/useNavigation";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
@@ -16,12 +15,11 @@ import QrFoodList from "app/components/FoodMenu/QrFoodList";
 import ErrorNotification from "app/components/ErrorNotification";
 import LoadingSpinner from "app/components/LoadingSpinner";
 import { ERROR_MESSAGES } from "app/constants/constants";
+import { goBack } from "app/navigation/navigationService";
 
 const shajhyaImage = require("../../assets/shajhya.jpg");
 
 const QrMenuItemsScreen: React.FC = () => {
-  const { goBack } = useNavigation();
-
   const {
     qrItemScreenState,
     qrItemScreenError,
