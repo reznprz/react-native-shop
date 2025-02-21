@@ -1,5 +1,13 @@
 import { Food } from "app/api/services/foodService";
-import { SubCategory } from "app/redux/foodSlice";
+
+export enum SubCategory {
+  MainCourses = "Main Courses",
+  AppetizersAndSides = "Appetizers & Sides",
+  Beverages = "Beverages",
+  Desserts = "Desserts",
+  SpecialtyItems = "Specialty Items",
+  Breakfast = "Breakfast",
+}
 
 export function groupFoodBySubCategory(
   foods: Food[]

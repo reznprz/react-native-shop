@@ -1,35 +1,13 @@
 import React, { useEffect } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  useWindowDimensions,
-} from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import CategoryFilter from "app/components/FoodMenu/CategoryFilter";
+import { View, ScrollView, useWindowDimensions } from "react-native";
 import FoodCard from "app/components/FoodMenu/FoodCard";
 import { useFood } from "app/hooks/useFood";
+import PrimaryHeader from "app/components/common/PrimaryHeader";
 
 export default function MenuScreen() {
   const { width } = useWindowDimensions();
   const isTabletOrDesktop = width >= 768;
-  const { foods, refetch } = useFood();
-
-  const categories = [
-    "All",
-    "Burgers",
-    "Pizza",
-    "Pasta",
-    "Chicken",
-    "Seafood",
-    "Desserts",
-    "Drinks",
-    "Salads",
-    "Breakfast",
-    "Spicy",
-    "Vegan",
-  ];
+  const { foods, refetch, categories } = useFood();
 
   useEffect(() => {
     refetch();
@@ -38,36 +16,28 @@ export default function MenuScreen() {
   return (
     <View className="flex-1 bg-white">
       {/* HEADER */}
-      <View className="flex-row items-center justify-between px-4 py-2 border-b border-gray-200">
-        <Pressable onPress={() => console.log("Go back")}>
-          <Ionicons name="chevron-back" size={24} color="black" />
-        </Pressable>
-        <Text className="text-lg font-bold">Order Menu</Text>
-        <View className="flex-row items-center space-x-4">
-          <Pressable onPress={() => console.log("Search pressed")}>
-            <Ionicons name="search" size={20} color="black" />
-          </Pressable>
-          <Pressable onPress={() => console.log("Filter pressed")}>
-            <Ionicons name="filter" size={20} color="black" />
-          </Pressable>
-        </View>
-      </View>
+      <PrimaryHeader
+        title="Categories"
+        onBackPress={() => console.log("Go back")}
+        onSearchPress={() => console.log("Search pressed")}
+        onFilterPress={() => console.log("Filter pressed")}
+        categories={categories}
+      />
 
       {/* CATEGORIES */}
-      <CategoryFilter categories={categories} />
 
       <ScrollView
-        className="flex-1"
+        style={{ flex: 1 }}
         contentContainerStyle={{ paddingVertical: 8 }}
       >
         {/* FOOD CARDS GRID */}
         <View
-          className={`flex flex-row flex-wrap justify-center ${
-            isTabletOrDesktop ? "px-10" : "px-4"
+          className={`flex-row flex-wrap ${
+            isTabletOrDesktop ? "justify-center px-2" : "justify-center px-1"
           }`}
         >
           {foods?.map((food, idx) => (
-            <FoodCard food={food} />
+            <FoodCard key={idx} food={food} />
           ))}
         </View>
       </ScrollView>

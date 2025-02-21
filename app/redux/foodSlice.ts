@@ -5,20 +5,15 @@ import {
   Food,
   GetAllFoodsResponse,
 } from "app/api/services/foodService";
-import { groupFoodBySubCategory } from "app/hooks/utils/groupFoodBySubCategory";
-
-export enum SubCategory {
-  MainCourses = "Main Courses",
-  AppetizersAndSides = "Appetizers & Sides",
-  Beverages = "Beverages",
-  Desserts = "Desserts",
-  SpecialtyItems = "Specialty Items",
-  Breakfast = "Breakfast",
-}
+import {
+  groupFoodBySubCategory,
+  SubCategory,
+} from "app/hooks/utils/groupFoodBySubCategory";
 
 // Define the slice state interface
 interface FoodState {
   foods: Food[];
+  categories: string[];
   groupedFoods: Record<SubCategory, Food[]>;
   filterData: {
     filteredFoods: Record<string, Food[]>;
@@ -31,6 +26,7 @@ interface FoodState {
 
 const initialState: FoodState = {
   foods: [],
+  categories: [],
   groupedFoods: {} as Record<SubCategory, Food[]>,
   filterData: {
     filteredFoods: {},
@@ -65,6 +61,7 @@ const foodSlice = createSlice({
   reducers: {
     resetState(state) {
       state.foods = [];
+      state.categories = [];
       state.groupedFoods = {} as Record<SubCategory, Food[]>;
       state.filterData = {
         filteredFoods: {},
@@ -108,6 +105,14 @@ const foodSlice = createSlice({
         state.loading = false;
         state.foods = action.payload;
         state.groupedFoods = groupFoodBySubCategory(action.payload);
+        const categories = [
+          ...new Set(
+            action.payload
+              .map((food) => food.categoryName)
+              .filter((category): category is string => category !== null)
+          ),
+        ];
+        state.categories = categories;
       }
     );
     builder.addCase(fetchFoods.rejected, (state, action) => {

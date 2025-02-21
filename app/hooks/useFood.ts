@@ -17,9 +17,8 @@ export const useFood = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   // Get food data from Redux store
-  const { foods, groupedFoods, loading, error, filterData } = useSelector(
-    (state: RootState) => state.foods
-  );
+  const { foods, groupedFoods, loading, error, filterData, categories } =
+    useSelector((state: RootState) => state.foods);
 
   // Function to fetch foods
   const refetch = useCallback(() => {
@@ -77,5 +76,6 @@ export const useFood = () => {
     filterData,
     filterGroupedFoodsByCategory,
     clearFilteredFoods,
+    categories,
   };
 };

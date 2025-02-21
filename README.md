@@ -104,6 +104,12 @@ yarn install
 npx expo start -c
 ```
 
+### 6. install redux
+
+```bash
+yarn add @reduxjs/toolkit react-redux redux-persist @react-native-async-storage/async-storage
+```
+
 ### Note. To run the app in andriod/Ios dowload the Expo Go App
 
 - Android: https://play.google.com/store/apps/details?id=host.exp.exponent
