@@ -1,62 +1,88 @@
-import { Food } from "app/api/services/foodService";
 import React, { useState } from "react";
-import { View, Text, Image, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  useWindowDimensions,
+} from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { Food } from "app/api/services/foodService";
+// Example local placeholder image (optional):
+// import PlaceholderImage from "assets/images/food-placeholder.png";
 
 interface FoodCardProps {
   food: Food;
 }
 
+// A reusable fallback image, if you have one locally. Otherwise keep the text-based fallback.
+const FALLBACK_IMAGE_URI =
+  "https://www.google.com/search?sca_esv=a8f7548827ffe170&sxsrf=AHTn8zqnQkAuatNNKPEEssaGKIWvqMvK_g:1740178618157&q=burger&udm=2&fbs=ABzOT_CWdhQLP1FcmU5B0fn3xuWpA-dk4wpBWOGsoR7DG5zJBvRU_c8CYw0YyGBU6UN-VqoqPYaI3HSL1XTvQrW6xFSpSeT3tq5COowQW9RrFTcmNIH64yoC0QHshEbcpFfZd65axqf9sSP4XfEu4wWkIX_Csc_xxKASfoqlVD6SW-otevGmK9pMTlmoByEptPa7Y-eGKqIqDdsknaG1qO--HwwDqwh1mA&sa=X&ved=2ahUKEwiG6YXD7tWLAxWCt4QIHXPCMYUQtKgLegQIHhAB&biw=1080&bih=1798&dpr=1#vhid=2Z7HZBZkedBwTM&vssid=mosaic";
+
 export default function FoodCard({ food }: FoodCardProps) {
   const [quantity, setQuantity] = useState(1);
+  const { width } = useWindowDimensions();
+  const isTabletOrDesktop = width >= 768;
 
   const handleDecrement = () => {
-    if (quantity > 1) {
-      setQuantity((prev) => prev - 1);
-    }
+    if (quantity > 1) setQuantity(quantity - 1);
   };
 
   const handleIncrement = () => {
-    setQuantity((prev) => prev + 1);
+    setQuantity(quantity + 1);
   };
 
   return (
-    <View className="w-[160px] bg-white rounded-md shadow-md m-2 p-3">
-      {/* Image placeholder or actual image */}
-      {food.img ? (
+    <View
+      className={`${
+        isTabletOrDesktop ? "w-[180px] m-3 p-4" : "w-[160px] m-2 p-2"
+      } bg-white rounded-xl shadow-sm border border-gray-200`}
+    >
+      {/* Product Image */}
+      <View className="w-full h-24 rounded-xl bg-gray-100 items-center justify-center">
         <Image
-          source={{ uri: food.img }}
-          className="w-full h-24 rounded-md bg-gray-100"
+          source={{ uri: food.img || FALLBACK_IMAGE_URI }}
+          className="w-full h-24 rounded-xl"
+          resizeMode="cover"
         />
-      ) : (
-        <View className="w-full h-24 rounded-md bg-gray-200 items-center justify-center">
-          <Text className="text-gray-500">Food Image</Text>
-        </View>
-      )}
-      <Text className="text-base font-semibold mt-2">{food.name}</Text>
-      <Text className="text-gray-500 text-sm">{food.description}</Text>
+      </View>
 
-      {/* Price & Quantity controls */}
+      {/* Product Name */}
+      <Text className="text-sm font-semibold mt-2">{food.name}</Text>
+
+      {/* Product Description (Optional) */}
+      {food.description && (
+        <Text className="text-xs text-gray-500 mt-1" numberOfLines={2}>
+          {food.description}
+        </Text>
+      )}
+
+      {/* Price & Quantity Controller */}
       <View className="flex-row items-center justify-between mt-3">
+        {/* Price */}
         <Text className="font-bold text-base">${food.price.toFixed(2)}</Text>
 
-        {/* Decrement Button */}
-        <Pressable
-          onPress={handleDecrement}
-          className="px-2 py-1 bg-gray-300 rounded-md mx-1"
-        >
-          <Text className="font-bold text-black">-</Text>
-        </Pressable>
+        {/* Quantity Controller */}
+        <View className="flex-row items-center bg-gray-200 px-2 py-1 rounded-full">
+          {/* Decrease Button */}
+          <Pressable
+            onPress={handleDecrement}
+            className="w-4 h-4 bg-white rounded-full items-center justify-center"
+          >
+            <Ionicons name="remove" size={12} color="black" />
+          </Pressable>
 
-        {/* Quantity Display */}
-        <Text className="px-2">{quantity}</Text>
+          {/* Quantity Display */}
+          <Text className="text-sm font-semibold mx-2">{quantity}</Text>
 
-        {/* Increment Button */}
-        <Pressable
-          onPress={handleIncrement}
-          className="px-2 py-1 bg-gray-300 rounded-md mx-1"
-        >
-          <Text className="font-bold text-black">+</Text>
-        </Pressable>
+          {/* Increase Button */}
+          <Pressable
+            onPress={handleIncrement}
+            className="w-4 h-4 bg-white rounded-full items-center justify-center"
+          >
+            <Ionicons name="add" size={12} color="black" />
+          </Pressable>
+        </View>
       </View>
     </View>
   );

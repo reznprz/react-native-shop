@@ -13,8 +13,8 @@ import LoadingSpinner from "app/components/LoadingSpinner";
 import ErrorNotification from "app/components/ErrorNotification";
 import { ERROR_MESSAGES } from "app/constants/constants";
 import { ScreenNames } from "app/types/navigation";
-import { SubCategory } from "app/redux/foodSlice";
 import { useFood } from "app/hooks/useFood";
+import { SubCategory } from "app/hooks/utils/groupFoodBySubCategory";
 
 export default function QrMenuScreen() {
   const {
@@ -45,7 +45,7 @@ export default function QrMenuScreen() {
   );
 
   useEffect(() => {
-    if (allGroupedFoods["Appetizers & Sides"].length == 0) {
+    if (allGroupedFoods) {
       refetch();
     }
   }, []);
