@@ -1,7 +1,7 @@
 import "react-native-gesture-handler";
 import React from "react";
 import { enableScreens } from "react-native-screens";
-import "./global.css"; // Ensure this is necessary; typically not used in pure React Native projects
+import "./global.css"; // Typically not needed in pure React Native projects
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import {
   NavigationContainer,
@@ -9,10 +9,12 @@ import {
   Theme,
 } from "@react-navigation/native";
 import { navigationRef } from "./app/navigation/navigationService";
-import { FoodProvider } from "./app/context/FoodContext";
 import RootNav from "./app/navigation/RootNav";
 import ErrorBoundary from "./app/components/ErrorBoundary";
 import SpinnerLoading from "./app/components/SpinnerLoading";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { store, persistor } from "./app/redux/store";
 
 // Initialize react-native-screens for performance
 enableScreens();
@@ -30,15 +32,17 @@ const MyTheme: Theme = {
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <FoodProvider>
-        <SafeAreaProvider>
-          <NavigationContainer ref={navigationRef} theme={MyTheme}>
-            <React.Suspense fallback={<SpinnerLoading />}>
-              <RootNav />
-            </React.Suspense>
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </FoodProvider>
+      <Provider store={store}>
+        <PersistGate loading={<SpinnerLoading />} persistor={persistor}>
+          <SafeAreaProvider>
+            <NavigationContainer ref={navigationRef} theme={MyTheme}>
+              <React.Suspense fallback={<SpinnerLoading />}>
+                <RootNav />
+              </React.Suspense>
+            </NavigationContainer>
+          </SafeAreaProvider>
+        </PersistGate>
+      </Provider>
     </ErrorBoundary>
   );
 };

@@ -5,9 +5,7 @@ import {
   useWindowDimensions,
   TouchableOpacity,
 } from "react-native";
-import { useFoodContext } from "../context/FoodContext";
 import SubCategoryContainer from "../components/FoodMenu/SubCategoryContainer";
-import { SubCategory } from "app/hooks/useFood";
 import ResponsiveList from "../components/common/ResponsiveList";
 import { navigate } from "app/navigation/navigationService";
 import debounce from "lodash/debounce";
@@ -15,17 +13,18 @@ import LoadingSpinner from "app/components/LoadingSpinner";
 import ErrorNotification from "app/components/ErrorNotification";
 import { ERROR_MESSAGES } from "app/constants/constants";
 import { ScreenNames } from "app/types/navigation";
+import { SubCategory } from "app/redux/foodSlice";
+import { useFood } from "app/hooks/useFood";
 
 export default function QrMenuScreen() {
   const {
     allGroupedFoods,
-    menuState,
+    loading,
+    error,
     refetch,
-    filterGroupeFoodsByCategory,
-    resetQrItemScreenState,
-    resetState,
-  } = useFoodContext();
-  const { loading, error } = menuState;
+    filterGroupedFoodsByCategory,
+    reset,
+  } = useFood();
 
   const { width: screenWidth } = useWindowDimensions();
 
@@ -40,13 +39,15 @@ export default function QrMenuScreen() {
   // Debounced filter function
   const debouncedFilter = useCallback(
     debounce((selectedSubCategory: SubCategory) => {
-      filterGroupeFoodsByCategory(selectedSubCategory);
+      filterGroupedFoodsByCategory(selectedSubCategory);
     }, 300),
-    [filterGroupeFoodsByCategory]
+    [filterGroupedFoodsByCategory]
   );
 
   useEffect(() => {
-    refetch();
+    if (allGroupedFoods["Appetizers & Sides"].length == 0) {
+      refetch();
+    }
   }, []);
 
   useEffect(() => {
@@ -57,8 +58,6 @@ export default function QrMenuScreen() {
 
   const handleSubCategoryPress = useCallback(
     (selectedSubCategory: SubCategory) => {
-      resetQrItemScreenState();
-
       console.time("Navigation");
 
       navigate(ScreenNames.QR_MENU_ITEMS, {
@@ -68,7 +67,7 @@ export default function QrMenuScreen() {
 
       debouncedFilter(selectedSubCategory);
     },
-    [navigate, filterGroupeFoodsByCategory]
+    [navigate, filterGroupedFoodsByCategory]
   );
 
   return (
@@ -84,7 +83,7 @@ export default function QrMenuScreen() {
           <ErrorNotification
             message={error || "An error occurred."}
             onClose={() => {
-              resetState();
+              reset();
             }}
           />
         </View>

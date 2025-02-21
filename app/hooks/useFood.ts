@@ -1,61 +1,81 @@
-import { useReducer, useCallback, useState } from "react";
-import { fetchAllFoods, Food } from "../api/services/foodService";
-import { ApiResponse } from "../api/handlers/index";
-import { GetAllFoodsResponse } from "../api/services/foodService";
-import { apiReducer, getInitialApiState } from "./reducers/apiReducer";
-import { groupFoodBySubCategory } from "./utils/groupFoodBySubCategory";
-
-export enum SubCategory {
-  MainCourses = "Main Courses",
-  AppetizersAndSides = "Appetizers & Sides",
-  Beverages = "Beverages",
-  Desserts = "Desserts",
-  SpecialtyItems = "Specialty Items",
-  Breakfast = "Breakfast",
-}
+import { useCallback, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  fetchFoods,
+  resetState,
+  setFilteredFoods,
+  setLoading,
+  setError,
+  clearError,
+  clearFilteredFoods,
+} from "app/redux/foodSlice";
+import { RootState, AppDispatch } from "app/redux/store";
+import { SubCategory } from "app/redux/foodSlice";
+import { usePageState } from "./reducers/usePageState";
 
 export const useFood = () => {
-  const [state, dispatch] = useReducer(
-    apiReducer<GetAllFoodsResponse["payload"]>,
-    getInitialApiState<GetAllFoodsResponse["payload"]>()
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Get food data from Redux store
+  const { foods, groupedFoods, loading, error, filterData } = useSelector(
+    (state: RootState) => state.foods
   );
 
-  const [allGroupedFoods, setAllGroupedFoods] = useState<
-    Record<SubCategory, Food[]>
-  >({} as Record<SubCategory, Food[]>);
+  // Function to fetch foods
+  const refetch = useCallback(() => {
+    dispatch(fetchFoods());
+  }, [dispatch]);
 
-  const fetchFoods = useCallback(async () => {
-    dispatch({ type: "FETCH_INIT" });
+  // Function to filter foods by category
+  const filterGroupedFoodsByCategory = useCallback(
+    (selectedSubCategory: SubCategory) => {
+      dispatch(setLoading());
 
-    try {
-      const response: ApiResponse<GetAllFoodsResponse> = await fetchAllFoods();
-
-      if (response.status === "success") {
-        const grouped = groupFoodBySubCategory(response.data?.payload || []);
-        setAllGroupedFoods(grouped);
-        dispatch({
-          type: "FETCH_SUCCESS",
-          payload: response.data?.payload || [],
-        });
-      } else {
-        dispatch({ type: "FETCH_FAILURE", error: response.message });
+      console.log("selectedSubCategory", selectedSubCategory);
+      if (!foods) {
+        dispatch(setError("Food list is not available")); // Set error in Redux
+        return;
       }
-    } catch (error) {
-      dispatch({
-        type: "FETCH_FAILURE",
-        error: "An unexpected error occurred",
-      });
-    }
-  }, []);
 
-  const resetState = useCallback(async () => {
-    dispatch({ type: "RESET" });
+      // Normalize strings for comparison
+      const normalizeString = (str: string) =>
+        str.toLowerCase().replace(/\s+/g, "").trim();
+
+      const selectedCategory = normalizeString(selectedSubCategory);
+
+      const filteredFoods = foods.filter((foodItem) => {
+        const categoryNameTwo = normalizeString(foodItem.categoryNameTwo || "");
+        const isMatch = categoryNameTwo === selectedCategory;
+
+        return isMatch;
+      });
+
+      dispatch(
+        setFilteredFoods({
+          category: selectedSubCategory,
+          foods: filteredFoods,
+        })
+      );
+
+      dispatch(clearError());
+    },
+    [foods, dispatch, usePageState]
+  );
+
+  // Function to reset state
+  const reset = useCallback(() => {
+    dispatch(resetState());
   }, [dispatch]);
 
   return {
-    menuState: state,
-    refetch: fetchFoods,
-    allGroupedFoods,
-    resetState,
+    foods,
+    allGroupedFoods: groupedFoods,
+    loading,
+    error,
+    refetch,
+    reset,
+    filterData,
+    filterGroupedFoodsByCategory,
+    clearFilteredFoods,
   };
 };
