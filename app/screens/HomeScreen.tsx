@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View } from "react-native";
 import WorkInProgress from "../../app/components/WorkInProgress";
 import { TEXT_MESSAGES } from "app/constants/constants";
 

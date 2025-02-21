@@ -5,28 +5,26 @@ import {
   useWindowDimensions,
   TouchableOpacity,
 } from "react-native";
-import { useFoodContext } from "../context/FoodContext";
 import SubCategoryContainer from "../components/FoodMenu/SubCategoryContainer";
-import { SubCategory } from "app/hooks/useFood";
 import ResponsiveList from "../components/common/ResponsiveList";
-import { useNavigation } from "app/hooks/useNavigation";
+import { navigate } from "app/navigation/navigationService";
 import debounce from "lodash/debounce";
 import LoadingSpinner from "app/components/LoadingSpinner";
 import ErrorNotification from "app/components/ErrorNotification";
 import { ERROR_MESSAGES } from "app/constants/constants";
+import { ScreenNames } from "app/types/navigation";
+import { useFood } from "app/hooks/useFood";
+import { SubCategory } from "app/hooks/utils/groupFoodBySubCategory";
 
 export default function QrMenuScreen() {
   const {
     allGroupedFoods,
-    menuState,
+    loading,
+    error,
     refetch,
-    filterGroupeFoodsByCategory,
-    resetQrItemScreenState,
-    resetState,
-  } = useFoodContext();
-  const { loading, error } = menuState;
-
-  const { goToMenuItemsDisplay } = useNavigation();
+    filterGroupedFoodsByCategory,
+    reset,
+  } = useFood();
 
   const { width: screenWidth } = useWindowDimensions();
 
@@ -41,13 +39,15 @@ export default function QrMenuScreen() {
   // Debounced filter function
   const debouncedFilter = useCallback(
     debounce((selectedSubCategory: SubCategory) => {
-      filterGroupeFoodsByCategory(selectedSubCategory);
+      filterGroupedFoodsByCategory(selectedSubCategory);
     }, 300),
-    [filterGroupeFoodsByCategory]
+    [filterGroupedFoodsByCategory]
   );
 
   useEffect(() => {
-    refetch();
+    if (allGroupedFoods) {
+      refetch();
+    }
   }, []);
 
   useEffect(() => {
@@ -58,16 +58,16 @@ export default function QrMenuScreen() {
 
   const handleSubCategoryPress = useCallback(
     (selectedSubCategory: SubCategory) => {
-      resetQrItemScreenState();
-
       console.time("Navigation");
 
-      goToMenuItemsDisplay(selectedSubCategory);
+      navigate(ScreenNames.QR_MENU_ITEMS, {
+        category: selectedSubCategory.toString(),
+      });
       console.timeEnd("Navigation");
 
       debouncedFilter(selectedSubCategory);
     },
-    [goToMenuItemsDisplay, filterGroupeFoodsByCategory]
+    [navigate, filterGroupedFoodsByCategory]
   );
 
   return (
@@ -83,7 +83,7 @@ export default function QrMenuScreen() {
           <ErrorNotification
             message={error || "An error occurred."}
             onClose={() => {
-              resetState();
+              reset();
             }}
           />
         </View>

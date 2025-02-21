@@ -1,5 +1,3 @@
-import { useFoodContext } from "app/context/FoodContext";
-import { useNavigation } from "app/hooks/useNavigation";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   View,
@@ -16,18 +14,15 @@ import QrFoodList from "app/components/FoodMenu/QrFoodList";
 import ErrorNotification from "app/components/ErrorNotification";
 import LoadingSpinner from "app/components/LoadingSpinner";
 import { ERROR_MESSAGES } from "app/constants/constants";
+import { goBack } from "app/navigation/navigationService";
+import { useFood } from "app/hooks/useFood";
 
 const shajhyaImage = require("../../assets/shajhya.jpg");
 
 const QrMenuItemsScreen: React.FC = () => {
-  const { goBack } = useNavigation();
+  const { filterData, clearFilteredFoods } = useFood();
 
-  const {
-    qrItemScreenState,
-    qrItemScreenError,
-    groupedFoodsByCategory,
-    clearQrItemScreenError,
-  } = useFoodContext();
+  const { filteredFoods: groupedFoodsByCategory, loading, error } = filterData;
 
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -73,7 +68,7 @@ const QrMenuItemsScreen: React.FC = () => {
     if (errorMessage) {
       const timer = setTimeout(() => {
         setErrorMessage("");
-        clearQrItemScreenError();
+        clearFilteredFoods();
       }, 5000);
       return () => clearTimeout(timer);
     }
@@ -92,16 +87,14 @@ const QrMenuItemsScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    if (qrItemScreenState == "SUCCESS") {
-      if (subCategoryNames.length === 0) {
-        setErrorMessage(
-          `${ERROR_MESSAGES.DATA_NOT_AVAILABLE}: ${selectedCategory}`
-        );
-      } else if (filteredFoods.length === 0) {
-        setErrorMessage(ERROR_MESSAGES.FOOD_DATA_NOT_AVAILABLE);
-      } else {
-        setErrorMessage("");
-      }
+    if (subCategoryNames.length === 0) {
+      setErrorMessage(
+        `${ERROR_MESSAGES.DATA_NOT_AVAILABLE}: ${selectedCategory}`
+      );
+    } else if (filteredFoods.length === 0) {
+      setErrorMessage(ERROR_MESSAGES.FOOD_DATA_NOT_AVAILABLE);
+    } else {
+      setErrorMessage("");
     }
   }, [subCategoryNames, filteredFoods]);
 
@@ -118,7 +111,7 @@ const QrMenuItemsScreen: React.FC = () => {
   return (
     <View className="flex-1 bg-white">
       {/* Conditionally render based on qrItemScreenState */}
-      {qrItemScreenState === "LOADING" || qrItemScreenState === "IDLE" ? (
+      {loading ? (
         <View className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 z-10">
           <LoadingSpinner />
         </View>
@@ -167,16 +160,12 @@ const QrMenuItemsScreen: React.FC = () => {
       )}
 
       {/* Error Notification based on context's error */}
-      {qrItemScreenError && errorMessage && (
+      {error && errorMessage && (
         <ErrorNotification
-          message={
-            qrItemScreenError.message ||
-            errorMessage ||
-            ERROR_MESSAGES.GENERAL_ERROR
-          }
+          message={error || errorMessage || ERROR_MESSAGES.GENERAL_ERROR}
           onClose={() => {
             setErrorMessage("");
-            clearQrItemScreenError();
+            clearFilteredFoods();
           }}
         />
       )}

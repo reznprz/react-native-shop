@@ -44,6 +44,10 @@ module.exports = {
         slideIn: "slideIn 0.5s ease-out forwards",
         slideOut: "slideOut 0.5s ease-in forwards",
       },
+      transitionProperty: {
+        height: "height",
+        spacing: "margin, padding",
+      },
     },
   },
   plugins: [],

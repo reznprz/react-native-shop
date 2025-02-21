@@ -1,54 +1,40 @@
-import { createNavigationContainerRef } from "@react-navigation/native";
-import type { StackParamList, TabParamList } from "../types/navigation";
+import {
+  createNavigationContainerRef,
+  StackActions,
+} from "@react-navigation/native";
 
-/**
- * A ref to the navigation container.
- */
-export const navigationRef = createNavigationContainerRef<StackParamList>();
+export type RootStackParamList = {
+  MainTabs: undefined;
+  Cart: undefined;
+  QrMenuItemsScreen: { category: string };
+  // ...other routes
+};
 
-/**
- * Overload #1: Navigate to "MenuItemsDisplay" with params
- */
-export function navigate(
-  routeName: "QrMenuItemsScreen",
-  params: { subCategory: string }
-): void;
+export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
-/**
- * Overload #2: Navigate to a specific tab within "BottomTabs"
- */
-export function navigate(
-  routeName: "BottomTabs",
-  params: { screen: keyof TabParamList }
-): void;
+// Variation of your RootStackParamList
+type RouteName = keyof RootStackParamList;
 
-/**
- * Overload #3: Navigate to "BottomTabs" without params
- */
-export function navigate(routeName: "BottomTabs"): void;
-
-/**
- * Overload #4: Navigate to "CartScreen" without params
- */
-export function navigate(routeName: "CartScreen"): void;
-
-/**
- * Implementation signature (catch-all).
- */
-export function navigate(routeName: any, params?: any) {
+export function navigate<Name extends RouteName>(
+  ...args: RootStackParamList[Name] extends undefined
+    ? [name: Name] // If route doesn't need params
+    : [name: Name, params: RootStackParamList[Name]] // If route needs params
+) {
+  const [routeName, routeParams] = args;
   if (navigationRef.isReady()) {
-    navigationRef.navigate(routeName, params);
+    navigationRef.navigate(routeName, routeParams as any);
   }
 }
 
-/**
- * Go back if possible.
- */
+// 3) Optionally expose more methods like goBack, push, reset, etc.
 export function goBack() {
   if (navigationRef.isReady() && navigationRef.canGoBack()) {
-    console.log("Going back to the previous screen");
     navigationRef.goBack();
-  } else {
-    console.warn("Cannot go back");
+  }
+}
+
+export function push(name: string, params?: object) {
+  if (navigationRef.isReady()) {
+    navigationRef.dispatch(StackActions.push(name, params));
   }
 }
