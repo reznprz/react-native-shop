@@ -1,5 +1,5 @@
-import { SubCategory } from "app/hooks/useFood";
 import { Food } from "app/api/services/foodService";
+import { SubCategory } from "app/redux/foodSlice";
 
 export function groupFoodBySubCategory(
   foods: Food[]
