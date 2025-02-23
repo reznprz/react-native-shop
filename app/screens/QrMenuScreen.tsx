@@ -1,30 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  useWindowDimensions,
-  TouchableOpacity,
-} from "react-native";
-import SubCategoryContainer from "../components/FoodMenu/SubCategoryContainer";
-import ResponsiveList from "../components/common/ResponsiveList";
-import { navigate } from "app/navigation/navigationService";
-import debounce from "lodash/debounce";
-import LoadingSpinner from "app/components/LoadingSpinner";
-import ErrorNotification from "app/components/ErrorNotification";
-import { ERROR_MESSAGES } from "app/constants/constants";
-import { ScreenNames } from "app/types/navigation";
-import { useFood } from "app/hooks/useFood";
-import { SubCategory } from "app/hooks/utils/groupFoodBySubCategory";
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, useWindowDimensions, TouchableOpacity } from 'react-native';
+import SubCategoryContainer from '../components/FoodMenu/SubCategoryContainer';
+import ResponsiveList from '../components/common/ResponsiveList';
+import { navigate } from 'app/navigation/navigationService';
+import debounce from 'lodash/debounce';
+import LoadingSpinner from 'app/components/LoadingSpinner';
+import ErrorNotification from 'app/components/ErrorNotification';
+import { ERROR_MESSAGES } from 'app/constants/constants';
+import { ScreenNames } from 'app/types/navigation';
+import { useFood } from 'app/hooks/useFood';
+import { SubCategory } from 'app/hooks/utils/groupFoodBySubCategory';
 
 export default function QrMenuScreen() {
-  const {
-    allGroupedFoods,
-    loading,
-    error,
-    refetch,
-    filterGroupedFoodsByCategory,
-    reset,
-  } = useFood();
+  const { allGroupedFoods, loading, error, refetch, filterGroupedFoodsByCategory, reset } =
+    useFood();
 
   const { width: screenWidth } = useWindowDimensions();
 
@@ -32,16 +21,14 @@ export default function QrMenuScreen() {
   const isMobile = screenWidth <= 768;
 
   // Gather subcategory keys
-  const subCategoryKeys = allGroupedFoods
-    ? (Object.keys(allGroupedFoods) as SubCategory[])
-    : [];
+  const subCategoryKeys = allGroupedFoods ? (Object.keys(allGroupedFoods) as SubCategory[]) : [];
 
   // Debounced filter function
   const debouncedFilter = useCallback(
     debounce((selectedSubCategory: SubCategory) => {
       filterGroupedFoodsByCategory(selectedSubCategory);
     }, 300),
-    [filterGroupedFoodsByCategory]
+    [filterGroupedFoodsByCategory],
   );
 
   useEffect(() => {
@@ -58,16 +45,16 @@ export default function QrMenuScreen() {
 
   const handleSubCategoryPress = useCallback(
     (selectedSubCategory: SubCategory) => {
-      console.time("Navigation");
+      console.time('Navigation');
 
       navigate(ScreenNames.QR_MENU_ITEMS, {
         category: selectedSubCategory.toString(),
       });
-      console.timeEnd("Navigation");
+      console.timeEnd('Navigation');
 
       debouncedFilter(selectedSubCategory);
     },
-    [navigate, filterGroupedFoodsByCategory]
+    [navigate, filterGroupedFoodsByCategory],
   );
 
   return (
@@ -81,7 +68,7 @@ export default function QrMenuScreen() {
         // --- Error State ---
         <View className="flex-1 justify-center items-center bg-white px-4">
           <ErrorNotification
-            message={error || "An error occurred."}
+            message={error || 'An error occurred.'}
             onClose={() => {
               reset();
             }}
@@ -91,13 +78,8 @@ export default function QrMenuScreen() {
         // --- Empty Data ---
         <View className="flex-1 justify-center items-center bg-white">
           <Text className="text-gray-500">No menu items available.</Text>
-          <TouchableOpacity
-            className="bg-blue-500 px-6 py-3 rounded-md"
-            onPress={refetch}
-          >
-            <Text className="m-3 p-2 text-white bg-mocha font-bold text-lg">
-              Load Menu
-            </Text>
+          <TouchableOpacity className="bg-blue-500 px-6 py-3 rounded-md" onPress={refetch}>
+            <Text className="m-3 p-2 text-white bg-mocha font-bold text-lg">Load Menu</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -105,7 +87,7 @@ export default function QrMenuScreen() {
         <View
           style={{
             width: isMobile ? screenWidth - 32 : 480,
-            marginHorizontal: "auto",
+            marginHorizontal: 'auto',
           }}
           className="flex-1 bg-white rounded-md py-6 shadow-xl shadow-gray-600 px-6 h-auto"
         >
@@ -126,9 +108,7 @@ export default function QrMenuScreen() {
             )}
             ListEmptyComponent={
               <View className="mt-5 justify-center items-center">
-                <Text className="text-gray-500">
-                  {ERROR_MESSAGES.MENU_DATA_NOT_AVAILABLE}
-                </Text>
+                <Text className="text-gray-500">{ERROR_MESSAGES.MENU_DATA_NOT_AVAILABLE}</Text>
               </View>
             }
             contentContainerStyle={{

@@ -1,7 +1,7 @@
-import WorkInProgress from "app/components/WorkInProgress";
-import { TEXT_MESSAGES } from "app/constants/constants";
-import React from "react";
-import { View } from "react-native";
+import WorkInProgress from 'app/components/WorkInProgress';
+import { TEXT_MESSAGES } from 'app/constants/constants';
+import React from 'react';
+import { View } from 'react-native';
 
 export default function CartScreen() {
   return (

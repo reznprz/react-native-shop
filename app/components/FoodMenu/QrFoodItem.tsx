@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -8,21 +8,21 @@ import {
   Alert,
   Platform,
   FlatList,
-} from "react-native";
-import PrimaryImage from "../../components/PrimaryImage";
-import ErrorNotification from "../../components/ErrorNotification";
-import { Food } from "app/api/services/foodService";
-import Header from "./Header";
-import CategoryBar from "./CategoryBar";
-import QrFoodList from "./QrFoodList";
-import ResponsiveList from "../common/ResponsiveList";
+} from 'react-native';
+import PrimaryImage from '../../components/PrimaryImage';
+import ErrorNotification from '../../components/ErrorNotification';
+import { Food } from 'app/api/services/foodService';
+import Header from './Header';
+import CategoryBar from './CategoryBar';
+import QrFoodList from './QrFoodList';
+import ResponsiveList from '../common/ResponsiveList';
 
 interface QrFoodItemProps {
   subCategoryMap: Map<string, Food[]>;
 }
 
 const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Updated ref to handle both ScrollView and FlatList
   const scrollViewRef = useRef<ScrollView | FlatList<any> | null>(null);
@@ -33,7 +33,7 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
   }, [subCategoryMap]);
 
   const subCategoryName = useMemo(() => {
-    return Array.from(subCategoryMapMemo.keys())[0] || "";
+    return Array.from(subCategoryMapMemo.keys())[0] || '';
   }, [subCategoryMapMemo]);
 
   const filteredFoods = useMemo(() => {
@@ -45,8 +45,8 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
       new Set(
         filteredFoods
           .map((food) => food.categoryName)
-          .filter((category): category is string => category != null)
-      )
+          .filter((category): category is string => category != null),
+      ),
     );
   }, [filteredFoods]);
 
@@ -54,49 +54,46 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
 
   useEffect(() => {
     if (subCategoryMapMemo.size === 0) {
-      setErrorMessage("No data available for the selected category.");
+      setErrorMessage('No data available for the selected category.');
     } else if (filteredFoods.length === 0) {
-      setErrorMessage("No food items found in this category.");
+      setErrorMessage('No food items found in this category.');
     } else {
-      setErrorMessage("");
+      setErrorMessage('');
     }
   }, [subCategoryMapMemo, filteredFoods]);
 
   useEffect(() => {
     if (errorMessage) {
       const timer = setTimeout(() => {
-        setErrorMessage("");
+        setErrorMessage('');
       }, 5000); // Auto-dismiss after 5 seconds
 
       return () => clearTimeout(timer);
     }
   }, [errorMessage]);
 
-  const closeError = () => setErrorMessage("");
+  const closeError = () => setErrorMessage('');
 
   const handleScrollToCategory = (category: string) => {
     const position = categoryRefs.current[category];
     if (position !== undefined && scrollViewRef.current) {
       const ref = scrollViewRef.current;
 
-      if (Platform.OS === "web") {
+      if (Platform.OS === 'web') {
         // For web, assuming it's a ScrollView
         (ref as ScrollView).scrollTo({ y: position, animated: true });
       } else {
         // For mobile platforms
-        if ("scrollTo" in ref && typeof ref.scrollTo === "function") {
+        if ('scrollTo' in ref && typeof ref.scrollTo === 'function') {
           // It's a ScrollView
           ref.scrollTo({ y: position, animated: true });
-        } else if (
-          "scrollToOffset" in ref &&
-          typeof ref.scrollToOffset === "function"
-        ) {
+        } else if ('scrollToOffset' in ref && typeof ref.scrollToOffset === 'function') {
           // It's a FlatList
           ref.scrollToOffset({ offset: position, animated: true });
         } else {
           Alert.alert(
-            "Unsupported Scroll Method",
-            "The current scrollable component does not support the scrollTo method."
+            'Unsupported Scroll Method',
+            'The current scrollable component does not support the scrollTo method.',
           );
           return;
         }
@@ -104,10 +101,7 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
 
       setSelectedCategory(category);
     } else {
-      Alert.alert(
-        "Category not found",
-        "Unable to scroll to the selected category."
-      );
+      Alert.alert('Category not found', 'Unable to scroll to the selected category.');
     }
   };
 
@@ -122,8 +116,8 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
       <PrimaryImage
         src="/shajhya.jpg"
         alt="Shajhya"
-        mobileHeight={"175"}
-        desktopHeight={"300"}
+        mobileHeight={'175'}
+        desktopHeight={'300'}
         objectFit="cover"
       />
       <View style={styles.headerContainer}>
@@ -151,9 +145,7 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
           showsVerticalScrollIndicator: false,
         }}
       />
-      {errorMessage !== "" && (
-        <ErrorNotification message={errorMessage} onClose={closeError} />
-      )}
+      {errorMessage !== '' && <ErrorNotification message={errorMessage} onClose={closeError} />}
     </View>
   );
 };
@@ -161,15 +153,15 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff", // Replace with your desired background color
-    position: "relative",
+    backgroundColor: '#fff', // Replace with your desired background color
+    position: 'relative',
   },
   headerContainer: {
-    position: "absolute",
+    position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: "#fff", // Replace with your desired background color
+    backgroundColor: '#fff', // Replace with your desired background color
     zIndex: 10,
   },
   scrollViewContent: {

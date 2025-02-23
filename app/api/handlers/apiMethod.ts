@@ -1,12 +1,9 @@
-import axiosInstance, { responseHandler, errorHandler } from "./apiHandler";
-import { AxiosRequestConfig } from "axios";
-import { ApiResponse } from "./index";
+import axiosInstance, { responseHandler, errorHandler } from './apiHandler';
+import { AxiosRequestConfig } from 'axios';
+import { ApiResponse } from './index';
 
 const apiMethods = {
-  get: async <T>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> => {
+  get: async <T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
     try {
       const response = await axiosInstance.get<T>(url, config);
       return responseHandler<T>(response);
@@ -18,7 +15,7 @@ const apiMethods = {
   post: async <T>(
     url: string,
     payload: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> => {
     try {
       const response = await axiosInstance.post<T>(url, payload, config);
@@ -31,7 +28,7 @@ const apiMethods = {
   put: async <T>(
     url: string,
     payload: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> => {
     try {
       const response = await axiosInstance.put<T>(url, payload, config);
@@ -44,7 +41,7 @@ const apiMethods = {
   patch: async <T>(
     url: string,
     payload: any,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> => {
     try {
       const response = await axiosInstance.patch<T>(url, payload, config);
@@ -54,10 +51,7 @@ const apiMethods = {
     }
   },
 
-  delete: async <T>(
-    url: string,
-    config?: AxiosRequestConfig
-  ): Promise<ApiResponse<T>> => {
+  delete: async <T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
     try {
       const response = await axiosInstance.delete<T>(url, config);
       return responseHandler<T>(response);

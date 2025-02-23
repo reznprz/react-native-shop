@@ -1,12 +1,21 @@
-import React from "react";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import MainTabs from "./MainTabs";
-import CartScreen from "../screens/CartScreen";
-import CustomHeader from "../components/headers/CustomHeader"; // Mobile Header
-import { ScreenDisplayNames, ScreenNames } from "app/types/navigation";
-const QrMenuItemsScreen = React.lazy(
-  () => import("app/screens/QrMenuItemsScreen")
-);
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import MainTabs from './MainTabs';
+import CartScreen from '../screens/CartScreen';
+import CustomHeader from '../components/headers/CustomHeader'; // Mobile Header
+import { ScreenDisplayNames, ScreenNames } from 'app/types/navigation';
+import SpinnerLoading from 'app/components/SpinnerLoading';
+
+const QrMenuItemsScreen = React.lazy(() => import('app/screens/QrMenuItemsScreen'));
+
+// 2) Make a small wrapper to show fallback while the chunk loads
+function LazyQrMenuItemsScreen(props: any) {
+  return (
+    <React.Suspense fallback={<SpinnerLoading />}>
+      <QrMenuItemsScreen {...props} />
+    </React.Suspense>
+  );
+}
 
 const Stack = createNativeStackNavigator();
 
@@ -24,7 +33,7 @@ export default function RootNav() {
 
       <Stack.Screen
         name={ScreenNames.QR_MENU_ITEMS}
-        component={QrMenuItemsScreen}
+        component={LazyQrMenuItemsScreen}
         options={{
           title: ScreenDisplayNames.QR_MENU_ITEMS,
           headerShown: false,
@@ -36,7 +45,7 @@ export default function RootNav() {
         name="Cart"
         component={CartScreen}
         options={{
-          title: "CART",
+          title: 'CART',
           headerShown: true, // Show default header here
         }}
       />

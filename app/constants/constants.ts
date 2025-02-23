@@ -2,24 +2,23 @@
 // Error Messages
 // --------------------
 export const ERROR_MESSAGES = {
-  CATEGORY_NOT_FOUND:
-    "Category not found, Unable to scroll to the selected category.",
-  DATA_NOT_AVAILABLE: "No data available",
-  FOOD_DATA_NOT_AVAILABLE: "No Food data available.",
-  MENU_DATA_NOT_AVAILABLE: "No Menu data available.",
-  NETWORK_ERROR: "Unable to connect. Please try again later.",
-  GENERAL_ERROR: "An error occurred.",
+  CATEGORY_NOT_FOUND: 'Category not found, Unable to scroll to the selected category.',
+  DATA_NOT_AVAILABLE: 'No data available',
+  FOOD_DATA_NOT_AVAILABLE: 'No Food data available.',
+  MENU_DATA_NOT_AVAILABLE: 'No Menu data available.',
+  NETWORK_ERROR: 'Unable to connect. Please try again later.',
+  GENERAL_ERROR: 'An error occurred.',
 } as const;
 
 // --------------------
 // Button Labels
 // --------------------
 export const BUTTON_LABELS = {
-  SUBMIT: "Submit",
-  CANCEL: "Cancel",
-  LOGIN: "Login",
-  SIGN_UP: "Sign Up",
-  GO_BACK: "Go Back",
+  SUBMIT: 'Submit',
+  CANCEL: 'Cancel',
+  LOGIN: 'Login',
+  SIGN_UP: 'Sign Up',
+  GO_BACK: 'Go Back',
   // Add more button labels as needed
 } as const;
 
@@ -27,11 +26,10 @@ export const BUTTON_LABELS = {
 // Text Messages
 // --------------------
 export const TEXT_MESSAGES = {
-  WORK_IN_PROGRESS_SUBTITLE:
-    "We're building this awesome feature. Stay tuned for updates!",
-  FEATURE_COMING_SOON: "Feature Coming Soon",
-  LOADING: "Loading, please wait...",
-  NO_DATA: "No data available.",
+  WORK_IN_PROGRESS_SUBTITLE: "We're building this awesome feature. Stay tuned for updates!",
+  FEATURE_COMING_SOON: 'Feature Coming Soon',
+  LOADING: 'Loading, please wait...',
+  NO_DATA: 'No data available.',
   // Add more text messages as needed
 } as const;
 
@@ -39,9 +37,9 @@ export const TEXT_MESSAGES = {
 // Placeholder Texts
 // --------------------
 export const PLACEHOLDERS = {
-  EMAIL: "Enter your email",
-  PASSWORD: "Enter your password",
-  USERNAME: "Enter your username",
+  EMAIL: 'Enter your email',
+  PASSWORD: 'Enter your password',
+  USERNAME: 'Enter your username',
   // Add more placeholders as needed
 } as const;
 
@@ -49,8 +47,8 @@ export const PLACEHOLDERS = {
 // Other Constants
 // --------------------
 export const API_ENDPOINTS = {
-  LOGIN: "/api/login",
-  REGISTER: "/api/register",
-  FETCH_USER: "/api/user",
+  LOGIN: '/api/login',
+  REGISTER: '/api/register',
+  FETCH_USER: '/api/user',
   // Add more endpoints as needed
 } as const;

@@ -1,14 +1,7 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { ApiResponse } from "app/api/handlers";
-import {
-  fetchAllFoods,
-  Food,
-  GetAllFoodsResponse,
-} from "app/api/services/foodService";
-import {
-  groupFoodBySubCategory,
-  SubCategory,
-} from "app/hooks/utils/groupFoodBySubCategory";
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { ApiResponse } from 'app/api/handlers';
+import { fetchAllFoods, Food, GetAllFoodsResponse } from 'app/api/services/foodService';
+import { groupFoodBySubCategory, SubCategory } from 'app/hooks/utils/groupFoodBySubCategory';
 
 // Define the slice state interface
 interface FoodState {
@@ -38,25 +31,24 @@ const initialState: FoodState = {
 };
 
 // Async thunk to fetch foods
-export const fetchFoods = createAsyncThunk<
-  Food[],
-  void,
-  { rejectValue: string }
->("foods/fetchFoods", async (_, { rejectWithValue }) => {
-  try {
-    const response: ApiResponse<GetAllFoodsResponse> = await fetchAllFoods();
-    if (response.status === "success") {
-      return response.data?.payload || [];
-    } else {
-      return rejectWithValue(response.message);
+export const fetchFoods = createAsyncThunk<Food[], void, { rejectValue: string }>(
+  'foods/fetchFoods',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response: ApiResponse<GetAllFoodsResponse> = await fetchAllFoods();
+      if (response.status === 'success') {
+        return response.data?.payload || [];
+      } else {
+        return rejectWithValue(response.message);
+      }
+    } catch (error) {
+      return rejectWithValue('An unexpected error occurred');
     }
-  } catch (error) {
-    return rejectWithValue("An unexpected error occurred");
-  }
-});
+  },
+);
 
 const foodSlice = createSlice({
-  name: "foods",
+  name: 'foods',
   initialState,
   reducers: {
     resetState(state) {
@@ -71,12 +63,8 @@ const foodSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
-    setFilteredFoods(
-      state,
-      action: PayloadAction<{ category: SubCategory; foods: Food[] }>
-    ) {
-      state.filterData.filteredFoods[action.payload.category] =
-        action.payload.foods;
+    setFilteredFoods(state, action: PayloadAction<{ category: SubCategory; foods: Food[] }>) {
+      state.filterData.filteredFoods[action.payload.category] = action.payload.foods;
     },
     clearFilteredFoods(state) {
       state.filterData.filteredFoods = {} as Record<string, Food[]>;
@@ -99,22 +87,19 @@ const foodSlice = createSlice({
       state.loading = true;
       state.error = null;
     });
-    builder.addCase(
-      fetchFoods.fulfilled,
-      (state, action: PayloadAction<Food[]>) => {
-        state.loading = false;
-        state.foods = action.payload;
-        state.groupedFoods = groupFoodBySubCategory(action.payload);
-        const categories = [
-          ...new Set(
-            action.payload
-              .map((food) => food.categoryName)
-              .filter((category): category is string => category !== null)
-          ),
-        ];
-        state.categories = categories;
-      }
-    );
+    builder.addCase(fetchFoods.fulfilled, (state, action: PayloadAction<Food[]>) => {
+      state.loading = false;
+      state.foods = action.payload;
+      state.groupedFoods = groupFoodBySubCategory(action.payload);
+      const categories = [
+        ...new Set(
+          action.payload
+            .map((food) => food.categoryName)
+            .filter((category): category is string => category !== null),
+        ),
+      ];
+      state.categories = categories;
+    });
     builder.addCase(fetchFoods.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;

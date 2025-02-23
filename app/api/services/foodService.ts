@@ -1,5 +1,5 @@
-import apiMethods from "app/api/handlers/apiMethod";
-import { ApiResponse } from "app/api/handlers/index";
+import apiMethods from 'app/api/handlers/apiMethod';
+import { ApiResponse } from 'app/api/handlers/index';
 
 export interface GetAllFoodsResponse {
   requestId: string | null;
@@ -26,8 +26,6 @@ export interface Food {
 }
 
 // Fetch all foods
-export const fetchAllFoods = async (): Promise<
-  ApiResponse<GetAllFoodsResponse>
-> => {
-  return await apiMethods.get<GetAllFoodsResponse>("/api/foods/v2");
+export const fetchAllFoods = async (): Promise<ApiResponse<GetAllFoodsResponse>> => {
+  return await apiMethods.get<GetAllFoodsResponse>('/api/foods/v2');
 };

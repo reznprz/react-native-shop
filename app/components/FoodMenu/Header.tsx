@@ -1,11 +1,6 @@
-import React from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  useWindowDimensions,
-} from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import React from 'react';
+import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface HeaderProps {
   subCategoryName: string;
@@ -17,7 +12,7 @@ const Header: React.FC<HeaderProps> = ({ subCategoryName, goBack }) => {
 
   // Determine padding-top dynamically based on screen width
   const isMobile = width <= 768;
-  const paddingClass = isMobile ? "pt-10" : "pt-4";
+  const paddingClass = isMobile ? 'pt-10' : 'pt-4';
 
   return (
     <View className="flex-row items-center justify-between border-b bg-deepTeal p-6">
@@ -29,9 +24,7 @@ const Header: React.FC<HeaderProps> = ({ subCategoryName, goBack }) => {
           <Ionicons name="arrow-back" size={24} color="#ffffff" />
         </View>
       </TouchableOpacity>
-      <Text
-        className={`text-xl font-bold text-white ${paddingClass} uppercase`}
-      >
+      <Text className={`text-xl font-bold text-white ${paddingClass} uppercase`}>
         {subCategoryName}
       </Text>
       <View />
