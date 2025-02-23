@@ -1,12 +1,12 @@
-import { configureStore } from "@reduxjs/toolkit";
-import foodReducer from "./foodSlice";
-import { persistStore, persistReducer } from "redux-persist";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { configureStore } from '@reduxjs/toolkit';
+import foodReducer from './foodSlice';
+import { persistStore, persistReducer } from 'redux-persist';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const persistConfig = {
-  key: "root",
+  key: 'root',
   storage: AsyncStorage,
-  blacklist: ["filteredFoods"],
+  blacklist: ['filteredFoods'],
 };
 
 const persistedFoodReducer = persistReducer(persistConfig, foodReducer);
@@ -15,6 +15,12 @@ export const store = configureStore({
   reducer: {
     foods: persistedFoodReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: ['persist/PERSIST'],
+      },
+    }),
 });
 
 export const persistor = persistStore(store);

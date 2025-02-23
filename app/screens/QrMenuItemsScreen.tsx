@@ -1,30 +1,23 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  View,
-  LayoutChangeEvent,
-  Image,
-  useWindowDimensions,
-} from "react-native";
-import ResponsiveList, {
-  ResponsiveListHandle,
-} from "app/components/common/ResponsiveList";
-import Header from "app/components/FoodMenu/Header";
-import CategoryBar from "app/components/FoodMenu/CategoryBar";
-import QrFoodList from "app/components/FoodMenu/QrFoodList";
-import ErrorNotification from "app/components/ErrorNotification";
-import LoadingSpinner from "app/components/LoadingSpinner";
-import { ERROR_MESSAGES } from "app/constants/constants";
-import { goBack } from "app/navigation/navigationService";
-import { useFood } from "app/hooks/useFood";
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, LayoutChangeEvent, Image, useWindowDimensions } from 'react-native';
+import ResponsiveList, { ResponsiveListHandle } from 'app/components/common/ResponsiveList';
+import Header from 'app/components/FoodMenu/Header';
+import CategoryBar from 'app/components/FoodMenu/CategoryBar';
+import QrFoodList from 'app/components/FoodMenu/QrFoodList';
+import ErrorNotification from 'app/components/ErrorNotification';
+import LoadingSpinner from 'app/components/LoadingSpinner';
+import { ERROR_MESSAGES } from 'app/constants/constants';
+import { goBack } from 'app/navigation/navigationService';
+import { useFood } from 'app/hooks/useFood';
 
-const shajhyaImage = require("../../assets/shajhya.jpg");
+const shajhyaImage = require('../../assets/shajhya.jpg');
 
 const QrMenuItemsScreen: React.FC = () => {
   const { filterData, clearFilteredFoods } = useFood();
 
   const { filteredFoods: groupedFoodsByCategory, loading, error } = filterData;
 
-  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   // Ref to our responsive list for imperative scrolling
   const listRef = useRef<ResponsiveListHandle>(null);
@@ -33,18 +26,11 @@ const QrMenuItemsScreen: React.FC = () => {
   const categoryRefs = useRef<{ [key: string]: number }>({});
 
   // --- Memos to filter sub-categories and food items ---
-  const subCategoryMapMemo = useMemo(
-    () => groupedFoodsByCategory || {},
-    [groupedFoodsByCategory]
-  );
-  const subCategoryNames = useMemo(
-    () => Object.keys(subCategoryMapMemo),
-    [subCategoryMapMemo]
-  );
+  const subCategoryMapMemo = useMemo(() => groupedFoodsByCategory || {}, [groupedFoodsByCategory]);
+  const subCategoryNames = useMemo(() => Object.keys(subCategoryMapMemo), [subCategoryMapMemo]);
 
-  const [currentSubCategoryIndex, setCurrentSubCategoryIndex] =
-    useState<number>(0);
-  const selectedSubCategory = subCategoryNames[currentSubCategoryIndex] || "";
+  const [currentSubCategoryIndex, setCurrentSubCategoryIndex] = useState<number>(0);
+  const selectedSubCategory = subCategoryNames[currentSubCategoryIndex] || '';
 
   const filteredFoods = useMemo(() => {
     return subCategoryMapMemo[selectedSubCategory] || [];
@@ -56,8 +42,8 @@ const QrMenuItemsScreen: React.FC = () => {
       new Set(
         filteredFoods
           .map((food) => food.categoryName)
-          .filter((category): category is string => category != null)
-      )
+          .filter((category): category is string => category != null),
+      ),
     );
   }, [filteredFoods]);
 
@@ -67,7 +53,7 @@ const QrMenuItemsScreen: React.FC = () => {
   useEffect(() => {
     if (errorMessage) {
       const timer = setTimeout(() => {
-        setErrorMessage("");
+        setErrorMessage('');
         clearFilteredFoods();
       }, 5000);
       return () => clearTimeout(timer);
@@ -88,13 +74,11 @@ const QrMenuItemsScreen: React.FC = () => {
 
   useEffect(() => {
     if (subCategoryNames.length === 0) {
-      setErrorMessage(
-        `${ERROR_MESSAGES.DATA_NOT_AVAILABLE}: ${selectedCategory}`
-      );
+      setErrorMessage(`${ERROR_MESSAGES.DATA_NOT_AVAILABLE}: ${selectedCategory}`);
     } else if (filteredFoods.length === 0) {
       setErrorMessage(ERROR_MESSAGES.FOOD_DATA_NOT_AVAILABLE);
     } else {
-      setErrorMessage("");
+      setErrorMessage('');
     }
   }, [subCategoryNames, filteredFoods]);
 
@@ -126,7 +110,7 @@ const QrMenuItemsScreen: React.FC = () => {
             <View className="w-full h-auto">
               <Image
                 source={shajhyaImage}
-                style={{ width: "100%", height: 200 }}
+                style={{ width: '100%', height: 200 }}
                 resizeMode="cover"
                 accessibilityLabel="Sha-jhya Restaurant Image"
               />
@@ -164,7 +148,7 @@ const QrMenuItemsScreen: React.FC = () => {
         <ErrorNotification
           message={error || errorMessage || ERROR_MESSAGES.GENERAL_ERROR}
           onClose={() => {
-            setErrorMessage("");
+            setErrorMessage('');
             clearFilteredFoods();
           }}
         />

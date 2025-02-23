@@ -1,7 +1,4 @@
-import {
-  createNavigationContainerRef,
-  StackActions,
-} from "@react-navigation/native";
+import { createNavigationContainerRef, StackActions } from '@react-navigation/native';
 
 export type RootStackParamList = {
   MainTabs: undefined;

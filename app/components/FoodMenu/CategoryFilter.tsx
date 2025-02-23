@@ -1,163 +1,120 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  Dimensions,
-  StyleSheet,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { AllCategoriesModal } from "../modal/AllCategoriesModal";
+import React, { useState } from 'react';
+import { View, Text, Pressable, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AllCategoriesModal } from '../modal/AllCategoriesModal';
+import CategoryChip from '../common/CategoryChip';
 
 interface CategoryFilterProps {
   categories: string[];
+  isDesktop?: boolean;
+  handleCategoryClick: (categoryName: string) => void;
 }
 
-export default function CategoryFilter({ categories }: CategoryFilterProps) {
-  // Mobile bottom sheet
+export default function CategoryFilter({
+  categories,
+  isDesktop = false,
+  handleCategoryClick,
+}: CategoryFilterProps) {
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const [showBottomSheet, setShowBottomSheet] = useState(false);
-
-  // Desktop expand/collapse
   const [showMoreDesktop, setShowMoreDesktop] = useState(false);
 
-  const { width } = Dimensions.get("window");
-  const isDesktop = width >= 768;
-
-  // Ensure "All" is always first; remove duplicates if needed
-  const uniqueCategories = Array.from(new Set(["All", ...categories]));
-
-  // Decide how many categories to show in one desktop row
-  const MAX_DESKTOP_ROW = 6; // adjust as you wish (6, 8, etc.)
+  const uniqueCategories = Array.from(new Set(['All', 'None', ...categories]));
+  const MAX_DESKTOP_ROW = 6;
   const visibleDesktopCategories = showMoreDesktop
     ? uniqueCategories
     : uniqueCategories.slice(0, MAX_DESKTOP_ROW);
 
-  // Toggle bottom sheet on mobile
   const handleMobileToggle = () => {
     setShowBottomSheet((prev) => !prev);
   };
 
-  // Toggle expand/collapse on desktop
   const handleDesktopToggle = () => {
     setShowMoreDesktop((prev) => !prev);
   };
 
-  if (isDesktop) {
-    // =============== DESKTOP VIEW ===============
-    return (
-      <View style={{ padding: 16 }}>
-        {/* Single or multi-line categories depending on showMoreDesktop */}
-        <View style={styles.desktopCategoryRow}>
-          {visibleDesktopCategories.map((cat, index) => (
-            <Pressable
-              key={cat}
-              style={[
-                styles.categoryChip,
-                index === 0 ? { backgroundColor: "#000" } : null,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  index === 0 ? { color: "#fff" } : { color: "#000" },
-                ]}
-              >
-                {cat}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+  return isDesktop ? (
+    <View className="pt-2">
+      <View className="flex-row flex-wrap gap-1 pl-4 pr-4 pb-2">
+        {visibleDesktopCategories.map((cat) => (
+          <CategoryChip
+            key={cat}
+            category={cat}
+            isSelected={cat === selectedCategory}
+            onSelect={(value) => {
+              setSelectedCategory(value);
+              handleCategoryClick(value);
+              handleDesktopToggle();
+            }}
+          />
+        ))}
+      </View>
 
-        <Pressable
-          onPress={handleDesktopToggle}
-          style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}
-        >
+      <Pressable onPress={handleDesktopToggle} className="w-full">
+        {/* Separator line */}
+        <View className="w-full h-px bg-gray-200 " />
+        <View className="flex-row items-center p-3 justify-center">
           <Ionicons
-            // Toggle icon up/down
-            name={showMoreDesktop ? "chevron-up" : "chevron-down"}
+            name={showMoreDesktop ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color="#2563eb"
+            color="#2a4759"
             style={{ marginRight: 4 }}
           />
-          <Text style={{ color: "#2563eb", fontWeight: "600" }}>
-            {/* Toggle text */}
-            {showMoreDesktop ? "Show Less Categories" : "View All Categories"}
+          <Text className="text-sm font-semibold text-[#2a4759]">
+            {showMoreDesktop ? 'Show Less Categories' : 'View All Categories'}
           </Text>
-        </Pressable>
-      </View>
-    );
-  } else {
-    // =============== MOBILE VIEW ===============
-    return (
-      <View style={{ padding: 16 }}>
-        {/* Horizontal scroll for a few categories */}
+        </View>
+      </Pressable>
+    </View>
+  ) : (
+    <View>
+      <View className="gap-1 pl-4 pr-4">
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingVertical: 4 }}
+          contentContainerStyle={{ paddingVertical: 8 }}
         >
-          {uniqueCategories.slice(0, 4).map((cat, index) => (
-            <Pressable
+          {uniqueCategories.slice(0, 4).map((cat) => (
+            <CategoryChip
               key={cat}
-              style={[
-                styles.categoryChip,
-                index === 0 ? { backgroundColor: "#000" } : null,
-                { marginRight: 8 },
-              ]}
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  index === 0 ? { color: "#fff" } : { color: "#000" },
-                ]}
-              >
-                {cat}
-              </Text>
-            </Pressable>
+              category={cat}
+              isSelected={cat === selectedCategory}
+              onSelect={(cat) => {
+                handleCategoryClick(cat);
+                setSelectedCategory(cat);
+              }}
+            />
           ))}
         </ScrollView>
+      </View>
 
-        <Pressable
-          onPress={handleMobileToggle}
-          style={{ flexDirection: "row", alignItems: "center", marginTop: 8 }}
-        >
+      <Pressable onPress={handleMobileToggle} className="w-full">
+        {/* Separator line */}
+        <View className="w-full h-px bg-gray-200 " />
+        <View className="flex-row items-center p-3 justify-center">
           <Ionicons
-            name="chevron-down"
+            name={showMoreDesktop ? 'chevron-up' : 'chevron-down'}
             size={16}
-            color="#2563eb"
+            color="#2a4759"
             style={{ marginRight: 4 }}
           />
-          <Text style={{ color: "#2563eb", fontWeight: "600" }}>
-            View All Categories
+          <Text className="text-sm font-semibold text-[#2a4759]">
+            {showMoreDesktop ? 'Show Less Categories' : 'View All Categories'}
           </Text>
-        </Pressable>
+        </View>
+      </Pressable>
 
-        {/* Bottom Sheet showing all categories on mobile */}
-        <AllCategoriesModal
-          visible={showBottomSheet}
-          onClose={handleMobileToggle}
-          categories={uniqueCategories}
-        />
-      </View>
-    );
-  }
+      <AllCategoriesModal
+        visible={showBottomSheet}
+        onClose={handleMobileToggle}
+        categories={uniqueCategories}
+        selectedCategory={selectedCategory}
+        onSelectCategory={(cat) => {
+          handleCategoryClick(cat);
+          setSelectedCategory(cat);
+          setShowBottomSheet(false);
+        }}
+      />
+    </View>
+  );
 }
-
-const styles = StyleSheet.create({
-  desktopCategoryRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginTop: 8,
-  },
-  categoryChip: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: "#E5E7EB", // gray-200
-    margin: 4,
-  },
-  categoryText: {
-    fontWeight: "600",
-  },
-});

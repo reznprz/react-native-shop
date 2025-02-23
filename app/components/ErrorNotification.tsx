@@ -1,29 +1,20 @@
 // ErrorNotification.tsx
-import React, { useEffect, useRef } from "react";
-import {
-  Animated,
-  TouchableOpacity,
-  Text,
-  Dimensions,
-  Platform,
-} from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import React, { useEffect, useRef } from 'react';
+import { Animated, TouchableOpacity, Text, Dimensions, Platform } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface ErrorNotificationProps {
   message: string;
   onClose: () => void;
 }
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const ErrorNotification: React.FC<ErrorNotificationProps> = ({
-  message,
-  onClose,
-}) => {
+const ErrorNotification: React.FC<ErrorNotificationProps> = ({ message, onClose }) => {
   const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current; // For mobile
 
   useEffect(() => {
-    if (Platform.OS !== "web") {
+    if (Platform.OS !== 'web') {
       // Slide in animation for mobile
       Animated.timing(slideAnim, {
         toValue: 0, // Slide to its original position
@@ -44,15 +35,11 @@ const ErrorNotification: React.FC<ErrorNotificationProps> = ({
 
   if (!message) return null;
 
-  if (Platform.OS === "web") {
+  if (Platform.OS === 'web') {
     return (
       <div className="absolute top-4 right-2 w-10/12 max-w-sm bg-deepTeal shadow-lg rounded-lg flex items-center border-l-6 border-softRose p-4 z-50 animate-slideIn">
         <span className="text-lightCream font-semibold flex-1">{message}</span>
-        <button
-          onClick={onClose}
-          className="ml-4"
-          aria-label="Close error notification"
-        >
+        <button onClick={onClose} className="ml-4" aria-label="Close error notification">
           <Ionicons name="close-sharp" size={24} color="#ffffff" />
         </button>
       </div>

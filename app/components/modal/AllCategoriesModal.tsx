@@ -1,22 +1,26 @@
-import React from "react";
-import { View, Text, Pressable, ScrollView, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { BaseBottomSheetModal } from "../common/modal/BaseBottomSheetModal";
+import React from 'react';
+import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
+import CategoryChip from '../common/CategoryChip';
 
 interface AllCategoriesModalProps {
   visible: boolean;
   onClose: () => void;
   categories: string[];
+  selectedCategory: string;
+  onSelectCategory: (category: string) => void;
 }
 
 export const AllCategoriesModal: React.FC<AllCategoriesModalProps> = ({
   visible,
   onClose,
   categories,
+  selectedCategory,
+  onSelectCategory,
 }) => {
   return (
     <BaseBottomSheetModal visible={visible} onClose={onClose}>
-      {/* Header row with close icon */}
       <View style={styles.header}>
         <Text style={styles.title}>All Categories</Text>
         <Pressable onPress={onClose} style={styles.closeIcon}>
@@ -26,23 +30,13 @@ export const AllCategoriesModal: React.FC<AllCategoriesModalProps> = ({
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={styles.categoriesContainer}>
-          {categories.map((cat, index) => (
-            <Pressable
+          {categories.map((cat) => (
+            <CategoryChip
               key={cat}
-              style={[
-                styles.categoryChip,
-                index === 0 ? { backgroundColor: "#000" } : null,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.categoryText,
-                  index === 0 ? { color: "#fff" } : { color: "#000" },
-                ]}
-              >
-                {cat}
-              </Text>
-            </Pressable>
+              category={cat}
+              isSelected={cat === selectedCategory}
+              onSelect={onSelectCategory}
+            />
           ))}
         </View>
       </ScrollView>
@@ -52,30 +46,20 @@ export const AllCategoriesModal: React.FC<AllCategoriesModalProps> = ({
 
 const styles = StyleSheet.create({
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 12,
   },
   title: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   closeIcon: {
     padding: 4,
   },
   categoriesContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-  },
-  categoryChip: {
-    margin: 4,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: "#E5E7EB", // gray-200
-  },
-  categoryText: {
-    fontWeight: "600",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 });

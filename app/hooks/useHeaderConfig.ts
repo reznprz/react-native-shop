@@ -1,8 +1,8 @@
-import { useMemo } from "react";
-import { Platform } from "react-native";
-import { NavigationRoute, ParamListBase } from "@react-navigation/native";
-import { isNotTabRouteName, TabRouteName } from "app/types/navigation";
-import { getRouteNameFromIndex } from "./utils/navigationUtils";
+import { useMemo } from 'react';
+import { Platform } from 'react-native';
+import { NavigationRoute, ParamListBase } from '@react-navigation/native';
+import { isNotTabRouteName, TabRouteName } from 'app/types/navigation';
+import { getRouteNameFromIndex } from './utils/navigationUtils';
 
 interface HeaderConfig {
   displayedTitle: string;
@@ -20,23 +20,22 @@ interface HeaderConfig {
  */
 const useHeaderConfig = (
   route: NavigationRoute<ParamListBase, string>,
-  currentTabName?: TabRouteName
+  currentTabName?: TabRouteName,
 ): HeaderConfig => {
   const displayedTitle =
-    Platform.OS === "web"
+    Platform.OS === 'web'
       ? getRouteNameFromIndex(route)
-      : getRouteNameFromIndex(route) === "Cart"
-      ? getRouteNameFromIndex(route)
-      : currentTabName ?? "";
+      : getRouteNameFromIndex(route) === 'Cart'
+        ? getRouteNameFromIndex(route)
+        : (currentTabName ?? '');
 
   const showBackArrow = useMemo(() => {
     return (
-      (currentTabName?.trim() && isNotTabRouteName(currentTabName)) ||
-      displayedTitle === "Cart"
+      (currentTabName?.trim() && isNotTabRouteName(currentTabName)) || displayedTitle === 'Cart'
     );
   }, [currentTabName, displayedTitle]);
 
-  const showCart = displayedTitle !== "Cart";
+  const showCart = displayedTitle !== 'Cart';
 
   return { displayedTitle, showBackArrow, showCart };
 };

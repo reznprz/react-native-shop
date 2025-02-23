@@ -1,9 +1,9 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export enum IconType {
-  Ionicons = "Ionicons",
-  MaterialIcons = "MaterialIcons",
+  Ionicons = 'Ionicons',
+  MaterialIcons = 'MaterialIcons',
 }
 
 type ScreenDetail = {
@@ -13,15 +13,15 @@ type ScreenDetail = {
 
 // Define an enum for screen names
 export enum ScreenNames {
-  CART = "CartScreen",
-  DEFAULT = "APP",
-  QR_MENU_ITEMS = "QrMenuItemsScreen",
+  CART = 'CartScreen',
+  DEFAULT = 'APP',
+  QR_MENU_ITEMS = 'QrMenuItemsScreen',
 }
 
 export enum ScreenDisplayNames {
-  CART = "Cart",
-  DEFAULT = "App",
-  QR_MENU_ITEMS = "Menu Items",
+  CART = 'Cart',
+  DEFAULT = 'App',
+  QR_MENU_ITEMS = 'Menu Items',
 }
 
 // Create a constant object for screen details

@@ -7,7 +7,7 @@ import React, {
   Fragment,
   useRef,
   useImperativeHandle,
-} from "react";
+} from 'react';
 import {
   ScrollView,
   FlatList,
@@ -17,7 +17,7 @@ import {
   StyleProp,
   ViewStyle,
   ListRenderItem,
-} from "react-native";
+} from 'react-native';
 
 /** Props for our ResponsiveList. */
 interface ResponsiveListProps<T> {
@@ -51,7 +51,7 @@ function BaseResponsiveList<T>(
     contentContainerStyle,
     showsVerticalScrollIndicator = true,
   }: ResponsiveListProps<T>,
-  ref: React.Ref<ResponsiveListHandle>
+  ref: React.Ref<ResponsiveListHandle>,
 ) {
   // Internal ref to either a ScrollView or FlatList
   const scrollRef = useRef<ScrollView | FlatList<T>>(null);
@@ -59,7 +59,7 @@ function BaseResponsiveList<T>(
   // Let parent components imperatively call scrollToOffset
   useImperativeHandle(ref, () => ({
     scrollToOffset: ({ offset, animated = true }) => {
-      if (Platform.OS === "web") {
+      if (Platform.OS === 'web') {
         // On web, our ref is a ScrollView with .scrollTo
         (scrollRef.current as ScrollView)?.scrollTo({
           x: 0,
@@ -82,22 +82,20 @@ function BaseResponsiveList<T>(
   // Prepare a FlatList-friendly renderItem function
   const nativeRenderItem = useCallback<ListRenderItem<T>>(
     ({ item, index }) => renderItem(item, index),
-    [renderItem]
+    [renderItem],
   );
 
   // For web, we map over data to produce children
   const webChildren = useMemo(() => {
     return data.map((item, index) => (
-      <Fragment key={keyExtractor(item, index)}>
-        {renderItem(item, index)}
-      </Fragment>
+      <Fragment key={keyExtractor(item, index)}>{renderItem(item, index)}</Fragment>
     ));
   }, [data, keyExtractor, renderItem]);
 
   // If no data and a ListEmptyComponent is provided...
   if (dataLength === 0 && ListEmptyComponent) {
     // Web scenario
-    if (Platform.OS === "web") {
+    if (Platform.OS === 'web') {
       return (
         <ScrollView
           ref={scrollRef as React.RefObject<ScrollView>}
@@ -122,7 +120,7 @@ function BaseResponsiveList<T>(
   }
 
   // For normal data rendering:
-  if (Platform.OS === "web") {
+  if (Platform.OS === 'web') {
     // --- Web: ScrollView with children ---
     return (
       <ScrollView
@@ -153,7 +151,7 @@ function BaseResponsiveList<T>(
  * Now parent can do `listRef.current.scrollToOffset(...).`
  */
 const ResponsiveList = memo(forwardRef(BaseResponsiveList)) as <T>(
-  props: ResponsiveListProps<T> & { ref?: React.Ref<ResponsiveListHandle> }
+  props: ResponsiveListProps<T> & { ref?: React.Ref<ResponsiveListHandle> },
 ) => JSX.Element;
 
 export default ResponsiveList;

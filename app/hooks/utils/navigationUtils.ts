@@ -1,5 +1,5 @@
-import { NavigationRoute, ParamListBase } from "@react-navigation/native";
-import { ScreenNames, Screens } from "app/types/navigation";
+import { NavigationRoute, ParamListBase } from '@react-navigation/native';
+import { ScreenNames, Screens } from 'app/types/navigation';
 
 const getScreenDisplayName = (routeName: string): string => {
   return (
@@ -14,13 +14,13 @@ const getScreenDisplayName = (routeName: string): string => {
  * @returns The display name as a string.
  */
 export function getRouteNameFromIndex<ParamList extends ParamListBase>(
-  route: NavigationRoute<ParamList, keyof ParamList>
+  route: NavigationRoute<ParamList, keyof ParamList>,
 ): string {
-  if (route.name === "BottomTabs" && route.state?.type === "tab") {
+  if (route.name === 'BottomTabs' && route.state?.type === 'tab') {
     const state = route.state;
 
     if (
-      typeof state.index === "number" &&
+      typeof state.index === 'number' &&
       Array.isArray(state.routeNames) &&
       state.index >= 0 &&
       state.index < state.routeNames.length
