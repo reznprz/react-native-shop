@@ -7,6 +7,7 @@ import {
   TextStyle,
   GestureResponderEvent,
 } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 type SizeOption = 's' | 'm' | 'l' | 'xl' | 'full';
 
@@ -19,21 +20,27 @@ interface CustomButtonProps {
   bgColor?: string; // Background color class. Default is deepTeal (#2a4759)
   textColor?: string; // Text color class. Default is "text-white"
   fontWeight?: string; // Font weight class, e.g., "font-semibold"
-  customButtonStyle?: StyleProp<ViewStyle>; // Additional custom style for button container
-  customTextStyle?: StyleProp<TextStyle>; // Additional custom style for text
+  customButtonStyle?: string; // Additional custom style for button container
+  customTextStyle?: string; // Additional custom style for text
+  iconName?: string;
+  iconColor?: string;
+  iconSize?: number;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,
   onPress,
   width = 'm',
-  height = 'l',
+  height = 's',
   textSize = 'text-lg',
   bgColor = 'bg-[#2a4759]', // deepTeal default color
   textColor = 'text-white',
   fontWeight = 'font-semibold',
   customButtonStyle,
   customTextStyle,
+  iconName = false,
+  iconColor = 'white',
+  iconSize = 18,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -91,9 +98,17 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       onHoverIn={() => setIsHovered(true)}
       onHoverOut={() => setIsHovered(false)}
       className={
-        `${widthClass} ${heightClass} ${bgColor} ${hoverEffect} rounded px-4 py-2 ${customButtonStyle}` // allow custom override
+        `${widthClass} ${heightClass} ${bgColor} ${hoverEffect} rounded px-2 py-1 ${customButtonStyle}` // allow custom override
       }
     >
+      {iconName && (
+        <Ionicons
+          name={iconName as keyof typeof Ionicons.glyphMap}
+          size={iconSize}
+          color={iconColor}
+          className="mr-2"
+        />
+      )}
       <Text className={`${textSize} ${textColor} ${fontWeight} text-center ${customTextStyle}`}>
         {title}
       </Text>
