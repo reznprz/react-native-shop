@@ -68,6 +68,5 @@
   "resolutions": {
     "@babel/core": "^7.21.0"
   },
-  "private": true,
-  "type": "module"
+  "private": true
 }

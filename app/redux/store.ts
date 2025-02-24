@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import foodReducer from './foodSlice';
+import cartReducer from './cartSlice';
 import { persistStore, persistReducer } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -14,6 +15,7 @@ const persistedFoodReducer = persistReducer(persistConfig, foodReducer);
 export const store = configureStore({
   reducer: {
     foods: persistedFoodReducer,
+    cart: cartReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

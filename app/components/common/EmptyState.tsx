@@ -6,12 +6,18 @@ interface EmptyStateProps {
   iconName?: string;
   message: string;
   subMessage?: string;
+  iconSize?: number;
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ iconName = 'food-off', message, subMessage }) => {
+const EmptyState: React.FC<EmptyStateProps> = ({
+  iconName = 'food-off',
+  message,
+  subMessage,
+  iconSize = 90,
+}) => {
   return (
     <View style={styles.container}>
-      <MaterialCommunityIcons name={iconName as any} size={90} color="#aaa" />
+      <MaterialCommunityIcons name={iconName as any} size={iconSize} color="#aaa" />
       <Text style={styles.message}>{message}</Text>
       {subMessage && <Text style={styles.subMessage}>{subMessage}</Text>}
     </View>

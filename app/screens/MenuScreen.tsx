@@ -1,16 +1,17 @@
 import React, { useEffect } from 'react';
-import { View, ScrollView, useWindowDimensions } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import FoodCard from 'app/components/FoodMenu/FoodCard';
 import { useFood } from 'app/hooks/useFood';
 import PrimaryHeader from 'app/components/common/PrimaryHeader';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { Food } from 'app/api/services/foodService';
 import EmptyState from 'app/components/common/EmptyState';
+import { useCart } from 'app/hooks/useCart';
 
 export default function MenuScreen() {
   const { isDesktop } = useIsDesktop();
-
   const { foods, refetch, categories, handleSearch, handleCategoryClick } = useFood();
+  const { updateCartItemForFood } = useCart();
 
   useEffect(() => {
     refetch();
@@ -29,7 +30,7 @@ export default function MenuScreen() {
         handleCategoryClick={handleCategoryClick}
       />
 
-      {foods.length === 0 ? (
+      {!foods || foods.length === 0 ? (
         <EmptyState
           iconName="food-off"
           message="No food items available"
@@ -52,7 +53,7 @@ export default function MenuScreen() {
               lg:w-1/5  /* 5 columns at >=1024px (desktop) */
             "
               >
-                <FoodCard food={food} />
+                <FoodCard food={food} updateCartItemForFood={updateCartItemForFood} />
               </View>
             ))}
           </View>
