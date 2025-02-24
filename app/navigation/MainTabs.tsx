@@ -1,10 +1,11 @@
 import React from 'react';
-import { useWindowDimensions } from 'react-native';
 import { DesktopTabs, MobileTabs } from 'app/components/tabBar/CustomTabs';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
 export default function MainTabs() {
-  const { width } = useWindowDimensions();
-  const isDesktop = width >= 1024;
+  const { isDesktop, deviceType } = useIsDesktop();
 
-  return isDesktop ? <DesktopTabs /> : <MobileTabs />;
+  const desktop = isDesktop && deviceType === 'Desktop';
+
+  return desktop ? <DesktopTabs /> : <MobileTabs />;
 }

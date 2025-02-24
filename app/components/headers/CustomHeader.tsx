@@ -21,6 +21,8 @@ interface CustomHeaderProps {
 export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const { isDesktop, deviceType } = useIsDesktop();
 
+  const desktop = isDesktop && deviceType === 'Desktop';
+
   const activeRouteName = getFocusedRouteNameFromRoute(route) ?? 'Home';
   const title = getRouteLabel(activeRouteName);
 
@@ -35,14 +37,14 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
       <Text
         className={`
           text-lightCream text-2xl font-anticSlab
-          ${isDesktop ? '' : 'pt-16'}
+          ${isDesktop ? 'pt-6' : 'pt-16'}
         `}
       >
         {title}
       </Text>
 
       {/* Center Section: Icons (Only for Desktop) */}
-      {isDesktop && (
+      {desktop && (
         <View className="absolute left-1/2 -translate-x-1/2 flex-row space-x-6">
           {tabScreenConfigs.map((screen) => (
             <IconWithTooltip
@@ -58,7 +60,7 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
       {/* Right Section: Cart Icon */}
       <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
         <Ionicons
-          className={`${deviceType === 'Desktop' ? '' : 'pt-16'}`}
+          className={`${isDesktop ? 'pt-6' : 'pt-16'}`}
           name="cart-outline"
           size={30}
           color="#fef6eb"

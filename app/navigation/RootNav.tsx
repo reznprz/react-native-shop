@@ -46,7 +46,15 @@ export default function RootNav() {
         component={CartScreen}
         options={{
           title: 'CART',
-          headerShown: true, // Show default header here
+          headerShown: true, // Keep the header visible
+          headerStyle: {
+            backgroundColor: '#2a4759', // Set background color
+          },
+          headerTintColor: '#ffffff', // Change text/icon color (White)
+          headerTitleStyle: {
+            fontWeight: 'bold', // Make the title bold
+            fontSize: 18, // Increase font size
+          },
         }}
       />
     </Stack.Navigator>
