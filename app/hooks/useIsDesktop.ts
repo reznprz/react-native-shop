@@ -21,11 +21,13 @@ export function useIsDesktop() {
   const { width, height } = useWindowDimensions(); // Ensure dimensions are available
   const [deviceType, setDeviceType] = useState(() => determineDeviceType(width, height));
   const [isDesktop, setIsDesktop] = useState(width >= 1024);
+  const [isLargeScreen, setIsLargeScreen] = useState(width > 767);
 
   useEffect(() => {
     setDeviceType(determineDeviceType(width, height));
     setIsDesktop(width >= 1024);
+    setIsLargeScreen(width > 767);
   }, [width, height]);
 
-  return { deviceType, isDesktop, width, height };
+  return { deviceType, isDesktop, width, height, isLargeScreen };
 }

@@ -1,11 +1,10 @@
 export function getPaymentTypeIcon(paymentType: string) {
-  // Convert to lowercase for consistent matching
   const payment = paymentType.toLowerCase();
 
-  if (paymentType.includes('cash')) return 'cash';
-  if (paymentType.includes('e-sewa')) return 'wallet-outline';
-  if (paymentType.includes('fone-pay')) return 'call-outline';
+  if (payment.includes('cash')) return 'money-bill-wave'; // 🏦 Cash Payment
+  if (payment.includes('e-sewa')) return 'wallet'; // 🌐 Online Wallet (Esewa)
+  if (payment.includes('fone-pay')) return 'mobile-alt'; // 📱 Mobile Payment
+  if (payment.includes('credit')) return 'credit-card'; // 💳 Credit Card Payment
 
-  // Fallback icon if no match
-  return 'cash-sharp';
+  return 'question-circle'; // ❓ Default fallback icon
 }

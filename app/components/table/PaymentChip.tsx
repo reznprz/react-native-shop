@@ -1,40 +1,40 @@
 import React from 'react';
-import { Pressable, Text, View, StyleSheet } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { Pressable, Text, View } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { getPaymentTypeIcon } from 'app/hooks/utils/getPaymentTypeIcon';
+import { getPaymentTypeIconforIcons } from 'app/hooks/utils/getPaymentTypeIconforIcons';
 
 interface PaymentChipProps {
   paymentType: string;
-  isSelected: boolean;
-  onSelect: (category: string) => void;
+  isSelected?: boolean;
+  onSelect?: (paymentType: string) => void;
 }
 
-const PaymentChip: React.FC<PaymentChipProps> = ({ paymentType, isSelected, onSelect }) => {
+const PaymentChip: React.FC<PaymentChipProps> = ({ paymentType, isSelected = false, onSelect }) => {
+  if (onSelect) {
+    return (
+      <Pressable
+        onPress={() => onSelect(paymentType)}
+        className={`w-24 h-20 rounded-lg border border-gray-300 flex items-center justify-between p-2 ${
+          isSelected ? 'bg-deepTeal' : 'bg-white'
+        }`}
+      >
+        <FontAwesome5
+          name={getPaymentTypeIcon(paymentType)}
+          size={28}
+          color={isSelected ? '#fff' : '#000'}
+        />
+        <Text className={`text-sm ${isSelected ? 'text-white' : 'text-black'}`}>{paymentType}</Text>
+      </Pressable>
+    );
+  }
+
   return (
-    <Pressable
-      onPress={() => onSelect(paymentType)}
-      className={`w-24 h-20 rounded-lg border border-gray-300 flex items-center justify-between p-2 ${
-        isSelected ? 'bg-deepTeal' : 'bg-white'
-      }`}
-    >
-      <Ionicons
-        name={getPaymentTypeIcon(paymentType)}
-        size={28}
-        color={isSelected ? '#fff' : '#000'}
-      />
-      <Text className={`text-sm ${isSelected ? 'text-white' : 'text-black'}`}>{paymentType}</Text>
-    </Pressable>
+    <View className="flex-row items-center ml-1">
+      <FontAwesome5 name={getPaymentTypeIcon(paymentType)} size={14} color="gray" />
+      <Text className="text-gray-600 text-sm ml-2">{`Paid with ${paymentType}`}</Text>
+    </View>
   );
 };
 
 export default PaymentChip;
-
-const styles = StyleSheet.create({
-  categoryChip: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: '#f3f4f6', // Default gray background
-    margin: 2,
-  },
-});

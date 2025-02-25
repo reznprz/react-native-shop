@@ -40,7 +40,7 @@ export default function PrimaryHeader({
         <View className="flex-row items-center">
           {isDesktop ? (
             // Desktop: full search input with larger padding and shadow
-            <View className="flex-row items-center bg-white rounded-md shadow-md border border-gray-300 px-4 py-2">
+            <View className="flex-row items-center bg-white rounded-md shadow-md border border-gray-300 max-w-[400px] px-4 py-2">
               <Ionicons name="search" size={20} color="gray" />
               <TextInput
                 placeholder="Search"

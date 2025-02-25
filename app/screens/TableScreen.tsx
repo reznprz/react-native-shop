@@ -1,11 +1,13 @@
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { TableCard } from 'app/components/table/TableCard';
 import { useTables } from 'app/hooks/useTables';
-import { SummaryCard } from 'app/components/common/SummaryCard';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import TableMetrics from 'app/components/table/TableMetrics';
 
 export default function TableScreen() {
   const { tables, availableTables, occupiedTables, totalCapacity, activeOrders } = useTables();
+  const { isLargeScreen } = useIsDesktop();
 
   // Handlers for Actions Menu
   const handleGoToMenu = (tableName: string) => console.log('Go to menu:', tableName);
@@ -15,32 +17,14 @@ export default function TableScreen() {
   return (
     <View className="relative flex-1 bg-gray-100 p-1">
       {/* Top Header Section */}
-      <View className="flex flex-row flex-wrap justify-between gap-4">
-        <SummaryCard
-          icon="checkmark-circle-outline"
-          iconColor="green"
-          title="Available Tables"
-          value={availableTables}
-        />
-        <SummaryCard
-          icon="close-circle-outline"
-          iconColor="red"
-          title="Occupied Tables"
-          value={occupiedTables}
-        />
-        <SummaryCard
-          icon="people-outline"
-          iconColor="blue"
-          title="Total Capacity"
-          value={totalCapacity}
-        />
-        <SummaryCard
-          icon="restaurant-outline"
-          iconColor="purple"
-          title="Active Orders"
-          value={activeOrders}
-        />
-      </View>
+
+      <TableMetrics
+        availableTables={availableTables}
+        occupiedTables={occupiedTables}
+        totalCapacity={totalCapacity}
+        activeOrders={activeOrders}
+        isLargeScreen={isLargeScreen}
+      />
 
       {/* Tables Grid with wrapping */}
       <ScrollView

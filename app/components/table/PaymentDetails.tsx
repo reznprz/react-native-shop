@@ -6,6 +6,7 @@ import PaymentChip from './PaymentChip';
 import EmptyState from '../common/EmptyState';
 import CustomButton from '../common/button/CustomButton';
 import PaymentInput from './PaymentInput';
+import IconLabel from '../common/IconLabel';
 
 const paymentTypes = ['cash', 'e-sewa', 'fone-pay', 'credit'];
 
@@ -28,10 +29,10 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
   return (
     <View>
       {/* Heading */}
-      <Text className="text-lg font-bold mb-4 text-deepTeal">Payment Details</Text>
+      <IconLabel iconName="cash-register" label={'Payment Details'} />
       {/* Order Summary Section */}
       <View className="mb-4 bg-gray-100 p-4 rounded-lg">
-        <Text className="text-lg font-semibold mb-2 text-deepTeal">Order Summary</Text>
+        <IconLabel iconName="receipt" label={'Order Summary'} />
         {!items || items.length === 0 ? (
           <EmptyState
             iconName="food-off"

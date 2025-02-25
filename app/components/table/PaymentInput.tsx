@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { getPaymentTypeIcon } from 'app/hooks/utils/getPaymentTypeIcon';
+import { getPaymentTypeIconforIcons } from 'app/hooks/utils/getPaymentTypeIconforIcons';
 
 interface PaymentInputProps {
   paymentType: string;
@@ -13,7 +13,7 @@ const PaymentInput: React.FC<PaymentInputProps> = ({ paymentType, onInput }) => 
     <View className="flex-row items-center justify-between px-4 py-3 bg-gray-100 rounded-lg shadow-md mt-2">
       {/* Left section: icon + label */}
       <View className="flex-row items-center gap-3">
-        <Ionicons name={getPaymentTypeIcon(paymentType)} size={28} color={'#374151'} />
+        <Ionicons name={getPaymentTypeIconforIcons(paymentType)} size={28} color={'#374151'} />
         <Text className="text-sm font-medium text-deepTeal">{paymentType}</Text>
       </View>
 
