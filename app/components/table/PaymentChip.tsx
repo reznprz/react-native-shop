@@ -2,7 +2,6 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { getPaymentTypeIcon } from 'app/hooks/utils/getPaymentTypeIcon';
-import { getPaymentTypeIconforIcons } from 'app/hooks/utils/getPaymentTypeIconforIcons';
 
 interface PaymentChipProps {
   paymentType: string;
@@ -24,7 +23,9 @@ const PaymentChip: React.FC<PaymentChipProps> = ({ paymentType, isSelected = fal
           size={28}
           color={isSelected ? '#fff' : '#000'}
         />
-        <Text className={`text-sm ${isSelected ? 'text-white' : 'text-black'}`}>{paymentType}</Text>
+        <Text
+          className={`text-sm ${isSelected ? 'text-white' : 'text-black'}`}
+        >{`${paymentType}`}</Text>
       </Pressable>
     );
   }

@@ -6,21 +6,21 @@ type IconLabelProps = {
   iconName?: string;
   iconSize?: number;
   iconColor?: string;
-  bgColor?: string; // Tailwind class for background color (e.g., "bg-blue-100")
-  label: string; // e.g., "Seats:"
+  bgColor?: string;
+  label: string;
   value?: string | number;
-  textColor?: string; // Tailwind class for text color (e.g., "text-gray-700")
+  textColor?: string;
   subLabel?: string;
 };
 
 const IconLabel: React.FC<IconLabelProps> = ({
-  iconName = 'table', // Default icon name "table"
-  iconSize = 14, // Default icon size 14
-  iconColor = '#3B82F6', // Default icon color
-  bgColor = 'bg-blue-100', // Default bg color class
-  label, // Default label text
+  iconName = 'table',
+  iconSize = 14,
+  iconColor = '#3B82F6',
+  bgColor = 'bg-blue-100',
+  label,
   value,
-  textColor = 'text-gray-700', // Default text color class
+  textColor = 'text-gray-700',
   subLabel,
 }) => {
   return (

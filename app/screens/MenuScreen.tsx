@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import FoodCard from 'app/components/FoodMenu/FoodCard';
 import { useFood } from 'app/hooks/useFood';
@@ -13,6 +13,8 @@ export default function MenuScreen() {
   const { foods, refetch, categories, handleSearch, handleCategoryClick } = useFood();
   const { updateCartItemForFood } = useCart();
 
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
   useEffect(() => {
     refetch();
   }, []);
@@ -25,9 +27,13 @@ export default function MenuScreen() {
         onBackPress={() => console.log('Go back')}
         onSearch={handleSearch}
         onFilterPress={() => console.log('Filter pressed')}
-        categories={categories}
+        filters={categories}
         isDesktop={isDesktop}
-        handleCategoryClick={handleCategoryClick}
+        handleFilterClick={(selectedCategory) => {
+          handleCategoryClick(selectedCategory);
+          setSelectedCategory(selectedCategory);
+        }}
+        selectedFilter={selectedCategory}
       />
 
       {!foods || foods.length === 0 ? (

@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
-import CategoryChip from '../common/CategoryChip';
+import CategoryChip from '../common/FilterChip';
 import { OrderItem } from 'app/redux/cartSlice';
 import PaymentDetails from '../table/PaymentDetails';
 

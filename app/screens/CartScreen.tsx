@@ -1,108 +1,64 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Modal } from 'react-native';
+import { View } from 'react-native';
 import { useCart } from 'app/hooks/useCart';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import OrderSummary from 'app/components/table/OrderSummary';
-import PaymentDetails from 'app/components/table/PaymentDetails';
-import CustomButton from 'app/components/common/button/CustomButton';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
+import { useTables } from 'app/hooks/useTables';
+import PrimaryHeader from 'app/components/common/PrimaryHeader';
+import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
+import TableList from 'app/components/table/TableList';
 
 export default function CartScreen() {
+  const { tables, availableTables, occupiedTables, totalCapacity, activeOrders } = useTables();
   const { cart, updateCartItemForOrderItem } = useCart();
-  const { isDesktop } = useIsDesktop();
+  const { tableNames } = useTables();
+  const { isDesktop, isLargeScreen } = useIsDesktop();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedTable, setSelectedTable] = useState('All');
+
+  const handleGoToMenu = (tableName: string) => console.log('Go to menu:', tableName);
+  const handleGoToCart = (tableName: string) => console.log('Go to cart:', tableName);
+  const handleSwitchTable = (tableName: string) => console.log('Switch table:', tableName);
 
   return (
     <View className="h-full w-full bg-gray-100">
-      {isDesktop ? (
-        /** 📌 **Desktop Layout (Two Column)** */
-        <View className="flex-row h-full">
-          {/* Left Panel - Order Summary */}
-          <ScrollView
-            style={{
-              flexBasis: '60%',
-              backgroundColor: '#FFFFFF', // White background like the card
-              padding: 16,
-              marginTop: 8, // Equivalent to mt-2
-              marginLeft: 36, // Equivalent to ml-26
-              borderRadius: 8, // Optional: Rounded edges
-              borderWidth: 2,
-              borderColor: '#E5E7EB', // Light Gray Border
-              marginBottom: 16,
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.1,
-              shadowRadius: 6,
-              elevation: 3, // Android shadow
-            }}
-            contentContainerStyle={{ paddingBottom: 100 }}
-            showsVerticalScrollIndicator={false}
-          >
-            <OrderSummary cartItems={cart.cartItems} updateQuantity={updateCartItemForOrderItem} />
-          </ScrollView>
+      {/* HEADER */}
+      <PrimaryHeader
+        title="Tables"
+        onBackPress={() => console.log('Go back')}
+        onFilterPress={() => console.log('Filter pressed')}
+        filters={tableNames}
+        isDesktop={isDesktop}
+        handleFilterClick={setSelectedTable}
+        selectedFilter={selectedTable}
+      />
 
-          {/* Right Panel - Payment Details */}
-          <ScrollView
-            style={{
-              flexBasis: '40%',
-              padding: 16,
-              marginLeft: 16,
-              backgroundColor: '#FFFFFF', // White background like the card
-              marginTop: 8, // Equivalent to mt-2
-              marginRight: 36, // Equivalent to mr-26
-              marginBottom: 16,
-              borderRadius: 8, // Rounded Corners
-              borderWidth: 1,
-              borderColor: '#E5E7EB', // Light Gray Border
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.1,
-              shadowRadius: 6,
-              elevation: 3, // Android shadow
-            }}
-            contentContainerStyle={{ paddingBottom: 100 }}
-            showsVerticalScrollIndicator={false}
-          >
-            <PaymentDetails orderItems={cart.cartItems} setDiscount={() => {}} />
-          </ScrollView>
-        </View>
+      {selectedTable !== 'All' ? (
+        // Order Summary & Payment Section
+        <TableItemAndPayment
+          cartItems={cart.cartItems}
+          updateQuantity={updateCartItemForOrderItem}
+          isDesktop={isDesktop}
+          showPaymentModal={showPaymentModal}
+          setShowPaymentModal={setShowPaymentModal}
+        />
       ) : (
-        /** 📌 **Mobile Layout (Single Column)** */
-        <ScrollView
-          style={{
-            flexBasis: '100%',
-            backgroundColor: '#FFFFFF', // White background like the card
-            padding: 16,
-            borderRadius: 8, // Optional: Rounded edges
-            borderWidth: 2,
-            borderColor: '#E5E7EB', // Light Gray Border
-            margin: 16,
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 6,
-            elevation: 3, // Android shadow
-          }}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          showsVerticalScrollIndicator={false}
-        >
-          <OrderSummary cartItems={cart.cartItems} updateQuantity={updateCartItemForOrderItem} />
-        </ScrollView>
+        /* Table Metrics & All Table */
+
+        <TableList
+          tables={tables}
+          availableTables={availableTables}
+          occupiedTables={occupiedTables}
+          totalCapacity={totalCapacity}
+          activeOrders={activeOrders}
+          isLargeScreen={isLargeScreen}
+          onGoToMenu={handleGoToMenu}
+          onGoToCart={handleGoToCart}
+          onSwitchTable={handleSwitchTable}
+        />
       )}
 
-      {/* ✅ Floating Button - Only for Mobile */}
-      {!isDesktop && (
-        <View className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50">
-          <CustomButton
-            title="Proceed Payment"
-            onPress={() => {
-              setShowPaymentModal(true);
-            }}
-            width="xl"
-          />
-        </View>
-      )}
-
+      {/* Payment Modal */}
       <PaymentDetailsModal
         visible={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}

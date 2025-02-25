@@ -54,7 +54,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
       </View>
       {/* Payment Methods */}
       <View className="p-4 bg-white">
-        <Text className="text-lg font-semibold mb-2 text-deepTeal">Payment Methods</Text>
+        <Text className="text-lg font-semibold mb-2 text-deepTeal">{'Payment Methods'}</Text>
 
         {/* Payment Selection */}
         <View className="flex flex-row flex-wrap justify-center gap-2">
@@ -77,39 +77,47 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
       {/* Discount Input */}
       <View className="mb-4">
         {/* Discount Label */}
-        <Text className="text-gray-700 text-base font-medium mb-2">Discount</Text>
+        <Text className="text-gray-700 text-base font-medium mb-2">{'Discount'}</Text>
 
         {/* Discount Input Field */}
         <TextInput
           placeholder="Enter discount amount"
           keyboardType="numeric"
-          className="bg-gray-100 text-gray-800 border border-gray-300 rounded-lg p-3 focus:border-[#2a4759] focus:ring focus:ring-[#2a4759]/30"
+          className="bg-gray-100 text-gray-800 border border-gray-300 rounded-lg p-3 focus:border-deepTeal focus:ring focus:ring-deepTeal/30"
           onChangeText={(text) => setDiscount(parseFloat(text) || 0)}
         />
       </View>
-      <View className="w-full h-px bg-gray-300 my-3" /> {/* Divider */}
+      {/* Divider */}
+      <View className="w-full h-px bg-gray-300 my-3" />
       {/* Subtotal, Discount, Total */}
       <View className="bg-white rounded-lg p-4 shadow-md">
         {/* Subtotal */}
         <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 text-base">Subtotal</Text>
-          <Text className="text-gray-700 text-base">${41}</Text>
+          <Text className="text-gray-700 text-base">{'Subtotal'}</Text>
+          <Text className="text-gray-700 text-base">{'41'}</Text>
         </View>
 
         {/* Discount */}
         <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 text-base">Discount</Text>
-          <Text className="text-red-500 text-base">-${10}</Text> {/* Red for negative amount */}
+          <Text className="text-gray-700 text-base">{'Discount'}</Text>
+          {/* Red for negative amount */}
+          <Text className="text-red-500 text-base">-{'10'}</Text>
         </View>
 
         {/* Total */}
         <View className="flex-row justify-between">
-          <Text className="font-bold text-lg text-gray-900">Total</Text>
-          <Text className="font-bold text-lg text-gray-900">${31}</Text>
+          <Text className="font-bold text-lg text-gray-900">{'Total'}</Text>
+          <Text className="font-bold text-lg text-gray-900">{'31'}</Text>
         </View>
       </View>
       {/* Complete Order Button */}
-      <CustomButton title="Complete Order" onPress={() => {}} width="full" />
+      <CustomButton
+        title="Complete Order"
+        onPress={() => {}}
+        width="full"
+        height="l"
+        textSize="text-xl"
+      />
     </View>
   );
 };

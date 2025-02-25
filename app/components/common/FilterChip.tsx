@@ -3,34 +3,34 @@ import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getCategoryIcon } from 'app/hooks/utils/getCategoryIcon';
 
-interface CategoryChipProps {
-  category: string;
+interface FilterChipProps {
+  filterName: string;
   isSelected: boolean;
-  onSelect: (category: string) => void;
+  onSelect: (filterName: string) => void;
 }
 
-const CategoryChip: React.FC<CategoryChipProps> = ({ category, isSelected, onSelect }) => {
+const FilterChip: React.FC<FilterChipProps> = ({ filterName, isSelected, onSelect }) => {
   return (
     <Pressable
-      onPress={() => onSelect(category)}
+      onPress={() => onSelect(filterName)}
       style={[styles.categoryChip, isSelected && { backgroundColor: '#2a4759' }]}
     >
       <View style={styles.iconTextRow}>
         <Ionicons
-          name={getCategoryIcon(category)}
+          name={getCategoryIcon(filterName)}
           size={16}
           color={isSelected ? '#fff' : '#000'}
           style={{ marginRight: 4 }}
         />
         <Text style={[styles.categoryText, isSelected ? { color: '#fff' } : { color: '#000' }]}>
-          {category}
+          {filterName}
         </Text>
       </View>
     </Pressable>
   );
 };
 
-export default CategoryChip;
+export default FilterChip;
 
 const styles = StyleSheet.create({
   categoryChip: {

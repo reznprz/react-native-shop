@@ -10,6 +10,13 @@ export function useTables() {
     { name: 'Table E4', status: 'occupied', seats: 8, items: 6 },
     { name: 'Table F4', status: 'occupied', seats: 8, items: 6 },
     { name: 'Table G4', status: 'occupied', seats: 8, items: 6 },
+    { name: 'Table B3', status: 'occupied', seats: 6, items: 8 },
+    { name: 'Table A3', status: 'available', seats: 4, items: 3 },
+    { name: 'Table C4', status: 'available', seats: 2, items: 1 },
+    { name: 'Table D6', status: 'occupied', seats: 8, items: 6 },
+    { name: 'Table E9', status: 'occupied', seats: 8, items: 6 },
+    { name: 'Table F5', status: 'occupied', seats: 8, items: 6 },
+    { name: 'Table G1', status: 'occupied', seats: 8, items: 6 },
   ]);
 
   // Memoized calculations
@@ -31,6 +38,8 @@ export function useTables() {
     return tables.reduce((sum, table) => sum + table.items, 0);
   }, [tables]);
 
+  const tableNames = useMemo<string[]>(() => tables.map((table) => table.name), [tables]);
+
   return {
     tables,
     totalTables,
@@ -38,5 +47,6 @@ export function useTables() {
     occupiedTables,
     totalCapacity,
     activeOrders,
+    tableNames,
   };
 }

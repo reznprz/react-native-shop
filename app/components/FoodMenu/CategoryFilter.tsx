@@ -1,29 +1,32 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AllCategoriesModal } from '../modal/AllCategoriesModal';
-import CategoryChip from '../common/CategoryChip';
+import { AllFiltersModal } from '../modal/AllFiltersModal';
+import FilterChip from '../common/FilterChip';
 
-interface CategoryFilterProps {
-  categories: string[];
+interface PrimaryHeaderFilterProps {
+  filters: string[];
   isDesktop?: boolean;
-  handleCategoryClick: (categoryName: string) => void;
+  handleFilterClick: (selectedFilter: string) => void;
+  filterName: string;
+  selectedFilter: string;
 }
 
-export default function CategoryFilter({
-  categories,
+export default function PrimaryHeaderFilter({
+  filters,
   isDesktop = false,
-  handleCategoryClick,
-}: CategoryFilterProps) {
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  handleFilterClick,
+  filterName,
+  selectedFilter,
+}: PrimaryHeaderFilterProps) {
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [showMoreDesktop, setShowMoreDesktop] = useState(false);
 
-  const uniqueCategories = Array.from(new Set(['All', 'None', ...categories]));
-  const MAX_DESKTOP_ROW = 6;
-  const visibleDesktopCategories = showMoreDesktop
-    ? uniqueCategories
-    : uniqueCategories.slice(0, MAX_DESKTOP_ROW);
+  const uniqueFilters = Array.from(new Set(['All', 'None', ...filters]));
+  const MAX_DESKTOP_ROW = 9;
+  const visibleDesktopFilters = showMoreDesktop
+    ? uniqueFilters
+    : uniqueFilters.slice(0, MAX_DESKTOP_ROW);
 
   const handleMobileToggle = () => {
     setShowBottomSheet((prev) => !prev);
@@ -36,14 +39,14 @@ export default function CategoryFilter({
   return isDesktop ? (
     <View className="pt-2">
       <View className="flex-row flex-wrap gap-1 pl-4 pr-4 pb-2">
-        {visibleDesktopCategories.map((cat) => (
-          <CategoryChip
+        {visibleDesktopFilters.map((cat) => (
+          <FilterChip
             key={cat}
-            category={cat}
-            isSelected={cat === selectedCategory}
+            filterName={cat}
+            isSelected={cat === selectedFilter}
             onSelect={(value) => {
-              setSelectedCategory(value);
-              handleCategoryClick(value);
+              handleFilterClick(value);
+              handleFilterClick(value);
               handleDesktopToggle();
             }}
           />
@@ -61,7 +64,7 @@ export default function CategoryFilter({
             style={{ marginRight: 4 }}
           />
           <Text className="text-sm font-semibold text-[#2a4759]">
-            {showMoreDesktop ? 'Show Less Categories' : 'View All Categories'}
+            {showMoreDesktop ? `Show Less ${filterName}` : `View All ${filterName}`}
           </Text>
         </View>
       </Pressable>
@@ -74,14 +77,13 @@ export default function CategoryFilter({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingVertical: 8 }}
         >
-          {uniqueCategories.slice(0, 4).map((cat) => (
-            <CategoryChip
+          {uniqueFilters.map((cat) => (
+            <FilterChip
               key={cat}
-              category={cat}
-              isSelected={cat === selectedCategory}
+              filterName={cat}
+              isSelected={cat === selectedFilter}
               onSelect={(cat) => {
-                handleCategoryClick(cat);
-                setSelectedCategory(cat);
+                handleFilterClick(cat);
               }}
             />
           ))}
@@ -99,19 +101,19 @@ export default function CategoryFilter({
             style={{ marginRight: 4 }}
           />
           <Text className="text-sm font-semibold text-[#2a4759]">
-            {showMoreDesktop ? 'Show Less Categories' : 'View All Categories'}
+            {showMoreDesktop ? `Show Less ${filterName}` : `View All ${filterName}`}
           </Text>
         </View>
       </Pressable>
 
-      <AllCategoriesModal
+      <AllFiltersModal
+        title={filterName}
         visible={showBottomSheet}
         onClose={handleMobileToggle}
-        categories={uniqueCategories}
-        selectedCategory={selectedCategory}
-        onSelectCategory={(cat) => {
-          handleCategoryClick(cat);
-          setSelectedCategory(cat);
+        filters={uniqueFilters}
+        selectedFilter={selectedFilter}
+        onSelectFilter={(selectedFilter) => {
+          handleFilterClick(selectedFilter);
           setShowBottomSheet(false);
         }}
       />
