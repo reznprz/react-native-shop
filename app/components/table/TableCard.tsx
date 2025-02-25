@@ -3,6 +3,8 @@ import { View, Text, Pressable, TouchableWithoutFeedback, Keyboard } from 'react
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StatusChip } from '../common/StatusChip';
 import { ActionsMenu } from '../common/ActionsMenu';
+import { FontAwesome5 } from '@expo/vector-icons';
+import IconLabel from '../common/IconLabel';
 
 type TableCardProps = {
   name: string;
@@ -43,12 +45,22 @@ export function TableCard({
         {/* Left Column - Table Name, Status, and Items */}
         <View className="flex flex-col justify-between">
           {/* Table Name & Status */}
-          <Text className="text-lg font-semibold pb-2">{name}</Text>
+          <View className="flex-row items-center mb-2">
+            <View className={`w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center`}>
+              <FontAwesome5 name="table" size={14} color={'3B82F6'} />
+            </View>
+            <Text className={`font-semibold ml-2 text-gray-700`}>{name}</Text>
+          </View>
 
-          <Text className="text-base font-bold text-gray-700 ">Seats: {seats}</Text>
+          <View className="flex-row items-center mb-2">
+            <View className={`w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center`}>
+              <FontAwesome5 name="chair" size={14} color={'3B82F6'} />
+            </View>
+            <Text className={`font-semibold ml-2 text-gray-700`}>{`Seats: ${seats}`}</Text>
+          </View>
 
           {/* Items Count */}
-          <Text className="text-gray-600 mt-4">Items: {items}</Text>
+          <IconLabel label={`Items: ${items}`} iconName="utensils" iconColor="" />
         </View>
 
         {/* Right Column - Seats and Arrow Button */}

@@ -24,7 +24,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, updateQuantity }) => {
           <Text className="text-base font-semibold text-deepTeal" numberOfLines={1}>
             {item.productName}
           </Text>
-          <Text className="text-sm text-gray-600">${item.price.toFixed(2)}</Text>
+          <Text className="text-sm text-gray-600">{`${item.price.toFixed(2)}`}</Text>
         </View>
 
         {/* Right Section: Quantity Control + Total Price */}
@@ -36,7 +36,7 @@ const CartItem: React.FC<CartItemProps> = ({ item, updateQuantity }) => {
               onPress={() => updateQuantity(item, item.quantity - 1)}
               className="items-center justify-center"
             >
-              <Text className="text-lg text-deepTeal px-4 py-1 border border-gray-300">-</Text>
+              <Text className="text-lg text-deepTeal px-4 py-1 border border-gray-300">{'-'}</Text>
             </TouchableOpacity>
 
             {/* Quantity Display */}
@@ -49,13 +49,13 @@ const CartItem: React.FC<CartItemProps> = ({ item, updateQuantity }) => {
               onPress={() => updateQuantity(item, item.quantity + 1)}
               className="items-center justify-center "
             >
-              <Text className="text-lg text-deepTeal px-4 py-1 border border-gray-300">+</Text>
+              <Text className="text-lg text-deepTeal px-4 py-1 border border-gray-300">{'+'}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Total Price */}
           <Text className="font-semibold text-deepTeal">
-            ${(item.price * item.quantity).toFixed(2)}
+            {`${(item.price * item.quantity).toFixed(2)}`}
           </Text>
         </View>
       </View>
