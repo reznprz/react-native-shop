@@ -41,41 +41,35 @@ export function TableCard({
       touchSoundDisabled={true}
       onPressIn={() => Keyboard.dismiss()} // Dismiss keyboard in case of active input
     >
-      <View className="relative bg-white rounded-xl shadow-md p-4 my-2 mx-2 w-58 flex-row justify-between">
-        {/* Left Column - Table Name, Status, and Items */}
-        <View className="flex flex-col justify-between">
-          {/* Table Name & Status */}
-          <View className="flex-row items-center mb-2">
-            <View className={`w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center`}>
-              <FontAwesome5 name="table" size={14} color={'3B82F6'} />
-            </View>
-            <Text className={`font-semibold ml-2 text-gray-700`}>{name}</Text>
-          </View>
-
-          <View className="flex-row items-center mb-2">
-            <View className={`w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center`}>
-              <FontAwesome5 name="chair" size={14} color={'3B82F6'} />
-            </View>
-            <Text className={`font-semibold ml-2 text-gray-700`}>{`Seats: ${seats}`}</Text>
-          </View>
-
-          {/* Items Count */}
-          <IconLabel label={`Items: ${items}`} iconName="utensils" iconColor="" />
+      <View className="bg-white p-4 gap-3 rounded-lg shadow-sm border border-gray-200 mb-2">
+        {/* Top header name and status */}
+        <View className="flex-row justify-between items-center">
+          <IconLabel iconName="clipboard-list" label={name} containerStyle="justify-between" />
+          <StatusChip status={status} />
         </View>
 
-        {/* Right Column - Seats and Arrow Button */}
-        <View className="flex flex-col justify-between items-end">
-          {/* Seats Count (Top Right) */}
-          <View className="ml-3">
-            <StatusChip status={status} />
-          </View>
+        {/* seat count */}
+        <View className="flex-col justify-between">
+          <IconLabel
+            label={`Seats: ${seats}`}
+            iconName="chair"
+            containerStyle=""
+            textColor="text-lg"
+            labelTextSize="text-base pl-2"
+          />
+        </View>
 
-          {/* Arrow Icon Button (Bottom Right) */}
+        {/* footer items count and more action button */}
+        <View className="flex-row justify-between items-center">
+          <IconLabel
+            iconName="utensils"
+            label={`Items: ${items}`}
+            containerStyle="justify-between"
+          />
           <Pressable onPress={() => setShowActions(!showActions)} className="mt-auto">
             <Ionicons name="chevron-forward-outline" size={25} color="#9CA3AF" />
           </Pressable>
         </View>
-
         {/* Conditional Actions Menu */}
         {showActions && (
           <ActionsMenu

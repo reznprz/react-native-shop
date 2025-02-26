@@ -34,7 +34,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, updateQuantity }
         <EmptyState
           iconName="food-off"
           message="No food items available"
-          subMessage="Please check back later or add items to the cart."
+          subMessage="Please add items to the Customer table."
           iconSize={80}
         />
       ) : (

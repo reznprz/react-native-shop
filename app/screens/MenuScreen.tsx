@@ -12,7 +12,6 @@ export default function MenuScreen() {
   const { isDesktop } = useIsDesktop();
   const { foods, refetch, categories, handleSearch, handleCategoryClick } = useFood();
   const { updateCartItemForFood } = useCart();
-
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView } from 'react-native';
+import { View, ScrollView, StyleSheet } from 'react-native';
 import OrderSummary from 'app/components/table/OrderSummary';
 import PaymentDetails from 'app/components/table/PaymentDetails';
 import CustomButton from 'app/components/common/button/CustomButton';
@@ -71,9 +71,9 @@ export default function TableItemAndPayment({
   );
 }
 
-const styles = {
+const styles = StyleSheet.create({
   leftPanel: {
-    flexBasis: 0.6,
+    flexBasis: '60%',
     backgroundColor: '#FFFFFF',
     padding: 16,
     marginTop: 8,
@@ -89,7 +89,7 @@ const styles = {
     elevation: 3,
   },
   rightPanel: {
-    flexBasis: 0.4,
+    flexBasis: '40%',
     padding: 16,
     marginLeft: 16,
     backgroundColor: '#FFFFFF',
@@ -119,4 +119,4 @@ const styles = {
     shadowRadius: 6,
     elevation: 3,
   },
-};
+});

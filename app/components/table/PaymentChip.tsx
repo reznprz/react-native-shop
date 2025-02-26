@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { getPaymentTypeIcon } from 'app/hooks/utils/getPaymentTypeIcon';
+import IconLabel from '../common/IconLabel';
 
 interface PaymentChipProps {
   paymentType: string;
@@ -14,27 +15,32 @@ const PaymentChip: React.FC<PaymentChipProps> = ({ paymentType, isSelected = fal
     return (
       <Pressable
         onPress={() => onSelect(paymentType)}
-        className={`w-24 h-20 rounded-lg border border-gray-300 flex items-center justify-between p-2 ${
-          isSelected ? 'bg-deepTeal' : 'bg-white'
+        className={`w-16 h-20 rounded-lg border border-gray-300 flex items-center justify-between p-2 ${
+          isSelected ? 'bg-deepTeal' : 'bg-paleSkyBlue'
         }`}
       >
         <FontAwesome5
           name={getPaymentTypeIcon(paymentType)}
-          size={28}
+          size={20}
           color={isSelected ? '#fff' : '#000'}
         />
         <Text
-          className={`text-sm ${isSelected ? 'text-white' : 'text-black'}`}
+          className={`text-base ${isSelected ? 'text-white' : 'text-black'}`}
         >{`${paymentType}`}</Text>
       </Pressable>
     );
   }
 
   return (
-    <View className="flex-row items-center ml-1">
-      <FontAwesome5 name={getPaymentTypeIcon(paymentType)} size={14} color="gray" />
-      <Text className="text-gray-600 text-sm ml-2">{`Paid with ${paymentType}`}</Text>
-    </View>
+    <IconLabel
+      label={`Paid with ${paymentType}`}
+      iconName={getPaymentTypeIcon(paymentType)}
+      containerStyle="ml-1"
+      textColor="text-gray-500"
+      labelTextSize="text-base ml-2"
+      applyCircularIconBg={false}
+      iconColor="gray"
+    />
   );
 };
 

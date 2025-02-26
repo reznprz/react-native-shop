@@ -14,7 +14,7 @@ export default function CartScreen() {
   const { tableNames } = useTables();
   const { isDesktop, isLargeScreen } = useIsDesktop();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedTable, setSelectedTable] = useState('All');
+  const [selectedTable, setSelectedTable] = useState('Table B2');
 
   const handleGoToMenu = (tableName: string) => console.log('Go to menu:', tableName);
   const handleGoToCart = (tableName: string) => console.log('Go to cart:', tableName);
@@ -33,30 +33,32 @@ export default function CartScreen() {
         selectedFilter={selectedTable}
       />
 
-      {selectedTable !== 'All' ? (
-        // Order Summary & Payment Section
-        <TableItemAndPayment
-          cartItems={cart.cartItems}
-          updateQuantity={updateCartItemForOrderItem}
-          isDesktop={isDesktop}
-          showPaymentModal={showPaymentModal}
-          setShowPaymentModal={setShowPaymentModal}
-        />
-      ) : (
-        /* Table Metrics & All Table */
-
-        <TableList
-          tables={tables}
-          availableTables={availableTables}
-          occupiedTables={occupiedTables}
-          totalCapacity={totalCapacity}
-          activeOrders={activeOrders}
-          isLargeScreen={isLargeScreen}
-          onGoToMenu={handleGoToMenu}
-          onGoToCart={handleGoToCart}
-          onSwitchTable={handleSwitchTable}
-        />
-      )}
+      {/* Wrap the rest of the content in a flex:1 container */}
+      <View style={{ flex: 1 }}>
+        {selectedTable !== 'All' ? (
+          // Order Summary & Payment Section
+          <TableItemAndPayment
+            cartItems={cart.cartItems}
+            updateQuantity={updateCartItemForOrderItem}
+            isDesktop={isDesktop}
+            showPaymentModal={showPaymentModal}
+            setShowPaymentModal={setShowPaymentModal}
+          />
+        ) : (
+          /* Table Metrics & All Table */
+          <TableList
+            tables={tables}
+            availableTables={availableTables}
+            occupiedTables={occupiedTables}
+            totalCapacity={totalCapacity}
+            activeOrders={activeOrders}
+            isLargeScreen={isLargeScreen}
+            onGoToMenu={handleGoToMenu}
+            onGoToCart={handleGoToCart}
+            onSwitchTable={handleSwitchTable}
+          />
+        )}
+      </View>
 
       {/* Payment Modal */}
       <PaymentDetailsModal

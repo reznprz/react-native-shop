@@ -13,7 +13,7 @@ type ActionsMenuProps = {
 export function ActionsMenu({ onGoToMenu, onGoToCart, onSwitchTable, onClose }: ActionsMenuProps) {
   return (
     <View
-      className="absolute right-[-14] top-[-18] bg-white border border-gray-200 rounded-md shadow-md p-2 w-36"
+      className="absolute right-[4] top-[4] bg-white border border-gray-200 rounded-md shadow-md p-2 w-36"
       style={{ overflow: 'visible', zIndex: 9999, elevation: 9999 }}
     >
       {/* Close Button */}

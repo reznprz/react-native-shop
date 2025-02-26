@@ -97,6 +97,21 @@ export const useOrder = () => {
         { id: 8, name: 'Cheesecake', quantity: 1, price: 5.0 },
       ],
     },
+    {
+      id: 1939,
+      table: 'Table 5',
+      date: 'March 16, 2025',
+      time: '8:00 PM',
+      status: 'Pending',
+      total: 50.0,
+      paymentMethod: 'FonePay',
+      items: [
+        { id: 5, name: 'Pepperoni Pizza', quantity: 1, price: 20.0 },
+        { id: 6, name: 'Pasta Alfredo', quantity: 1, price: 15.0 },
+        { id: 7, name: 'Soft Drink', quantity: 2, price: 10.0 },
+        { id: 8, name: 'Cheesecake', quantity: 1, price: 5.0 },
+      ],
+    },
   ]);
 
   return { orders };

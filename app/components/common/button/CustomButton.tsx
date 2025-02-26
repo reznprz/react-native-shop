@@ -98,7 +98,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       onHoverIn={() => setIsHovered(true)}
       onHoverOut={() => setIsHovered(false)}
       className={
-        `${widthClass} ${heightClass} ${bgColor} ${hoverEffect} rounded px-2 py-1 ${customButtonStyle}` // allow custom override
+        `${widthClass} ${heightClass} ${bgColor} ${hoverEffect} flex flex-row items-center justify-center rounded px-2 py-1 ${customButtonStyle}` // allow custom override
       }
     >
       {iconName && (

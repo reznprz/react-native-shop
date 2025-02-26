@@ -34,8 +34,9 @@ export const AllFiltersModal: React.FC<AllFiltersModalProps> = ({
         <View style={styles.categoriesContainer}>
           {filters.map((filter) => (
             <FilterChip
+              filterName={title}
               key={filter}
-              filterName={filter}
+              label={filter}
               isSelected={filter === selectedFilter}
               onSelect={onSelectFilter}
             />

@@ -2,11 +2,13 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabs from './MainTabs';
 import CartScreen from '../screens/CartScreen';
-import CustomHeader from '../components/headers/CustomHeader'; // Mobile Header
+import CustomHeader from '../components/headers/CustomHeader';
 import { ScreenDisplayNames, ScreenNames } from 'app/types/navigation';
 import SpinnerLoading from 'app/components/SpinnerLoading';
+import { createLazyScreen } from 'app/utils/lazyScreen';
 
 const QrMenuItemsScreen = React.lazy(() => import('app/screens/QrMenuItemsScreen'));
+const LazyOrderDetailsScreen = createLazyScreen(() => import('app/screens/OrderDetailsScreen'));
 
 // 2) Make a small wrapper to show fallback while the chunk loads
 function LazyQrMenuItemsScreen(props: any) {
@@ -54,6 +56,23 @@ export default function RootNav() {
           headerTitleStyle: {
             fontWeight: 'bold', // Make the title bold
             fontSize: 18, // Increase font size
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.ORDER_DETAILS}
+        component={LazyOrderDetailsScreen}
+        options={{
+          title: ScreenDisplayNames.ORDER_DETAILS,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
           },
         }}
       />

@@ -37,7 +37,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
           <EmptyState
             iconName="food-off"
             message="No food items available"
-            subMessage="Please check back later or add items to the cart."
+            subMessage="Please add items to the customer table."
             iconSize={30}
           />
         ) : (
@@ -53,11 +53,11 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
         )}
       </View>
       {/* Payment Methods */}
-      <View className="p-4 bg-white">
-        <Text className="text-lg font-semibold mb-2 text-deepTeal">{'Payment Methods'}</Text>
+      <View className="bg-white">
+        <IconLabel iconName="document-text-outline" label={'Payment Methods'} iconType="Ionicons" />
 
         {/* Payment Selection */}
-        <View className="flex flex-row flex-wrap justify-center gap-2">
+        <View className="flex flex-row flex-wrap justify-center gap-2 mb-4">
           {paymentTypes.map((type, idx) => (
             <View key={idx} className="p-1">
               <PaymentChip
@@ -75,9 +75,14 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
         ))}
       </View>
       {/* Discount Input */}
-      <View className="mb-4">
+      <View className="flex-row justify-between items-center mb-4">
         {/* Discount Label */}
-        <Text className="text-gray-700 text-base font-medium mb-2">{'Discount'}</Text>
+        <IconLabel
+          iconName="pricetag-outline"
+          label={'Discount'}
+          containerStyle="justify-between"
+          iconType="Ionicons"
+        />
 
         {/* Discount Input Field */}
         <TextInput

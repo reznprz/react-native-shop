@@ -17,7 +17,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   return (
     <View style={styles.container}>
-      <MaterialCommunityIcons name={iconName as any} size={iconSize} color="#aaa" />
+      <MaterialCommunityIcons name={iconName as any} size={iconSize} color="#2a4759" />
       <Text style={styles.message}>{message}</Text>
       {subMessage && <Text style={styles.subMessage}>{subMessage}</Text>}
     </View>

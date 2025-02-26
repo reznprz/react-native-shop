@@ -39,15 +39,15 @@ export default function PrimaryHeaderFilter({
   return isDesktop ? (
     <View className="pt-2">
       <View className="flex-row flex-wrap gap-1 pl-4 pr-4 pb-2">
-        {visibleDesktopFilters.map((cat) => (
+        {visibleDesktopFilters.map((filterLable) => (
           <FilterChip
-            key={cat}
-            filterName={cat}
-            isSelected={cat === selectedFilter}
+            key={filterLable}
+            filterName={filterName}
+            label={filterLable}
+            isSelected={filterLable === selectedFilter}
             onSelect={(value) => {
               handleFilterClick(value);
-              handleFilterClick(value);
-              handleDesktopToggle();
+              setShowMoreDesktop(false);
             }}
           />
         ))}
@@ -77,11 +77,12 @@ export default function PrimaryHeaderFilter({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingVertical: 8 }}
         >
-          {uniqueFilters.map((cat) => (
+          {uniqueFilters.map((filterLable) => (
             <FilterChip
-              key={cat}
-              filterName={cat}
-              isSelected={cat === selectedFilter}
+              key={filterLable}
+              filterName={filterName}
+              label={filterLable}
+              isSelected={filterLable === selectedFilter}
               onSelect={(cat) => {
                 handleFilterClick(cat);
               }}

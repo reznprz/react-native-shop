@@ -3,8 +3,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { tabScreenConfigs } from 'app/navigation/screenConfigs';
 import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons, MaterialIcons } from '@expo/vector-icons';
-import { IconType } from 'app/types/navigation';
+import CustomIcon from '../common/CustomIcon';
 
 const MaterialTopTabs = createMaterialTopTabNavigator();
 
@@ -29,8 +28,6 @@ export function MobileTabs() {
           tabBarIcon: ({ focused, color, size }) => {
             if (!screen) return null;
             const iconName = focused ? screen.filledIcon : screen.icon;
-            const IconComponent =
-              screen.iconType === IconType.MaterialIcons ? MaterialIcons : Ionicons;
 
             return (
               <View style={{ alignItems: 'center' }}>
@@ -45,9 +42,10 @@ export function MobileTabs() {
                     }}
                   />
                 )}
-                <IconComponent
-                  name={iconName as keyof typeof IconComponent.glyphMap}
-                  size={size}
+
+                <CustomIcon
+                  type={screen.iconType}
+                  name={iconName}
                   color={focused ? '#2a4759' : color}
                 />
               </View>

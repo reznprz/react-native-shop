@@ -27,7 +27,7 @@ export default function TableList({
   onSwitchTable,
 }: TableListProps) {
   return (
-    <View className="relative flex-1 bg-gray-100 p-1">
+    <View className="flex-1 bg-gray-100 p-2">
       {/* Top Header Section */}
       <TableMetrics
         availableTables={availableTables}
@@ -39,11 +39,15 @@ export default function TableList({
 
       {/* Tables Grid with Wrapping */}
       <ScrollView
-        contentContainerStyle={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-        }}
+        contentContainerStyle={[
+          { gap: 4 },
+          isLargeScreen && {
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+          },
+        ]}
+        showsVerticalScrollIndicator={false}
       >
         {tables.map((table, index) => (
           <TableCard

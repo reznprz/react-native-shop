@@ -1,29 +1,30 @@
 import React from 'react';
 import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { getCategoryIcon } from 'app/hooks/utils/getCategoryIcon';
+import { getFilterIcon } from 'app/hooks/utils/getFilterIcon';
 
 interface FilterChipProps {
+  label: string;
   filterName: string;
   isSelected: boolean;
-  onSelect: (filterName: string) => void;
+  onSelect: (selectedLabel: string) => void;
 }
 
-const FilterChip: React.FC<FilterChipProps> = ({ filterName, isSelected, onSelect }) => {
+const FilterChip: React.FC<FilterChipProps> = ({ filterName, isSelected, onSelect, label }) => {
   return (
     <Pressable
-      onPress={() => onSelect(filterName)}
+      onPress={() => onSelect(label)}
       style={[styles.categoryChip, isSelected && { backgroundColor: '#2a4759' }]}
     >
       <View style={styles.iconTextRow}>
         <Ionicons
-          name={getCategoryIcon(filterName)}
+          name={getFilterIcon(filterName, label) as keyof typeof Ionicons.glyphMap}
           size={16}
           color={isSelected ? '#fff' : '#000'}
           style={{ marginRight: 4 }}
         />
         <Text style={[styles.categoryText, isSelected ? { color: '#fff' } : { color: '#000' }]}>
-          {filterName}
+          {label}
         </Text>
       </View>
     </Pressable>
