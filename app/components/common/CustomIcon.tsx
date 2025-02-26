@@ -5,6 +5,7 @@ import {
   FontAwesome5,
   Fontisto,
   MaterialCommunityIcons,
+  FontAwesome,
 } from '@expo/vector-icons';
 
 // Define the possible icon sets
@@ -14,6 +15,7 @@ export const ICON_TYPES = {
   FontAwesome5,
   Fontisto,
   MaterialCommunityIcons,
+  FontAwesome,
 };
 
 interface CustomIconProps {

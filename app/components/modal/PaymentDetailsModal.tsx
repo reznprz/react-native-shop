@@ -54,5 +54,6 @@ const styles = StyleSheet.create({
   categoriesContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    flex: 1,
   },
 });

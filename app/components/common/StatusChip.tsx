@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import CustomIcon from './CustomIcon';
+import { IconType } from 'app/navigation/screenConfigs';
 
 type StatusChipProps = {
   status: string;
@@ -14,6 +15,7 @@ export function StatusChip({ status, showIcon = true }: StatusChipProps) {
       text: 'text-green-600',
       icon: 'check-circle',
       iconColor: '#10B981',
+      iconType: 'FontAwesome5',
       size: 'px-3 py-1 text-base',
     },
     pending: {
@@ -21,6 +23,7 @@ export function StatusChip({ status, showIcon = true }: StatusChipProps) {
       text: 'text-yellow-600',
       icon: 'hourglass-half',
       iconColor: '#F59E0B',
+      iconType: 'FontAwesome5',
       size: 'px-3 py-1 text-base',
     },
     cancelled: {
@@ -28,20 +31,23 @@ export function StatusChip({ status, showIcon = true }: StatusChipProps) {
       text: 'text-red-600',
       icon: 'times-circle',
       iconColor: '#EF4444',
+      iconType: 'FontAwesome5',
       size: 'px-3 py-1 text-base',
     },
     available: {
-      bg: 'bg-blue-100',
-      text: 'text-blue-600',
-      icon: 'check',
-      iconColor: '#3B82F6',
+      bg: 'bg-green-100',
+      text: 'text-green-600',
+      icon: 'checkmark-circle-outline',
+      iconColor: '#10B981',
+      iconType: 'Ionicons',
       size: 'px-2 py-0.5 text-sm',
     },
     occupied: {
-      bg: 'bg-gray-300',
-      text: 'text-gray-700',
-      icon: 'times',
-      iconColor: '#4B5563',
+      bg: 'bg-red-100',
+      text: 'text-red-500',
+      icon: 'close-circle-outline',
+      iconColor: '#EF4444',
+      iconType: 'Ionicons',
       size: 'px-2 py-0.5 text-sm',
     },
     default: {
@@ -49,20 +55,21 @@ export function StatusChip({ status, showIcon = true }: StatusChipProps) {
       text: 'text-gray-600',
       icon: 'question-circle',
       iconColor: '#6B7280',
+      iconType: 'FontAwesome5',
       size: 'px-3 py-1 text-base',
     },
   };
 
   // Convert status to lowercase for case-insensitive matching
   const normalizedStatus = status.toLowerCase();
-  const { bg, text, icon, iconColor, size } =
+  const { bg, text, icon, iconColor, size, iconType } =
     statusStyles[normalizedStatus as keyof typeof statusStyles] || statusStyles.default;
 
   return (
     <View className={`flex-row items-center rounded-3xl border border-gray-200 ${bg} ${size}`}>
       {showIcon && (
         <CustomIcon
-          type={'FontAwesome5'}
+          type={iconType as IconType}
           name={icon}
           size={14}
           iconStyle={`${text} pr-1`}

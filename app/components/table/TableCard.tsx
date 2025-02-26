@@ -73,9 +73,15 @@ export function TableCard({
         {/* Conditional Actions Menu */}
         {showActions && (
           <ActionsMenu
-            onGoToMenu={onGoToMenu}
+            onGoToMenu={() => {
+              onGoToMenu();
+              setShowActions(false);
+            }}
             onGoToCart={onGoToCart}
-            onSwitchTable={onSwitchTable}
+            onSwitchTable={() => {
+              onSwitchTable();
+              setShowActions(false);
+            }}
             onClose={() => setShowActions(false)}
           />
         )}

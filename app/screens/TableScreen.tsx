@@ -6,6 +6,7 @@ import PrimaryHeader from 'app/components/common/PrimaryHeader';
 import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
 import TableList from 'app/components/table/TableList';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
+import TableListModal from 'app/components/modal/TableListModal';
 
 export default function TableScreen() {
   const {
@@ -20,6 +21,7 @@ export default function TableScreen() {
   } = useTables();
   const { isDesktop, isLargeScreen } = useIsDesktop();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState('All');
 
   // Handlers for Actions Menu
@@ -62,7 +64,7 @@ export default function TableScreen() {
             isLargeScreen={isLargeScreen}
             onGoToMenu={handleGoToMenu}
             onGoToCart={handleGoToCart}
-            onSwitchTable={handleSwitchTable}
+            onSwitchTable={() => setShowSwitchTableModal(true)}
           />
         )}
       </View>
@@ -73,6 +75,13 @@ export default function TableScreen() {
         onClose={() => setShowPaymentModal(false)}
         orderItems={cart.cartItems}
         setDiscount={() => {}}
+      />
+
+      <TableListModal
+        tables={tables}
+        visible={showSwitchTableModal}
+        onClose={() => setShowSwitchTableModal(false)}
+        onSelectTable={() => setShowSwitchTableModal(false)}
       />
     </View>
   );

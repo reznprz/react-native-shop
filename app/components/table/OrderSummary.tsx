@@ -14,7 +14,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({ cartItems, updateQuantity }
   return (
     <View className="bg-white p-4 rounded-lg shadow-md">
       {/* Order Header Info */}
-      <View className="p-5 bg-white rounded-lg shadow-md flex-row items-center justify-between">
+      <View className="bg-white rounded-lg shadow-md flex-row items-center justify-between">
         {/* Left Section: Order Info */}
         <View className="gap-1">
           <IconLabel iconName="clipboard-list" label={'Order #12345'} />

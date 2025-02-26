@@ -1,12 +1,5 @@
 import React, { useState } from 'react';
-import {
-  Text,
-  Pressable,
-  StyleProp,
-  ViewStyle,
-  TextStyle,
-  GestureResponderEvent,
-} from 'react-native';
+import { Text, Pressable, GestureResponderEvent } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 type SizeOption = 's' | 'm' | 'l' | 'xl' | 'full';
@@ -38,7 +31,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   fontWeight = 'font-semibold',
   customButtonStyle,
   customTextStyle,
-  iconName = false,
+  iconName,
   iconColor = 'white',
   iconSize = 18,
 }) => {
@@ -89,7 +82,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   }
 
   // Define a hover effect by slightly modifying the background color.
-  // Here, when hovered, we use a slightly altered deepTeal shade.
   const hoverEffect = 'hover:bg-[#24415A]';
 
   return (
@@ -98,7 +90,9 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       onHoverIn={() => setIsHovered(true)}
       onHoverOut={() => setIsHovered(false)}
       className={
-        `${widthClass} ${heightClass} ${bgColor} ${hoverEffect} flex flex-row items-center justify-center rounded px-2 py-1 ${customButtonStyle}` // allow custom override
+        customButtonStyle
+          ? customButtonStyle
+          : `${widthClass} ${heightClass} ${bgColor} ${hoverEffect} flex flex-row items-center justify-center rounded px-2 py-1`
       }
     >
       {iconName && (
@@ -109,7 +103,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           className="mr-2"
         />
       )}
-      <Text className={`${textSize} ${textColor} ${fontWeight} text-center ${customTextStyle}`}>
+      <Text
+        className={
+          customTextStyle ? customTextStyle : `${textSize} ${textColor} ${fontWeight} text-center`
+        }
+      >
         {title}
       </Text>
     </Pressable>

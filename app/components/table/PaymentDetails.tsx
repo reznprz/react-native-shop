@@ -27,11 +27,11 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
   };
 
   return (
-    <View>
+    <View className="p-4 flex-1 justify-between">
       {/* Heading */}
       <IconLabel iconName="cash-register" label={'Payment Details'} />
       {/* Order Summary Section */}
-      <View className="mb-4 bg-gray-100 p-4 rounded-lg">
+      <View className="mb-4 bg-gray-100 p-4 rounded-lg mt-2">
         <IconLabel iconName="receipt" label={'Order Summary'} />
         {!items || items.length === 0 ? (
           <EmptyState
@@ -75,7 +75,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
         ))}
       </View>
       {/* Discount Input */}
-      <View className="flex-row justify-between items-center mb-4">
+      <View className="flex-row justify-between items-center mb-4 pt-4">
         {/* Discount Label */}
         <IconLabel
           iconName="pricetag-outline"

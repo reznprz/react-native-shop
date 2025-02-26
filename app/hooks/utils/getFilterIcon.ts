@@ -5,7 +5,7 @@ export function getFilterIcon(filterName: string, filterLabel: string): string {
   // If filterName is "Table", return a table icon
   if (filterName === 'Tables') {
     if (cat.includes('all')) return 'list-outline';
-    return 'cube-outline';
+    return 'grid';
   }
 
   // If filterName is "Categories", return category-based icons
