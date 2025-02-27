@@ -1,5 +1,5 @@
 import { createLazyScreen } from 'app/utils/lazyScreen';
-import { IconType } from '../types/navigation';
+import { ICON_TYPES } from 'app/components/common/CustomIcon';
 
 const LazyHomeScreen = createLazyScreen(() => import('app/screens/HomeScreen'));
 const LazyMenuScreen = createLazyScreen(() => import('app/screens/MenuScreen'));
@@ -7,17 +7,25 @@ const LazyQRScreen = createLazyScreen(() => import('app/screens/QrMenuScreen'));
 const LazyTableScreen = createLazyScreen(() => import('app/screens/TableScreen'));
 const LazyOrdersScreen = createLazyScreen(() => import('app/screens/OrdersScreen'));
 
-/**
- * This array can be reused for both desktop (top tabs) and mobile (bottom tabs).
- */
-export const tabScreenConfigs = [
+export type IconType = keyof typeof ICON_TYPES;
+
+interface TabScreenConfig {
+  name: string;
+  label: string;
+  component: React.ComponentType<any>;
+  icon: string;
+  filledIcon: string;
+  iconType: IconType;
+}
+
+export const tabScreenConfigs: TabScreenConfig[] = [
   {
     name: 'Home',
     label: 'HOME',
     component: LazyHomeScreen,
     icon: 'home-outline',
     filledIcon: 'home',
-    iconType: IconType.Ionicons,
+    iconType: 'Ionicons',
   },
   {
     name: 'Menu',
@@ -25,7 +33,7 @@ export const tabScreenConfigs = [
     component: LazyMenuScreen,
     icon: 'fast-food-outline',
     filledIcon: 'fast-food',
-    iconType: IconType.Ionicons,
+    iconType: 'Ionicons',
   },
   {
     name: 'QRMenu',
@@ -33,22 +41,22 @@ export const tabScreenConfigs = [
     component: LazyQRScreen,
     icon: 'qr-code-outline',
     filledIcon: 'qr-code',
-    iconType: IconType.Ionicons,
+    iconType: 'Ionicons',
   },
   {
     name: 'Table',
     label: 'TABLE',
     component: LazyTableScreen,
-    icon: 'chair-alt',
-    filledIcon: 'chair',
-    iconType: IconType.MaterialIcons,
+    icon: 'table',
+    filledIcon: 'table',
+    iconType: 'MaterialCommunityIcons',
   },
   {
     name: 'Orders',
     label: 'ORDERS',
     component: LazyOrdersScreen,
-    icon: 'receipt-outline',
-    filledIcon: 'receipt',
-    iconType: IconType.Ionicons,
+    icon: 'list-alt',
+    filledIcon: 'assignment',
+    iconType: 'MaterialIcons',
   },
 ];

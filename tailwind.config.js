@@ -20,6 +20,7 @@ module.exports = {
         lightGrayish: '#d4d7db', // Softer Grayish White (Better for contrast)
         darkTeal: '#1f3a45', // Even Deeper Teal (For seamless blending with #2a4759)
         paleSkyBlue: '#a0c4dc', // More Muted Pale Blue (For subtle highlights)
+        'blue-500': '#3B82F6', // Vivid Blue
       },
       fontFamily: {
         roboto: ['Roboto', 'sans-serif'],

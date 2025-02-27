@@ -4,12 +4,12 @@ import { OrderItem } from 'app/redux/cartSlice';
 
 const FALLBACK_IMAGE_URI = 'https://picsum.photos/300/200';
 
-interface CartItemProps {
+interface TableItemProps {
   item: OrderItem;
   updateQuantity: (item: OrderItem, newQuantity: number) => void;
 }
 
-const CartItem: React.FC<CartItemProps> = ({ item, updateQuantity }) => {
+const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
   return (
     <>
       <View className="flex-row items-center justify-evenly mb-4 p-4 bg-white">
@@ -59,9 +59,9 @@ const CartItem: React.FC<CartItemProps> = ({ item, updateQuantity }) => {
           </Text>
         </View>
       </View>
-      <View className="w-full h-px bg-gray-200 my-3" /> {/* Divider */}
+      <View className="w-full h-px bg-gray-200 my-3" />
     </>
   );
 };
 
-export default CartItem;
+export default TableItem;

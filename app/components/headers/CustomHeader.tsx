@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/native';
 import { tabScreenConfigs } from '../../navigation/screenConfigs';
-import { IconType } from '../../types/navigation'; // Ensure IconType is imported if needed
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import CustomIcon from '../common/CustomIcon';
 
 /** Helper: Get the label from route name */
 function getRouteLabel(routeName: string): string {
@@ -59,9 +58,10 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
 
       {/* Right Section: Cart Icon */}
       <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
-        <Ionicons
-          className={`${isDesktop ? 'pt-6' : 'pt-16'}`}
-          name="cart-outline"
+        <CustomIcon
+          iconStyle={`${isDesktop ? 'pt-6' : 'pt-16'}`}
+          name={'table'}
+          type={'MaterialCommunityIcons'}
           size={30}
           color="#fef6eb"
         />
@@ -73,9 +73,6 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
 /** ✅ Icon Component with Selection Logic */
 const IconWithTooltip = ({ navigation, screen, isFocused }: any) => {
   const [hovered, setHovered] = useState(false);
-
-  // Determine icon type (Ionicons or MaterialIcons)
-  const IconComponent = screen.iconType === IconType.MaterialIcons ? MaterialIcons : Ionicons;
 
   // Choose correct icon & color based on selection
   const iconName = isFocused ? screen.filledIcon : screen.icon;
@@ -93,7 +90,7 @@ const IconWithTooltip = ({ navigation, screen, isFocused }: any) => {
         onHoverIn={() => setHovered(true)}
         onHoverOut={() => setHovered(false)}
       >
-        <IconComponent name={iconName as any} size={26} color={iconColor} />
+        <CustomIcon type={screen.iconType} name={iconName} size={26} color={iconColor} />
       </Pressable>
 
       {hovered && (

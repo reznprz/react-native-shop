@@ -1,13 +1,34 @@
-import React from 'react';
-import { View, ScrollView } from 'react-native';
-import { TableCard } from 'app/components/table/TableCard';
+import React, { useState } from 'react';
+import { View } from 'react-native';
 import { useTables } from 'app/hooks/useTables';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import TableMetrics from 'app/components/table/TableMetrics';
+import PrimaryHeader from 'app/components/common/PrimaryHeader';
+import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
+import TableList from 'app/components/table/TableList';
+import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
+import TableListModal from 'app/components/modal/TableListModal';
+import SubTab from 'app/components/common/SubTab';
+
+const tabs = ['All Tables', 'Table Items'];
+
+type TabType = (typeof tabs)[number];
 
 export default function TableScreen() {
-  const { tables, availableTables, occupiedTables, totalCapacity, activeOrders } = useTables();
-  const { isLargeScreen } = useIsDesktop();
+  const {
+    tables,
+    availableTables,
+    occupiedTables,
+    totalCapacity,
+    activeOrders,
+    cart,
+    updateCartItemForOrderItem,
+    tableNames,
+  } = useTables();
+  const { isDesktop, isLargeScreen } = useIsDesktop();
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
+  const [selectedTable, setSelectedTable] = useState('All');
+  const [activeTab, setActiveTab] = useState<TabType>('All Tables');
 
   // Handlers for Actions Menu
   const handleGoToMenu = (tableName: string) => console.log('Go to menu:', tableName);
@@ -15,38 +36,64 @@ export default function TableScreen() {
   const handleSwitchTable = (tableName: string) => console.log('Switch table:', tableName);
 
   return (
-    <View className="relative flex-1 bg-gray-100 p-1">
-      {/* Top Header Section */}
+    <View className="h-full w-full bg-gray-100">
+      <SubTab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <TableMetrics
-        availableTables={availableTables}
-        occupiedTables={occupiedTables}
-        totalCapacity={totalCapacity}
-        activeOrders={activeOrders}
-        isLargeScreen={isLargeScreen}
+      {/* Wrap the rest of the content in a flex:1 container */}
+      <View className="flex-1 bg-gray-100">
+        {activeTab !== 'All Tables' ? (
+          <View className="flex flex-1">
+            {/* HEADER */}
+            <PrimaryHeader
+              title="Tables"
+              onBackPress={() => console.log('Go back')}
+              onFilterPress={() => console.log('Filter pressed')}
+              filters={tableNames}
+              isDesktop={isDesktop}
+              handleFilterClick={setSelectedTable}
+              selectedFilter={selectedTable}
+              tableInfo={tables}
+            />
+            {/* Order Summary & Payment Section */}
+
+            <TableItemAndPayment
+              cartItems={cart.cartItems}
+              updateQuantity={updateCartItemForOrderItem}
+              isDesktop={isDesktop}
+              showPaymentModal={showPaymentModal}
+              setShowPaymentModal={setShowPaymentModal}
+            />
+          </View>
+        ) : (
+          /* Table Metrics & All Table */
+          <TableList
+            tables={tables}
+            availableTables={availableTables}
+            occupiedTables={occupiedTables}
+            totalCapacity={totalCapacity}
+            activeOrders={activeOrders}
+            isLargeScreen={isLargeScreen}
+            onGoToMenu={handleGoToMenu}
+            onGoToCart={handleGoToCart}
+            onSwitchTable={() => setShowSwitchTableModal(true)}
+          />
+        )}
+      </View>
+
+      {/* Payment Modal */}
+      <PaymentDetailsModal
+        visible={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        orderItems={cart.cartItems}
+        setDiscount={() => {}}
       />
 
-      {/* Tables Grid with wrapping */}
-      <ScrollView
-        contentContainerStyle={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-        }}
-      >
-        {tables.map((table, index) => (
-          <TableCard
-            key={index}
-            name={table.name}
-            status={table.status}
-            seats={table.seats}
-            items={table.items}
-            onGoToMenu={() => handleGoToMenu(table.name)}
-            onGoToCart={() => handleGoToCart(table.name)}
-            onSwitchTable={() => handleSwitchTable(table.name)}
-          />
-        ))}
-      </ScrollView>
+      <TableListModal
+        tables={tables}
+        visible={showSwitchTableModal}
+        onClose={() => setShowSwitchTableModal(false)}
+        onSelectTable={() => setShowSwitchTableModal(false)}
+      />
     </View>
   );
 }

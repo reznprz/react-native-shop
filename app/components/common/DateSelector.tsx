@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, Modal, StyleSheet, Pressable } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import BaseModal from './modal/BaseModal';
 
 type DateSelectorProps = {
   selectedDate: string;
@@ -73,27 +74,24 @@ const DateSelector: React.FC<DateSelectorProps> = ({ selectedDate, onDateChange 
 
       {/* Web Date Picker Modal */}
       {Platform.OS === 'web' && (
-        <Modal
+        <BaseModal
           visible={isWebModalVisible}
-          transparent
-          animationType="slide"
           onRequestClose={hideWebModal}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Select a Date</Text>
-              <input
-                type="date"
-                value={getPickerDate().toISOString().split('T')[0]}
-                onChange={handleWebDateChange}
-                style={styles.dateInput as React.CSSProperties} // Type assertion for web style
-              />
-              <Pressable onPress={hideWebModal} style={styles.cancelButton}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </Pressable>
-            </View>
-          </View>
-        </Modal>
+          headerTitle="Select a Date"
+          body={
+            <input
+              type="date"
+              value={getPickerDate().toISOString().split('T')[0]}
+              onChange={handleWebDateChange}
+              style={styles.dateInput as React.CSSProperties}
+            />
+          }
+          footer={
+            <Pressable onPress={hideWebModal} style={styles.cancelButton}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </Pressable>
+          }
+        />
       )}
     </View>
   );
@@ -120,24 +118,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginHorizontal: 4,
   },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 8,
-    minWidth: 300,
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
   dateInput: {
     padding: 10,
     fontSize: 16,
@@ -149,12 +129,12 @@ const styles = StyleSheet.create({
   cancelButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#eee',
+    backgroundColor: '#2a4759',
     borderRadius: 5,
   },
   cancelButtonText: {
     fontSize: 16,
-    color: 'gray',
+    color: 'white',
   },
 });
 

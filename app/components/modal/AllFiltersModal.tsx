@@ -1,28 +1,38 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
-import CategoryChip from '../common/CategoryChip';
+import FilterChip from '../common/FilterChip';
 
-interface AllCategoriesModalProps {
+interface AllFiltersModalProps {
+  title: string;
+  tableInfo?: { name: string; status: string; seats: number; items: number }[];
   visible: boolean;
   onClose: () => void;
-  categories: string[];
-  selectedCategory: string;
-  onSelectCategory: (category: string) => void;
+  filters: string[];
+  selectedFilter: string;
+  onSelectFilter: (selectedFilter: string) => void;
 }
 
-export const AllCategoriesModal: React.FC<AllCategoriesModalProps> = ({
+export const AllFiltersModal: React.FC<AllFiltersModalProps> = ({
   visible,
   onClose,
-  categories,
-  selectedCategory,
-  onSelectCategory,
+  filters,
+  selectedFilter,
+  onSelectFilter,
+  title,
+  tableInfo,
 }) => {
+  const getTableStatus = useCallback(
+    (tableName: string) => {
+      return tableInfo?.find((table) => table.name === tableName)?.status;
+    },
+    [tableInfo],
+  );
   return (
     <BaseBottomSheetModal visible={visible} onClose={onClose}>
       <View style={styles.header}>
-        <Text style={styles.title}>All Categories</Text>
+        <Text style={styles.title}>{`All ${title}`}</Text>
         <Pressable onPress={onClose} style={styles.closeIcon}>
           <Ionicons name="close" size={24} color="#000" />
         </Pressable>
@@ -30,12 +40,14 @@ export const AllCategoriesModal: React.FC<AllCategoriesModalProps> = ({
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={styles.categoriesContainer}>
-          {categories.map((cat) => (
-            <CategoryChip
-              key={cat}
-              category={cat}
-              isSelected={cat === selectedCategory}
-              onSelect={onSelectCategory}
+          {filters.map((filter) => (
+            <FilterChip
+              filterName={title}
+              key={filter}
+              label={filter}
+              isSelected={filter === selectedFilter}
+              onSelect={onSelectFilter}
+              chipStatus={getTableStatus(filter)}
             />
           ))}
         </View>

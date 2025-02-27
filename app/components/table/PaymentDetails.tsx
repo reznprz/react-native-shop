@@ -27,37 +27,31 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
   };
 
   return (
-    <View>
+    <View className="p-4 flex-1 justify-between">
       {/* Heading */}
       <IconLabel iconName="cash-register" label={'Payment Details'} />
       {/* Order Summary Section */}
-      <View className="mb-4 bg-gray-100 p-4 rounded-lg">
-        <IconLabel iconName="receipt" label={'Order Summary'} />
-        {!items || items.length === 0 ? (
-          <EmptyState
-            iconName="food-off"
-            message="No food items available"
-            subMessage="Please check back later or add items to the cart."
-            iconSize={30}
-          />
-        ) : (
-          items.map((item, index) => (
+      {items && items.length > 0 ? (
+        <View className="mb-4 bg-gray-100 p-4 rounded-lg mt-2">
+          <IconLabel iconName="receipt" label="Order Summary" />
+          {items.map((item, index) => (
             <View key={index} className="flex-row justify-between mb-1">
               <View className="flex-row px-2">
-                <Text className="text-gray-700">{`${item.productName}`}</Text>
+                <Text className="text-gray-700">{item.productName}</Text>
                 <Text className="text-gray-700 pl-2">{`x${item.quantity.toFixed(2)}`}</Text>
               </View>
               <Text className="text-gray-700">{`$${(item.price * item.quantity).toFixed(2)}`}</Text>
             </View>
-          ))
-        )}
-      </View>
+          ))}
+        </View>
+      ) : null}
+
       {/* Payment Methods */}
-      <View className="p-4 bg-white">
-        <Text className="text-lg font-semibold mb-2 text-deepTeal">Payment Methods</Text>
+      <View className="bg-white mt-2">
+        <IconLabel iconName="document-text-outline" label={'Payment Methods'} iconType="Ionicons" />
 
         {/* Payment Selection */}
-        <View className="flex flex-row flex-wrap justify-center gap-2">
+        <View className="flex flex-row flex-wrap justify-center gap-2 mb-4">
           {paymentTypes.map((type, idx) => (
             <View key={idx} className="p-1">
               <PaymentChip
@@ -75,41 +69,54 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
         ))}
       </View>
       {/* Discount Input */}
-      <View className="mb-4">
+      <View className="flex-row justify-between items-center mb-4 pt-4">
         {/* Discount Label */}
-        <Text className="text-gray-700 text-base font-medium mb-2">Discount</Text>
+        <IconLabel
+          iconName="pricetag-outline"
+          label={'Discount'}
+          containerStyle="justify-between"
+          iconType="Ionicons"
+        />
 
         {/* Discount Input Field */}
         <TextInput
           placeholder="Enter discount amount"
           keyboardType="numeric"
-          className="bg-gray-100 text-gray-800 border border-gray-300 rounded-lg p-3 focus:border-[#2a4759] focus:ring focus:ring-[#2a4759]/30"
+          className="bg-gray-100 text-gray-800 border border-gray-300 rounded-lg p-3 focus:border-deepTeal focus:ring focus:ring-deepTeal/30"
           onChangeText={(text) => setDiscount(parseFloat(text) || 0)}
         />
       </View>
-      <View className="w-full h-px bg-gray-300 my-3" /> {/* Divider */}
+      {/* Divider */}
+      <View className="w-full h-px bg-gray-300 my-3" />
       {/* Subtotal, Discount, Total */}
       <View className="bg-white rounded-lg p-4 shadow-md">
         {/* Subtotal */}
         <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 text-base">Subtotal</Text>
-          <Text className="text-gray-700 text-base">${41}</Text>
+          <Text className="text-gray-700 text-base">{'Subtotal'}</Text>
+          <Text className="text-gray-700 text-base">{'41'}</Text>
         </View>
 
         {/* Discount */}
         <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 text-base">Discount</Text>
-          <Text className="text-red-500 text-base">-${10}</Text> {/* Red for negative amount */}
+          <Text className="text-gray-700 text-base">{'Discount'}</Text>
+          {/* Red for negative amount */}
+          <Text className="text-red-500 text-base">-{'10'}</Text>
         </View>
 
         {/* Total */}
         <View className="flex-row justify-between">
-          <Text className="font-bold text-lg text-gray-900">Total</Text>
-          <Text className="font-bold text-lg text-gray-900">${31}</Text>
+          <Text className="font-bold text-lg text-gray-900">{'Total'}</Text>
+          <Text className="font-bold text-lg text-gray-900">{'31'}</Text>
         </View>
       </View>
       {/* Complete Order Button */}
-      <CustomButton title="Complete Order" onPress={() => {}} width="full" />
+      <CustomButton
+        title="Complete Order"
+        onPress={() => {}}
+        width="full"
+        height="l"
+        textSize="text-xl"
+      />
     </View>
   );
 };

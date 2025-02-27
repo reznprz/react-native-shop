@@ -14,7 +14,7 @@ const PaymentInput: React.FC<PaymentInputProps> = ({ paymentType, onInput }) => 
       {/* Left section: icon + label */}
       <View className="flex-row items-center gap-3">
         <Ionicons name={getPaymentTypeIconforIcons(paymentType)} size={28} color={'#374151'} />
-        <Text className="text-sm font-medium text-deepTeal">{paymentType}</Text>
+        <Text className="text-sm font-medium text-deepTeal">{`${paymentType}`}</Text>
       </View>
 
       {/* Right section: text input */}

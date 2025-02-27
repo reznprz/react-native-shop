@@ -1,29 +1,34 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { AllCategoriesModal } from '../modal/AllCategoriesModal';
-import CategoryChip from '../common/CategoryChip';
+import { AllFiltersModal } from '../modal/AllFiltersModal';
+import FilterChip from '../common/FilterChip';
 
-interface CategoryFilterProps {
-  categories: string[];
+interface PrimaryHeaderFilterProps {
+  filters: string[];
+  tableInfo?: { name: string; status: string; seats: number; items: number }[];
   isDesktop?: boolean;
-  handleCategoryClick: (categoryName: string) => void;
+  handleFilterClick: (selectedFilter: string) => void;
+  filterName: string;
+  selectedFilter: string;
 }
 
-export default function CategoryFilter({
-  categories,
+export default function PrimaryHeaderFilter({
+  filters,
   isDesktop = false,
-  handleCategoryClick,
-}: CategoryFilterProps) {
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  handleFilterClick,
+  filterName,
+  selectedFilter,
+  tableInfo,
+}: PrimaryHeaderFilterProps) {
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [showMoreDesktop, setShowMoreDesktop] = useState(false);
 
-  const uniqueCategories = Array.from(new Set(['All', 'None', ...categories]));
-  const MAX_DESKTOP_ROW = 6;
-  const visibleDesktopCategories = showMoreDesktop
-    ? uniqueCategories
-    : uniqueCategories.slice(0, MAX_DESKTOP_ROW);
+  const uniqueFilters = Array.from(new Set(['None', ...filters]));
+  const MAX_DESKTOP_ROW = 8;
+  const visibleDesktopFilters = showMoreDesktop
+    ? uniqueFilters
+    : uniqueFilters.slice(0, MAX_DESKTOP_ROW);
 
   const handleMobileToggle = () => {
     setShowBottomSheet((prev) => !prev);
@@ -33,19 +38,27 @@ export default function CategoryFilter({
     setShowMoreDesktop((prev) => !prev);
   };
 
+  const getTableStatus = useCallback(
+    (tableName: string) => {
+      return tableInfo?.find((table) => table.name === tableName)?.status;
+    },
+    [tableInfo],
+  );
+
   return isDesktop ? (
     <View className="pt-2">
       <View className="flex-row flex-wrap gap-1 pl-4 pr-4 pb-2">
-        {visibleDesktopCategories.map((cat) => (
-          <CategoryChip
-            key={cat}
-            category={cat}
-            isSelected={cat === selectedCategory}
+        {visibleDesktopFilters.map((filterLable) => (
+          <FilterChip
+            key={filterLable}
+            filterName={filterName}
+            label={filterLable}
+            isSelected={filterLable === selectedFilter}
             onSelect={(value) => {
-              setSelectedCategory(value);
-              handleCategoryClick(value);
-              handleDesktopToggle();
+              handleFilterClick(value);
+              setShowMoreDesktop(false);
             }}
+            chipStatus={getTableStatus(filterLable)}
           />
         ))}
       </View>
@@ -60,8 +73,8 @@ export default function CategoryFilter({
             color="#2a4759"
             style={{ marginRight: 4 }}
           />
-          <Text className="text-sm font-semibold text-[#2a4759]">
-            {showMoreDesktop ? 'Show Less Categories' : 'View All Categories'}
+          <Text className="text-lg font-semibold text-[#2a4759]">
+            {showMoreDesktop ? `Show Less ${filterName}` : `View All ${filterName}`}
           </Text>
         </View>
       </Pressable>
@@ -74,15 +87,16 @@ export default function CategoryFilter({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingVertical: 8 }}
         >
-          {uniqueCategories.slice(0, 4).map((cat) => (
-            <CategoryChip
-              key={cat}
-              category={cat}
-              isSelected={cat === selectedCategory}
+          {uniqueFilters.map((filterLable) => (
+            <FilterChip
+              key={filterLable}
+              filterName={filterName}
+              label={filterLable}
+              isSelected={filterLable === selectedFilter}
               onSelect={(cat) => {
-                handleCategoryClick(cat);
-                setSelectedCategory(cat);
+                handleFilterClick(cat);
               }}
+              chipStatus={getTableStatus(filterLable)}
             />
           ))}
         </ScrollView>
@@ -98,22 +112,23 @@ export default function CategoryFilter({
             color="#2a4759"
             style={{ marginRight: 4 }}
           />
-          <Text className="text-sm font-semibold text-[#2a4759]">
-            {showMoreDesktop ? 'Show Less Categories' : 'View All Categories'}
+          <Text className="text-base font-semibold text-[#2a4759]">
+            {showMoreDesktop ? `Show Less ${filterName}` : `View All ${filterName}`}
           </Text>
         </View>
       </Pressable>
 
-      <AllCategoriesModal
+      <AllFiltersModal
+        title={filterName}
         visible={showBottomSheet}
         onClose={handleMobileToggle}
-        categories={uniqueCategories}
-        selectedCategory={selectedCategory}
-        onSelectCategory={(cat) => {
-          handleCategoryClick(cat);
-          setSelectedCategory(cat);
+        filters={uniqueFilters}
+        selectedFilter={selectedFilter}
+        onSelectFilter={(selectedFilter) => {
+          handleFilterClick(selectedFilter);
           setShowBottomSheet(false);
         }}
+        tableInfo={tableInfo}
       />
     </View>
   );

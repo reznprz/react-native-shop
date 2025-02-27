@@ -4,12 +4,11 @@ export type RootStackParamList = {
   MainTabs: undefined;
   Cart: undefined;
   QrMenuItemsScreen: { category: string };
-  // ...other routes
+  OrderDetails: { orderId: string };
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 
-// Variation of your RootStackParamList
 type RouteName = keyof RootStackParamList;
 
 export function navigate<Name extends RouteName>(
@@ -23,7 +22,6 @@ export function navigate<Name extends RouteName>(
   }
 }
 
-// 3) Optionally expose more methods like goBack, push, reset, etc.
 export function goBack() {
   if (navigationRef.isReady() && navigationRef.canGoBack()) {
     navigationRef.goBack();

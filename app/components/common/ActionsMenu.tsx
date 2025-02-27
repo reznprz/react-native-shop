@@ -13,7 +13,7 @@ type ActionsMenuProps = {
 export function ActionsMenu({ onGoToMenu, onGoToCart, onSwitchTable, onClose }: ActionsMenuProps) {
   return (
     <View
-      className="absolute right-[-14] top-[-18] bg-white border border-gray-200 rounded-md shadow-md p-2 w-36"
+      className="absolute right-[4] top-[-2] bg-white border border-gray-200 rounded-md shadow-md p-2 flex-wrap flex-col justify-center"
       style={{ overflow: 'visible', zIndex: 9999, elevation: 9999 }}
     >
       {/* Close Button */}
@@ -26,19 +26,8 @@ export function ActionsMenu({ onGoToMenu, onGoToCart, onSwitchTable, onClose }: 
         title="Go to Menu"
         onPress={onGoToMenu}
         iconName="book-outline"
-        customButtonStyle="flex-row items-center mb-2 rounded"
-        customTextStyle="text-sm"
-        bgColor="bg-warmSoftOrange"
-      />
-
-      {/* Go to Cart */}
-      <CustomButton
-        title="Go to Cart"
-        onPress={onGoToCart}
-        iconName="book-outline"
-        customButtonStyle="flex-row items-center mb-2 rounded"
-        customTextStyle="text-sm"
-        bgColor="bg-darkTeal"
+        customButtonStyle="flex flex-row items-center justify-center rounded px-3 py-4 w-42 h-42 bg-deepTeal m-1"
+        customTextStyle="text-lg text-center text-white font-semibold"
       />
 
       {/* Switch Table */}
@@ -46,9 +35,8 @@ export function ActionsMenu({ onGoToMenu, onGoToCart, onSwitchTable, onClose }: 
         title="Switch Table"
         onPress={onSwitchTable}
         iconName="swap-horizontal-outline"
-        customButtonStyle="flex-row items-center mb-1 rounded"
-        customTextStyle="text-sm"
-        bgColor="bg-roseBorder"
+        customButtonStyle="flex flex-row items-center justify-center rounded px-3 py-4 w-42 h-42 bg-softRose m-1"
+        customTextStyle="text-lg text-center text-white font-semibold"
       />
     </View>
   );
