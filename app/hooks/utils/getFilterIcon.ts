@@ -1,17 +1,21 @@
-export function getFilterIcon(filterName: string, filterLabel: string): string {
-  // Convert to lowercase for consistent matching
+import { IconType } from 'app/navigation/screenConfigs';
+
+export function getFilterIcon(
+  filterName: string,
+  filterLabel: string,
+): { iconName: string; iconType: IconType } {
   const cat = filterLabel.toLowerCase();
 
-  // If filterName is "Table", return a table icon
+  // If filterName is "Tables", return a table icon (MaterialCommunityIcons)
   if (filterName === 'Tables') {
-    if (cat.includes('all')) return 'list-outline';
-    return 'grid';
+    if (cat.includes('all')) return { iconName: 'list-outline', iconType: 'Ionicons' };
+    return { iconName: 'table', iconType: 'MaterialCommunityIcons' };
   }
 
-  // If filterName is "Categories", return category-based icons
+  // If filterName is "Categories", return category-based icons (Ionicons)
   if (filterName === 'Categories') {
     const categoryIcons: Record<string, string> = {
-      all: 'grid',
+      all: 'list-outline',
       pizza: 'pizza',
       combo: 'pricetags',
       wing: 'flame',
@@ -48,14 +52,14 @@ export function getFilterIcon(filterName: string, filterLabel: string): string {
     // Find matching key in categoryIcons
     for (const key in categoryIcons) {
       if (cat.includes(key)) {
-        return categoryIcons[key];
+        return { iconName: categoryIcons[key], iconType: 'Ionicons' };
       }
     }
 
     // Fallback icon for categories
-    return 'restaurant';
+    return { iconName: 'restaurant', iconType: 'Ionicons' };
   }
 
-  // Generic fallback icon for unknown filter types
-  return 'filter';
+  // Generic fallback icon for unknown filter types (MaterialCommunityIcons)
+  return { iconName: 'filter', iconType: 'MaterialCommunityIcons' };
 }

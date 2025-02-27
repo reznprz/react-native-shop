@@ -31,29 +31,23 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
       {/* Heading */}
       <IconLabel iconName="cash-register" label={'Payment Details'} />
       {/* Order Summary Section */}
-      <View className="mb-4 bg-gray-100 p-4 rounded-lg mt-2">
-        <IconLabel iconName="receipt" label={'Order Summary'} />
-        {!items || items.length === 0 ? (
-          <EmptyState
-            iconName="food-off"
-            message="No food items available"
-            subMessage="Please add items to the customer table."
-            iconSize={30}
-          />
-        ) : (
-          items.map((item, index) => (
+      {items && items.length > 0 ? (
+        <View className="mb-4 bg-gray-100 p-4 rounded-lg mt-2">
+          <IconLabel iconName="receipt" label="Order Summary" />
+          {items.map((item, index) => (
             <View key={index} className="flex-row justify-between mb-1">
               <View className="flex-row px-2">
-                <Text className="text-gray-700">{`${item.productName}`}</Text>
+                <Text className="text-gray-700">{item.productName}</Text>
                 <Text className="text-gray-700 pl-2">{`x${item.quantity.toFixed(2)}`}</Text>
               </View>
               <Text className="text-gray-700">{`$${(item.price * item.quantity).toFixed(2)}`}</Text>
             </View>
-          ))
-        )}
-      </View>
+          ))}
+        </View>
+      ) : null}
+
       {/* Payment Methods */}
-      <View className="bg-white">
+      <View className="bg-white mt-2">
         <IconLabel iconName="document-text-outline" label={'Payment Methods'} iconType="Ionicons" />
 
         {/* Payment Selection */}

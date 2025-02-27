@@ -6,9 +6,10 @@ import { IconType } from 'app/navigation/screenConfigs';
 type StatusChipProps = {
   status: string;
   showIcon?: boolean;
+  hideText?: boolean;
 };
 
-export function StatusChip({ status, showIcon = true }: StatusChipProps) {
+export function StatusChip({ status, showIcon = true, hideText = false }: StatusChipProps) {
   const statusStyles = {
     completed: {
       bg: 'bg-green-100',
@@ -40,7 +41,7 @@ export function StatusChip({ status, showIcon = true }: StatusChipProps) {
       icon: 'checkmark-circle-outline',
       iconColor: '#10B981',
       iconType: 'Ionicons',
-      size: 'px-2 py-0.5 text-sm',
+      size: 'px-1 py-0.5 text-sm',
     },
     occupied: {
       bg: 'bg-red-100',
@@ -48,7 +49,7 @@ export function StatusChip({ status, showIcon = true }: StatusChipProps) {
       icon: 'close-circle-outline',
       iconColor: '#EF4444',
       iconType: 'Ionicons',
-      size: 'px-2 py-0.5 text-sm',
+      size: 'px-1 py-0.5 text-sm',
     },
     default: {
       bg: 'bg-gray-200',
@@ -76,7 +77,7 @@ export function StatusChip({ status, showIcon = true }: StatusChipProps) {
           color={iconColor}
         />
       )}
-      <Text className={`font-semibold ${text}`}>{status}</Text>
+      {!hideText && <Text className={`font-semibold ${text}`}>{status}</Text>}
     </View>
   );
 }

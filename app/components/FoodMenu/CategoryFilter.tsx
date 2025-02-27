@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AllFiltersModal } from '../modal/AllFiltersModal';
@@ -6,6 +6,7 @@ import FilterChip from '../common/FilterChip';
 
 interface PrimaryHeaderFilterProps {
   filters: string[];
+  tableInfo?: { name: string; status: string; seats: number; items: number }[];
   isDesktop?: boolean;
   handleFilterClick: (selectedFilter: string) => void;
   filterName: string;
@@ -18,12 +19,13 @@ export default function PrimaryHeaderFilter({
   handleFilterClick,
   filterName,
   selectedFilter,
+  tableInfo,
 }: PrimaryHeaderFilterProps) {
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [showMoreDesktop, setShowMoreDesktop] = useState(false);
 
-  const uniqueFilters = Array.from(new Set(['All', 'None', ...filters]));
-  const MAX_DESKTOP_ROW = 9;
+  const uniqueFilters = Array.from(new Set(['None', ...filters]));
+  const MAX_DESKTOP_ROW = 8;
   const visibleDesktopFilters = showMoreDesktop
     ? uniqueFilters
     : uniqueFilters.slice(0, MAX_DESKTOP_ROW);
@@ -35,6 +37,13 @@ export default function PrimaryHeaderFilter({
   const handleDesktopToggle = () => {
     setShowMoreDesktop((prev) => !prev);
   };
+
+  const getTableStatus = useCallback(
+    (tableName: string) => {
+      return tableInfo?.find((table) => table.name === tableName)?.status;
+    },
+    [tableInfo],
+  );
 
   return isDesktop ? (
     <View className="pt-2">
@@ -49,6 +58,7 @@ export default function PrimaryHeaderFilter({
               handleFilterClick(value);
               setShowMoreDesktop(false);
             }}
+            chipStatus={getTableStatus(filterLable)}
           />
         ))}
       </View>
@@ -63,7 +73,7 @@ export default function PrimaryHeaderFilter({
             color="#2a4759"
             style={{ marginRight: 4 }}
           />
-          <Text className="text-sm font-semibold text-[#2a4759]">
+          <Text className="text-lg font-semibold text-[#2a4759]">
             {showMoreDesktop ? `Show Less ${filterName}` : `View All ${filterName}`}
           </Text>
         </View>
@@ -86,6 +96,7 @@ export default function PrimaryHeaderFilter({
               onSelect={(cat) => {
                 handleFilterClick(cat);
               }}
+              chipStatus={getTableStatus(filterLable)}
             />
           ))}
         </ScrollView>
@@ -101,7 +112,7 @@ export default function PrimaryHeaderFilter({
             color="#2a4759"
             style={{ marginRight: 4 }}
           />
-          <Text className="text-sm font-semibold text-[#2a4759]">
+          <Text className="text-base font-semibold text-[#2a4759]">
             {showMoreDesktop ? `Show Less ${filterName}` : `View All ${filterName}`}
           </Text>
         </View>
@@ -117,6 +128,7 @@ export default function PrimaryHeaderFilter({
           handleFilterClick(selectedFilter);
           setShowBottomSheet(false);
         }}
+        tableInfo={tableInfo}
       />
     </View>
   );

@@ -43,7 +43,7 @@ export function TableCard({
     >
       <View className="bg-white p-4 gap-3 rounded-lg shadow-sm border border-gray-200 mb-2">
         {/* Top header name and status */}
-        <View className="flex-row justify-between items-center">
+        <View className="flex-row justify-between items-center ">
           <IconLabel iconName="clipboard-list" label={name} containerStyle="justify-between" />
           <StatusChip status={status} />
         </View>
@@ -54,8 +54,8 @@ export function TableCard({
             label={`Seats: ${seats}`}
             iconName="chair"
             containerStyle=""
-            textColor="text-lg"
-            labelTextSize="text-base pl-2"
+            textColor="text-base"
+            labelTextSize="text-base pl-2 text-gray-500"
           />
         </View>
 
@@ -65,6 +65,7 @@ export function TableCard({
             iconName="utensils"
             label={`Items: ${items}`}
             containerStyle="justify-between"
+            labelTextSize="text-base pl-2 text-gray-500"
           />
           <Pressable onPress={() => setShowActions(!showActions)} className="mt-auto">
             <Ionicons name="chevron-forward-outline" size={25} color="#9CA3AF" />

@@ -11,6 +11,7 @@ interface PrimaryHeaderProps {
   onFilterPress?: () => void;
   showBackPress?: boolean;
   filters?: string[];
+  tableInfo?: { name: string; status: string; seats: number; items: number }[];
   isDesktop?: boolean;
   selectedFilter: string;
 }
@@ -23,13 +24,14 @@ export default function PrimaryHeader({
   showBackPress = false,
   isDesktop = false,
   filters = [],
+  tableInfo,
   handleFilterClick,
   selectedFilter,
 }: PrimaryHeaderProps) {
   return (
     <View className="border-b border-gray-200">
       {/* Top row: back arrow, title, search/filter icons */}
-      <View className="flex-row items-center justify-between pl-4 pr-4 pt-2 m-1">
+      <View className="flex-row items-center justify-between pl-4 pr-4 m-1">
         <View className="flex-row items-center">
           {showBackPress && (
             <Pressable onPress={onBackPress} className="mr-2">
@@ -78,6 +80,7 @@ export default function PrimaryHeader({
             handleFilterClick={handleFilterClick}
             filterName={title}
             selectedFilter={selectedFilter}
+            tableInfo={tableInfo}
           />
         </View>
       )}

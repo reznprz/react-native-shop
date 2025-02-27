@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // no black overlay here
+    backgroundColor: 'rgba(0,0,0,0.4)', // Dark overlay
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

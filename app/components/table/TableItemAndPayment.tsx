@@ -10,7 +10,7 @@ interface TableItemAndPaymentProps {
   updateQuantity: (item: OrderItem, newQty: number) => void;
   isDesktop: boolean;
   showPaymentModal: boolean;
-  setShowPaymentModal: (value: boolean) => void;
+  setShowPaymentModal?: (value: boolean) => void;
 }
 
 export default function TableItemAndPayment({
@@ -24,7 +24,7 @@ export default function TableItemAndPayment({
     <>
       {isDesktop ? (
         /** 📌 **Desktop Layout (Two Column)** */
-        <View className="flex-row h-full">
+        <View className="flex-row flex-grow">
           {/* Left Panel - Order Summary */}
           <ScrollView
             style={styles.leftPanel}
@@ -55,7 +55,7 @@ export default function TableItemAndPayment({
       )}
 
       {/* ✅ Floating Button - Only for Mobile */}
-      {!isDesktop && (
+      {!isDesktop && setShowPaymentModal && (
         <View className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50">
           <CustomButton
             title="Proceed Payment"

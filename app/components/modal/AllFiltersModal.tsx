@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
@@ -6,6 +6,7 @@ import FilterChip from '../common/FilterChip';
 
 interface AllFiltersModalProps {
   title: string;
+  tableInfo?: { name: string; status: string; seats: number; items: number }[];
   visible: boolean;
   onClose: () => void;
   filters: string[];
@@ -20,7 +21,14 @@ export const AllFiltersModal: React.FC<AllFiltersModalProps> = ({
   selectedFilter,
   onSelectFilter,
   title,
+  tableInfo,
 }) => {
+  const getTableStatus = useCallback(
+    (tableName: string) => {
+      return tableInfo?.find((table) => table.name === tableName)?.status;
+    },
+    [tableInfo],
+  );
   return (
     <BaseBottomSheetModal visible={visible} onClose={onClose}>
       <View style={styles.header}>
@@ -39,6 +47,7 @@ export const AllFiltersModal: React.FC<AllFiltersModalProps> = ({
               label={filter}
               isSelected={filter === selectedFilter}
               onSelect={onSelectFilter}
+              chipStatus={getTableStatus(filter)}
             />
           ))}
         </View>

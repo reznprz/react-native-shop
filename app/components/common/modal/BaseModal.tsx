@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: 'white',
-    padding: 20,
+    padding: 10,
     borderRadius: 12,
     minWidth: Math.min(width - 40, 350), // Responsive width, min 350px or screen width - 40px
     maxWidth: 600, // Prevents excessive width

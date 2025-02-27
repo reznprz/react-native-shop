@@ -7,6 +7,9 @@ interface EmptyStateProps {
   message: string;
   subMessage?: string;
   iconSize?: number;
+  containerPadding?: number;
+  messageFontSize?: number;
+  subMessageFontSize?: number;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
@@ -14,12 +17,17 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   message,
   subMessage,
   iconSize = 90,
+  containerPadding = 20,
+  messageFontSize = 18,
+  subMessageFontSize = 14,
 }) => {
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { padding: containerPadding }]}>
       <MaterialCommunityIcons name={iconName as any} size={iconSize} color="#2a4759" />
-      <Text style={styles.message}>{message}</Text>
-      {subMessage && <Text style={styles.subMessage}>{subMessage}</Text>}
+      <Text style={[styles.message, { fontSize: messageFontSize }]}>{message}</Text>
+      {subMessage && (
+        <Text style={[styles.subMessage, { fontSize: subMessageFontSize }]}>{subMessage}</Text>
+      )}
     </View>
   );
 };
@@ -29,16 +37,13 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
   message: {
-    fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
     marginTop: 10,
   },
   subMessage: {
-    fontSize: 14,
     color: '#666',
     textAlign: 'center',
     marginTop: 5,

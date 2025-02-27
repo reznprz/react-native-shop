@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import IconLabel from './IconLabel';
 import { IconType } from 'app/navigation/screenConfigs';
 
@@ -35,7 +34,7 @@ export function MetricsSummaryCard({
         iconColor={iconColor}
         bgColor={`${bgColor} `}
       />
-      <Text className="text-2xl font-bold mt-1">{value}</Text>
+      <Text className="text-2xl font-bold mt-1 ml-1">{value}</Text>
 
       {/* Subtitle */}
       {subtitle && <Text className="text-xs mt-1">{subtitle}</Text>}
