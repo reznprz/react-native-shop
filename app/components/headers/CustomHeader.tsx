@@ -56,8 +56,15 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
         </View>
       )}
 
-      {/* Right Section: Cart Icon */}
-      <TouchableOpacity onPress={() => navigation.navigate('Cart')}>
+      {/* Right Section: Table Icon */}
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('MainTabs', {
+            screen: 'Table',
+            params: { selectedTab: 'Table Items' },
+          })
+        }
+      >
         <CustomIcon
           iconStyle={`${isDesktop ? 'pt-6' : 'pt-16'}`}
           name={'table'}

@@ -1,10 +1,17 @@
 import { createNavigationContainerRef, StackActions } from '@react-navigation/native';
+import { NavigatorScreenParams } from '@react-navigation/native';
+
+export type MainTabsParamList = {
+  Menu: { selectedTab?: string };
+  TableScreen: { tableId?: string };
+};
 
 export type RootStackParamList = {
-  MainTabs: undefined;
+  MainTabs: NavigatorScreenParams<MainTabsParamList>;
   Cart: undefined;
   QrMenuItemsScreen: { category: string };
   OrderDetails: { orderId: string };
+  Food: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

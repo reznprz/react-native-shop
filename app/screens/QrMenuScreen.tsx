@@ -4,7 +4,7 @@ import SubCategoryContainer from '../components/FoodMenu/SubCategoryContainer';
 import ResponsiveList from '../components/common/ResponsiveList';
 import { navigate } from 'app/navigation/navigationService';
 import debounce from 'lodash/debounce';
-import LoadingSpinner from 'app/components/LoadingSpinner';
+import LoadingSpinner from 'app/components/FoodLoadingSpinner';
 import ErrorNotification from 'app/components/ErrorNotification';
 import { ERROR_MESSAGES } from 'app/constants/constants';
 import { ScreenNames } from 'app/types/navigation';

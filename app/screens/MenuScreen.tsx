@@ -1,28 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView } from 'react-native';
-import FoodCard from 'app/components/FoodMenu/FoodCard';
+import { View } from 'react-native';
 import { useFood } from 'app/hooks/useFood';
-import PrimaryHeader from 'app/components/common/PrimaryHeader';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import { Food } from 'app/api/services/foodService';
-import EmptyState from 'app/components/common/EmptyState';
 import { useCart } from 'app/hooks/useCart';
 import SubTab from 'app/components/common/SubTab';
 import { useTables } from 'app/hooks/useTables';
 import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
+import FoodsMenu from 'app/components/FoodMenu/FoodsMenu';
 
 const tabs = ['All Foods', 'Food Items'];
 
 type TabType = (typeof tabs)[number];
 
-export default function MenuScreen() {
-  const { isDesktop } = useIsDesktop();
+interface MenuScreenRouteParams {
+  selectedTab?: TabType;
+}
+
+interface MenuScreenProps {
+  route: {
+    params: MenuScreenRouteParams;
+  };
+}
+
+export default function MenuScreen({ route }: MenuScreenProps) {
+  const { selectedTab } = route.params || {};
+
   const { foods, refetch, categories, handleSearch, handleCategoryClick } = useFood();
   const { cart, updateCartItemForOrderItem } = useTables();
 
   const { updateCartItemForFood } = useCart();
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeTab, setActiveTab] = useState<TabType>('All Foods');
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Foods');
 
   useEffect(() => {
     refetch();
@@ -34,11 +41,12 @@ export default function MenuScreen() {
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={(selectedTab) => {
+          setActiveTab(selectedTab);
+
           if (selectedTab === 'All Foods') {
             handleCategoryClick('All');
             setSelectedCategory('All');
           }
-          setActiveTab(selectedTab);
         }}
       />
 
@@ -47,56 +55,18 @@ export default function MenuScreen() {
           <TableItemAndPayment
             cartItems={cart.cartItems}
             updateQuantity={updateCartItemForOrderItem}
-            isDesktop={isDesktop}
             showPaymentModal={false}
           />
         ) : (
-          <>
-            {/* HEADER */}
-            <PrimaryHeader
-              title="Categories"
-              onBackPress={() => console.log('Go back')}
-              onSearch={handleSearch}
-              onFilterPress={() => console.log('Filter pressed')}
-              filters={categories}
-              isDesktop={isDesktop}
-              handleFilterClick={(selectedCategory) => {
-                handleCategoryClick(selectedCategory);
-                setSelectedCategory(selectedCategory);
-              }}
-              selectedFilter={selectedCategory}
-            />
-
-            {!foods || foods.length === 0 ? (
-              <EmptyState
-                iconName="food-off"
-                message="No food items available"
-                subMessage="Please check back later or add items to the menu."
-              />
-            ) : (
-              <ScrollView contentContainerStyle={{ paddingVertical: 4 }}>
-                <View
-                  style={{ alignItems: 'stretch' }}
-                  className="flex-row flex-wrap justify-center px-1"
-                >
-                  {foods?.map((food: Food, idx: any) => (
-                    <View
-                      key={idx}
-                      className="
-              p-1 
-              w-1/2     /* 2 columns on mobile (base) */
-              sm:w-1/3  /* 3 columns at >=640px */
-              md:w-1/4  /* 4 columns at >=768px (iPad) */
-              lg:w-1/5  /* 5 columns at >=1024px (desktop) */
-            "
-                    >
-                      <FoodCard food={food} updateCartItemForFood={updateCartItemForFood} />
-                    </View>
-                  ))}
-                </View>
-              </ScrollView>
-            )}
-          </>
+          <FoodsMenu
+            foods={foods}
+            categories={categories}
+            selectedCategory={selectedCategory}
+            handleSearch={handleSearch}
+            handleCategoryClick={handleCategoryClick}
+            setSelectedCategory={setSelectedCategory}
+            updateCartItemForFood={updateCartItemForFood}
+          />
         )}
       </View>
     </View>

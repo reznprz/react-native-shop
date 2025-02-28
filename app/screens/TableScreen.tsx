@@ -8,12 +8,25 @@ import TableList from 'app/components/table/TableList';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
 import TableListModal from 'app/components/modal/TableListModal';
 import SubTab from 'app/components/common/SubTab';
+import { navigate } from 'app/navigation/navigationService';
 
 const tabs = ['All Tables', 'Table Items'];
 
 type TabType = (typeof tabs)[number];
 
-export default function TableScreen() {
+interface TableScreenRouteParams {
+  selectedTab?: TabType;
+}
+
+interface TableScreenProps {
+  route: {
+    params: TableScreenRouteParams;
+  };
+}
+
+export default function TableScreen({ route }: TableScreenProps) {
+  const { selectedTab } = route.params || {};
+
   const {
     tables,
     availableTables,
@@ -24,14 +37,20 @@ export default function TableScreen() {
     updateCartItemForOrderItem,
     tableNames,
   } = useTables();
+
   const { isDesktop, isLargeScreen } = useIsDesktop();
+
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
   const [selectedTable, setSelectedTable] = useState('All');
-  const [activeTab, setActiveTab] = useState<TabType>('All Tables');
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Tables');
 
   // Handlers for Actions Menu
-  const handleGoToMenu = (tableName: string) => console.log('Go to menu:', tableName);
+  const handleGoToMenu = (tableName: string) =>
+    navigate('MainTabs', {
+      screen: 'Menu',
+      params: { selectedTab: 'All Foods' },
+    });
   const handleGoToCart = (tableName: string) => console.log('Go to cart:', tableName);
   const handleSwitchTable = (tableName: string) => console.log('Switch table:', tableName);
 
@@ -59,9 +78,9 @@ export default function TableScreen() {
             <TableItemAndPayment
               cartItems={cart.cartItems}
               updateQuantity={updateCartItemForOrderItem}
-              isDesktop={isDesktop}
               showPaymentModal={showPaymentModal}
               setShowPaymentModal={setShowPaymentModal}
+              onSwitchTableClick={() => setShowSwitchTableModal(true)}
             />
           </View>
         ) : (

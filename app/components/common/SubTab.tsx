@@ -7,9 +7,10 @@ interface SubTabProps {
   tabs: string[];
   activeTab: string;
   onTabChange: (tab: string) => void;
+  tabStyle?: string;
 }
 
-const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange }) => {
+const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange, tabStyle = 'py-4' }) => {
   return (
     <View className="flex flex-row bg-slate-50 border-b-2 border-gray-200 items-center mb-1">
       {tabs.map((tab) => {
@@ -17,20 +18,22 @@ const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange }) => {
         const iconInfo = getSubTabIcon(tab);
 
         // If no icon info is found, render a fallback (text only).
-        if (!iconInfo) {
+        if (!iconInfo || tab === 'Normal Menu') {
           return (
             <Pressable
               key={tab}
-              className={`flex-1 py-4 flex flex-row items-center justify-center relative ${
+              className={`flex-1 ${tabStyle} flex flex-row items-center justify-center relative ${
                 activeTab === tab
-                  ? 'border-b-[3px] border-[#2a4759]'
+                  ? 'border-b-[3px] border-deepTeal'
                   : 'border-b-[3px] border-transparent'
               }`}
               onPress={() => onTabChange(tab)}
             >
+              <Text style={{ fontSize: 24 }}>🇳🇵</Text>
+
               <Text
                 className={`text-lg font-semibold ${
-                  activeTab === tab ? 'text-[#2a4759]' : 'text-slate-500'
+                  activeTab === tab ? 'text-deepTeal' : 'text-slate-500'
                 }`}
               >
                 {tab}
@@ -42,9 +45,9 @@ const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange }) => {
         return (
           <Pressable
             key={tab}
-            className={`flex-1 py-4 flex flex-row items-center justify-center relative ${
+            className={`flex-1 ${tabStyle} flex flex-row items-center justify-center relative ${
               activeTab === tab
-                ? 'border-b-[3px] border-[#2a4759]'
+                ? 'border-b-[3px] border-deepTeal'
                 : 'border-b-[3px] border-transparent'
             }`}
             onPress={() => onTabChange(tab)}

@@ -1,33 +1,66 @@
 import { useState, useEffect } from 'react';
-import { Dimensions, Platform, useWindowDimensions } from 'react-native';
+import { Dimensions, Platform, ScaledSize } from 'react-native';
 
-// Function to determine the device type
+interface DimensionsEvent {
+  window: ScaledSize;
+  screen: ScaledSize;
+}
+
 function determineDeviceType(width: number, height: number) {
   const isWeb = Platform.OS === 'web';
-  const isDesktop =
-    isWeb && (navigator.userAgent.includes('Win') || navigator.userAgent.includes('Mac'));
-  const isTablet = Math.min(width, height) >= 768; // Tablets have a min width of 768px
-
-  if (isDesktop) return 'Desktop';
-  if (isWeb) return 'Web';
+  if (isWeb) {
+    // For web, check the user agent if available
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    const isDesktop = userAgent.includes('Win') || userAgent.includes('Mac');
+    return isDesktop ? 'Desktop' : 'Web';
+  }
+  // For native platforms, consider a simple tablet check based on the smallest dimension.
+  const isTablet = Math.min(width, height) >= 768;
   if (Platform.OS === 'ios') return isTablet ? 'iPad' : 'iPhone';
   if (Platform.OS === 'android') return isTablet ? 'Android Tablet' : 'Android Phone';
-
   return 'Unknown';
 }
 
-// Custom hook to get the device type
 export function useIsDesktop() {
-  const { width, height } = useWindowDimensions(); // Ensure dimensions are available
-  const [deviceType, setDeviceType] = useState(() => determineDeviceType(width, height));
-  const [isDesktop, setIsDesktop] = useState(width >= 1024);
-  const [isLargeScreen, setIsLargeScreen] = useState(width > 767);
+  // Track window dimensions.
+  const [dimensions, setDimensions] = useState(Dimensions.get('window'));
 
   useEffect(() => {
-    setDeviceType(determineDeviceType(width, height));
-    setIsDesktop(width >= 1024);
-    setIsLargeScreen(width > 767);
-  }, [width, height]);
+    const handleChange = ({ window }: DimensionsEvent) => {
+      setDimensions(window);
+    };
 
-  return { deviceType, isDesktop, width, height, isLargeScreen };
+    // Subscribe to dimension changes.
+    const subscription = Dimensions.addEventListener('change', handleChange);
+
+    // Cleanup the listener. For newer React Native versions, subscription.remove() exists.
+    // For older versions, we cast Dimensions to any to call removeEventListener.
+    return () => {
+      if (subscription && typeof subscription.remove === 'function') {
+        subscription.remove();
+      } else {
+        // Casting Dimensions to any bypasses TypeScript checking here.
+        (Dimensions as any).removeEventListener('change', handleChange);
+      }
+    };
+  }, []);
+
+  const { width, height } = dimensions;
+  const deviceType = determineDeviceType(width, height);
+  const isDesktop = width >= 1024;
+  const isLargeScreen = width > 767;
+
+  // Calculate numColumns based on the current width.
+  let numColumns = 2;
+  if (width >= 640 && width < 768) {
+    numColumns = 3;
+  } else if (width >= 768 && width <= 1024) {
+    numColumns = 4;
+  } else if (width > 1024 && width < 1366) {
+    numColumns = 5;
+  } else if (width >= 1366) {
+    numColumns = 6;
+  }
+
+  return { deviceType, isDesktop, width, height, isLargeScreen, numColumns };
 }
