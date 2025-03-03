@@ -1,48 +1,58 @@
 import React from 'react';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { tabScreenConfigs } from 'app/navigation/screenConfigs';
-import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View, StyleSheet } from 'react-native';
 import CustomIcon from '../common/CustomIcon';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { tabScreenConfigs } from 'app/navigation/screenConfigs';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
+const BottomTabs = createBottomTabNavigator();
 const MaterialTopTabs = createMaterialTopTabNavigator();
 
-// --- 1) Mobile Tabs (Bottom) ---
-const BottomTabs = createBottomTabNavigator();
-
 export function MobileTabs() {
+  const { deviceType } = useIsDesktop();
+
+  const isTablet = deviceType === 'iPad' || 'Android Tablet';
+
   return (
     <BottomTabs.Navigator
       screenOptions={({ route }) => {
         const screen = tabScreenConfigs.find((s) => s.name === route.name);
+
         return {
           headerShown: false,
           tabBarShowLabel: true,
           tabBarLabelPosition: 'below-icon',
           tabBarLabelStyle: {
             fontSize: 12,
-            marginTop: -2,
+            marginTop: 1,
           },
           tabBarActiveTintColor: '#2a4759',
           tabBarInactiveTintColor: '#999',
-          tabBarIcon: ({ focused, color, size }) => {
+
+          // 1) Style the entire tab bar (center it + set a fixed width) only for iPad.
+          tabBarStyle: isTablet
+            ? {
+                alignSelf: 'center',
+                width: 445,
+                marginVertical: 0,
+                paddingVertical: 0,
+              }
+            : {},
+
+          // 2) Style each tab item to remove extra spacing
+          tabBarItemStyle: {
+            marginHorizontal: 0,
+            paddingHorizontal: 0,
+          },
+
+          tabBarIcon: ({ focused, color }) => {
             if (!screen) return null;
             const iconName = focused ? screen.filledIcon : screen.icon;
 
             return (
-              <View style={{ alignItems: 'center' }}>
-                {focused && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      top: -8,
-                      width: 50,
-                      height: 2,
-                      backgroundColor: '#2a4759',
-                    }}
-                  />
-                )}
-
+              <View style={styles.iconWrapper}>
+                {focused && <View style={styles.focusIndicator} />}
                 <CustomIcon
                   type={screen.iconType}
                   name={iconName}
@@ -66,7 +76,20 @@ export function MobileTabs() {
   );
 }
 
-/** We hide the tab bar by returning `null` in `tabBar()`. */
+const styles = StyleSheet.create({
+  iconWrapper: {
+    alignItems: 'center',
+  },
+  focusIndicator: {
+    position: 'absolute',
+    top: -8,
+    width: 70,
+    height: 4,
+    backgroundColor: '#2a4759',
+  },
+});
+
+/** We hide the tab bar by returning null in tabBar(). */
 // Desktop Tabs (Top)
 export function DesktopTabs() {
   return (

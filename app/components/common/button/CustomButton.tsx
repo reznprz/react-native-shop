@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Text, Pressable, GestureResponderEvent } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
+import { IconType } from 'app/navigation/screenConfigs';
+import CustomIcon from '../CustomIcon';
 
 type SizeOption = 's' | 'm' | 'l' | 'xl' | 'full';
 
@@ -18,6 +19,7 @@ interface CustomButtonProps {
   iconName?: string;
   iconColor?: string;
   iconSize?: number;
+  iconType?: IconType;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -34,6 +36,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   iconName,
   iconColor = 'white',
   iconSize = 18,
+  iconType = 'Ionicons',
 }) => {
   const [isHovered, setIsHovered] = useState(false);
 
@@ -96,11 +99,12 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       }
     >
       {iconName && (
-        <Ionicons
-          name={iconName as keyof typeof Ionicons.glyphMap}
+        <CustomIcon
+          type={iconType}
+          name={iconName}
           size={iconSize}
           color={iconColor}
-          className="mr-2"
+          iconStyle="mr-2"
         />
       )}
       <Text

@@ -27,7 +27,7 @@ export default function OrdersScreen() {
   };
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
+    <View className="flex-1 bg-gray-100 p-4 pb-0">
       <DateSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
 
       <OrderMetrics
@@ -39,7 +39,7 @@ export default function OrdersScreen() {
       />
 
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View className={`flex gap-1 ${isLargeScreen ? 'flex-row flex-wrap justify-center' : ''}`}>
+        <View className={`flex gap-2 ${isLargeScreen ? 'flex-row flex-wrap justify-center' : ''}`}>
           {isLargeScreen
             ? orders.map((order) => <OrderCard key={order.id} order={order} />)
             : orders.map((order) => (

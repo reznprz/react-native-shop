@@ -4,22 +4,25 @@ import OrderSummary from 'app/components/table/OrderSummary';
 import PaymentDetails from 'app/components/table/PaymentDetails';
 import CustomButton from 'app/components/common/button/CustomButton';
 import { OrderItem } from 'app/redux/cartSlice';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
 interface TableItemAndPaymentProps {
   cartItems: OrderItem[];
   updateQuantity: (item: OrderItem, newQty: number) => void;
-  isDesktop: boolean;
   showPaymentModal: boolean;
   setShowPaymentModal?: (value: boolean) => void;
+  onSwitchTableClick?: (seatName: string) => void;
 }
 
 export default function TableItemAndPayment({
   cartItems,
   updateQuantity,
-  isDesktop,
   showPaymentModal,
   setShowPaymentModal,
+  onSwitchTableClick,
 }: TableItemAndPaymentProps) {
+  const { isDesktop } = useIsDesktop();
+
   return (
     <>
       {isDesktop ? (
@@ -31,7 +34,11 @@ export default function TableItemAndPayment({
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
-            <OrderSummary cartItems={cartItems} updateQuantity={updateQuantity} />
+            <OrderSummary
+              cartItems={cartItems}
+              updateQuantity={updateQuantity}
+              onSwitchTableClick={onSwitchTableClick}
+            />
           </ScrollView>
 
           {/* Right Panel - Payment Details */}
@@ -50,7 +57,11 @@ export default function TableItemAndPayment({
           contentContainerStyle={{ paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
         >
-          <OrderSummary cartItems={cartItems} updateQuantity={updateQuantity} />
+          <OrderSummary
+            cartItems={cartItems}
+            updateQuantity={updateQuantity}
+            onSwitchTableClick={onSwitchTableClick}
+          />
         </ScrollView>
       )}
 
