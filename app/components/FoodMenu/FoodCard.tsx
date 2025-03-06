@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { OrderItem } from 'app/redux/cartSlice';
 import { Food } from 'app/api/services/foodService';
+import { OrderItem } from 'app/api/services/orderService';
 
 interface FoodCardProps {
   food: Food;
+  tableItem?: OrderItem;
   isDesktop?: boolean;
   width?: number;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
@@ -15,27 +16,26 @@ const FALLBACK_IMAGE_URI = 'https://picsum.photos/300/200';
 
 export default function FoodCard({
   food,
+  tableItem,
   isDesktop = false,
   width = 1025,
   updateCartItemForFood,
 }: FoodCardProps) {
-  const [quantity, setQuantity] = useState(0);
-
   const handleDecrement = () => {
-    if (quantity > 1) {
+    if (quantity > 0) {
       const newQty = quantity - 1;
-      setQuantity(newQty);
       updateCartItemForFood(food, newQty);
     }
   };
 
   const handleIncrement = () => {
     const newQty = quantity + 1;
-    setQuantity(newQty);
     updateCartItemForFood(food, newQty);
   };
 
   const img = food.img || FALLBACK_IMAGE_URI;
+
+  const quantity = tableItem?.quantity || 0;
 
   return (
     <View className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-2">

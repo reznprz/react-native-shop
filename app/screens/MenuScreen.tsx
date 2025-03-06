@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useFood } from 'app/hooks/useFood';
-import { useCart } from 'app/hooks/useCart';
 import SubTab from 'app/components/common/SubTab';
 import { useTables } from 'app/hooks/useTables';
 import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
 import FoodsMenu from 'app/components/FoodMenu/FoodsMenu';
+import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
 
 const tabs = ['All Foods', 'Food Items'];
 
@@ -25,9 +25,15 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   const { selectedTab } = route.params || {};
 
   const { foods, refetch, categories, handleSearch, handleCategoryClick } = useFood();
-  const { cart, updateCartItemForOrderItem } = useTables();
 
-  const { updateCartItemForFood } = useCart();
+  const {
+    updateCartItemForFood,
+    updateCartItemForOrderItem,
+    resetAddOrUpdateOrder,
+    addUpdateOrderError,
+    prepTableItems,
+  } = useTables();
+
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Foods');
 
@@ -53,7 +59,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
       <View className="flex-1 bg-gray-100">
         {activeTab !== 'All Foods' ? (
           <TableItemAndPayment
-            cartItems={cart.cartItems}
+            tableItems={prepTableItems}
             updateQuantity={updateCartItemForOrderItem}
             showPaymentModal={false}
           />
@@ -61,6 +67,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
           <FoodsMenu
             foods={foods}
             categories={categories}
+            tableItems={prepTableItems}
             selectedCategory={selectedCategory}
             handleSearch={handleSearch}
             handleCategoryClick={handleCategoryClick}
@@ -69,6 +76,13 @@ export default function MenuScreen({ route }: MenuScreenProps) {
           />
         )}
       </View>
+
+      <ErrorMessagePopUp
+        errorMessage={addUpdateOrderError?.message || ''}
+        onClose={() => {
+          resetAddOrUpdateOrder();
+        }}
+      />
     </View>
   );
 }

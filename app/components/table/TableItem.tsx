@@ -1,6 +1,6 @@
+import { OrderItem } from 'app/api/services/orderService';
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
-import { OrderItem } from 'app/redux/cartSlice';
 
 const FALLBACK_IMAGE_URI = 'https://picsum.photos/300/200';
 
@@ -24,7 +24,7 @@ const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
           <Text className="text-base font-semibold text-deepTeal" numberOfLines={1}>
             {item.productName}
           </Text>
-          <Text className="text-sm text-gray-600">{`${item.price.toFixed(2)}`}</Text>
+          <Text className="text-sm text-gray-600">{`${item.unitPrice.toFixed(2)}`}</Text>
         </View>
 
         {/* Right Section: Quantity Control + Total Price */}
@@ -55,7 +55,7 @@ const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
 
           {/* Total Price */}
           <Text className="font-semibold text-deepTeal">
-            {`${(item.price * item.quantity).toFixed(2)}`}
+            {`${(item.unitPrice * item.quantity).toFixed(2)}`}
           </Text>
         </View>
       </View>

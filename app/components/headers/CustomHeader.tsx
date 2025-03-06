@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/native';
 import { tabScreenConfigs } from '../../navigation/screenConfigs';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import CustomIcon from '../common/CustomIcon';
+import { useSelector } from 'react-redux/dist/react-redux';
+import { RootState } from 'app/redux/store';
 
 /** Helper: Get the label from route name */
 function getRouteLabel(routeName: string): string {
@@ -19,6 +21,7 @@ interface CustomHeaderProps {
 
 export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const { isDesktop, deviceType } = useIsDesktop();
+  const tableName = useSelector((state: RootState) => state.table.tableName);
 
   const desktop = isDesktop && deviceType === 'Desktop';
 
@@ -56,23 +59,34 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
         </View>
       )}
 
-      {/* Right Section: Table Icon */}
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate('MainTabs', {
-            screen: 'Table',
-            params: { selectedTab: 'Table Items' },
-          })
-        }
-      >
-        <CustomIcon
-          iconStyle={`${isDesktop ? 'pt-6' : 'pt-16'}`}
-          name={'table'}
-          type={'MaterialCommunityIcons'}
-          size={30}
-          color="#fef6eb"
-        />
-      </TouchableOpacity>
+      <View className="flex-row">
+        <Text
+          className={`
+          text-lightCream text-2xl font-anticSlab pr-6
+          ${isDesktop ? 'pt-6' : 'pt-16'}
+        `}
+        >
+          {tableName}
+        </Text>
+
+        {/* Right Section: Table Icon */}
+        <TouchableOpacity
+          onPress={() =>
+            navigation.navigate('MainTabs', {
+              screen: 'Table',
+              params: { selectedTab: 'Table Items' },
+            })
+          }
+        >
+          <CustomIcon
+            iconStyle={`${isDesktop ? 'pt-6' : 'pt-16'}`}
+            name={'table'}
+            type={'MaterialCommunityIcons'}
+            size={30}
+            color="#fef6eb"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -108,3 +122,17 @@ const IconWithTooltip = ({ navigation, screen, isFocused }: any) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  categoryChip: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    backgroundColor: '#E5E7EB', // Default gray background
+    margin: 2,
+  },
+  filterText: {
+    fontWeight: '600',
+    fontSize: 16,
+  },
+});

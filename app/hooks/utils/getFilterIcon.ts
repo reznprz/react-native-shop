@@ -4,8 +4,7 @@ export function getFilterIcon(
   filterName: string,
   filterLabel: string,
 ): { iconName: string; iconType: IconType } {
-  const cat = filterLabel.toLowerCase();
-
+  const cat = filterLabel?.toLowerCase() || '';
   // If filterName is "Tables", return a table icon (MaterialCommunityIcons)
   if (filterName === 'Tables') {
     if (cat.includes('all')) return { iconName: 'list-outline', iconType: 'Ionicons' };

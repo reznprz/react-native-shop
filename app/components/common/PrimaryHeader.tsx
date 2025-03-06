@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, TextInput } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import PrimaryHeaderFilter from '../FoodMenu/CategoryFilter';
+import { RestaurantTable } from 'app/api/services/tableService';
 
 interface PrimaryHeaderProps {
   title: string;
@@ -11,7 +12,7 @@ interface PrimaryHeaderProps {
   onFilterPress?: () => void;
   showBackPress?: boolean;
   filters?: string[];
-  tableInfo?: { name: string; status: string; seats: number; items: number }[];
+  tableInfo?: RestaurantTable[];
   isDesktop?: boolean;
   selectedFilter: string;
 }

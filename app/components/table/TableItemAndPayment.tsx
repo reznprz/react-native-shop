@@ -3,11 +3,12 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import OrderSummary from 'app/components/table/OrderSummary';
 import PaymentDetails from 'app/components/table/PaymentDetails';
 import CustomButton from 'app/components/common/button/CustomButton';
-import { OrderItem } from 'app/redux/cartSlice';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { TableItem } from 'app/hooks/useTables';
+import { OrderItem } from 'app/api/services/orderService';
 
 interface TableItemAndPaymentProps {
-  cartItems: OrderItem[];
+  tableItems: TableItem;
   updateQuantity: (item: OrderItem, newQty: number) => void;
   showPaymentModal: boolean;
   setShowPaymentModal?: (value: boolean) => void;
@@ -15,7 +16,7 @@ interface TableItemAndPaymentProps {
 }
 
 export default function TableItemAndPayment({
-  cartItems,
+  tableItems,
   updateQuantity,
   showPaymentModal,
   setShowPaymentModal,
@@ -35,7 +36,7 @@ export default function TableItemAndPayment({
             showsVerticalScrollIndicator={false}
           >
             <OrderSummary
-              cartItems={cartItems}
+              tableItems={tableItems}
               updateQuantity={updateQuantity}
               onSwitchTableClick={onSwitchTableClick}
             />
@@ -47,7 +48,7 @@ export default function TableItemAndPayment({
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
-            <PaymentDetails orderItems={cartItems} setDiscount={() => {}} />
+            <PaymentDetails orderItems={tableItems.orderItems} setDiscount={() => {}} />
           </ScrollView>
         </View>
       ) : (
@@ -58,7 +59,7 @@ export default function TableItemAndPayment({
           showsVerticalScrollIndicator={false}
         >
           <OrderSummary
-            cartItems={cartItems}
+            tableItems={tableItems}
             updateQuantity={updateQuantity}
             onSwitchTableClick={onSwitchTableClick}
           />

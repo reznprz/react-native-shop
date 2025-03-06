@@ -8,7 +8,8 @@ import TableList from 'app/components/table/TableList';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
 import TableListModal from 'app/components/modal/TableListModal';
 import SubTab from 'app/components/common/SubTab';
-import { navigate } from 'app/navigation/navigationService';
+import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
+import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 
 const tabs = ['All Tables', 'Table Items'];
 
@@ -33,9 +34,13 @@ export default function TableScreen({ route }: TableScreenProps) {
     occupiedTables,
     totalCapacity,
     activeOrders,
-    cart,
-    updateCartItemForOrderItem,
     tableNames,
+    prepTableItems,
+    exstingOrderForTableMutation,
+    isTablesLoading,
+    updateCartItemForOrderItem,
+    handleGoToMenuClick,
+    handleTableClick,
   } = useTables();
 
   const { isDesktop, isLargeScreen } = useIsDesktop();
@@ -45,12 +50,6 @@ export default function TableScreen({ route }: TableScreenProps) {
   const [selectedTable, setSelectedTable] = useState('All');
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Tables');
 
-  // Handlers for Actions Menu
-  const handleGoToMenu = (tableName: string) =>
-    navigate('MainTabs', {
-      screen: 'Menu',
-      params: { selectedTab: 'All Foods' },
-    });
   const handleGoToCart = (tableName: string) => console.log('Go to cart:', tableName);
   const handleSwitchTable = (tableName: string) => console.log('Switch table:', tableName);
 
@@ -69,33 +68,48 @@ export default function TableScreen({ route }: TableScreenProps) {
               onFilterPress={() => console.log('Filter pressed')}
               filters={tableNames}
               isDesktop={isDesktop}
-              handleFilterClick={setSelectedTable}
+              handleFilterClick={(selectedTable) => {
+                setSelectedTable(selectedTable);
+                handleTableClick(selectedTable);
+              }}
               selectedFilter={selectedTable}
               tableInfo={tables}
             />
-            {/* Order Summary & Payment Section */}
 
-            <TableItemAndPayment
-              cartItems={cart.cartItems}
-              updateQuantity={updateCartItemForOrderItem}
-              showPaymentModal={showPaymentModal}
-              setShowPaymentModal={setShowPaymentModal}
-              onSwitchTableClick={() => setShowSwitchTableModal(true)}
-            />
+            {exstingOrderForTableMutation.isPending ? (
+              <FoodLoadingSpinner />
+            ) : (
+              <>
+                {/* Order Summary & Payment Section */}
+
+                <TableItemAndPayment
+                  tableItems={prepTableItems}
+                  updateQuantity={updateCartItemForOrderItem}
+                  showPaymentModal={showPaymentModal}
+                  setShowPaymentModal={setShowPaymentModal}
+                  onSwitchTableClick={() => setShowSwitchTableModal(true)}
+                />
+              </>
+            )}
           </View>
         ) : (
-          /* Table Metrics & All Table */
-          <TableList
-            tables={tables}
-            availableTables={availableTables}
-            occupiedTables={occupiedTables}
-            totalCapacity={totalCapacity}
-            activeOrders={activeOrders}
-            isLargeScreen={isLargeScreen}
-            onGoToMenu={handleGoToMenu}
-            onGoToCart={handleGoToCart}
-            onSwitchTable={() => setShowSwitchTableModal(true)}
-          />
+          <>
+            {isTablesLoading ? (
+              <FoodLoadingSpinner />
+            ) : (
+              <TableList
+                tables={tables}
+                availableTables={availableTables}
+                occupiedTables={occupiedTables}
+                totalCapacity={totalCapacity}
+                activeOrders={activeOrders}
+                isLargeScreen={isLargeScreen}
+                onGoToMenu={handleGoToMenuClick}
+                onGoToCart={handleGoToCart}
+                onSwitchTable={() => setShowSwitchTableModal(true)}
+              />
+            )}
+          </>
         )}
       </View>
 
@@ -103,7 +117,7 @@ export default function TableScreen({ route }: TableScreenProps) {
       <PaymentDetailsModal
         visible={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
-        orderItems={cart.cartItems}
+        orderItems={prepTableItems.orderItems}
         setDiscount={() => {}}
       />
 
@@ -111,7 +125,16 @@ export default function TableScreen({ route }: TableScreenProps) {
         tables={tables}
         visible={showSwitchTableModal}
         onClose={() => setShowSwitchTableModal(false)}
-        onSelectTable={() => setShowSwitchTableModal(false)}
+        onSelectTable={() => {
+          setShowSwitchTableModal(false);
+        }}
+      />
+
+      <ErrorMessagePopUp
+        errorMessage={exstingOrderForTableMutation.error?.message || ''}
+        onClose={() => {
+          exstingOrderForTableMutation.reset();
+        }}
       />
     </View>
   );

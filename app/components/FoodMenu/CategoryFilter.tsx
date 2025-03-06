@@ -3,10 +3,11 @@ import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AllFiltersModal } from '../modal/AllFiltersModal';
 import FilterChip from '../common/FilterChip';
+import { RestaurantTable } from 'app/api/services/tableService';
 
 interface PrimaryHeaderFilterProps {
   filters: string[];
-  tableInfo?: { name: string; status: string; seats: number; items: number }[];
+  tableInfo?: RestaurantTable[];
   isDesktop?: boolean;
   handleFilterClick: (selectedFilter: string) => void;
   filterName: string;

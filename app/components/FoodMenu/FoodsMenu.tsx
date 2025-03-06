@@ -3,9 +3,10 @@ import { View, FlatList } from 'react-native';
 import PrimaryHeader from 'app/components/common/PrimaryHeader';
 import EmptyState from 'app/components/common/EmptyState';
 import FoodCard from 'app/components/FoodMenu/FoodCard';
-import { Food } from 'app/api/services/foodService';
+import { Category, Food } from 'app/api/services/foodService';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import SubTab from '../common/SubTab';
+import { TableItem } from 'app/hooks/useTables';
 
 const tabs = ['Normal Menu', 'Tourist Menu'];
 
@@ -13,7 +14,8 @@ type TabType = (typeof tabs)[number];
 
 interface FoodsMenuProps {
   foods: Food[] | null;
-  categories: string[];
+  categories: Category[];
+  tableItems: TableItem;
   selectedCategory: string;
   handleSearch: (text: string) => void;
   handleCategoryClick: (category: string) => void;
@@ -24,6 +26,7 @@ interface FoodsMenuProps {
 export default function FoodsMenu({
   foods,
   categories,
+  tableItems,
   selectedCategory,
   handleSearch,
   handleCategoryClick,
@@ -41,7 +44,7 @@ export default function FoodsMenu({
         onBackPress={() => console.log('Go back')}
         onSearch={handleSearch}
         onFilterPress={() => console.log('Filter pressed')}
-        filters={categories}
+        filters={categories.map((category) => category.name)}
         isDesktop={isDesktop}
         handleFilterClick={(selectedCategory) => {
           handleCategoryClick(selectedCategory);
@@ -78,7 +81,13 @@ export default function FoodsMenu({
 
             return (
               <View style={{ width: itemWidth, margin: 3 }}>
-                <FoodCard food={item} updateCartItemForFood={updateCartItemForFood} />
+                <FoodCard
+                  food={item}
+                  tableItem={tableItems.orderItems.find(
+                    (tableItem) => tableItem.productName === item.name,
+                  )}
+                  updateCartItemForFood={updateCartItemForFood}
+                />
               </View>
             );
           }}

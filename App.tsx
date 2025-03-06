@@ -11,6 +11,8 @@ import FoodLoadingSpinner from './app/components/FoodLoadingSpinner';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './app/redux/store';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 
 // Initialize react-native-screens for performance
 enableScreens();
@@ -25,10 +27,20 @@ const MyTheme: Theme = {
   },
 };
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, 
+      // or other global defaults
+    },
+  },
+});
+
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
         <PersistGate loading={<FoodLoadingSpinner />} persistor={persistor}>
           <SafeAreaProvider>
             <NavigationContainer ref={navigationRef} theme={MyTheme}>
@@ -38,6 +50,7 @@ const App: React.FC = () => {
             </NavigationContainer>
           </SafeAreaProvider>
         </PersistGate>
+        </QueryClientProvider>
       </Provider>
     </ErrorBoundary>
   );

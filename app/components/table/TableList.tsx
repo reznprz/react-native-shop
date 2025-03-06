@@ -2,9 +2,10 @@ import React from 'react';
 import { View, ScrollView } from 'react-native';
 import { TableCard } from 'app/components/table/TableCard';
 import TableMetrics from 'app/components/table/TableMetrics';
+import { RestaurantTable } from 'app/api/services/tableService';
 
 interface TableListProps {
-  tables: { name: string; status: string; seats: number; items: number }[];
+  tables: RestaurantTable[];
   availableTables: number;
   occupiedTables: number;
   totalCapacity: number;
@@ -52,13 +53,13 @@ export default function TableList({
         {tables.map((table, index) => (
           <TableCard
             key={index}
-            name={table.name}
+            name={table.tableName}
             status={table.status}
-            seats={table.seats}
-            items={table.items}
-            onGoToMenu={() => onGoToMenu(table.name)}
-            onGoToCart={() => onGoToCart(table.name)}
-            onSwitchTable={() => onSwitchTable(table.name)}
+            seats={table.capacity}
+            items={table.orderItemsCount}
+            onGoToMenu={() => onGoToMenu(table.tableName)}
+            onGoToCart={() => onGoToCart(table.tableName)}
+            onSwitchTable={() => onSwitchTable(table.tableName)}
           />
         ))}
       </ScrollView>

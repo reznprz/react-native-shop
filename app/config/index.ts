@@ -1,4 +1,5 @@
 export const config = {
-  baseURL: 'http://34.44.230.36:8080',
+  tokenBaseURL: 'http://localhost:8080', // Token service base URL
+  apiBaseURL: 'http://localhost:8082', // API service base URL
   env: 'local',
 };

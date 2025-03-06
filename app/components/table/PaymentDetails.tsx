@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { OrderItem } from 'app/redux/cartSlice';
+import { View, Text, TextInput } from 'react-native';
 import PaymentChip from './PaymentChip';
-import EmptyState from '../common/EmptyState';
 import CustomButton from '../common/button/CustomButton';
 import PaymentInput from './PaymentInput';
 import IconLabel from '../common/IconLabel';
+import { OrderItem } from 'app/api/services/orderService';
 
 const paymentTypes = ['cash', 'e-sewa', 'fone-pay', 'credit'];
 
@@ -40,7 +38,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
                 <Text className="text-gray-700">{item.productName}</Text>
                 <Text className="text-gray-700 pl-2">{`x${item.quantity.toFixed(2)}`}</Text>
               </View>
-              <Text className="text-gray-700">{`$${(item.price * item.quantity).toFixed(2)}`}</Text>
+              <Text className="text-gray-700">{`$${(item.unitPrice * item.quantity).toFixed(2)}`}</Text>
             </View>
           ))}
         </View>

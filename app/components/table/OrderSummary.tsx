@@ -1,19 +1,20 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { OrderItem } from 'app/redux/cartSlice';
 import EmptyState from '../common/EmptyState';
 import IconLabel from '../common/IconLabel';
-import TableItem from './TableItem';
 import CustomButton from '../common/button/CustomButton';
+import { TableItem as TableItems } from 'app/hooks/useTables';
+import TableItem from './TableItem';
+import { OrderItem } from 'app/api/services/orderService';
 
 interface OrderSummaryProps {
-  cartItems: OrderItem[];
+  tableItems: TableItems;
   updateQuantity: (food: OrderItem, newQuantity: number) => void;
   onSwitchTableClick?: (seatName: string) => void;
 }
 
 const OrderSummary: React.FC<OrderSummaryProps> = ({
-  cartItems,
+  tableItems,
   updateQuantity,
   onSwitchTableClick,
 }) => {
@@ -23,11 +24,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       <View className="bg-white rounded-lg shadow-md flex-row items-center justify-between">
         {/* Left Section: Order Info */}
         <View className="gap-1">
-          <IconLabel iconName="clipboard-list" label={'Order #12345'} />
+          <IconLabel iconName="clipboard-list" label={`Order #${tableItems.id}`} />
           <IconLabel iconName="table" label={'Table:'} subLabel={'T-15'} />
 
           <Text className="text-gray-600 pb-4">
-            {'User:'} <Text className="font-semibold">{'Sarah Johnson'}</Text>
+            {'User:'} <Text className="font-semibold">{tableItems.userId}</Text>
           </Text>
         </View>
 
@@ -50,7 +51,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
       </View>
       {/* Divider */}
       <View className="w-full h-px bg-gray-200 my-3" />
-      {!cartItems || cartItems.length === 0 ? (
+      {!tableItems || tableItems.orderItems.length === 0 ? (
         <EmptyState
           iconName="food-off"
           message="No food items available"
@@ -58,8 +59,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           iconSize={80}
         />
       ) : (
-        cartItems.map((item) => (
-          <TableItem key={item.orderItemId} item={item} updateQuantity={updateQuantity} />
+        tableItems.orderItems.map((item) => (
+          <TableItem key={item.id} item={item} updateQuantity={updateQuantity} />
         ))
       )}
     </View>

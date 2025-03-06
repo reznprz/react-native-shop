@@ -3,10 +3,11 @@ import { Text, StyleSheet, ScrollView, Pressable, View } from 'react-native';
 import BaseModal from '../common/modal/BaseModal';
 import FilterChip from '../common/FilterChip';
 import IconLabel from '../common/IconLabel';
+import { RestaurantTable } from 'app/api/services/tableService';
 
 interface TableListModalProps {
   visible: boolean;
-  tables: { name: string; status: string; seats: number; items: number }[];
+  tables: RestaurantTable[];
   onClose: () => void;
   onSelectTable: (selectedTable: string) => void;
 }
@@ -35,9 +36,9 @@ const TableListModal: React.FC<TableListModalProps> = ({
         <View className="flex-row flex-wrap gap-1 pl-4 pr-4 pb-2">
           {tables.map((table, index) => (
             <FilterChip
-              key={table.name}
+              key={table.tableName}
               filterName={'Tables'}
-              label={table.name}
+              label={table.tableName}
               chipStatus={table.status}
               isSelected={false}
               onSelect={(value) => {

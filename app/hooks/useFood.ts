@@ -8,6 +8,7 @@ import {
   setError,
   clearError,
   clearFilteredFoods,
+  fetchCategories,
 } from 'app/redux/foodSlice';
 import { RootState, AppDispatch } from 'app/redux/store';
 import { usePageState } from './reducers/usePageState';
@@ -15,19 +16,28 @@ import { SubCategory } from './utils/groupFoodBySubCategory';
 
 export const useFood = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const tableName = useSelector((state: RootState) => state.table.tableName);
 
   // Local state for search and category
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Get food data from Redux store
-  const { foods, groupedFoods, loading, error, filterData, categories } = useSelector(
-    (state: RootState) => state.foods,
-  );
+  const {
+    foods,
+    groupedFoods,
+    loading,
+    error,
+    filterData,
+    categories,
+    categoriesLoading,
+    categoriesError,
+  } = useSelector((state: RootState) => state.foods);
 
-  // Function to fetch foods
+  // Function to fetch foods and Categories
   const refetch = useCallback(() => {
     dispatch(fetchFoods());
+    dispatch(fetchCategories());
   }, [dispatch]);
 
   // Function to filter foods by category
@@ -47,7 +57,7 @@ export const useFood = () => {
       const selectedCategory = normalizeString(selectedSubCategory);
 
       const filteredFoods = foods.filter((foodItem) => {
-        const categoryNameTwo = normalizeString(foodItem.categoryNameTwo || '');
+        const categoryNameTwo = normalizeString(foodItem.categoryName || '');
         const isMatch = categoryNameTwo === selectedCategory;
 
         return isMatch;
@@ -125,5 +135,7 @@ export const useFood = () => {
     handleCategoryClick,
     selectedCategory,
     searchTerm,
+    categoriesLoading,
+    categoriesError,
   };
 };
