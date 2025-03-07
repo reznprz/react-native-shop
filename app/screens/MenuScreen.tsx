@@ -26,13 +26,8 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   const { foods, refetch, categories, handleSearch, handleCategoryClick } = useFood();
 
-  const {
-    updateCartItemForFood,
-    updateCartItemForOrderItem,
-    resetAddOrUpdateOrder,
-    addUpdateOrderError,
-    prepTableItems,
-  } = useTables();
+  const { addUpdateFoodItems, resetAddOrUpdateOrder, addUpdateOrderError, prepTableItems } =
+    useTables();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Foods');
@@ -60,8 +55,11 @@ export default function MenuScreen({ route }: MenuScreenProps) {
         {activeTab !== 'All Foods' ? (
           <TableItemAndPayment
             tableItems={prepTableItems}
-            updateQuantity={updateCartItemForOrderItem}
-            showPaymentModal={false}
+            updateQuantity={(item, newQty) => {
+              addUpdateFoodItems(newQty, undefined, item);
+            }}
+            handleAddDiscount={() => {}}
+            handleCompleteOrder={() => {}}
           />
         ) : (
           <FoodsMenu
@@ -72,7 +70,9 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             handleSearch={handleSearch}
             handleCategoryClick={handleCategoryClick}
             setSelectedCategory={setSelectedCategory}
-            updateCartItemForFood={updateCartItemForFood}
+            updateCartItemForFood={(food, qty) => {
+              addUpdateFoodItems(qty, food, undefined);
+            }}
           />
         )}
       </View>

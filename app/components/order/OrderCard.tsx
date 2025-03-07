@@ -2,9 +2,9 @@ import { View, Text } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 
 import React from 'react';
-import { OrderDetails } from 'app/hooks/useOrder';
 import OrderSummaryCard from './OrderSummaryCard';
 import OrderItemSummary from './OrderItemSummary';
+import { OrderDetails } from 'app/api/services/orderService';
 
 type OrderCardProps = {
   order: OrderDetails;

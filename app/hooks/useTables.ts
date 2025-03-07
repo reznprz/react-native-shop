@@ -8,6 +8,7 @@ import { useMutation, useQuery, UseQueryResult } from '@tanstack/react-query';
 import { setTableName } from 'app/redux/tableSlice';
 import { navigate } from 'app/navigation/navigationService';
 import {
+  completeOrderApi,
   fetchExistingOrderByTableNameApi,
   Order,
   OrderItem,
@@ -15,6 +16,7 @@ import {
 } from 'app/api/services/orderService';
 import { useAddUpdateOrderMutation } from './useAddUpdateOrderMutation';
 import { resetPrepTableItems, setPrepTableItems } from 'app/redux/prepTableItemsSlice';
+import { SelectedPayment } from 'app/components/table/PaymentDetails';
 
 export interface TableItem {
   id: number;
@@ -22,19 +24,25 @@ export interface TableItem {
   restaurantId: number;
   tableName: string;
   totalPrice: number;
+  discountAmount: number;
+  subTotal: number;
   orderType: OrderType;
   orderItems: OrderItem[];
   paymentInfo: PaymentInfo[];
 }
 
 export interface PaymentInfo {
+  amount: number;
   paymentType: string;
-  debitAmount: number;
-  creditAmount: number;
-  totalAmount: number;
+}
+
+export interface CompleteOrderRequest {
   discountAmount: number;
-  subTotal: number;
-  paymentStatus: string;
+  totalAmount: number;
+  subTotalAmount: number;
+  paidAmount?: number;
+  creditAmount?: number;
+  paymentInfos: PaymentInfo[];
 }
 
 /** Helper to map a returned `Order` => local `TableItem`. */
@@ -45,22 +53,23 @@ function toTableItem(order: Order): TableItem {
     restaurantId: order.restaurantId,
     tableName: order.tableName,
     totalPrice: order.totalPrice,
+    discountAmount: 0,
+    subTotal: order.totalPrice,
     orderType: order.orderType,
     orderItems: order.orderItems,
     paymentInfo: [],
   };
 }
 
-const initialTableItem: TableItem = {
+export const convertFoodToOrderItem = (food: Food): OrderItem => ({
   id: 0,
-  userId: 0,
-  restaurantId: 0,
-  tableName: '',
-  totalPrice: 0,
-  orderType: OrderType.STORE,
-  orderItems: [],
-  paymentInfo: [],
-};
+  orderId: 0,
+  productName: food.name,
+  quantity: 1,
+  unitPrice: food.price,
+  total: food.price,
+  imageUrl: food.img,
+});
 
 // Query: Fetch Restaurant Tables
 export const useRestaurantTablesQuery = (): UseQueryResult<
@@ -118,14 +127,16 @@ export function useTables() {
   /**
    * Update state for a Food item, then call api for update with mutation.
    */
-  const updateCartItemForFood = useCallback(
-    (food: Food, newQuantity: number) => {
+  const addUpdateFoodItems = useCallback(
+    (newQuantity: number, food?: Food, orderItem?: OrderItem) => {
       // current state from redux
       const currentState = prepTableItems;
 
+      const item = orderItem || convertFoodToOrderItem(food!);
+
       // check for existing item
       const existingIndex = currentState.orderItems.findIndex(
-        (item) => item.productName === food.name,
+        (item) => item.productName === item.productName,
       );
 
       let updatedOrderItems: OrderItem[] = [];
@@ -138,7 +149,7 @@ export function useTables() {
         updatedOrderItems[existingIndex] = {
           ...existingItem,
           quantity: newQuantity,
-          total: food.price * newQuantity,
+          total: item.unitPrice * newQuantity,
         };
       } else {
         // Add new item
@@ -147,10 +158,10 @@ export function useTables() {
           {
             id: 0, // new item id created when inserted into db
             orderId: currentState.id,
-            productName: food.name,
+            productName: item.productName,
             quantity: newQuantity,
-            unitPrice: food.price,
-            total: food.price * newQuantity,
+            unitPrice: item.unitPrice,
+            total: item.unitPrice * newQuantity,
           },
         ];
       }
@@ -175,61 +186,10 @@ export function useTables() {
         orderItems: {
           id: 0, // new item id created when inserted into db
           orderId: updatedPrepTableItems.id,
-          productName: food.name,
+          productName: item.productName,
           quantity: newQuantity,
-          unitPrice: food.price,
-          total: food.price * newQuantity,
-        },
-      });
-    },
-    [prepTableItems, dispatch, tableName, addOrUpdateOrder],
-  );
-
-  /**
-   * Update state for a Food item, then call api for update with mutation.
-   */
-  const updateCartItemForOrderItem = useCallback(
-    (orderItem: OrderItem, newQuantity: number) => {
-      // Compute updated state
-      const currentState = prepTableItems;
-      const existingIndex = currentState.orderItems.findIndex(
-        (item) => item.productName === orderItem.productName,
-      );
-
-      if (existingIndex === -1) return;
-
-      const updatedOrderItems = [...currentState.orderItems];
-      const existing = updatedOrderItems[existingIndex];
-      updatedOrderItems[existingIndex] = {
-        ...existing,
-        quantity: newQuantity,
-        total: existing.unitPrice * newQuantity,
-      };
-
-      const updatedTotalPrice = updatedOrderItems.reduce((acc, item) => acc + item.total, 0);
-
-      const updatedPrepTableItems = {
-        ...currentState,
-        tableName: tableName,
-        restaurantId: 1,
-        totalPrice: updatedTotalPrice,
-        orderItems: updatedOrderItems,
-      };
-
-      // Dispatch the new state
-      dispatch(setPrepTableItems(updatedPrepTableItems));
-
-      // Call the mutation with the updated state
-      addOrUpdateOrder({
-        orderId: updatedPrepTableItems.id,
-        tableName: tableName,
-        orderItems: {
-          id: 0,
-          orderId: updatedPrepTableItems.id,
-          productName: orderItem.productName,
-          quantity: newQuantity,
-          unitPrice: orderItem.unitPrice,
-          total: orderItem.unitPrice * newQuantity,
+          unitPrice: item.unitPrice,
+          total: item.unitPrice * newQuantity,
         },
       });
     },
@@ -305,12 +265,12 @@ export function useTables() {
     },
     [dispatch, fetchExistingOrderForTable, tableName],
   );
-  
+
   const handleGoToMenuClick = useCallback(
     (selectedTableName: string) => {
       if (selectedTableName !== tableName) {
         fetchExistingOrderForTable(selectedTableName, 1);
-      } 
+      }
       dispatch(setTableName(selectedTableName));
       navigate('MainTabs', {
         screen: 'Menu',
@@ -319,7 +279,64 @@ export function useTables() {
     },
     [dispatch, tableName, fetchExistingOrderForTable, navigate],
   );
-  
+
+  const handleAddDiscount = useCallback(
+    (discountAmount: number) => {
+      const currentState = prepTableItems;
+      const newTotal = currentState.totalPrice - discountAmount;
+      const updatedPrepTableItems = {
+        ...currentState,
+        discountAmount: discountAmount,
+        totalPrice: newTotal,
+      };
+      dispatch(setPrepTableItems(updatedPrepTableItems));
+    },
+    [dispatch, prepTableItems],
+  );
+
+  const handleCompleteOrder = useCallback(
+    (selectedPayments: SelectedPayment[]) => {
+      const currentState = prepTableItems;
+      const { id, totalPrice, discountAmount, subTotal } = currentState;
+      const paymentInfos = selectedPayments.map((p) => ({
+        amount: p.amount,
+        paymentType: p.paymentType,
+      }));
+      const completeOrderRequest: CompleteOrderRequest = {
+        discountAmount,
+        totalAmount: totalPrice,
+        subTotalAmount: subTotal,
+        paymentInfos,
+      };
+
+      completeOrderMutation.mutate({ payload: completeOrderRequest, orderId: id });
+    },
+    [dispatch, prepTableItems],
+  );
+
+  const completeOrderMutation = useMutation<
+    ApiResponse<Order>,
+    Error,
+    { payload: CompleteOrderRequest; orderId: number }
+  >({
+    mutationFn: async ({ payload, orderId }) => {
+      if (!orderId || payload.paymentInfos.length === 0) {
+        throw new Error('Missing orderId or payment Information');
+      }
+      const response: ApiResponse<Order> = await completeOrderApi(payload, orderId);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      console.warn('existing order fetch failed:', response);
+    },
+    onError: (err) => {
+      console.warn('existing order fetch failed:', err);
+      dispatch(resetPrepTableItems());
+    },
+  });
 
   return {
     // TABLES QUERY
@@ -332,6 +349,9 @@ export function useTables() {
     addUpdateOrderData,
     addUpdateOrderError,
     resetAddOrUpdateOrder,
+
+    // COMPLETE ORDER MUTATION
+    completeOrderMutation,
 
     // LOCAL STATE
     prepTableItems,
@@ -351,7 +371,8 @@ export function useTables() {
     // HANDLERS
     handleGoToMenuClick,
     handleTableClick,
-    updateCartItemForFood,
-    updateCartItemForOrderItem,
+    addUpdateFoodItems,
+    handleAddDiscount,
+    handleCompleteOrder,
   };
 }

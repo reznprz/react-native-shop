@@ -41,7 +41,7 @@ export default function PrimaryHeaderFilter({
 
   const getTableStatus = useCallback(
     (tableName: string) => {
-      return tableInfo?.find((table) => table.name === tableName)?.status;
+      return tableInfo?.find((table) => table.tableName === tableName)?.status;
     },
     [tableInfo],
   );

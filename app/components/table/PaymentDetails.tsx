@@ -4,23 +4,41 @@ import PaymentChip from './PaymentChip';
 import CustomButton from '../common/button/CustomButton';
 import PaymentInput from './PaymentInput';
 import IconLabel from '../common/IconLabel';
-import { OrderItem } from 'app/api/services/orderService';
+import { TableItem } from 'app/hooks/useTables';
 
-const paymentTypes = ['cash', 'e-sewa', 'fone-pay', 'credit'];
+const paymentTypes = ['CASH', 'ESEWA', 'FONE_PAY', 'CREDIT'];
 
 interface PaymentDetailsProps {
-  orderItems: OrderItem[];
+  tableItems: TableItem;
   setDiscount: (amount: number) => void;
+  handleCompleteOrder: (selectedPayments: SelectedPayment[]) => void;
 }
 
-const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount }) => {
-  const items = orderItems || [];
-  const [selectedPayments, setSelectedPayments] = useState<string[]>([]);
+export interface SelectedPayment {
+  paymentType: string;
+  amount: number;
+}
+
+const PaymentDetails: React.FC<PaymentDetailsProps> = ({
+  tableItems,
+  setDiscount,
+  handleCompleteOrder,
+}) => {
+  const items = tableItems?.orderItems || [];
+  const [selectedPayments, setSelectedPayments] = useState<SelectedPayment[]>([]);
 
   // Toggle Payment Selection
   const handlePaymentSelection = (type: string) => {
     setSelectedPayments((prev) =>
-      prev.includes(type) ? prev.filter((p) => p !== type) : [...prev, type],
+      prev.some((p) => p.paymentType === type)
+        ? prev.filter((p) => p.paymentType !== type)
+        : [...prev, { paymentType: type, amount: 0 }],
+    );
+  };
+
+  const handleMultiplePaymentInputSelection = (paymentType: string, amount: number) => {
+    setSelectedPayments((prev) =>
+      prev.map((p) => (p.paymentType === paymentType ? { ...p, amount } : p)),
     );
   };
 
@@ -49,22 +67,29 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
         <IconLabel iconName="document-text-outline" label={'Payment Methods'} iconType="Ionicons" />
 
         {/* Payment Selection */}
-        <View className="flex flex-row flex-wrap justify-center gap-2 mb-4">
-          {paymentTypes.map((type, idx) => (
-            <View key={idx} className="p-1">
-              <PaymentChip
-                paymentType={type}
-                isSelected={selectedPayments.includes(type)}
-                onSelect={() => handlePaymentSelection(type)}
-              />
-            </View>
-          ))}
-        </View>
+        {paymentTypes.length > 1 && (
+          <View className="flex flex-row flex-wrap justify-center gap-2 mb-4">
+            {paymentTypes.map((type, idx) => (
+              <View key={idx} className="p-1">
+                <PaymentChip
+                  paymentType={type}
+                  isSelected={selectedPayments.some((p) => p.paymentType === type)}
+                  onSelect={() => handlePaymentSelection(type)}
+                />
+              </View>
+            ))}
+          </View>
+        )}
 
         {/* Render Payment Inputs Dynamically for Selected Methods */}
-        {selectedPayments.map((type, idx) => (
-          <PaymentInput key={idx} paymentType={type} onInput={() => {}} />
-        ))}
+        {selectedPayments.length > 1 &&
+          selectedPayments.map((payment, idx) => (
+            <PaymentInput
+              key={idx}
+              paymentType={payment.paymentType}
+              onInput={(amount) => handleMultiplePaymentInputSelection(payment.paymentType, amount)}
+            />
+          ))}
       </View>
       {/* Discount Input */}
       <View className="flex-row justify-between items-center mb-4 pt-4">
@@ -91,26 +116,34 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ orderItems, setDiscount
         {/* Subtotal */}
         <View className="flex-row justify-between mb-2">
           <Text className="text-gray-700 text-base">{'Subtotal'}</Text>
-          <Text className="text-gray-700 text-base">{'41'}</Text>
+          <Text className="text-gray-700 text-base">
+            {Number(tableItems?.subTotal || 0).toFixed(2)}
+          </Text>
         </View>
 
         {/* Discount */}
         <View className="flex-row justify-between mb-2">
           <Text className="text-gray-700 text-base">{'Discount'}</Text>
           {/* Red for negative amount */}
-          <Text className="text-red-500 text-base">-{'10'}</Text>
+          <Text className="text-red-500 text-base">
+            -{Number(tableItems?.discountAmount || 0).toFixed(2)}
+          </Text>
         </View>
 
         {/* Total */}
         <View className="flex-row justify-between">
           <Text className="font-bold text-lg text-gray-900">{'Total'}</Text>
-          <Text className="font-bold text-lg text-gray-900">{'31'}</Text>
+          <Text className="font-bold text-lg text-gray-900">
+            {Number(tableItems?.totalPrice || 0).toFixed(2)}
+          </Text>
         </View>
       </View>
       {/* Complete Order Button */}
       <CustomButton
         title="Complete Order"
-        onPress={() => {}}
+        onPress={() => {
+          handleCompleteOrder(selectedPayments);
+        }}
         width="full"
         height="l"
         textSize="text-xl"

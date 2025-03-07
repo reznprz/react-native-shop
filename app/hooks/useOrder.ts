@@ -1,118 +1,107 @@
-import { useState } from 'react';
-
-export type OrderItem = {
-  id: number;
-  name: string;
-  quantity: number;
-  price: number;
-};
-
-export type OrderDetails = {
-  id: number;
-  table: string;
-  date: string;
-  time: string;
-  status: string;
-  total: number;
-  paymentMethod: 'Credit Card' | 'Esewa' | 'Cash' | 'FonePay';
-  items: OrderItem[];
-};
+import { ApiResponse } from 'app/api/handlers';
+import {
+  findOrdersByFiltersAndOrdersApi,
+  findOrdersByIdApi,
+  FindOrdersFilters,
+  OrderDetails,
+} from 'app/api/services/orderService';
+import { useCallback, useMemo, useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
 
 export const useOrder = () => {
-  const [orders] = useState<OrderDetails[]>([
-    {
-      id: 1234,
-      table: 'Table 12',
-      date: '06 15, 2025',
-      time: '7:30 PM',
-      status: 'Completed',
-      total: 84.5,
-      paymentMethod: 'Credit Card',
-      items: [
-        { id: 1, name: 'Margherita Pizza', quantity: 2, price: 32.0 },
-        { id: 2, name: 'Caesar Salad', quantity: 1, price: 12.5 },
-        { id: 3, name: 'Soft Drinks', quantity: 3, price: 9.0 },
-        { id: 5, name: 'Tiramisu', quantity: 1, price: 8.0 },
-        { id: 6, name: 'Soft Drinks', quantity: 3, price: 9.0 },
-        { id: 7, name: 'Tiramisu', quantity: 1, price: 8.0 },
-      ],
-    },
-    {
-      id: 1233,
-      table: 'Table 5',
-      date: 'March 16, 2025',
-      time: '8:00 PM',
-      status: 'Pending',
-      total: 50.0,
-      paymentMethod: 'Cash',
-      items: [
-        { id: 5, name: 'Pepperoni Pizza', quantity: 1, price: 20.0 },
-        { id: 6, name: 'Pasta Alfredo', quantity: 1, price: 15.0 },
-        { id: 7, name: 'Soft Drink', quantity: 2, price: 10.0 },
-        { id: 8, name: 'Cheesecake', quantity: 1, price: 5.0 },
-      ],
-    },
-    {
-      id: 1222,
-      table: 'Table 5',
-      date: 'March 16, 2025',
-      time: '8:00 PM',
-      status: 'Pending',
-      total: 50.0,
-      paymentMethod: 'Cash',
-      items: [
-        { id: 5, name: 'Pepperoni Pizza', quantity: 1, price: 20.0 },
-        { id: 6, name: 'Pasta Alfredo', quantity: 1, price: 15.0 },
-        { id: 7, name: 'Soft Drink', quantity: 2, price: 10.0 },
-        { id: 8, name: 'Cheesecake', quantity: 1, price: 5.0 },
-      ],
-    },
-    {
-      id: 1237,
-      table: 'Table 5',
-      date: 'March 16, 2025',
-      time: '8:00 PM',
-      status: 'Pending',
-      total: 50.0,
-      paymentMethod: 'Esewa',
-      items: [
-        { id: 5, name: 'Pepperoni Pizza', quantity: 1, price: 20.0 },
-        { id: 6, name: 'Pasta Alfredo', quantity: 1, price: 15.0 },
-        { id: 7, name: 'Soft Drink', quantity: 2, price: 10.0 },
-        { id: 8, name: 'Cheesecake', quantity: 1, price: 5.0 },
-      ],
-    },
-    {
-      id: 1239,
-      table: 'Table 5',
-      date: 'March 16, 2025',
-      time: '8:00 PM',
-      status: 'Pending',
-      total: 50.0,
-      paymentMethod: 'FonePay',
-      items: [
-        { id: 5, name: 'Pepperoni Pizza', quantity: 1, price: 20.0 },
-        { id: 6, name: 'Pasta Alfredo', quantity: 1, price: 15.0 },
-        { id: 7, name: 'Soft Drink', quantity: 2, price: 10.0 },
-        { id: 8, name: 'Cheesecake', quantity: 1, price: 5.0 },
-      ],
-    },
-    {
-      id: 1939,
-      table: 'Table 5',
-      date: 'March 16, 2025',
-      time: '8:00 PM',
-      status: 'Pending',
-      total: 50.0,
-      paymentMethod: 'FonePay',
-      items: [
-        { id: 5, name: 'Pepperoni Pizza', quantity: 1, price: 20.0 },
-        { id: 6, name: 'Pasta Alfredo', quantity: 1, price: 15.0 },
-        { id: 7, name: 'Soft Drink', quantity: 2, price: 10.0 },
-        { id: 8, name: 'Cheesecake', quantity: 1, price: 5.0 },
-      ],
-    },
-  ]);
+  const [orders, setOrders] = useState<OrderDetails[]>([]);
 
-  return { orders };
+  const [order, setOrder] = useState<OrderDetails | null>(null);
+
+  const findOrdersByFiltersAndOrdersMutation = useMutation<
+    ApiResponse<OrderDetails[]>,
+    Error,
+    { filters: FindOrdersFilters }
+  >({
+    mutationFn: async ({ filters }) => {
+      const response: ApiResponse<OrderDetails[]> = await findOrdersByFiltersAndOrdersApi(filters);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setOrders(response.data || []);
+    },
+    onError: (err) => {
+      console.warn('existing order fetch failed:', err);
+      setOrders([]);
+    },
+  });
+
+  const findOrdersByIdMutation = useMutation<ApiResponse<OrderDetails>, Error, { orderId: number }>(
+    {
+      mutationFn: async ({ orderId }) => {
+        if (!orderId || orderId === 0) {
+          throw new Error('Missing order Id');
+        }
+
+        const response: ApiResponse<OrderDetails> = await findOrdersByIdApi(orderId);
+        if (response.status !== 'success') {
+          throw new Error(response.message);
+        }
+        return response;
+      },
+      onSuccess: (response) => {
+        setOrder(response.data || null);
+      },
+      onError: (err) => {
+        console.warn('existing order fetch failed:', err);
+        setOrder(null);
+      },
+    },
+  );
+
+  const fetchOrders = useCallback(
+    (filters: FindOrdersFilters) => {
+      findOrdersByFiltersAndOrdersMutation.mutate({ filters });
+    },
+    [findOrdersByFiltersAndOrdersMutation, orders],
+  );
+
+  const fetchOrderById = useCallback(
+    (orderId: number) => {
+      console.log('fetching order by id', orderId);
+      findOrdersByIdMutation.mutate({ orderId });
+    },
+    [findOrdersByIdMutation, orders],
+  );
+
+  const totalAmount = useMemo(
+    () => orders.reduce((sum, order) => sum + order.totalAmount, 0),
+    [orders],
+  );
+  const paidAmount = useMemo(
+    () =>
+      orders
+        .filter((order) => order.paymentStatus === 'PAID')
+        .reduce((sum, order) => sum + order.totalAmount, 0),
+    [orders],
+  );
+  const unpaidAmount = useMemo(
+    () =>
+      orders
+        .filter((order) => order.paymentStatus === 'UNPAID')
+        .reduce((sum, order) => sum + order.totalAmount, 0),
+    [orders],
+  );
+  const totalOrders = useMemo(() => orders.length, [orders]);
+
+  return {
+    orders,
+    totalAmount,
+    paidAmount,
+    unpaidAmount,
+    totalOrders,
+    fetchOrders,
+    orderScreenState: findOrdersByFiltersAndOrdersMutation,
+    orderDetailScreen: findOrdersByIdMutation,
+    order,
+    fetchOrderById,
+  };
 };

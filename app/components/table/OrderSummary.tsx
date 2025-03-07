@@ -25,7 +25,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         {/* Left Section: Order Info */}
         <View className="gap-1">
           <IconLabel iconName="clipboard-list" label={`Order #${tableItems.id}`} />
-          <IconLabel iconName="table" label={'Table:'} subLabel={'T-15'} />
+          <IconLabel iconName="table" label={'Table:'} subLabel={tableItems.tableName} />
 
           <Text className="text-gray-600 pb-4">
             {'User:'} <Text className="font-semibold">{tableItems.userId}</Text>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import { useTables } from 'app/hooks/useTables';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
@@ -10,6 +10,7 @@ import TableListModal from 'app/components/modal/TableListModal';
 import SubTab from 'app/components/common/SubTab';
 import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
+import { useFocusEffect } from '@react-navigation/native';
 
 const tabs = ['All Tables', 'Table Items'];
 
@@ -38,9 +39,12 @@ export default function TableScreen({ route }: TableScreenProps) {
     prepTableItems,
     exstingOrderForTableMutation,
     isTablesLoading,
-    updateCartItemForOrderItem,
+    addUpdateFoodItems,
     handleGoToMenuClick,
     handleTableClick,
+    handleAddDiscount,
+    refetchTables,
+    handleCompleteOrder,
   } = useTables();
 
   const { isDesktop, isLargeScreen } = useIsDesktop();
@@ -52,6 +56,12 @@ export default function TableScreen({ route }: TableScreenProps) {
 
   const handleGoToCart = (tableName: string) => console.log('Go to cart:', tableName);
   const handleSwitchTable = (tableName: string) => console.log('Switch table:', tableName);
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchTables();
+    }, [refetchTables]),
+  );
 
   return (
     <View className="h-full w-full bg-gray-100">
@@ -77,17 +87,19 @@ export default function TableScreen({ route }: TableScreenProps) {
             />
 
             {exstingOrderForTableMutation.isPending ? (
-              <FoodLoadingSpinner />
+              <FoodLoadingSpinner iconName="hamburger" />
             ) : (
               <>
                 {/* Order Summary & Payment Section */}
-
                 <TableItemAndPayment
                   tableItems={prepTableItems}
-                  updateQuantity={updateCartItemForOrderItem}
-                  showPaymentModal={showPaymentModal}
+                  updateQuantity={(item, newQty) => {
+                    addUpdateFoodItems(newQty, undefined, item);
+                  }}
+                  handleAddDiscount={handleAddDiscount}
                   setShowPaymentModal={setShowPaymentModal}
                   onSwitchTableClick={() => setShowSwitchTableModal(true)}
+                  handleCompleteOrder={handleCompleteOrder}
                 />
               </>
             )}
@@ -95,7 +107,7 @@ export default function TableScreen({ route }: TableScreenProps) {
         ) : (
           <>
             {isTablesLoading ? (
-              <FoodLoadingSpinner />
+              <FoodLoadingSpinner iconName="hamburger" />
             ) : (
               <TableList
                 tables={tables}
@@ -117,8 +129,9 @@ export default function TableScreen({ route }: TableScreenProps) {
       <PaymentDetailsModal
         visible={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
-        orderItems={prepTableItems.orderItems}
-        setDiscount={() => {}}
+        tableItems={prepTableItems}
+        setDiscount={handleAddDiscount}
+        handleCompleteOrder={handleCompleteOrder}
       />
 
       <TableListModal

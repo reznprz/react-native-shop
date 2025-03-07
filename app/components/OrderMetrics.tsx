@@ -22,7 +22,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
     <>
       <MetricsSummaryCard
         title="Total Amount"
-        value={`$${totalAmount.toFixed(2)}`}
+        value={`${Number(totalAmount || 0).toFixed(2)}`}
         subtitle="+12.5% from yesterday"
         icon="coins"
         iconColor="#3B82F6"
@@ -32,7 +32,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
 
       <MetricsSummaryCard
         title="Paid Amount"
-        value={`$${paidAmount.toFixed(2)}`}
+        value={`$${Number(paidAmount || 0).toFixed(2)}`}
         subtitle="85% of total orders"
         icon="check-circle"
         iconColor="#10B981"
@@ -42,7 +42,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
 
       <MetricsSummaryCard
         title="Unpaid Amount"
-        value={`$${unpaidAmount.toFixed(2)}`}
+        value={`$${Number(unpaidAmount || 0).toFixed(2)}`}
         subtitle="15% of total orders"
         icon="clock"
         iconColor="#EF4444"

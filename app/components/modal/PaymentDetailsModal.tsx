@@ -2,21 +2,23 @@ import React from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
-import PaymentDetails from '../table/PaymentDetails';
-import { OrderItem } from 'app/api/services/orderService';
+import PaymentDetails, { SelectedPayment } from '../table/PaymentDetails';
+import { TableItem } from 'app/hooks/useTables';
 
 interface PaymentDetailsModalProps {
   visible: boolean;
   onClose: () => void;
-  orderItems: OrderItem[];
+  tableItems: TableItem;
   setDiscount: (amount: number) => void;
+  handleCompleteOrder: (selectedPayments: SelectedPayment[]) => void;
 }
 
 export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   visible,
   onClose,
-  orderItems,
+  tableItems,
   setDiscount,
+  handleCompleteOrder,
 }) => {
   return (
     <BaseBottomSheetModal visible={visible} onClose={onClose}>
@@ -29,7 +31,11 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={styles.categoriesContainer}>
-          <PaymentDetails orderItems={orderItems} setDiscount={setDiscount} />
+          <PaymentDetails
+            tableItems={tableItems}
+            setDiscount={setDiscount}
+            handleCompleteOrder={handleCompleteOrder}
+          />
         </View>
       </ScrollView>
     </BaseBottomSheetModal>

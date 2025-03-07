@@ -1,6 +1,7 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
 import { login } from './authService';
+import { CompleteOrderRequest } from 'app/hooks/useTables';
 
 export interface OrderItem {
   id: number;
@@ -27,6 +28,48 @@ export interface Order {
   totalPrice: number;
   orderType: OrderType;
   orderItems: OrderItem[];
+}
+
+export interface FindOrdersFilters {
+  date?: string;
+  orderStatus?: string[];
+  paymentStatus?: string[];
+  orderType?: string[];
+  paymentMethod?: string[];
+}
+
+export interface OrderDetails {
+  orderId: number;
+  restaurantId: number;
+  tableName: string;
+  orderStatus: string;
+  paymentStatus: string;
+  orderType: OrderType;
+  paymentMethod: string;
+  orderItems: OrderItem[];
+  totalAmount: number;
+  subTotalAmount: number;
+  discountAmount: number;
+  payments: PaymentDetails[];
+  timeStamp: TimeStamp;
+}
+
+export interface PaymentDetails {
+  id: number;
+  restaurantId: number;
+  invoiceId: number;
+  orderId: number;
+  creditAmount: number;
+  amount: number;
+  paymentMethod: string;
+  paymentDate: string;
+}
+
+export interface TimeStamp {
+  createdDate: string;
+  createdTime: string;
+  completedDate: string;
+  completedTime: string;
 }
 
 // Create Order
@@ -70,4 +113,25 @@ export const fetchExistingOrderByTableNameApi = async (
   return await apiMethods.get<Order>('/public/api/orders/find-by-table-and-restaurant', {
     params: { tableName, restaurantId },
   });
+};
+
+export const completeOrderApi = async (
+  payload: CompleteOrderRequest,
+  orderId: number,
+): Promise<ApiResponse<Order>> => {
+  await login({ username: 'ree', password: 'reeree' });
+  return await apiMethods.post<Order>(`/public/api/orders/${orderId}/complete`, payload);
+};
+
+export const findOrdersByFiltersAndOrdersApi = async (
+  filters: FindOrdersFilters,
+): Promise<ApiResponse<OrderDetails[]>> => {
+  await login({ username: 'ree', password: 'reeree' });
+
+  return await apiMethods.get<OrderDetails[]>('/public/api/orders', { params: filters });
+};
+
+export const findOrdersByIdApi = async (orderId: number): Promise<ApiResponse<OrderDetails>> => {
+  await login({ username: 'ree', password: 'reeree' });
+  return await apiMethods.get<OrderDetails>(`/public/api/orders/${orderId}`);
 };

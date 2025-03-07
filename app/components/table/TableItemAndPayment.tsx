@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
 import OrderSummary from 'app/components/table/OrderSummary';
-import PaymentDetails from 'app/components/table/PaymentDetails';
+import PaymentDetails, { SelectedPayment } from 'app/components/table/PaymentDetails';
 import CustomButton from 'app/components/common/button/CustomButton';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { TableItem } from 'app/hooks/useTables';
@@ -10,24 +10,26 @@ import { OrderItem } from 'app/api/services/orderService';
 interface TableItemAndPaymentProps {
   tableItems: TableItem;
   updateQuantity: (item: OrderItem, newQty: number) => void;
-  showPaymentModal: boolean;
+  handleAddDiscount: (discountAmount: number) => void;
   setShowPaymentModal?: (value: boolean) => void;
   onSwitchTableClick?: (seatName: string) => void;
+  handleCompleteOrder: (selectedPayments: SelectedPayment[]) => void;
 }
 
 export default function TableItemAndPayment({
   tableItems,
   updateQuantity,
-  showPaymentModal,
+  handleAddDiscount,
   setShowPaymentModal,
   onSwitchTableClick,
+  handleCompleteOrder,
 }: TableItemAndPaymentProps) {
   const { isDesktop } = useIsDesktop();
 
   return (
     <>
       {isDesktop ? (
-        /** 📌 **Desktop Layout (Two Column)** */
+        /* ** Desktop Layout (Two Column)** */
         <View className="flex-row flex-grow">
           {/* Left Panel - Order Summary */}
           <ScrollView
@@ -48,11 +50,15 @@ export default function TableItemAndPayment({
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
-            <PaymentDetails orderItems={tableItems.orderItems} setDiscount={() => {}} />
+            <PaymentDetails
+              tableItems={tableItems}
+              setDiscount={(discountAmount) => handleAddDiscount(discountAmount)}
+              handleCompleteOrder={handleCompleteOrder}
+            />
           </ScrollView>
         </View>
       ) : (
-        /** 📌 **Mobile Layout (Single Column)** */
+        /* **Mobile Layout (Single Column)** */
         <ScrollView
           style={styles.mobilePanel}
           contentContainerStyle={{ paddingBottom: 100 }}
@@ -66,7 +72,7 @@ export default function TableItemAndPayment({
         </ScrollView>
       )}
 
-      {/* ✅ Floating Button - Only for Mobile */}
+      {/* Floating Button - Only for Mobile */}
       {!isDesktop && setShowPaymentModal && (
         <View className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50">
           <CustomButton

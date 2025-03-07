@@ -7,9 +7,15 @@ type StatusChipProps = {
   status: string;
   showIcon?: boolean;
   hideText?: boolean;
+  margin?: string;
 };
 
-export function StatusChip({ status, showIcon = true, hideText = false }: StatusChipProps) {
+export function StatusChip({
+  status,
+  showIcon = true,
+  hideText = false,
+  margin = '',
+}: StatusChipProps) {
   const statusStyles = {
     completed: {
       bg: 'bg-green-100',
@@ -51,6 +57,22 @@ export function StatusChip({ status, showIcon = true, hideText = false }: Status
       iconType: 'Ionicons',
       size: 'px-1 py-0.5 text-sm',
     },
+    unpaid: {
+      bg: 'bg-red-100',
+      text: 'text-red-500',
+      icon: 'close-circle-outline',
+      iconColor: '#EF4444',
+      iconType: 'Ionicons',
+      size: 'px-1 py-0.5 text-sm',
+    },
+    paid: {
+      bg: 'bg-green-100',
+      text: 'text-green-600',
+      icon: 'checkmark-circle-outline',
+      iconColor: '#10B981',
+      iconType: 'Ionicons',
+      size: 'px-1 py-0.5 text-sm',
+    },
     default: {
       bg: 'bg-gray-200',
       text: 'text-gray-600',
@@ -67,7 +89,9 @@ export function StatusChip({ status, showIcon = true, hideText = false }: Status
     statusStyles[normalizedStatus as keyof typeof statusStyles] || statusStyles.default;
 
   return (
-    <View className={`flex-row items-center rounded-3xl border border-gray-200 ${bg} ${size}`}>
+    <View
+      className={`flex-row items-center rounded-3xl border border-gray-200 ${margin} ${bg} ${size}`}
+    >
       {showIcon && (
         <CustomIcon
           type={iconType as IconType}

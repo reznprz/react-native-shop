@@ -8,6 +8,8 @@ const initialTableItem: TableItem = {
   restaurantId: 0,
   tableName: '',
   totalPrice: 0,
+  subTotal: 0,
+  discountAmount: 0,
   orderType: OrderType.STORE,
   orderItems: [],
   paymentInfo: [],
