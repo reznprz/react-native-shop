@@ -5,8 +5,9 @@ import CustomIcon from '../CustomIcon';
 
 type SizeOption = 's' | 'm' | 'l' | 'xl' | 'full';
 
-interface CustomButtonProps {
+export interface CustomButtonProps {
   title: string;
+  disabled?: boolean;
   onPress: (event: GestureResponderEvent) => void;
   width?: SizeOption; // Button width options
   height?: SizeOption; // Options: s, m, l, xl, full
@@ -25,6 +26,7 @@ interface CustomButtonProps {
 const CustomButton: React.FC<CustomButtonProps> = ({
   title,
   onPress,
+  disabled = false,
   width = 'm',
   height = 's',
   textSize = 'text-lg',
@@ -90,6 +92,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       onHoverIn={() => setIsHovered(true)}
       onHoverOut={() => setIsHovered(false)}
       className={

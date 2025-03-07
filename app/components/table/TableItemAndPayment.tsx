@@ -6,6 +6,7 @@ import CustomButton from 'app/components/common/button/CustomButton';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { TableItem } from 'app/hooks/useTables';
 import { OrderItem } from 'app/api/services/orderService';
+import { ButtonState } from '../common/button/LoadingButton';
 
 interface TableItemAndPaymentProps {
   tableItems: TableItem;
@@ -14,6 +15,7 @@ interface TableItemAndPaymentProps {
   setShowPaymentModal?: (value: boolean) => void;
   onSwitchTableClick?: (seatName: string) => void;
   handleCompleteOrder: (selectedPayments: SelectedPayment[]) => void;
+  completeOrderState: ButtonState;
 }
 
 export default function TableItemAndPayment({
@@ -23,6 +25,7 @@ export default function TableItemAndPayment({
   setShowPaymentModal,
   onSwitchTableClick,
   handleCompleteOrder,
+  completeOrderState,
 }: TableItemAndPaymentProps) {
   const { isDesktop } = useIsDesktop();
 
@@ -54,6 +57,7 @@ export default function TableItemAndPayment({
               tableItems={tableItems}
               setDiscount={(discountAmount) => handleAddDiscount(discountAmount)}
               handleCompleteOrder={handleCompleteOrder}
+              completeOrderState={completeOrderState}
             />
           </ScrollView>
         </View>

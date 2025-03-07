@@ -60,6 +60,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             }}
             handleAddDiscount={() => {}}
             handleCompleteOrder={() => {}}
+            completeOrderState={{ status: 'idle' }}
           />
         ) : (
           <FoodsMenu

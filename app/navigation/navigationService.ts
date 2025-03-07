@@ -4,6 +4,7 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type MainTabsParamList = {
   Menu: { selectedTab?: string };
   TableScreen: { tableId?: string };
+  Orders: undefined;
 };
 
 export type RootStackParamList = {

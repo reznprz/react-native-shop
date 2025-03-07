@@ -5,6 +5,7 @@ import CustomButton from '../common/button/CustomButton';
 import PaymentInput from './PaymentInput';
 import IconLabel from '../common/IconLabel';
 import { TableItem } from 'app/hooks/useTables';
+import LoadingButton, { ButtonState } from '../common/button/LoadingButton';
 
 const paymentTypes = ['CASH', 'ESEWA', 'FONE_PAY', 'CREDIT'];
 
@@ -12,6 +13,7 @@ interface PaymentDetailsProps {
   tableItems: TableItem;
   setDiscount: (amount: number) => void;
   handleCompleteOrder: (selectedPayments: SelectedPayment[]) => void;
+  completeOrderState: ButtonState;
 }
 
 export interface SelectedPayment {
@@ -23,6 +25,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   tableItems,
   setDiscount,
   handleCompleteOrder,
+  completeOrderState,
 }) => {
   const items = tableItems?.orderItems || [];
   const [selectedPayments, setSelectedPayments] = useState<SelectedPayment[]>([]);
@@ -67,8 +70,8 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
         <IconLabel iconName="document-text-outline" label={'Payment Methods'} iconType="Ionicons" />
 
         {/* Payment Selection */}
-        {paymentTypes.length > 1 && (
-          <View className="flex flex-row flex-wrap justify-center gap-2 mb-4">
+        {paymentTypes.length > 0 && (
+          <View className="flex-1 flex-row flex-wrap justify-center gap-2 mb-4">
             {paymentTypes.map((type, idx) => (
               <View key={idx} className="p-1">
                 <PaymentChip
@@ -139,14 +142,16 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
         </View>
       </View>
       {/* Complete Order Button */}
-      <CustomButton
+      <LoadingButton
         title="Complete Order"
         onPress={() => {
+          console.log('Selected Payments:', selectedPayments);
           handleCompleteOrder(selectedPayments);
         }}
         width="full"
         height="l"
         textSize="text-xl"
+        buttonState={completeOrderState}
       />
     </View>
   );

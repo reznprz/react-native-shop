@@ -15,7 +15,7 @@ const PaymentChip: React.FC<PaymentChipProps> = ({ paymentType, isSelected = fal
     return (
       <Pressable
         onPress={() => onSelect(paymentType)}
-        className={`w-16 h-20 rounded-lg border border-gray-300 flex items-center justify-between p-2 ${
+        className={`flex-1 rounded-lg border border-gray-300 flex items-center justify-between p-2 ${
           isSelected ? 'bg-deepTeal' : 'bg-paleSkyBlue'
         }`}
       >
@@ -25,7 +25,7 @@ const PaymentChip: React.FC<PaymentChipProps> = ({ paymentType, isSelected = fal
           color={isSelected ? '#fff' : '#000'}
         />
         <Text
-          className={`text-base ${isSelected ? 'text-white' : 'text-black'}`}
+          className={`text-base pl-1 pr-1 ${isSelected ? 'text-white' : 'text-black'}`}
         >{`${paymentType}`}</Text>
       </Pressable>
     );

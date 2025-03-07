@@ -50,10 +50,12 @@ export const responseHandler = <T>(response: AxiosResponse): ApiResponse<T> => {
 export const errorHandler = <T>(error: any): ApiResponse<T> => {
   let status: ErrorStatus;
   let message: string;
+  let apiError: string;
   let statusCode: number = 500;
 
   if (axios.isAxiosError(error)) {
     statusCode = error.response?.status || 500;
+    apiError = error.message || 'Internal Server Error: Please try again later';
 
     if (!error.response) {
       // Network error (e.g., no internet connection)
@@ -62,7 +64,7 @@ export const errorHandler = <T>(error: any): ApiResponse<T> => {
     } else if (statusCode >= 500) {
       // Server error (5xx)
       status = ErrorStatus.SERVER_ERROR;
-      message = 'Internal Server Error: Please try again later.';
+      message = apiError;
     } else if (statusCode >= 400) {
       // Client-side error (4xx)
       status = ErrorStatus.CLIENT_ERROR;

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../redux/store';
 import { Food } from 'app/api/services/foodService';
@@ -6,7 +6,7 @@ import { ApiResponse } from 'app/api/handlers';
 import { fetchAllTablesApi, RestaurantTable, TableStatus } from 'app/api/services/tableService';
 import { useMutation, useQuery, UseQueryResult } from '@tanstack/react-query';
 import { setTableName } from 'app/redux/tableSlice';
-import { navigate } from 'app/navigation/navigationService';
+import { navigate, navigationRef } from 'app/navigation/navigationService';
 import {
   completeOrderApi,
   fetchExistingOrderByTableNameApi,
@@ -17,6 +17,8 @@ import {
 import { useAddUpdateOrderMutation } from './useAddUpdateOrderMutation';
 import { resetPrepTableItems, setPrepTableItems } from 'app/redux/prepTableItemsSlice';
 import { SelectedPayment } from 'app/components/table/PaymentDetails';
+import { ButtonState } from 'app/components/common/button/LoadingButton';
+import { CommonActions } from '@react-navigation/native';
 
 export interface TableItem {
   id: number;
@@ -320,6 +322,7 @@ export function useTables() {
     { payload: CompleteOrderRequest; orderId: number }
   >({
     mutationFn: async ({ payload, orderId }) => {
+      console.log('Completing order:', orderId, payload);
       if (!orderId || payload.paymentInfos.length === 0) {
         throw new Error('Missing orderId or payment Information');
       }
@@ -338,6 +341,35 @@ export function useTables() {
     },
   });
 
+  const completeOrderState: ButtonState = useMemo(() => {
+    if (completeOrderMutation.isPending) {
+      return { status: 'loading' };
+    }
+    if (completeOrderMutation.isError) {
+      return {
+        status: 'error',
+        message: completeOrderMutation.error?.message || 'An error occurred',
+        reset: () => completeOrderMutation.reset(),
+      };
+    }
+    if (completeOrderMutation.isSuccess) {
+      return { status: 'success' };
+    }
+    return { status: 'idle' };
+  }, [completeOrderMutation]);
+
+  const navigateToOrdersScreen = useCallback(() => {
+    console.log('Navigating to Order Details Screen');
+    if (navigationRef.isReady()) {
+      navigationRef.dispatch(
+        CommonActions.navigate({
+          name: 'MainTabs',
+          params: { screen: 'Orders' },
+        }),
+      );
+    }
+  }, []);
+
   return {
     // TABLES QUERY
     tables,
@@ -351,7 +383,7 @@ export function useTables() {
     resetAddOrUpdateOrder,
 
     // COMPLETE ORDER MUTATION
-    completeOrderMutation,
+    completeOrderState,
 
     // LOCAL STATE
     prepTableItems,
@@ -374,5 +406,6 @@ export function useTables() {
     addUpdateFoodItems,
     handleAddDiscount,
     handleCompleteOrder,
+    navigateToOrdersScreen,
   };
 }

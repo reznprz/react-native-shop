@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useTables } from 'app/hooks/useTables';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
@@ -39,12 +39,14 @@ export default function TableScreen({ route }: TableScreenProps) {
     prepTableItems,
     exstingOrderForTableMutation,
     isTablesLoading,
+    completeOrderState,
     addUpdateFoodItems,
     handleGoToMenuClick,
     handleTableClick,
     handleAddDiscount,
     refetchTables,
     handleCompleteOrder,
+    navigateToOrdersScreen,
   } = useTables();
 
   const { isDesktop, isLargeScreen } = useIsDesktop();
@@ -63,6 +65,13 @@ export default function TableScreen({ route }: TableScreenProps) {
     }, [refetchTables]),
   );
 
+  useEffect(() => {
+    if (completeOrderState.status === 'success') {
+      setShowPaymentModal(false);
+      navigateToOrdersScreen();
+    }
+  }, [completeOrderState]);
+
   return (
     <View className="h-full w-full bg-gray-100">
       <SubTab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
@@ -70,7 +79,7 @@ export default function TableScreen({ route }: TableScreenProps) {
       {/* Wrap the rest of the content in a flex:1 container */}
       <View className="flex-1 bg-gray-100">
         {activeTab !== 'All Tables' ? (
-          <View className="flex flex-1">
+          <View className="flex-1">
             {/* HEADER */}
             <PrimaryHeader
               title="Tables"
@@ -90,17 +99,20 @@ export default function TableScreen({ route }: TableScreenProps) {
               <FoodLoadingSpinner iconName="hamburger" />
             ) : (
               <>
-                {/* Order Summary & Payment Section */}
-                <TableItemAndPayment
-                  tableItems={prepTableItems}
-                  updateQuantity={(item, newQty) => {
-                    addUpdateFoodItems(newQty, undefined, item);
-                  }}
-                  handleAddDiscount={handleAddDiscount}
-                  setShowPaymentModal={setShowPaymentModal}
-                  onSwitchTableClick={() => setShowSwitchTableModal(true)}
-                  handleCompleteOrder={handleCompleteOrder}
-                />
+                <View className="flex-1">
+                  {/* Order Summary & Payment Section */}
+                  <TableItemAndPayment
+                    tableItems={prepTableItems}
+                    updateQuantity={(item, newQty) => {
+                      addUpdateFoodItems(newQty, undefined, item);
+                    }}
+                    handleAddDiscount={handleAddDiscount}
+                    setShowPaymentModal={setShowPaymentModal}
+                    onSwitchTableClick={() => setShowSwitchTableModal(true)}
+                    handleCompleteOrder={handleCompleteOrder}
+                    completeOrderState={completeOrderState}
+                  />
+                </View>
               </>
             )}
           </View>
@@ -132,6 +144,7 @@ export default function TableScreen({ route }: TableScreenProps) {
         tableItems={prepTableItems}
         setDiscount={handleAddDiscount}
         handleCompleteOrder={handleCompleteOrder}
+        completeOrderState={completeOrderState}
       />
 
       <TableListModal

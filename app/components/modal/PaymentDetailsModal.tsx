@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
 import PaymentDetails, { SelectedPayment } from '../table/PaymentDetails';
 import { TableItem } from 'app/hooks/useTables';
+import { ButtonState } from '../common/button/LoadingButton';
 
 interface PaymentDetailsModalProps {
   visible: boolean;
@@ -11,6 +12,7 @@ interface PaymentDetailsModalProps {
   tableItems: TableItem;
   setDiscount: (amount: number) => void;
   handleCompleteOrder: (selectedPayments: SelectedPayment[]) => void;
+  completeOrderState: ButtonState;
 }
 
 export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
@@ -19,22 +21,24 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   tableItems,
   setDiscount,
   handleCompleteOrder,
+  completeOrderState,
 }) => {
   return (
     <BaseBottomSheetModal visible={visible} onClose={onClose}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Payment</Text>
-        <Pressable onPress={onClose} style={styles.closeIcon}>
-          <Ionicons name="close" size={24} color="#000" />
-        </Pressable>
-      </View>
+      <ScrollView contentContainerStyle={{ paddingBottom: 10 }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Payment</Text>
+          <Pressable onPress={onClose} style={styles.closeIcon}>
+            <Ionicons name="close" size={24} color="#000" />
+          </Pressable>
+        </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <View style={styles.categoriesContainer}>
+        <View style={styles.paymentDetailsContainer}>
           <PaymentDetails
             tableItems={tableItems}
             setDiscount={setDiscount}
             handleCompleteOrder={handleCompleteOrder}
+            completeOrderState={completeOrderState}
           />
         </View>
       </ScrollView>
@@ -56,7 +60,7 @@ const styles = StyleSheet.create({
   closeIcon: {
     padding: 4,
   },
-  categoriesContainer: {
+  paymentDetailsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     flex: 1,

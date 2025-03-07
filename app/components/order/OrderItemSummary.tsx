@@ -49,9 +49,7 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({ order, containerSty
         </View>
         <View className="flex-row justify-between py-1">
           <Text className="text-gray-600">{`Discount`}</Text>
-          <Text className="text-gray-700 font-semibold">
-            ${(order.discountAmount * 0.1).toFixed(2)}
-          </Text>
+          <Text className="text-gray-700 font-semibold">${order.discountAmount.toFixed(2)}</Text>
         </View>
       </View>
       <View className="border-b border-gray-200 my-3" />
