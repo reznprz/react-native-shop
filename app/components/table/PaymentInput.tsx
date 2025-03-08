@@ -5,10 +5,11 @@ import { getPaymentTypeIconforIcons } from 'app/hooks/utils/getPaymentTypeIconfo
 
 interface PaymentInputProps {
   paymentType: string;
+  amount: number;
   onInput: (price: number) => void;
 }
 
-const PaymentInput: React.FC<PaymentInputProps> = ({ paymentType, onInput }) => {
+const PaymentInput: React.FC<PaymentInputProps> = ({ paymentType, onInput, amount }) => {
   return (
     <View className="flex-row items-center justify-between px-4 py-3 bg-gray-100 rounded-lg shadow-md mt-2">
       {/* Left section: icon + label */}
@@ -20,7 +21,8 @@ const PaymentInput: React.FC<PaymentInputProps> = ({ paymentType, onInput }) => 
       {/* Right section: text input */}
       <TextInput
         placeholder="Enter amount"
-        placeholderTextColor="#9ca3af" // Tailwind gray-400
+        value={amount.toString()}
+        onChangeText={(text) => onInput(parseFloat(text) || 0)}
         className="bg-white text-deepTeal border border-gray-400 rounded-md px-3 py-2 w-30 text-right"
         keyboardType="numeric"
       />

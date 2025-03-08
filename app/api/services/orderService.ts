@@ -17,6 +17,12 @@ export enum OrderType {
   ONLINE = 'ONLINE',
   STORE = 'STORE',
   TAKEOUT = 'TAKEOUT',
+  FOODMANDU = 'FOODMANDU',
+}
+
+export enum OrderMenuType {
+  NORMAL = 'NORMAL',
+  TOURIST = 'TOURIST',
 }
 
 export interface Order {
@@ -27,6 +33,7 @@ export interface Order {
   tableId: number;
   totalPrice: number;
   orderType: OrderType;
+  orderMenuType: OrderMenuType;
   orderItems: OrderItem[];
 }
 
@@ -50,6 +57,7 @@ export interface OrderDetails {
   totalAmount: number;
   subTotalAmount: number;
   discountAmount: number;
+  orderMenuType: string;
   payments: PaymentDetails[];
   timeStamp: TimeStamp;
 }
@@ -77,6 +85,8 @@ export const addUpdateOrderApi = async (
   orderId: number,
   tableName: string,
   orderItem: OrderItem,
+  orderMenuType: string,
+  totalPrice: number,
 ): Promise<ApiResponse<Order>> => {
   await login({ username: 'ree', password: 'reeree' });
 
@@ -98,9 +108,10 @@ export const addUpdateOrderApi = async (
     restaurantId: restaurantId,
     tableName: tableName,
     tableId: 1,
-    totalPrice: 0,
+    totalPrice: totalPrice,
     orderType: OrderType.ONLINE,
     orderItem: orderItems,
+    orderMenuType: orderMenuType,
   };
   return await apiMethods.post<Order>(`/public/api/orders/addUpdate`, order);
 };

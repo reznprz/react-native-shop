@@ -3,7 +3,7 @@ import { Text, Pressable, GestureResponderEvent } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomIcon from '../CustomIcon';
 
-type SizeOption = 's' | 'm' | 'l' | 'xl' | 'full';
+type SizeOption = 's' | 'm' | 'l' | '2l' | 'xl' | 'full';
 
 export interface CustomButtonProps {
   title: string;
@@ -40,8 +40,6 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   iconSize = 18,
   iconType = 'Ionicons',
 }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
   // Map the width prop to a Tailwind width class
   let widthClass = '';
   switch (width) {
@@ -76,6 +74,9 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     case 'l':
       heightClass = 'h-12';
       break;
+    case '2l':
+      heightClass = 'h-14';
+      break;
     case 'xl':
       heightClass = 'h-16';
       break;
@@ -86,19 +87,16 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       heightClass = 'h-10';
   }
 
-  // Define a hover effect by slightly modifying the background color.
-  const hoverEffect = 'hover:bg-[#24415A]';
-
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      onHoverIn={() => setIsHovered(true)}
-      onHoverOut={() => setIsHovered(false)}
       className={
         customButtonStyle
           ? customButtonStyle
-          : `${widthClass} ${heightClass} ${bgColor} ${hoverEffect} flex flex-row items-center justify-center rounded px-2 py-1`
+          : `${widthClass} ${heightClass} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
+                  ${!disabled && 'pressed:bg-[#24415A]'} 
+            flex flex-row items-center justify-center rounded px-2 py-1`
       }
     >
       {iconName && (

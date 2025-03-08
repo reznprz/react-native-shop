@@ -38,7 +38,9 @@ const FilterChip: React.FC<FilterChipProps> = ({
         <Text style={[styles.filterText, isSelected ? { color: '#fff' } : { color: '#000' }]}>
           {label}
         </Text>
-        {chipStatus && chipStatus !== 'All' && <StatusChip status={chipStatus} hideText={true} />}
+        {chipStatus && chipStatus !== 'All' && (
+          <StatusChip status={chipStatus} hideText={true} applyBg={false} />
+        )}
       </View>
     </Pressable>
   );

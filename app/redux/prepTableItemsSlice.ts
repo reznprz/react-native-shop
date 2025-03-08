@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { OrderType } from 'app/api/services/orderService';
+import { OrderMenuType, OrderType } from 'app/api/services/orderService';
 import { TableItem } from 'app/hooks/useTables';
 
 const initialTableItem: TableItem = {
@@ -11,6 +11,7 @@ const initialTableItem: TableItem = {
   subTotal: 0,
   discountAmount: 0,
   orderType: OrderType.STORE,
+  orderMenuType: OrderMenuType.NORMAL,
   orderItems: [],
   paymentInfo: [],
 };

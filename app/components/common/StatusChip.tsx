@@ -8,6 +8,8 @@ type StatusChipProps = {
   showIcon?: boolean;
   hideText?: boolean;
   margin?: string;
+  applyBg?: boolean;
+  customSize?: string;
 };
 
 export function StatusChip({
@@ -15,6 +17,8 @@ export function StatusChip({
   showIcon = true,
   hideText = false,
   margin = '',
+  applyBg = true,
+  customSize,
 }: StatusChipProps) {
   const statusStyles = {
     completed: {
@@ -73,6 +77,14 @@ export function StatusChip({
       iconType: 'Ionicons',
       size: 'px-1 py-0.5 text-sm',
     },
+    tourist: {
+      bg: 'bg-[#a0c4dc]',
+      text: 'text-black-200',
+      icon: 'earth-outline',
+      iconColor: 'black',
+      iconType: 'Ionicons',
+      size: 'px-3 py-2 text-sm mb-6',
+    },
     default: {
       bg: 'bg-gray-200',
       text: 'text-gray-600',
@@ -84,14 +96,16 @@ export function StatusChip({
   };
 
   // Convert status to lowercase for case-insensitive matching
-  const normalizedStatus = status.toLowerCase();
+  const normalizedStatus = (status && status.toLowerCase()) || '';
   const { bg, text, icon, iconColor, size, iconType } =
     statusStyles[normalizedStatus as keyof typeof statusStyles] || statusStyles.default;
 
+  const bgClass = applyBg ? `${bg} rounded-3xl border border-gray-200` : '';
+
+  const sizeClass = customSize ? `${customSize}` : `${size}`;
+
   return (
-    <View
-      className={`flex-row items-center rounded-3xl border border-gray-200 ${margin} ${bg} ${size}`}
-    >
+    <View className={`flex-row items-center ${margin} ${bgClass} ${sizeClass}`}>
       {showIcon && (
         <CustomIcon
           type={iconType as IconType}

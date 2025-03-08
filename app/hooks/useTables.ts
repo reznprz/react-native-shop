@@ -12,6 +12,7 @@ import {
   fetchExistingOrderByTableNameApi,
   Order,
   OrderItem,
+  OrderMenuType,
   OrderType,
 } from 'app/api/services/orderService';
 import { useAddUpdateOrderMutation } from './useAddUpdateOrderMutation';
@@ -29,6 +30,7 @@ export interface TableItem {
   discountAmount: number;
   subTotal: number;
   orderType: OrderType;
+  orderMenuType: OrderMenuType;
   orderItems: OrderItem[];
   paymentInfo: PaymentInfo[];
 }
@@ -58,17 +60,18 @@ function toTableItem(order: Order): TableItem {
     discountAmount: 0,
     subTotal: order.totalPrice,
     orderType: order.orderType,
+    orderMenuType: order.orderMenuType,
     orderItems: order.orderItems,
     paymentInfo: [],
   };
 }
 
-export const convertFoodToOrderItem = (food: Food): OrderItem => ({
+export const convertFoodToOrderItem = (food: Food, orderMenuType: string): OrderItem => ({
   id: 0,
   orderId: 0,
   productName: food.name,
   quantity: 1,
-  unitPrice: food.price,
+  unitPrice: orderMenuType === 'TOURIST' ? food.touristPrice : food.price,
   total: food.price,
   imageUrl: food.img,
 });
@@ -130,11 +133,11 @@ export function useTables() {
    * Update state for a Food item, then call api for update with mutation.
    */
   const addUpdateFoodItems = useCallback(
-    (newQuantity: number, food?: Food, orderItem?: OrderItem) => {
+    (newQuantity: number, food?: Food, orderItem?: OrderItem, orderMenuType: string = 'NORMAL') => {
       // current state from redux
       const currentState = prepTableItems;
 
-      const item = orderItem || convertFoodToOrderItem(food!);
+      const item = orderItem || convertFoodToOrderItem(food!, orderMenuType);
 
       // check for existing item
       const existingIndex = currentState.orderItems.findIndex(
@@ -185,6 +188,8 @@ export function useTables() {
       addOrUpdateOrder({
         orderId: updatedPrepTableItems.id,
         tableName: tableName,
+        orderMenuType: orderMenuType,
+        totalPrice: item.unitPrice * newQuantity,
         orderItems: {
           id: 0, // new item id created when inserted into db
           orderId: updatedPrepTableItems.id,
@@ -260,9 +265,8 @@ export function useTables() {
 
   const handleTableClick = useCallback(
     (selectedTableName: string) => {
-      if (selectedTableName !== tableName) {
-        fetchExistingOrderForTable(selectedTableName, 1);
-      }
+      fetchExistingOrderForTable(selectedTableName, 1);
+
       dispatch(setTableName(selectedTableName));
     },
     [dispatch, fetchExistingOrderForTable, tableName],
@@ -270,9 +274,8 @@ export function useTables() {
 
   const handleGoToMenuClick = useCallback(
     (selectedTableName: string) => {
-      if (selectedTableName !== tableName) {
-        fetchExistingOrderForTable(selectedTableName, 1);
-      }
+      fetchExistingOrderForTable(selectedTableName, 1);
+
       dispatch(setTableName(selectedTableName));
       navigate('MainTabs', {
         screen: 'Menu',
@@ -282,10 +285,17 @@ export function useTables() {
     [dispatch, tableName, fetchExistingOrderForTable, navigate],
   );
 
+  const handleSelectTable = useCallback(
+    (selectedTableName: string) => {
+      dispatch(setTableName(selectedTableName));
+    },
+    [dispatch, tableName],
+  );
+
   const handleAddDiscount = useCallback(
     (discountAmount: number) => {
       const currentState = prepTableItems;
-      const newTotal = currentState.totalPrice - discountAmount;
+      const newTotal = currentState.subTotal - discountAmount;
       const updatedPrepTableItems = {
         ...currentState,
         discountAmount: discountAmount,
@@ -337,7 +347,6 @@ export function useTables() {
     },
     onError: (err) => {
       console.warn('existing order fetch failed:', err);
-      dispatch(resetPrepTableItems());
     },
   });
 
@@ -359,7 +368,6 @@ export function useTables() {
   }, [completeOrderMutation]);
 
   const navigateToOrdersScreen = useCallback(() => {
-    console.log('Navigating to Order Details Screen');
     if (navigationRef.isReady()) {
       navigationRef.dispatch(
         CommonActions.navigate({
@@ -367,8 +375,11 @@ export function useTables() {
           params: { screen: 'Orders' },
         }),
       );
+      completeOrderMutation.reset();
+      dispatch(resetPrepTableItems());
+      refetchTables();
     }
-  }, []);
+  }, [completeOrderMutation, dispatch]);
 
   return {
     // TABLES QUERY
@@ -407,5 +418,6 @@ export function useTables() {
     handleAddDiscount,
     handleCompleteOrder,
     navigateToOrdersScreen,
+    handleSelectTable,
   };
 }

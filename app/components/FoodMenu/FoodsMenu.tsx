@@ -7,16 +7,19 @@ import { Category, Food } from 'app/api/services/foodService';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import SubTab from '../common/SubTab';
 import { TableItem } from 'app/hooks/useTables';
+import { OrderMenuType } from 'app/api/services/orderService';
 
-const tabs = ['Normal Menu', 'Tourist Menu'];
+const subtabs: string[] = Object.values(OrderMenuType);
 
-type TabType = (typeof tabs)[number];
+export type SubTabType = (typeof subtabs)[number];
 
 interface FoodsMenuProps {
   foods: Food[] | null;
   categories: Category[];
   tableItems: TableItem;
   selectedCategory: string;
+  activatedSubTab: SubTabType;
+  handleSubTabChange: (selectedTab: SubTabType) => void;
   handleSearch: (text: string) => void;
   handleCategoryClick: (category: string) => void;
   setSelectedCategory: (category: string) => void;
@@ -28,13 +31,14 @@ export default function FoodsMenu({
   categories,
   tableItems,
   selectedCategory,
+  activatedSubTab,
+  handleSubTabChange,
   handleSearch,
   handleCategoryClick,
   setSelectedCategory,
   updateCartItemForFood,
 }: FoodsMenuProps) {
   const { width, numColumns, isDesktop } = useIsDesktop();
-  const [activeTab, setActiveTab] = useState<TabType>('Normal Menu');
 
   return (
     <>
@@ -54,10 +58,10 @@ export default function FoodsMenu({
       />
 
       <SubTab
-        tabs={tabs}
-        activeTab={activeTab}
+        tabs={subtabs}
+        activeTab={activatedSubTab}
         onTabChange={(selectedTab) => {
-          setActiveTab(selectedTab);
+          handleSubTabChange(selectedTab);
         }}
         tabStyle="py-2"
       />
@@ -83,6 +87,7 @@ export default function FoodsMenu({
               <View style={{ width: itemWidth, margin: 3 }}>
                 <FoodCard
                   food={item}
+                  selectedSubTab={activatedSubTab}
                   tableItem={tableItems.orderItems.find(
                     (tableItem) => tableItem.productName === item.name,
                   )}

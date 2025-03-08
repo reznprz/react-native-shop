@@ -11,6 +11,7 @@ import SubTab from 'app/components/common/SubTab';
 import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import { useFocusEffect } from '@react-navigation/native';
+import EmptyState from 'app/components/common/EmptyState';
 
 const tabs = ['All Tables', 'Table Items'];
 
@@ -99,20 +100,31 @@ export default function TableScreen({ route }: TableScreenProps) {
               <FoodLoadingSpinner iconName="hamburger" />
             ) : (
               <>
-                <View className="flex-1">
-                  {/* Order Summary & Payment Section */}
-                  <TableItemAndPayment
-                    tableItems={prepTableItems}
-                    updateQuantity={(item, newQty) => {
-                      addUpdateFoodItems(newQty, undefined, item);
-                    }}
-                    handleAddDiscount={handleAddDiscount}
-                    setShowPaymentModal={setShowPaymentModal}
-                    onSwitchTableClick={() => setShowSwitchTableModal(true)}
-                    handleCompleteOrder={handleCompleteOrder}
-                    completeOrderState={completeOrderState}
+                {prepTableItems.orderItems.length === 0 && prepTableItems.id === 0 ? (
+                  <EmptyState
+                    iconName="food-off"
+                    message="No food items available"
+                    subMessage="Please add items to the Customer table."
+                    iconSize={90}
                   />
-                </View>
+                ) : (
+                  <>
+                    <View className="flex-1">
+                      {/* Order Summary & Payment Section */}
+                      <TableItemAndPayment
+                        tableItems={prepTableItems}
+                        updateQuantity={(item, newQty) => {
+                          addUpdateFoodItems(newQty, undefined, item);
+                        }}
+                        handleAddDiscount={handleAddDiscount}
+                        setShowPaymentModal={setShowPaymentModal}
+                        onSwitchTableClick={() => setShowSwitchTableModal(true)}
+                        handleCompleteOrder={handleCompleteOrder}
+                        completeOrderState={completeOrderState}
+                      />
+                    </View>
+                  </>
+                )}
               </>
             )}
           </View>
@@ -148,7 +160,7 @@ export default function TableScreen({ route }: TableScreenProps) {
       />
 
       <TableListModal
-        tables={tables}
+        tables={tables.filter((table) => table.status.toLocaleLowerCase() === 'available')}
         visible={showSwitchTableModal}
         onClose={() => setShowSwitchTableModal(false)}
         onSelectTable={() => {

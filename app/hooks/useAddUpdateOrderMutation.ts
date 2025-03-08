@@ -6,6 +6,8 @@ export interface AddUpdateOrderParams {
   orderId: number;
   tableName: string;
   orderItems: OrderItem;
+  orderMenuType: string;
+  totalPrice: number;
 }
 
 /**
@@ -19,11 +21,17 @@ export function useAddUpdateOrderMutation(
   return useMutation<ApiResponse<Order>, Error, AddUpdateOrderParams>({
     // Our mutation function (required)
     mutationFn: async (params: AddUpdateOrderParams) => {
-      const { orderId, tableName, orderItems } = params;
+      const { orderId, tableName, orderItems, orderMenuType, totalPrice } = params;
       if (!tableName || !orderItems) {
         throw new Error('Missing tableName, or orderItems');
       }
-      const response: ApiResponse<Order> = await addUpdateOrderApi(orderId, tableName, orderItems);
+      const response: ApiResponse<Order> = await addUpdateOrderApi(
+        orderId,
+        tableName,
+        orderItems,
+        orderMenuType,
+        totalPrice,
+      );
 
       if (response.status !== 'success') {
         throw new Error(response.message);

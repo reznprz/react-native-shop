@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Food } from 'app/api/services/foodService';
@@ -9,6 +9,7 @@ interface FoodCardProps {
   tableItem?: OrderItem;
   isDesktop?: boolean;
   width?: number;
+  selectedSubTab: string;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
 }
 
@@ -19,6 +20,7 @@ export default function FoodCard({
   tableItem,
   isDesktop = false,
   width = 1025,
+  selectedSubTab,
   updateCartItemForFood,
 }: FoodCardProps) {
   const handleDecrement = () => {
@@ -36,6 +38,8 @@ export default function FoodCard({
   const img = food.img || FALLBACK_IMAGE_URI;
 
   const quantity = tableItem?.quantity || 0;
+
+  const price = selectedSubTab === 'NORMAL' ? food.price : food.touristPrice;
 
   return (
     <View className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-2">
@@ -67,7 +71,7 @@ export default function FoodCard({
 
       {/* Bottom Content: Price & Quantity Controller */}
       <View className="flex-row items-center justify-between mt-2 ml-2 mr-2 ">
-        <Text className="font-bold text-base text-gray-600">${food.price.toFixed(2)}</Text>
+        <Text className="font-bold text-base text-gray-600">${price.toFixed(2)}</Text>
 
         <View className="flex-row items-center px-2 py-1 rounded-full">
           {quantity > 0 && (

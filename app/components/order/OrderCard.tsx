@@ -12,7 +12,7 @@ type OrderCardProps = {
 
 const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   return (
-    <View className="bg-white p-4 rounded-lg shadow-md">
+    <View className="bg-white p-4 rounded-lg shadow-md mb-2">
       <OrderSummaryCard order={order} />
       <OrderItemSummary order={order} />
     </View>

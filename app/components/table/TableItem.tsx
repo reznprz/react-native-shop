@@ -12,7 +12,7 @@ interface TableItemProps {
 const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
   return (
     <>
-      <View className="flex-row items-center justify-evenly mb-4 p-4 bg-white">
+      <View className="flex-row items-center justify-evenly p-2 bg-white">
         {/* Product Image */}
         <Image
           source={{ uri: item.imageUrl || FALLBACK_IMAGE_URI }}
@@ -21,7 +21,11 @@ const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
 
         {/* Product Details: Name & Price */}
         <View className="flex-1 px-2">
-          <Text className="text-base font-semibold text-deepTeal" numberOfLines={1}>
+          <Text
+            className="text-base font-semibold text-deepTeal"
+            numberOfLines={3}
+            ellipsizeMode="tail"
+          >
             {item.productName}
           </Text>
           <Text className="text-sm text-gray-600">{`${item.unitPrice.toFixed(2)}`}</Text>
@@ -30,18 +34,20 @@ const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
         {/* Right Section: Quantity Control + Total Price */}
         <View className="flex-row items-center">
           {/* Segmented Quantity Control */}
-          <View className="flex-row items-center mr-3">
+          <View className="flex-row items-center pr-8">
             {/* Decrement */}
             <TouchableOpacity
               onPress={() => updateQuantity(item, item.quantity - 1)}
               className="items-center justify-center"
             >
-              <Text className="text-lg text-deepTeal px-4 py-1 border border-gray-300">{'-'}</Text>
+              <Text className="text-m font-extrabold text-deepTeal px-2 py-1 border border-gray-300">
+                {'-'}
+              </Text>
             </TouchableOpacity>
 
             {/* Quantity Display */}
-            <View className="items-center justify-center px-4 py-1 border border-gray-300">
-              <Text className="text-lg text-deepTeal">{item.quantity}</Text>
+            <View className="items-center font-black justify-center px-2 py-1 border border-gray-300">
+              <Text className="text-m text-deepTeal">{item.quantity}</Text>
             </View>
 
             {/* Increment */}
@@ -49,7 +55,9 @@ const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
               onPress={() => updateQuantity(item, item.quantity + 1)}
               className="items-center justify-center "
             >
-              <Text className="text-lg text-deepTeal px-4 py-1 border border-gray-300">{'+'}</Text>
+              <Text className="text-m font-extrabold text-deepTeal px-2 py-1 border border-gray-300">
+                {'+'}
+              </Text>
             </TouchableOpacity>
           </View>
 

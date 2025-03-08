@@ -137,5 +137,6 @@ export const useFood = () => {
     searchTerm,
     categoriesLoading,
     categoriesError,
+    tableName,
   };
 };

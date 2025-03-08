@@ -6,6 +6,7 @@ import CustomButton from '../common/button/CustomButton';
 import { TableItem as TableItems } from 'app/hooks/useTables';
 import TableItem from './TableItem';
 import { OrderItem } from 'app/api/services/orderService';
+import { StatusChip } from '../common/StatusChip';
 
 interface OrderSummaryProps {
   tableItems: TableItems;
@@ -41,12 +42,16 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
                 onSwitchTableClick('');
               }}
               iconName="swap-horizontal-outline"
-              customButtonStyle="flex flex-row items-center justify-center rounded px-1 py-2 w-30 h-30 bg-deepTeal m-1"
+              customButtonStyle="flex flex-row items-center justify-center rounded px-1 py-2 w-36 h-30 bg-deepTeal m-1"
               customTextStyle="text-md text-center text-white font-semibold"
             />
           )}
 
-          <Text className="text-gray-700 font-medium pb-4">{'📅 15 Jan 2025'}</Text>
+          {tableItems.orderMenuType && tableItems.orderMenuType === 'TOURIST' && (
+            <StatusChip status={tableItems.orderMenuType} />
+          )}
+
+          {/* <Text className="text-gray-700 font-medium pb-4">{'📅 15 Jan 2025'}</Text> */}
         </View>
       </View>
       {/* Divider */}

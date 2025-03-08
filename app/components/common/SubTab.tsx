@@ -18,7 +18,7 @@ const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange, tabStyle 
         const iconInfo = getSubTabIcon(tab);
 
         // If no icon info is found, render a fallback (text only).
-        if (!iconInfo || tab === 'Normal Menu') {
+        if (!iconInfo || tab === 'NORMAL') {
           return (
             <Pressable
               key={tab}

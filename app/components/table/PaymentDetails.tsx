@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, TextInput, Pressable } from 'react-native';
 import PaymentChip from './PaymentChip';
-import CustomButton from '../common/button/CustomButton';
 import PaymentInput from './PaymentInput';
 import IconLabel from '../common/IconLabel';
 import { TableItem } from 'app/hooks/useTables';
 import LoadingButton, { ButtonState } from '../common/button/LoadingButton';
+import Notification from '../Notification';
+import { PAYMENT_WARN_MESSAGES } from 'app/constants/constants';
 
 const paymentTypes = ['CASH', 'ESEWA', 'FONE_PAY', 'CREDIT'];
 
@@ -29,21 +30,56 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
 }) => {
   const items = tableItems?.orderItems || [];
   const [selectedPayments, setSelectedPayments] = useState<SelectedPayment[]>([]);
+  const [paymentWarnMessage, setPaymentWarnMessage] = useState('');
 
-  // Toggle Payment Selection
   const handlePaymentSelection = (type: string) => {
-    setSelectedPayments((prev) =>
-      prev.some((p) => p.paymentType === type)
+    setSelectedPayments((prev) => {
+      const isSelected = prev.some((p) => p.paymentType === type);
+      const newSelected = isSelected
         ? prev.filter((p) => p.paymentType !== type)
-        : [...prev, { paymentType: type, amount: 0 }],
-    );
+        : [...prev, { paymentType: type, amount: 0 }];
+      return newSelected;
+    });
   };
 
-  const handleMultiplePaymentInputSelection = (paymentType: string, amount: number) => {
-    setSelectedPayments((prev) =>
-      prev.map((p) => (p.paymentType === paymentType ? { ...p, amount } : p)),
-    );
-  };
+  const handleMultiplePaymentInputSelection = useCallback(
+    (paymentType: string, amount: number) => {
+      setSelectedPayments((prev) => {
+        if (prev.length === 2) {
+          const remainingAmount = tableItems.totalPrice - amount;
+          return prev.map((p) =>
+            p.paymentType === paymentType ? { ...p, amount } : { ...p, amount: remainingAmount },
+          );
+        } else {
+          return prev.map((p) => (p.paymentType === paymentType ? { ...p, amount } : p));
+        }
+      });
+    },
+    [tableItems.totalPrice],
+  );
+
+  const applyDiscount = useCallback(
+    (amount: number) => {
+      if (amount > 0 && selectedPayments.length > 1) {
+        setSelectedPayments([]);
+        setPaymentWarnMessage(PAYMENT_WARN_MESSAGES.REST_PAYMENTS);
+      }
+      setDiscount(amount);
+    },
+    [selectedPayments],
+  );
+
+  const onCompletePress = useCallback(() => {
+    const totalPaymentsAmount = selectedPayments.reduce((sum, p) => sum + p.amount, 0);
+    if (selectedPayments.length > 1) {
+      if (totalPaymentsAmount !== tableItems.totalPrice) {
+        setPaymentWarnMessage(PAYMENT_WARN_MESSAGES.PAYMENTS_TOTAL_INCORRECT);
+        return;
+      }
+    }
+    handleCompleteOrder(selectedPayments);
+    setPaymentWarnMessage('');
+  }, [selectedPayments, tableItems.totalPrice, handleCompleteOrder]);
 
   return (
     <View className="p-4 flex-1 justify-between">
@@ -55,11 +91,20 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
           <IconLabel iconName="receipt" label="Order Summary" />
           {items.map((item, index) => (
             <View key={index} className="flex-row justify-between mb-1">
-              <View className="flex-row px-2">
-                <Text className="text-gray-700">{item.productName}</Text>
+              <View className="flex-row px-2 w-2/3">
+                {/* Adjust width to prevent overflow */}
+                <Text className="text-gray-700 flex-1" numberOfLines={2} ellipsizeMode="tail">
+                  {item.productName}
+                </Text>
                 <Text className="text-gray-700 pl-2">{`x${item.quantity.toFixed(2)}`}</Text>
               </View>
-              <Text className="text-gray-700">{`$${(item.unitPrice * item.quantity).toFixed(2)}`}</Text>
+              <Text
+                className="text-gray-700 w-1/3 text-right"
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {`$${(item.unitPrice * item.quantity).toFixed(2)}`}
+              </Text>
             </View>
           ))}
         </View>
@@ -77,7 +122,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
                 <PaymentChip
                   paymentType={type}
                   isSelected={selectedPayments.some((p) => p.paymentType === type)}
-                  onSelect={() => handlePaymentSelection(type)}
+                  onSelect={(selectedPaymentType) => handlePaymentSelection(selectedPaymentType)}
                 />
               </View>
             ))}
@@ -89,6 +134,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
           selectedPayments.map((payment, idx) => (
             <PaymentInput
               key={idx}
+              amount={payment.amount}
               paymentType={payment.paymentType}
               onInput={(amount) => handleMultiplePaymentInputSelection(payment.paymentType, amount)}
             />
@@ -109,7 +155,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
           placeholder="Enter discount amount"
           keyboardType="numeric"
           className="bg-gray-100 text-gray-800 border border-gray-300 rounded-lg p-3 focus:border-deepTeal focus:ring focus:ring-deepTeal/30"
-          onChangeText={(text) => setDiscount(parseFloat(text) || 0)}
+          onChangeText={(text) => applyDiscount(parseFloat(text) || 0)}
         />
       </View>
       {/* Divider */}
@@ -144,14 +190,19 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
       {/* Complete Order Button */}
       <LoadingButton
         title="Complete Order"
-        onPress={() => {
-          console.log('Selected Payments:', selectedPayments);
-          handleCompleteOrder(selectedPayments);
-        }}
+        onPress={onCompletePress}
         width="full"
-        height="l"
+        height="2l"
         textSize="text-xl"
         buttonState={completeOrderState}
+        disabled={selectedPayments.length === 0}
+      />
+
+      <Notification
+        message={paymentWarnMessage}
+        onClose={() => setPaymentWarnMessage('')}
+        type="warning"
+        width={380}
       />
     </View>
   );

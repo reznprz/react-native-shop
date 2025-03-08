@@ -5,7 +5,7 @@ import ResponsiveList from '../components/common/ResponsiveList';
 import { navigate } from 'app/navigation/navigationService';
 import debounce from 'lodash/debounce';
 import LoadingSpinner from 'app/components/FoodLoadingSpinner';
-import ErrorNotification from 'app/components/ErrorNotification';
+import ErrorNotification from 'app/components/Notification';
 import { ERROR_MESSAGES } from 'app/constants/constants';
 import { ScreenNames } from 'app/types/navigation';
 import { useFood } from 'app/hooks/useFood';

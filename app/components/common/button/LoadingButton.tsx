@@ -31,7 +31,7 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({ buttonState, onPress, tit
         />
         {buttonState.status === 'loading' && (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="small" color="#ffffff" />
+            <ActivityIndicator size="large" color="#ffffff" />
           </View>
         )}
       </View>

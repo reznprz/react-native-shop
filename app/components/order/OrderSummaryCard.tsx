@@ -26,7 +26,7 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({ order, containerStyle =
       </View>
 
       {/* Order Details */}
-      <View className="flex-col justify-between m-2 mr-4">
+      <View className="flex-col justify-between m-2 mr-2">
         <View className="flex-row justify-between">
           <View className={`flex-row items-center mt-1 gap-1 pr-4`}>
             <CustomIcon type={'FontAwesome5'} name={'clock'} size={20} color={'gray'} />
@@ -79,6 +79,11 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({ order, containerStyle =
             iconColor="gray"
           />
         </View>
+        {order.orderMenuType && order.orderMenuType === 'TOURISR' && (
+          <View className="flex-row justify-end pt-2">
+            <StatusChip status={order.orderMenuType} customSize={'px-2 py-1 text-base p-2'} />
+          </View>
+        )}
       </View>
     </View>
   );
