@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from 'app/redux/store';
@@ -8,6 +8,8 @@ import { tabScreenConfigs } from '../../navigation/screenConfigs';
 import CenterDesktopIcons from './CenterDesktopIcons';
 import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import CountChip from '../common/CountChip';
+import CircularInitialNameChip from '../common/CircularInitialNameChip';
 
 interface CustomHeaderProps {
   route: RouteProp<Record<string, object | undefined>, string>;
@@ -23,6 +25,7 @@ function getRouteLabel(routeName: string): string {
 export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const { deviceType } = useIsDesktop();
   const tableName = useSelector((state: RootState) => state.table.tableName);
+  const prepTableItems = useSelector((state: RootState) => state.prepTableItems);
 
   const isDesktop = deviceType === 'Desktop';
   const isPad = deviceType === 'iPad';
@@ -32,12 +35,16 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const title = getRouteLabel(activeRouteName);
 
   // Dynamically control size & spacing
-  const containerHeight = isDesktop || isPad ? 70 : 110;
-  const leftSectionPaddingTop = isDesktop || isPad ? 0 : 40;
-  const tableChipMarginTop = isDesktop || isPad ? 0 : 40;
+  const containerHeight = isDesktop || isPad ? 100 : 110;
+  const leftSectionPaddingTop = isDesktop || isPad ? 30 : 40;
+  const tableChipMarginTop = isDesktop || isPad ? 30 : 40;
 
   // Replace with your actual restaurant/logo image
   const FALLBACK_IMAGE_URI = 'https://picsum.photos/200';
+
+  const itemsCount = useMemo(() => {
+    return prepTableItems.orderItems.reduce((sum, item) => sum + item.quantity, 0)
+  }, [prepTableItems])
 
   return (
     <View style={[styles.headerContainer, { height: containerHeight }]}>
@@ -73,6 +80,9 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
           })
         }
       >
+        {/* Count Chip */}
+      <CountChip count={itemsCount} style={styles.countChipPosition} />
+        <CircularInitialNameChip initials={'RP'} size={38} style={{ marginRight: 12}}/>
         <CustomIcon name="chair" type="FontAwesome5" size={18} color="#FFFFFF" />
         <Text style={styles.tableText}>{tableName}</Text>
         <Ionicons name="chevron-down-outline" size={25} color="#FFFFFF" />
@@ -121,13 +131,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#506D82',
     borderRadius: 20,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
   },
   tableText: {
     marginLeft: 6,
     fontSize: 16,
     fontWeight: '600',
     color: '#fff',
+  },
+  countChipPosition: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
   },
 });

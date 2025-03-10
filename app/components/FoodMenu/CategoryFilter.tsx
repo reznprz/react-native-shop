@@ -51,8 +51,8 @@ export default function PrimaryHeaderFilter({
     const chipWidth = 100;
 
     let extraSpacewidth = 520;
-    if ('Tables' === filterName) {
-      extraSpacewidth = 420;
+    if ('tables' === filterName.toLocaleLowerCase()) {
+      extraSpacewidth = 170;
     }
 
     // Subtract some space for margins, the Filter button, etc.
