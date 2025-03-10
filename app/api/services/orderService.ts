@@ -2,6 +2,7 @@ import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
 import { login } from './authService';
 import { CompleteOrderRequest } from 'app/hooks/useTables';
+import qs from 'qs';
 
 export interface OrderItem {
   id: number;
@@ -39,10 +40,10 @@ export interface Order {
 
 export interface FindOrdersFilters {
   date?: string;
-  orderStatus?: string[];
-  paymentStatus?: string[];
-  orderType?: string[];
-  paymentMethod?: string[];
+  orderStatuses?: string[];
+  paymentStatuses?: string[];
+  orderTypes?: string[];
+  paymentMethods?: string[];
 }
 
 export interface OrderDetails {
@@ -139,7 +140,27 @@ export const findOrdersByFiltersAndOrdersApi = async (
 ): Promise<ApiResponse<OrderDetails[]>> => {
   await login({ username: 'ree', password: 'reeree' });
 
-  return await apiMethods.get<OrderDetails[]>('/public/api/orders', { params: filters });
+  const queryParams: Record<string, string | string[]> = {
+    date: filters.date || '',
+  };
+
+  if (filters.orderStatuses && filters.orderStatuses.length > 0) {
+    queryParams.orderStatus = filters.orderStatuses;
+  }
+  if (filters.paymentStatuses && filters.paymentStatuses.length > 0) {
+    queryParams.paymentStatus = filters.paymentStatuses;
+  }
+  if (filters.orderTypes && filters.orderTypes.length > 0) {
+    queryParams.orderType = filters.orderTypes;
+  }
+  if (filters.paymentMethods && filters.paymentMethods.length > 0) {
+    queryParams.paymentMethod = filters.paymentMethods;
+  }
+
+  return await apiMethods.get<OrderDetails[]>('/public/api/orders', {
+    params: queryParams,
+    paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
+  });
 };
 
 export const findOrdersByIdApi = async (orderId: number): Promise<ApiResponse<OrderDetails>> => {

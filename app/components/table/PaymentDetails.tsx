@@ -7,6 +7,7 @@ import { TableItem } from 'app/hooks/useTables';
 import LoadingButton, { ButtonState } from '../common/button/LoadingButton';
 import Notification from '../Notification';
 import { PAYMENT_WARN_MESSAGES } from 'app/constants/constants';
+import NotificationWithButtons from '../NotificationWithButtons';
 
 const paymentTypes = ['CASH', 'ESEWA', 'FONE_PAY', 'CREDIT'];
 
@@ -31,6 +32,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   const items = tableItems?.orderItems || [];
   const [selectedPayments, setSelectedPayments] = useState<SelectedPayment[]>([]);
   const [paymentWarnMessage, setPaymentWarnMessage] = useState('');
+  const [paymentConfirmationMessage, setPaymentConfirmationMessage] = useState('');
 
   const handlePaymentSelection = (type: string) => {
     setSelectedPayments((prev) => {
@@ -45,7 +47,8 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   const handleMultiplePaymentInputSelection = useCallback(
     (paymentType: string, amount: number) => {
       setSelectedPayments((prev) => {
-        if (prev.length === 2) {
+        const paymentTypesTotal = prev.reduce((sum, p) => sum + p.amount, 0);
+        if (prev.length === 2 && paymentTypesTotal === 0) {
           const remainingAmount = tableItems.totalPrice - amount;
           return prev.map((p) =>
             p.paymentType === paymentType ? { ...p, amount } : { ...p, amount: remainingAmount },
@@ -72,8 +75,16 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   const onCompletePress = useCallback(() => {
     const totalPaymentsAmount = selectedPayments.reduce((sum, p) => sum + p.amount, 0);
     if (selectedPayments.length > 1) {
-      if (totalPaymentsAmount !== tableItems.totalPrice) {
-        setPaymentWarnMessage(PAYMENT_WARN_MESSAGES.PAYMENTS_TOTAL_INCORRECT);
+      if (totalPaymentsAmount > tableItems.totalPrice) {
+        setPaymentWarnMessage(
+          `${PAYMENT_WARN_MESSAGES.PAYMENTS_TOTAL_INCORRECT} : TotalPaymentAmount: ${totalPaymentsAmount}`,
+        );
+        return;
+      }
+      if (totalPaymentsAmount < tableItems.totalPrice) {
+        setPaymentConfirmationMessage(
+          `${PAYMENT_WARN_MESSAGES.PAYMENTS_CONFORMATION} : TotalPaymentAmount: ${totalPaymentsAmount}`,
+        );
         return;
       }
     }
@@ -203,6 +214,17 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
         onClose={() => setPaymentWarnMessage('')}
         type="warning"
         width={380}
+      />
+
+      <NotificationWithButtons
+        message={paymentConfirmationMessage}
+        onClose={() => setPaymentConfirmationMessage('')}
+        type="info"
+        width={380}
+        onConfirm={() => {
+          handleCompleteOrder(selectedPayments);
+          setPaymentConfirmationMessage('');
+        }}
       />
     </View>
   );

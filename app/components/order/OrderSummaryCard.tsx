@@ -4,6 +4,7 @@ import { StatusChip } from '../common/StatusChip';
 import IconLabel from '../common/IconLabel';
 import { OrderDetails } from 'app/api/services/orderService';
 import CustomIcon from '../common/CustomIcon';
+import { getIconDetail } from 'app/utils/getIconDetail';
 
 type OrderSummaryProps = {
   order: OrderDetails;
@@ -11,6 +12,7 @@ type OrderSummaryProps = {
 };
 
 const OrderSummaryCard: React.FC<OrderSummaryProps> = ({ order, containerStyle = '' }) => {
+  const orderTypeIconDetail = getIconDetail(order.orderType);
   return (
     <View
       className={`flex bg-white p-3 rounded-lg shadow-sm border border-gray-200 mb-2 ${containerStyle}`}
@@ -70,16 +72,17 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({ order, containerStyle =
           />
           <IconLabel
             label={order.orderType}
-            iconName="concierge-bell"
-            iconType="FontAwesome5"
+            iconName={orderTypeIconDetail.iconName}
+            iconType={orderTypeIconDetail.iconType}
             containerStyle="mt-1 gap-1"
             textColor="text-gray-500"
-            labelTextSize="text-base"
+            labelTextSize="text-base text-bold"
             applyCircularIconBg={false}
             iconColor="gray"
           />
         </View>
-        {order.orderMenuType && order.orderMenuType === 'TOURISR' && (
+
+        {order.orderMenuType && order.orderMenuType === 'TOURIST' && (
           <View className="flex-row justify-end pt-2">
             <StatusChip status={order.orderMenuType} customSize={'px-2 py-1 text-base p-2'} />
           </View>

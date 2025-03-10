@@ -7,11 +7,48 @@ import {
 } from 'app/api/services/orderService';
 import { useCallback, useMemo, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { Filter, FilterStatus, mapSelectedFilterNames } from 'app/components/filter/filter';
 
 export const useOrder = () => {
   const [orders, setOrders] = useState<OrderDetails[]>([]);
 
   const [order, setOrder] = useState<OrderDetails | null>(null);
+
+  // Initial filter setup
+  const initialFilters = {
+    orderStatuses: ['Created', 'Completed', 'Canceled'],
+    paymentMethods: ['Esewa', 'Fone_Pay', 'Credit'],
+    paymentStatuses: ['Paid', 'Unpaid'],
+    orderTypes: ['Online', 'Store', 'Takeout', 'Foodmandu'],
+  };
+
+  const [orderStatuses, setOrderStatuses] = useState<FilterStatus[]>(() =>
+    initialFilters.orderStatuses.map((name) => ({
+      name,
+      isSelected: false,
+    })),
+  );
+
+  const [paymentStatuses, setPaymentStatuses] = useState<FilterStatus[]>(() =>
+    initialFilters.paymentStatuses.map((name) => ({
+      name,
+      isSelected: false,
+    })),
+  );
+
+  const [orderTypes, setOrderTypes] = useState<FilterStatus[]>(() =>
+    initialFilters.orderTypes.map((name) => ({
+      name,
+      isSelected: false,
+    })),
+  );
+
+  const [paymentMethods, setPaymentMethods] = useState<FilterStatus[]>(() =>
+    initialFilters.paymentMethods.map((name) => ({
+      name,
+      isSelected: false,
+    })),
+  );
 
   const findOrdersByFiltersAndOrdersMutation = useMutation<
     ApiResponse<OrderDetails[]>,
@@ -92,16 +129,48 @@ export const useOrder = () => {
   );
   const totalOrders = useMemo(() => orders.length, [orders]);
 
+  const handleApplyFilters = (
+    finalOrderStatuses: FilterStatus[],
+    finalPaymentStatuses: FilterStatus[],
+    finalOrderTypes: FilterStatus[],
+    finalPaymentMethods: FilterStatus[],
+    date: string,
+  ) => {
+    setOrderStatuses(finalOrderStatuses);
+    setPaymentStatuses(finalPaymentStatuses);
+    setOrderTypes(finalOrderTypes);
+    setPaymentMethods(finalPaymentMethods);
+
+    const payload: FindOrdersFilters = {
+      date,
+      orderStatuses: mapSelectedFilterNames(finalOrderStatuses, true),
+      orderTypes: mapSelectedFilterNames(finalOrderTypes, true),
+      paymentMethods: mapSelectedFilterNames(finalPaymentMethods, true),
+      paymentStatuses: mapSelectedFilterNames(finalPaymentStatuses, true),
+    };
+
+    fetchOrders(payload);
+  };
+
   return {
     orders,
     totalAmount,
     paidAmount,
     unpaidAmount,
     totalOrders,
-    fetchOrders,
+
     orderScreenState: findOrdersByFiltersAndOrdersMutation,
     orderDetailScreen: findOrdersByIdMutation,
     order,
+
+    // Filter statuses
+    orderStatuses,
+    paymentStatuses,
+    orderTypes,
+    paymentMethods,
+
+    fetchOrders,
     fetchOrderById,
+    handleApplyFilters,
   };
 };

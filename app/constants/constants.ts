@@ -17,6 +17,8 @@ export const PAYMENT_WARN_MESSAGES = {
   REST_PAYMENTS: 'Payments type have been reset after Discount, Please add Payment type again!',
   PAYMENTS_TOTAL_INCORRECT:
     'Payments types total sum incorrect. Please revise Payment amount again!.',
+  PAYMENTS_CONFORMATION:
+    'Payments types total sum is less than totalAmount. Please click Yes to proccesd as it would be marked as unpaid!.',
 } as const;
 
 // --------------------

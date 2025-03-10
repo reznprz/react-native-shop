@@ -37,6 +37,14 @@ export function StatusChip({
       iconType: 'FontAwesome5',
       size: 'px-3 py-1 text-base',
     },
+    created: {
+      bg: 'bg-yellow-100',
+      text: 'text-yellow-600',
+      icon: 'hourglass-half',
+      iconColor: '#F59E0B',
+      iconType: 'FontAwesome5',
+      size: 'px-3 py-1 text-base',
+    },
     cancelled: {
       bg: 'bg-red-100',
       text: 'text-red-600',
@@ -95,7 +103,6 @@ export function StatusChip({
     },
   };
 
-  // Convert status to lowercase for case-insensitive matching
   const normalizedStatus = (status && status.toLowerCase()) || '';
   const { bg, text, icon, iconColor, size, iconType } =
     statusStyles[normalizedStatus as keyof typeof statusStyles] || statusStyles.default;
