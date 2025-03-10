@@ -32,11 +32,12 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   const {
     tables,
-    addUpdateFoodItems,
-    resetAddOrUpdateOrder,
-    handleSelectTable,
     addUpdateOrderError,
     prepTableItems,
+    exstingOrderForTableMutation,
+    handleAddUpdateFoodItems,
+    resetAddOrUpdateOrder,
+    handleSelectTable,
   } = useTables();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -67,13 +68,12 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   }, [prepTableItems?.orderMenuType]);
 
   // Check if the Table is Selected
-  const handleAddUpdateFoodItems = (qty: number, food: Food) => {
-    // Check if tableName is null, undefined, or empty (after trimming)
+  const onHandleAddUpdateFoodItems = (qty: number, food: Food) => {
     if (!tableName || tableName.trim() === '') {
       setShowTableListModal(true);
       return;
     }
-    addUpdateFoodItems(qty, food, undefined, activeSubTab);
+    handleAddUpdateFoodItems(qty, food, undefined, activeSubTab);
   };
 
   return (
@@ -96,7 +96,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
           <TableItemAndPayment
             tableItems={prepTableItems}
             updateQuantity={(item, newQty) => {
-              addUpdateFoodItems(newQty, undefined, item);
+              handleAddUpdateFoodItems(newQty, undefined, item);
             }}
             handleAddDiscount={() => {}}
             handleCompleteOrder={() => {}}
@@ -109,6 +109,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             tableItems={prepTableItems}
             selectedCategory={selectedCategory}
             activatedSubTab={activeSubTab}
+            isFoodsMenuLoading={exstingOrderForTableMutation.isPending}
             handleSubTabChange={(selectedSubTab) => {
               setActiveSubTab(selectedSubTab);
             }}
@@ -116,7 +117,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             handleCategoryClick={handleCategoryClick}
             setSelectedCategory={setSelectedCategory}
             updateCartItemForFood={(food, qty) => {
-              handleAddUpdateFoodItems(qty, food);
+              onHandleAddUpdateFoodItems(qty, food);
             }}
           />
         )}

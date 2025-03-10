@@ -9,7 +9,7 @@ interface OverflowChipProps {
 const OverflowChip: React.FC<OverflowChipProps> = ({ count, onPress }) => {
   return (
     <Pressable style={styles.overflowChip} onPress={onPress}>
-      <Text style={styles.overflowChipText}>{`+${count}`}</Text>
+      <Text style={styles.overflowChipText}>{`+${count} More`}</Text>
     </Pressable>
   );
 };

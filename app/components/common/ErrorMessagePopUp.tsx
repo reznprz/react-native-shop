@@ -23,17 +23,17 @@ const ErrorMessagePopUp: React.FC<ErrorMessagePopUpProps> = ({
   textStyle,
 }) => {
   if (!errorMessage) {
-    return null; // If there's no error message, don't render anything
+    return null;
   }
 
   return (
     <View style={[styles.errorContainer, containerStyle]}>
       <View style={styles.errorIconContainer}>
-        <Text style={styles.errorIconText}>!</Text>
+        <Text style={styles.errorIconText}>{'!'}</Text>
       </View>
       <Text style={[styles.errorText, textStyle]}>{errorMessage}</Text>
       <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>×</Text>
+        <Text style={styles.closeButtonText}>{'×'}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -47,13 +47,13 @@ const styles = StyleSheet.create({
     margin: 16,
     padding: 16,
     borderRadius: 8,
-    // Shadow (for iOS)
-    shadowColor: '#000',
+    shadowColor: '#000', // Shadow (for iOS)
+
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
-    // Elevation (for Android)
-    elevation: 2,
+
+    elevation: 2, // Elevation (for Android)
   },
   errorIconContainer: {
     width: 24,

@@ -41,7 +41,7 @@ export default function TableScreen({ route }: TableScreenProps) {
     exstingOrderForTableMutation,
     isTablesLoading,
     completeOrderState,
-    addUpdateFoodItems,
+    handleAddUpdateFoodItems,
     handleGoToMenuClick,
     handleTableClick,
     handleAddDiscount,
@@ -77,7 +77,6 @@ export default function TableScreen({ route }: TableScreenProps) {
     <View className="h-full w-full bg-gray-100">
       <SubTab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
-      {/* Wrap the rest of the content in a flex:1 container */}
       <View className="flex-1 bg-gray-100">
         {activeTab !== 'All Tables' ? (
           <View className="flex-1">
@@ -114,7 +113,7 @@ export default function TableScreen({ route }: TableScreenProps) {
                       <TableItemAndPayment
                         tableItems={prepTableItems}
                         updateQuantity={(item, newQty) => {
-                          addUpdateFoodItems(newQty, undefined, item);
+                          handleAddUpdateFoodItems(newQty, undefined, item);
                         }}
                         handleAddDiscount={handleAddDiscount}
                         setShowPaymentModal={setShowPaymentModal}

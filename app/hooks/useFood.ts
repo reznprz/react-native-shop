@@ -121,6 +121,7 @@ export const useFood = () => {
   }, []);
 
   return {
+    //foods
     foods: filteredFoods,
     allGroupedFoods: groupedFoods,
     loading,
@@ -128,15 +129,20 @@ export const useFood = () => {
     refetch,
     reset,
     filterData,
-    filterGroupedFoodsByCategory,
     clearFilteredFoods,
-    categories,
-    handleSearch,
-    handleCategoryClick,
-    selectedCategory,
+
     searchTerm,
+
+    // categories
     categoriesLoading,
     categoriesError,
+    categories,
+    selectedCategory,
+
     tableName,
+
+    filterGroupedFoodsByCategory,
+    handleSearch,
+    handleCategoryClick,
   };
 };

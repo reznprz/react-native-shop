@@ -1,138 +1,133 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, TouchableOpacity, StyleSheet } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/native';
-import { tabScreenConfigs } from '../../navigation/screenConfigs';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import CustomIcon from '../common/CustomIcon';
-import { useSelector } from 'react-redux/dist/react-redux';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useSelector } from 'react-redux';
 import { RootState } from 'app/redux/store';
-
-/** Helper: Get the label from route name */
-function getRouteLabel(routeName: string): string {
-  const match = tabScreenConfigs.find((s) => s.name === routeName);
-  return match ? match.label : routeName;
-}
+import CustomIcon from '../common/CustomIcon';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { tabScreenConfigs } from '../../navigation/screenConfigs';
+import CenterDesktopIcons from './CenterDesktopIcons';
+import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 interface CustomHeaderProps {
   route: RouteProp<Record<string, object | undefined>, string>;
   navigation: any;
 }
 
+// Helper: Get route label from your screen configs
+function getRouteLabel(routeName: string): string {
+  const match = tabScreenConfigs.find((s) => s.name === routeName);
+  return match ? match.label : routeName;
+}
+
 export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
-  const { isDesktop, deviceType } = useIsDesktop();
+  const { deviceType } = useIsDesktop();
   const tableName = useSelector((state: RootState) => state.table.tableName);
 
-  const desktop = isDesktop && deviceType === 'Desktop';
+  const isDesktop = deviceType === 'Desktop';
+  const isPad = deviceType === 'iPad';
 
+  // Current route name & label
   const activeRouteName = getFocusedRouteNameFromRoute(route) ?? 'Home';
   const title = getRouteLabel(activeRouteName);
 
-  return (
-    <View
-      className={`
-        w-full flex-row items-center justify-between px-8 bg-deepTeal
-        ${isDesktop ? 'h-20' : 'h-28'}
-      `}
-    >
-      {/* Left Section: Title */}
-      <Text
-        className={`
-          text-lightCream text-2xl font-anticSlab
-          ${isDesktop ? 'pt-6' : 'pt-16'}
-        `}
-      >
-        {title}
-      </Text>
+  // Dynamically control size & spacing
+  const containerHeight = isDesktop || isPad ? 70 : 110;
+  const leftSectionPaddingTop = isDesktop || isPad ? 0 : 40;
+  const tableChipMarginTop = isDesktop || isPad ? 0 : 40;
 
-      {/* Center Section: Icons (Only for Desktop) */}
-      {desktop && (
-        <View className="absolute left-1/2 -translate-x-1/2 flex-row space-x-6">
-          {tabScreenConfigs.map((screen) => (
-            <IconWithTooltip
-              key={screen.name}
-              navigation={navigation}
-              screen={screen}
-              isFocused={screen.name === activeRouteName} // Determine if it's selected
-            />
-          ))}
+  // Replace with your actual restaurant/logo image
+  const FALLBACK_IMAGE_URI = 'https://picsum.photos/200';
+
+  return (
+    <View style={[styles.headerContainer, { height: containerHeight }]}>
+      {/* Left Section: Logo + Title */}
+      <View style={[styles.leftSection, { paddingTop: leftSectionPaddingTop }]}>
+        <View style={styles.logoContainer}>
+          <Image source={{ uri: FALLBACK_IMAGE_URI }} style={styles.logo} />
         </View>
+        <Text style={styles.title}>{title}</Text>
+      </View>
+
+      {/* Center Section (only for desktop/iPad) */}
+      {isDesktop ? (
+        <View style={styles.centerSection}>
+          <CenterDesktopIcons
+            tabScreenConfigs={tabScreenConfigs}
+            navigation={navigation}
+            activeRouteName={activeRouteName}
+          />
+        </View>
+      ) : (
+        // If not desktop, just render an empty View or nothing
+        <View style={{ flex: 1 }} />
       )}
 
-      <View className="flex-row">
-        <Text
-          className={`
-          text-lightCream text-2xl font-anticSlab pr-6
-          ${isDesktop ? 'pt-6' : 'pt-16'}
-        `}
-        >
-          {tableName}
-        </Text>
-
-        {/* Right Section: Table Icon */}
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate('MainTabs', {
-              screen: 'Table',
-              params: { selectedTab: 'Table Items' },
-            })
-          }
-        >
-          <CustomIcon
-            iconStyle={`${isDesktop ? 'pt-6' : 'pt-16'}`}
-            name={'table'}
-            type={'MaterialCommunityIcons'}
-            size={30}
-            color="#fef6eb"
-          />
-        </TouchableOpacity>
-      </View>
+      {/* Right Section: Table “Chip” */}
+      <TouchableOpacity
+        style={[styles.tableChip, { marginTop: tableChipMarginTop }]}
+        onPress={() =>
+          navigation.navigate('MainTabs', {
+            screen: 'Table',
+            params: { selectedTab: 'Table Items' },
+          })
+        }
+      >
+        <CustomIcon name="chair" type="FontAwesome5" size={18} color="#FFFFFF" />
+        <Text style={styles.tableText}>{tableName}</Text>
+        <Ionicons name="chevron-down-outline" size={25} color="#FFFFFF" />
+      </TouchableOpacity>
     </View>
   );
 }
 
-/** ✅ Icon Component with Selection Logic */
-const IconWithTooltip = ({ navigation, screen, isFocused }: any) => {
-  const [hovered, setHovered] = useState(false);
-
-  // Choose correct icon & color based on selection
-  const iconName = isFocused ? screen.filledIcon : screen.icon;
-  const iconColor = isFocused ? 'black' : 'white';
-
-  const handleNavigation = () => {
-    navigation.navigate('MainTabs', { screen: screen.name });
-  };
-
-  return (
-    <View className="relative flex items-center">
-      <Pressable
-        className="p-2 flex items-center"
-        onPress={handleNavigation}
-        onHoverIn={() => setHovered(true)}
-        onHoverOut={() => setHovered(false)}
-      >
-        <CustomIcon type={screen.iconType} name={iconName} size={26} color={iconColor} />
-      </Pressable>
-
-      {hovered && (
-        <View className="absolute top-10 bg-black px-2 py-1 rounded-md">
-          <Text className="text-white text-xs">{screen.label}</Text>
-        </View>
-      )}
-    </View>
-  );
-};
-
 const styles = StyleSheet.create({
-  categoryChip: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    backgroundColor: '#E5E7EB', // Default gray background
-    margin: 2,
+  headerContainer: {
+    width: '100%',
+    backgroundColor: '#2E3A47',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
   },
-  filterText: {
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  title: {
+    fontSize: 22,
     fontWeight: '600',
+    color: '#fff',
+  },
+  centerSection: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tableChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#506D82',
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+  },
+  tableText: {
+    marginLeft: 6,
     fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

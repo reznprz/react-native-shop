@@ -110,7 +110,7 @@ export const addUpdateOrderApi = async (
     tableName: tableName,
     tableId: 1,
     totalPrice: totalPrice,
-    orderType: OrderType.ONLINE,
+    orderType: OrderType.STORE,
     orderItem: orderItems,
     orderMenuType: orderMenuType,
   };

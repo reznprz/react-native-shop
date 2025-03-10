@@ -57,7 +57,7 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
   const hideWebModal = () => setWebModalVisible(false);
 
   const handleMobileConfirm = (date: Date) => {
-    const formattedDate = date.toISOString().split('T')[0]; // yyyy-MM-dd
+    const formattedDate = date.toLocaleDateString(); // yyyy-MM-dd
     onDateChange(formattedDate);
     hideMobileDatePicker();
   };
@@ -98,7 +98,7 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
               >
                 <View className="flex-row items-center gap-2">
                   <CustomIcon name="filter" size={16} color="#fff" type="Fontisto" />
-                  <Text className="text-white text-base">Filters</Text>
+                  <Text className="text-white text-lg">Filters</Text>
                 </View>
               </Pressable>
             </>

@@ -1,9 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AllFiltersModal } from '../modal/AllFiltersModal';
 import FilterChip from '../common/FilterChip';
 import { RestaurantTable } from 'app/api/services/tableService';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import OverflowChip from '../common/OverflowChip';
 
 interface PrimaryHeaderFilterProps {
   filters: string[];
@@ -22,14 +24,12 @@ export default function PrimaryHeaderFilter({
   selectedFilter,
   tableInfo,
 }: PrimaryHeaderFilterProps) {
+  const { width } = useIsDesktop();
+
   const [showBottomSheet, setShowBottomSheet] = useState(false);
   const [showMoreDesktop, setShowMoreDesktop] = useState(false);
-
-  const uniqueFilters = Array.from(new Set(['None', ...filters]));
-  const MAX_DESKTOP_ROW = 8;
-  const visibleDesktopFilters = showMoreDesktop
-    ? uniqueFilters
-    : uniqueFilters.slice(0, MAX_DESKTOP_ROW);
+  const [overflowCount, setOverflowCount] = useState(0);
+  const [visibleDisplayedFilters, setVisibleDisplayedFilters] = useState<string[]>([]);
 
   const handleMobileToggle = () => {
     setShowBottomSheet((prev) => !prev);
@@ -46,10 +46,34 @@ export default function PrimaryHeaderFilter({
     [tableInfo],
   );
 
+  useEffect(() => {
+    // The approximate width of each chip
+    const chipWidth = 100;
+
+    let extraSpacewidth = 520;
+    if ('Tables' === filterName) {
+      extraSpacewidth = 420;
+    }
+
+    // Subtract some space for margins, the Filter button, etc.
+    const totalWidth = width - extraSpacewidth;
+    const maxChips = Math.floor(totalWidth / chipWidth);
+
+    if (filters.length > maxChips) {
+      // Show (maxChips - 1) chips + OverflowChip
+      setVisibleDisplayedFilters(showMoreDesktop ? filters : filters.slice(0, maxChips - 1));
+      setOverflowCount(filters.length - (maxChips - 1));
+    } else {
+      // No overflow needed
+      setVisibleDisplayedFilters(filters);
+      setOverflowCount(0);
+    }
+  }, [filters, width, showMoreDesktop]);
+
   return isDesktop ? (
     <View className="pt-2">
       <View className="flex-row flex-wrap gap-1 pl-4 pr-4 pb-2">
-        {visibleDesktopFilters.map((filterLable) => (
+        {visibleDisplayedFilters.map((filterLable) => (
           <FilterChip
             key={filterLable}
             filterName={filterName}
@@ -62,6 +86,14 @@ export default function PrimaryHeaderFilter({
             chipStatus={getTableStatus(filterLable)}
           />
         ))}
+        {overflowCount > 0 && !showMoreDesktop && (
+          <OverflowChip
+            count={overflowCount}
+            onPress={() => {
+              setShowMoreDesktop(true);
+            }}
+          />
+        )}
       </View>
 
       <Pressable onPress={handleDesktopToggle} className="w-full">
@@ -88,7 +120,7 @@ export default function PrimaryHeaderFilter({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{ paddingVertical: 8 }}
         >
-          {uniqueFilters.map((filterLable) => (
+          {filters.map((filterLable) => (
             <FilterChip
               key={filterLable}
               filterName={filterName}
@@ -123,7 +155,7 @@ export default function PrimaryHeaderFilter({
         title={filterName}
         visible={showBottomSheet}
         onClose={handleMobileToggle}
-        filters={uniqueFilters}
+        filters={filters}
         selectedFilter={selectedFilter}
         onSelectFilter={(selectedFilter) => {
           handleFilterClick(selectedFilter);

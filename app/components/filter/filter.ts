@@ -146,3 +146,9 @@ export const removedFilter = (name: string, filters: FilterStatus[]): FilterStat
 
 export const mapSelectedFilterNames = (filters: FilterStatus[], requireSelection = false) =>
   filters.filter((f) => (requireSelection ? f.isSelected : true)).map((f) => f.name.toUpperCase());
+
+/**
+ * Deselects all filters by setting their isSelected property to false.
+ */
+export const deselectAllFilters = (filters: FilterStatus[]): FilterStatus[] =>
+  filters.map((filter) => ({ ...filter, isSelected: false }));

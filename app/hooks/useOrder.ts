@@ -7,11 +7,14 @@ import {
 } from 'app/api/services/orderService';
 import { useCallback, useMemo, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { Filter, FilterStatus, mapSelectedFilterNames } from 'app/components/filter/filter';
+import {
+  deselectAllFilters,
+  FilterStatus,
+  mapSelectedFilterNames,
+} from 'app/components/filter/filter';
 
 export const useOrder = () => {
   const [orders, setOrders] = useState<OrderDetails[]>([]);
-
   const [order, setOrder] = useState<OrderDetails | null>(null);
 
   // Initial filter setup
@@ -23,31 +26,16 @@ export const useOrder = () => {
   };
 
   const [orderStatuses, setOrderStatuses] = useState<FilterStatus[]>(() =>
-    initialFilters.orderStatuses.map((name) => ({
-      name,
-      isSelected: false,
-    })),
+    initialFilters.orderStatuses.map((name) => ({ name, isSelected: false })),
   );
-
   const [paymentStatuses, setPaymentStatuses] = useState<FilterStatus[]>(() =>
-    initialFilters.paymentStatuses.map((name) => ({
-      name,
-      isSelected: false,
-    })),
+    initialFilters.paymentStatuses.map((name) => ({ name, isSelected: false })),
   );
-
   const [orderTypes, setOrderTypes] = useState<FilterStatus[]>(() =>
-    initialFilters.orderTypes.map((name) => ({
-      name,
-      isSelected: false,
-    })),
+    initialFilters.orderTypes.map((name) => ({ name, isSelected: false })),
   );
-
   const [paymentMethods, setPaymentMethods] = useState<FilterStatus[]>(() =>
-    initialFilters.paymentMethods.map((name) => ({
-      name,
-      isSelected: false,
-    })),
+    initialFilters.paymentMethods.map((name) => ({ name, isSelected: false })),
   );
 
   const findOrdersByFiltersAndOrdersMutation = useMutation<
@@ -77,7 +65,6 @@ export const useOrder = () => {
         if (!orderId || orderId === 0) {
           throw new Error('Missing order Id');
         }
-
         const response: ApiResponse<OrderDetails> = await findOrdersByIdApi(orderId);
         if (response.status !== 'success') {
           throw new Error(response.message);
@@ -98,15 +85,14 @@ export const useOrder = () => {
     (filters: FindOrdersFilters) => {
       findOrdersByFiltersAndOrdersMutation.mutate({ filters });
     },
-    [findOrdersByFiltersAndOrdersMutation, orders],
+    [findOrdersByFiltersAndOrdersMutation],
   );
 
   const fetchOrderById = useCallback(
     (orderId: number) => {
-      console.log('fetching order by id', orderId);
       findOrdersByIdMutation.mutate({ orderId });
     },
-    [findOrdersByIdMutation, orders],
+    [findOrdersByIdMutation],
   );
 
   const totalAmount = useMemo(
@@ -129,28 +115,96 @@ export const useOrder = () => {
   );
   const totalOrders = useMemo(() => orders.length, [orders]);
 
-  const handleApplyFilters = (
-    finalOrderStatuses: FilterStatus[],
-    finalPaymentStatuses: FilterStatus[],
-    finalOrderTypes: FilterStatus[],
-    finalPaymentMethods: FilterStatus[],
-    date: string,
-  ) => {
-    setOrderStatuses(finalOrderStatuses);
-    setPaymentStatuses(finalPaymentStatuses);
-    setOrderTypes(finalOrderTypes);
-    setPaymentMethods(finalPaymentMethods);
+  // Helper function to build the orders payload from filters and date.
+  const buildOrdersPayload = useCallback(
+    (
+      finalOrderStatuses: FilterStatus[],
+      finalPaymentStatuses: FilterStatus[],
+      finalOrderTypes: FilterStatus[],
+      finalPaymentMethods: FilterStatus[],
+      date: string,
+    ): FindOrdersFilters => {
+      const selectedOrderStatuses = mapSelectedFilterNames(finalOrderStatuses, true);
+      const selectedOrderTypes = mapSelectedFilterNames(finalOrderTypes, true);
+      const selectedPaymentMethods = mapSelectedFilterNames(finalPaymentMethods, true);
+      const selectedPaymentStatuses = mapSelectedFilterNames(finalPaymentStatuses, true);
 
-    const payload: FindOrdersFilters = {
-      date,
-      orderStatuses: mapSelectedFilterNames(finalOrderStatuses, true),
-      orderTypes: mapSelectedFilterNames(finalOrderTypes, true),
-      paymentMethods: mapSelectedFilterNames(finalPaymentMethods, true),
-      paymentStatuses: mapSelectedFilterNames(finalPaymentStatuses, true),
-    };
+      const totalSelected =
+        selectedOrderStatuses.length +
+        selectedOrderTypes.length +
+        selectedPaymentMethods.length +
+        selectedPaymentStatuses.length;
 
-    fetchOrders(payload);
-  };
+      // If no filters are selected, use default order statuses.
+      if (totalSelected === 0) {
+        return { date, orderStatuses: ['CREATED', 'COMPLETED'] };
+      }
+
+      return {
+        date,
+        orderStatuses: selectedOrderStatuses,
+        orderTypes: selectedOrderTypes,
+        paymentMethods: selectedPaymentMethods,
+        paymentStatuses: selectedPaymentStatuses,
+      };
+    },
+    [],
+  );
+
+  // Optimized handleApplyFilters using useCallback and the helper function
+  const handleApplyFilters = useCallback(
+    (
+      finalOrderStatuses: FilterStatus[],
+      finalPaymentStatuses: FilterStatus[],
+      finalOrderTypes: FilterStatus[],
+      finalPaymentMethods: FilterStatus[],
+      date: string,
+    ) => {
+      // Update state with new filter arrays.
+      setOrderStatuses(finalOrderStatuses);
+      setPaymentStatuses(finalPaymentStatuses);
+      setOrderTypes(finalOrderTypes);
+      setPaymentMethods(finalPaymentMethods);
+
+      // Build payload using the helper function.
+      const payload = buildOrdersPayload(
+        finalOrderStatuses,
+        finalPaymentStatuses,
+        finalOrderTypes,
+        finalPaymentMethods,
+        date,
+      );
+
+      // Execute the order fetch with the constructed payload.
+      fetchOrders(payload);
+    },
+    [fetchOrders, buildOrdersPayload],
+  );
+
+  // Clear all filters.
+  const handleClearFilter = useCallback(() => {
+    setOrderStatuses(deselectAllFilters(orderStatuses));
+    setPaymentStatuses(deselectAllFilters(paymentStatuses));
+    setOrderTypes(deselectAllFilters(orderTypes));
+    setPaymentMethods(deselectAllFilters(paymentMethods));
+  }, [orderStatuses, paymentStatuses, orderTypes, paymentMethods]);
+
+  const handleDateSelect = useCallback(
+    (selectedDate: string) => {
+      // Build payload using the helper function.
+      const payload = buildOrdersPayload(
+        orderStatuses,
+        paymentStatuses,
+        orderTypes,
+        paymentMethods,
+        selectedDate,
+      );
+
+      // Execute the order fetch with the constructed payload.
+      fetchOrders(payload);
+    },
+    [fetchOrders, buildOrdersPayload],
+  );
 
   return {
     orders,
@@ -163,14 +217,15 @@ export const useOrder = () => {
     orderDetailScreen: findOrdersByIdMutation,
     order,
 
-    // Filter statuses
+    // Filter statuses.
     orderStatuses,
     paymentStatuses,
     orderTypes,
     paymentMethods,
 
-    fetchOrders,
     fetchOrderById,
     handleApplyFilters,
+    handleClearFilter,
+    handleDateSelect,
   };
 };

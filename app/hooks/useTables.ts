@@ -132,7 +132,7 @@ export function useTables() {
   /**
    * Update state for a Food item, then call api for update with mutation.
    */
-  const addUpdateFoodItems = useCallback(
+  const handleAddUpdateFoodItems = useCallback(
     (newQuantity: number, food?: Food, orderItem?: OrderItem, orderMenuType: string = 'NORMAL') => {
       // current state from redux
       const currentState = prepTableItems;
@@ -287,6 +287,7 @@ export function useTables() {
 
   const handleSelectTable = useCallback(
     (selectedTableName: string) => {
+      fetchExistingOrderForTable(selectedTableName, 1);
       dispatch(setTableName(selectedTableName));
     },
     [dispatch, tableName],
@@ -396,7 +397,7 @@ export function useTables() {
     // COMPLETE ORDER MUTATION
     completeOrderState,
 
-    // LOCAL STATE
+    // REDUX APP STATE
     prepTableItems,
 
     // DERIVED
@@ -414,7 +415,7 @@ export function useTables() {
     // HANDLERS
     handleGoToMenuClick,
     handleTableClick,
-    addUpdateFoodItems,
+    handleAddUpdateFoodItems,
     handleAddDiscount,
     handleCompleteOrder,
     navigateToOrdersScreen,

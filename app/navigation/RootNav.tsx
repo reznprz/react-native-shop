@@ -50,6 +50,7 @@ export default function RootNav() {
           headerStyle: {
             backgroundColor: '#2a4759',
           },
+          headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
           headerTitleStyle: {
             fontWeight: 'bold',
@@ -67,6 +68,7 @@ export default function RootNav() {
           headerStyle: {
             backgroundColor: '#2a4759',
           },
+          headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
           headerTitleStyle: {
             fontWeight: 'bold',

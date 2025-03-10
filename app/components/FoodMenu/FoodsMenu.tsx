@@ -8,6 +8,7 @@ import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import SubTab from '../common/SubTab';
 import { TableItem } from 'app/hooks/useTables';
 import { OrderMenuType } from 'app/api/services/orderService';
+import FoodLoadingSpinner from '../FoodLoadingSpinner';
 
 const subtabs: string[] = Object.values(OrderMenuType);
 
@@ -19,6 +20,7 @@ interface FoodsMenuProps {
   tableItems: TableItem;
   selectedCategory: string;
   activatedSubTab: SubTabType;
+  isFoodsMenuLoading: boolean;
   handleSubTabChange: (selectedTab: SubTabType) => void;
   handleSearch: (text: string) => void;
   handleCategoryClick: (category: string) => void;
@@ -32,6 +34,7 @@ export default function FoodsMenu({
   tableItems,
   selectedCategory,
   activatedSubTab,
+  isFoodsMenuLoading,
   handleSubTabChange,
   handleSearch,
   handleCategoryClick,
@@ -72,6 +75,8 @@ export default function FoodsMenu({
           message="No food items available"
           subMessage="Please check back later or add items to the menu."
         />
+      ) : isFoodsMenuLoading ? (
+        <FoodLoadingSpinner iconName="hamburger" />
       ) : (
         <FlatList
           key={numColumns}

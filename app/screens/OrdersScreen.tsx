@@ -27,15 +27,16 @@ export default function OrdersScreen() {
     orderTypes,
     paymentMethods,
     orderScreenState,
-    fetchOrders,
+    handleDateSelect,
     handleApplyFilters,
+    handleClearFilter,
   } = useOrder();
   const { isLargeScreen } = useIsDesktop();
   const [selectedDate, setSelectedDate] = useState('Today');
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
-    fetchOrders({ date: selectedDate, orderStatuses: ['CREATED', 'COMPLETED'] });
+    handleDateSelect(selectedDate);
   }, [selectedDate]);
 
   const handleOrderPress = (order: OrderDetails) => {
@@ -114,6 +115,10 @@ export default function OrdersScreen() {
         orderTypes={orderTypes}
         paymentMethods={paymentMethods}
         onApplyFilters={(...p) => handleApplyFilters(...p, selectedDate)}
+        onClearFilter={() => {
+          handleClearFilter();
+          setShowFilters(false);
+        }}
       />
     </View>
   );

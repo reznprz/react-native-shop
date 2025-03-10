@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { FilterStatus } from '../filter/filter'; // or your correct path
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import RemovalChip from '../common/RemovalChip';

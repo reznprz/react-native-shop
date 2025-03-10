@@ -22,6 +22,7 @@ interface FiltersBottomSheetModalProps {
     finalOrderTypes: FilterStatus[],
     finalPaymentMethods: FilterStatus[],
   ) => void;
+  onClearFilter: () => void;
 }
 
 export const FiltersBottomSheetModal: React.FC<FiltersBottomSheetModalProps> = ({
@@ -32,6 +33,7 @@ export const FiltersBottomSheetModal: React.FC<FiltersBottomSheetModalProps> = (
   paymentMethods,
   onClose,
   onApplyFilters,
+  onClearFilter,
 }) => {
   //  Local Filter States
   const [orderStatusesFilter, setOrderStatusesFilter] = useState(
@@ -184,18 +186,18 @@ export const FiltersBottomSheetModal: React.FC<FiltersBottomSheetModalProps> = (
           />
         ))}
 
-        <View className="flex-row mt-4 pb-[10px] justify-end gap-4 mr-6">
+        <View className="flex-row mt-4 pb-[8px] justify-end gap-4 mr-6">
           <CustomButton
             title={'Clear all'}
-            onPress={handleApply}
-            customButtonStyle=" bg-gray-600 py-2 px-4 mb-3 rounded-lg shadow"
-            customTextStyle="text-white font-semibold text-lg text-center"
+            onPress={onClearFilter}
+            customButtonStyle=" py-3 px-10 mb-3 rounded-lg border border-black shadow"
+            customTextStyle="text-black font-semibold text-xl text-center"
           />
           <CustomButton
             title={'Apply Filters'}
             onPress={handleApply}
-            customButtonStyle=" bg-deepTeal py-2 px-4 mb-3 rounded-lg shadow"
-            customTextStyle="text-white font-semibold text-lg text-center"
+            customButtonStyle=" bg-deepTeal py-3 px-10 mb-3 rounded-lg shadow"
+            customTextStyle="text-white font-semibold text-xl text-center"
           />
         </View>
       </ScrollView>

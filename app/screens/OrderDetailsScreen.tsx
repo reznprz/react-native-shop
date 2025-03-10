@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useOrder } from 'app/hooks/useOrder';
 import OrderItemSummary from 'app/components/order/OrderItemSummary';
 import OrderSummaryCard from 'app/components/order/OrderSummaryCard';
@@ -18,6 +18,7 @@ interface MenuScreenProps {
 export default function OrderDetailsScreen({ route }: MenuScreenProps) {
   const { orderId } = route.params || {};
   const { order, orderDetailScreen, fetchOrderById } = useOrder();
+  const [showSpinner, setShowSpinner] = useState(true);
 
   useEffect(() => {
     if (orderId) {
@@ -25,8 +26,19 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
     }
   }, [orderId]);
 
+  useEffect(() => {
+    if (!order) {
+      const timer = setTimeout(() => {
+        setShowSpinner(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [order]);
+
   if (!order) {
-    return (
+    return showSpinner ? (
+      <FoodLoadingSpinner iconName="hamburger" />
+    ) : (
       <EmptyState
         iconName="bag-personal"
         message="No Orders available"

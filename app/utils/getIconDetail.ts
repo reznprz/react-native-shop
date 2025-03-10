@@ -10,7 +10,7 @@ export function getIconDetail(
   status: string,
   statuType: string = 'OrderType',
 ): { iconName: string; iconType: IconType; iconSize: number } {
-  const statusName = status.toUpperCase();
+  const statusName = status?.toUpperCase() ?? '';
 
   if (statuType === 'OrderType') {
     const statusIcons: Record<string, IconConfig> = {
