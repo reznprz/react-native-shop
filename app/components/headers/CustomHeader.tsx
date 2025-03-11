@@ -43,8 +43,8 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const FALLBACK_IMAGE_URI = 'https://picsum.photos/200';
 
   const itemsCount = useMemo(() => {
-    return prepTableItems.orderItems.reduce((sum, item) => sum + item.quantity, 0)
-  }, [prepTableItems])
+    return prepTableItems.orderItems.reduce((sum, item) => sum + item.quantity, 0);
+  }, [prepTableItems]);
 
   return (
     <View style={[styles.headerContainer, { height: containerHeight }]}>
@@ -81,8 +81,8 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
         }
       >
         {/* Count Chip */}
-      <CountChip count={itemsCount} style={styles.countChipPosition} />
-        <CircularInitialNameChip initials={'RP'} size={38} style={{ marginRight: 12}}/>
+        <CountChip count={itemsCount} style={styles.countChipPosition} />
+        <CircularInitialNameChip initials={'RP'} size={38} style={{ marginRight: 12 }} />
         <CustomIcon name="chair" type="FontAwesome5" size={18} color="#FFFFFF" />
         <Text style={styles.tableText}>{tableName}</Text>
         <Ionicons name="chevron-down-outline" size={25} color="#FFFFFF" />

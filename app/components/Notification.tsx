@@ -81,14 +81,14 @@ const Notification: React.FC<NotificationProps> = ({ message, type = 'info', wid
       useNativeDriver: true,
     }).start();
 
-    // Auto-close after 10 seconds → slide it out & then onClose
+    // Auto-close after 5 seconds → slide it out & then onClose
     const autoCloseTimer = setTimeout(() => {
       Animated.timing(slideAnim, {
         toValue: containerWidth + 50,
         duration: 400,
         useNativeDriver: true,
       }).start(() => onClose());
-    }, 10000);
+    }, 5000);
 
     // Cleanup when unmounting or re-rendering
     return () => {

@@ -19,7 +19,7 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({ order, containerSty
       </View>
       {order.orderItems.map((item) => (
         <View key={item.id} className="flex-row justify-between items-center py-1">
-          <Text className="text-gray-700 text-lg" numberOfLines={2} ellipsizeMode="tail">
+          <Text className="text-gray-700 text-lg flex-1" numberOfLines={3} ellipsizeMode="tail">
             {`${item.quantity}x ${item.productName}`}
           </Text>
           <Text className="text-gray-700 font-semibold text-lg">{item.total.toFixed(2) || 0}</Text>

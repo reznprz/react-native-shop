@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ScrollView } from 'react-native';
 import { useOrder } from 'app/hooks/useOrder';
 import OrderItemSummary from 'app/components/order/OrderItemSummary';
 import OrderSummaryCard from 'app/components/order/OrderSummaryCard';
@@ -50,18 +51,20 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
 
   return (
     <>
-      {orderDetailScreen?.status === 'pending' ? (
-        <FoodLoadingSpinner iconName="hamburger" />
-      ) : (
-        <>
-          <OrderSummaryCard order={order} containerStyle="p-4 m-2" />
-          <OrderItemSummary order={order} containerStyle="p-4 m-2" />
-        </>
-      )}
-      <ErrorMessagePopUp
-        errorMessage={orderDetailScreen?.error?.message || ''}
-        onClose={() => orderDetailScreen?.reset?.()}
-      />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        {orderDetailScreen?.status === 'pending' ? (
+          <FoodLoadingSpinner iconName="hamburger" />
+        ) : (
+          <>
+            <OrderSummaryCard order={order} containerStyle="p-4 m-2" />
+            <OrderItemSummary order={order} containerStyle="p-4 m-2" />
+          </>
+        )}
+        <ErrorMessagePopUp
+          errorMessage={orderDetailScreen?.error?.message || ''}
+          onClose={() => orderDetailScreen?.reset?.()}
+        />
+      </ScrollView>
     </>
   );
 }

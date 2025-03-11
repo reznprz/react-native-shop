@@ -3,9 +3,9 @@ import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 
 interface CircularInitialNameChipProps {
   initials: string;
-  size?: number; 
-  style?: ViewStyle; 
-  textStyle?: TextStyle; 
+  size?: number;
+  style?: ViewStyle;
+  textStyle?: TextStyle;
 }
 
 const CircularInitialNameChip: React.FC<CircularInitialNameChipProps> = ({
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2A4759',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 5, 
+    elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: 'bold',
-    textTransform: 'uppercase', 
+    textTransform: 'uppercase',
   },
 });
 

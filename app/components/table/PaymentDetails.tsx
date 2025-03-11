@@ -1,13 +1,13 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, Text, TextInput } from 'react-native';
 import PaymentChip from './PaymentChip';
 import PaymentInput from './PaymentInput';
 import IconLabel from '../common/IconLabel';
 import { TableItem } from 'app/hooks/useTables';
 import LoadingButton, { ButtonState } from '../common/button/LoadingButton';
-import Notification from '../Notification';
 import { PAYMENT_WARN_MESSAGES } from 'app/constants/constants';
 import NotificationWithButtons from '../NotificationWithButtons';
+import NotificationBar from '../common/NotificationBar';
 
 const paymentTypes = ['CASH', 'ESEWA', 'FONE_PAY', 'CREDIT'];
 
@@ -209,11 +209,11 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
         disabled={selectedPayments.length === 0}
       />
 
-      <Notification
+      <NotificationBar
         message={paymentWarnMessage}
         onClose={() => setPaymentWarnMessage('')}
-        type="warning"
-        width={380}
+        variant="warn"
+        topPosition={140}
       />
 
       <NotificationWithButtons
