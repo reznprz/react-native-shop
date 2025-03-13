@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { View, StyleSheet } from 'react-native';
 import CustomIcon from '../common/CustomIcon';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import { tabScreenConfigs } from 'app/navigation/screenConfigs';
+import { IconType, tabScreenConfigs } from 'app/navigation/screenConfigs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
 const BottomTabs = createBottomTabNavigator();
@@ -49,12 +49,18 @@ export function MobileTabs() {
           tabBarIcon: ({ focused, color }) => {
             if (!screen) return null;
             const iconName = focused ? screen.filledIcon : screen.icon;
+            let iconType;
+            if (screen.label === 'TABLE') {
+              iconType = focused ? screen.filledIcon : screen.icon;
+            } else {
+              iconType = screen.iconType;
+            }
 
             return (
               <View style={styles.iconWrapper}>
                 {focused && <View style={styles.focusIndicator} />}
                 <CustomIcon
-                  type={screen.iconType}
+                  type={iconType as IconType}
                   name={iconName}
                   color={focused ? '#2a4759' : color}
                 />

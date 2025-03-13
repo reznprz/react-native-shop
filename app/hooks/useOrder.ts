@@ -20,7 +20,7 @@ export const useOrder = () => {
   // Initial filter setup
   const initialFilters = {
     orderStatuses: ['Created', 'Completed', 'Canceled'],
-    paymentMethods: ['Esewa', 'Fone_Pay', 'Credit'],
+    paymentMethods: ['Cash', 'Esewa', 'Fone_Pay', 'Credit'],
     paymentStatuses: ['Paid', 'Unpaid'],
     orderTypes: ['Online', 'Store', 'Takeout', 'Foodmandu'],
   };

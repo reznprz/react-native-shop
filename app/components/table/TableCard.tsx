@@ -44,7 +44,14 @@ export function TableCard({
       <View className="bg-white p-4 gap-3 rounded-lg shadow-sm border border-gray-200 mb-2">
         {/* Top header name and status */}
         <View className="flex-row justify-between items-center ">
-          <IconLabel iconName="clipboard-list" label={name} containerStyle="justify-between" />
+          <IconLabel
+            iconName="clipboard-list"
+            iconType={'TableIcon'}
+            label={name}
+            iconSize={24}
+            containerStyle="justify-between"
+            parentWidthHeight="w-12 h-12"
+          />
           <StatusChip status={status} />
         </View>
 

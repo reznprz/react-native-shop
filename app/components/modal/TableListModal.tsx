@@ -4,6 +4,7 @@ import BaseModal from '../common/modal/BaseModal';
 import FilterChip from '../common/FilterChip';
 import IconLabel from '../common/IconLabel';
 import { RestaurantTable } from 'app/api/services/tableService';
+import CollapsibleInfo from '../common/CollapsibleInfo';
 
 interface TableListModalProps {
   visible: boolean;
@@ -24,15 +25,15 @@ const TableListModal: React.FC<TableListModalProps> = ({
   const bodyContent = (
     <>
       {showAvailableIcon && (
-        <IconLabel
-          label={'Available Tables'}
+        <CollapsibleInfo
+          label={'Available Tables ?'}
           iconType={'FontAwesome'}
           iconName={'question-circle'}
           iconSize={24}
-          applyCircularIconBg={false}
           iconColor={'#2a4759'}
           containerStyle={'ml-2 mb-4'}
-          textColor={'text-black font-bold underline'}
+          textColor={'text-black font-bold text-lg underline'}
+          collapsibleContent={'Can only switch to available tables.'}
         />
       )}
 

@@ -40,9 +40,9 @@ export const tabScreenConfigs: TabScreenConfig[] = [
     name: 'Table',
     label: 'TABLE',
     component: LazyTableScreen,
-    icon: 'table',
-    filledIcon: 'table',
-    iconType: 'MaterialCommunityIcons',
+    icon: 'TableIconOutline',
+    filledIcon: 'TableIcon',
+    iconType: 'TableIcon',
   },
   {
     name: 'Orders',

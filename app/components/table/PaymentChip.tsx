@@ -3,14 +3,23 @@ import { Pressable, Text, View } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { getPaymentTypeIcon } from 'app/hooks/utils/getPaymentTypeIcon';
 import IconLabel from '../common/IconLabel';
+import { getIconDetail } from 'app/utils/getIconDetail';
 
 interface PaymentChipProps {
   paymentType: string;
   isSelected?: boolean;
+  amount?: number;
   onSelect?: (paymentType: string) => void;
 }
 
-const PaymentChip: React.FC<PaymentChipProps> = ({ paymentType, isSelected = false, onSelect }) => {
+const PaymentChip: React.FC<PaymentChipProps> = ({
+  paymentType,
+  isSelected = false,
+  amount,
+  onSelect,
+}) => {
+  const iconDetails = getIconDetail(paymentType, 'Payment');
+
   if (onSelect) {
     return (
       <Pressable
@@ -33,11 +42,13 @@ const PaymentChip: React.FC<PaymentChipProps> = ({ paymentType, isSelected = fal
 
   return (
     <IconLabel
-      label={`Paid with ${paymentType}`}
-      iconName={getPaymentTypeIcon(paymentType)}
-      containerStyle="ml-1"
+      label={`Paid with ${paymentType} : रु ${amount}`}
+      iconName={iconDetails.iconName}
+      iconSize={iconDetails.iconSize}
+      iconType={iconDetails.iconType}
+      containerStyle="ml-1 mb-2"
       textColor="text-gray-500"
-      labelTextSize="text-base ml-2"
+      labelTextSize="text-sm ml-2"
       applyCircularIconBg={false}
       iconColor="gray"
     />

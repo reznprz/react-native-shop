@@ -15,7 +15,7 @@ export function getSubTabIcon(
   if (tabType === 'SubTab') {
     const subTabsIcons: Record<string, IconConfig> = {
       all: { icon: 'list-outline', iconType: 'Ionicons', iconSize: 24 },
-      'table items': { icon: 'utensils', iconType: 'FontAwesome5', iconSize: 18 },
+      'table items': { icon: 'utensils', iconType: 'TableItems', iconSize: 22 },
       tourist: { icon: 'earth-outline', iconType: 'Ionicons', iconSize: 18 },
     };
 

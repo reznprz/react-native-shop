@@ -16,6 +16,7 @@ type IconLabelProps = {
   containerStyle?: string;
   labelTextSize?: string;
   applyCircularIconBg?: boolean;
+  parentWidthHeight?: string;
 };
 
 const IconLabel: React.FC<IconLabelProps> = ({
@@ -30,12 +31,17 @@ const IconLabel: React.FC<IconLabelProps> = ({
   iconType = 'FontAwesome5',
   containerStyle = 'mb-2',
   labelTextSize = 'ml-2 text-xl',
+  parentWidthHeight = 'w-10 h-10',
   applyCircularIconBg = true,
 }) => {
+  iconSize = label === 'STORE' ? 18 : iconSize;
+
   return (
     <View className={`flex-row items-center ${containerStyle}`}>
       {applyCircularIconBg ? (
-        <View className={`w-10 h-10 ${bgColor} rounded-full flex items-center justify-center`}>
+        <View
+          className={`${parentWidthHeight} ${bgColor} rounded-full flex items-center justify-center`}
+        >
           <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
         </View>
       ) : (

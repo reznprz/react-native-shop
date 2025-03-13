@@ -17,7 +17,7 @@
       "*": ["node_modules/*"] // Default node_modules resolution
     }
   },
-  "include": ["app", "env.d.ts", "shajhya.jpg"], // Ensures TypeScript includes the "app" directory
+  "include": ["app", "env.d.ts", "shajhya.jpg", "svg.d.ts"], // Ensures TypeScript includes the "app" directory
   "exclude": [
     "node_modules",
     "babel.config.js",

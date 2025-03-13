@@ -19,6 +19,7 @@ export const PAYMENT_WARN_MESSAGES = {
     'Payments types total sum incorrect. Please revise Payment amount again!.',
   PAYMENTS_CONFORMATION:
     'Payments types total sum is less than totalAmount. Please click Yes to proccesd as it would be marked as unpaid!.',
+  SPLIT_PAYMENT_INFO: 'Select multiple payment types and enter the corresponding amount for each.',
 } as const;
 
 // --------------------

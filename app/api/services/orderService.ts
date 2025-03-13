@@ -35,6 +35,7 @@ export interface Order {
   totalPrice: number;
   orderType: OrderType;
   orderMenuType: OrderMenuType;
+  date: string;
   orderItems: OrderItem[];
 }
 

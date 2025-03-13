@@ -31,7 +31,7 @@ const FilterChip: React.FC<FilterChipProps> = ({
         <CustomIcon
           type={iconType}
           name={iconName}
-          size={20}
+          size={24}
           color={isSelected ? '#fff' : '#000'}
         />
 

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TextInput } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import PaymentChip from './PaymentChip';
 import PaymentInput from './PaymentInput';
 import IconLabel from '../common/IconLabel';
@@ -8,6 +8,7 @@ import LoadingButton, { ButtonState } from '../common/button/LoadingButton';
 import { PAYMENT_WARN_MESSAGES } from 'app/constants/constants';
 import NotificationWithButtons from '../NotificationWithButtons';
 import NotificationBar from '../common/NotificationBar';
+import CollapsibleInfo from '../common/CollapsibleInfo';
 
 const paymentTypes = ['CASH', 'ESEWA', 'FONE_PAY', 'CREDIT'];
 
@@ -114,7 +115,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
                 numberOfLines={1}
                 ellipsizeMode="tail"
               >
-                {`$${(item.unitPrice * item.quantity).toFixed(2)}`}
+                {`रु ${(item.unitPrice * item.quantity).toFixed(2)}`}
               </Text>
             </View>
           ))}
@@ -124,6 +125,17 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
       {/* Payment Methods */}
       <View className="bg-white mt-2">
         <IconLabel iconName="document-text-outline" label={'Payment Methods'} iconType="Ionicons" />
+
+        <CollapsibleInfo
+          label={'Split Payments ?'}
+          iconType={'FontAwesome'}
+          iconName={'question-circle'}
+          iconSize={24}
+          iconColor={'#2a4759'}
+          containerStyle={'ml-8 mb-4'}
+          textColor={'text-black font-bold underline'}
+          collapsibleContent={PAYMENT_WARN_MESSAGES.SPLIT_PAYMENT_INFO}
+        />
 
         {/* Payment Selection */}
         {paymentTypes.length > 0 && (

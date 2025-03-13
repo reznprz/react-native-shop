@@ -31,6 +31,15 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           <Text className="text-gray-600 pb-4">
             {'User:'} <Text className="font-semibold">{tableItems.userId}</Text>
           </Text>
+
+          <IconLabel
+            iconName="clock"
+            iconType={'FontAwesome5'}
+            iconSize={18}
+            label={`${tableItems.date}`}
+            applyCircularIconBg={false}
+            labelTextSize={'ml-2 text-base'}
+          />
         </View>
 
         {/* Right Section: Date */}

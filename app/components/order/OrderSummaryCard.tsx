@@ -53,9 +53,11 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({ order, containerStyle =
           <IconLabel
             label={order.tableName}
             iconName="table"
+            iconType="TableIcon"
             containerStyle="mt-1 gap-1"
             textColor="text-gray-500"
-            labelTextSize="text-base"
+            labelTextSize="text-lg"
+            iconSize={22}
             applyCircularIconBg={false}
             iconColor="gray"
           />
@@ -64,21 +66,24 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({ order, containerStyle =
           <IconLabel
             label={`${order.totalAmount.toFixed(2)}`}
             iconName="money-bill-wave"
+            iconType="Rupee"
+            iconSize={26}
             containerStyle="mt-1 gap-1"
             textColor="text-gray-500"
             labelTextSize="text-base"
             applyCircularIconBg={false}
-            iconColor="gray"
+            iconColor="black"
           />
           <IconLabel
             label={order.orderType}
             iconName={orderTypeIconDetail.iconName}
             iconType={orderTypeIconDetail.iconType}
+            iconSize={26}
             containerStyle="mt-1 gap-1"
             textColor="text-gray-500"
             labelTextSize="text-base text-bold"
             applyCircularIconBg={false}
-            iconColor="gray"
+            iconColor="brown"
           />
         </View>
 

@@ -8,7 +8,7 @@ export function getFilterIcon(
   // If filterName is "Tables", return a table icon (MaterialCommunityIcons)
   if (filterName === 'Tables') {
     if (cat.includes('all')) return { iconName: 'list-outline', iconType: 'Ionicons' };
-    return { iconName: 'table', iconType: 'MaterialCommunityIcons' };
+    return { iconName: 'table', iconType: 'TableIcon' };
   }
 
   // If filterName is "Categories", return category-based icons (Ionicons)

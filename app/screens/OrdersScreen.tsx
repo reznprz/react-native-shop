@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { ScrollView, View, TouchableOpacity } from 'react-native';
 import { useOrder } from 'app/hooks/useOrder';
 import OrderCard from 'app/components/order/OrderCard';
@@ -14,6 +14,7 @@ import { OrderDetails } from 'app/api/services/orderService';
 import { FiltersBottomSheetModal } from 'app/components/filter/FiltersBottomSheetModal';
 import OrderScreenHeader from 'app/components/common/OrderScreenHeader';
 import { removedFilter } from 'app/components/filter/filter';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function OrdersScreen() {
   const {
@@ -38,6 +39,12 @@ export default function OrdersScreen() {
   useEffect(() => {
     handleDateSelect(selectedDate);
   }, [selectedDate]);
+
+  useFocusEffect(
+    useCallback(() => {
+      handleDateSelect(selectedDate);
+    }, []),
+  );
 
   const handleOrderPress = (order: OrderDetails) => {
     navigate(ScreenNames.ORDER_DETAILS, { orderId: order.orderId.toString() });

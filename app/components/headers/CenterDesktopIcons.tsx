@@ -41,6 +41,12 @@ function IconWithTooltip({
   // Choose icon & color based on selection
   const iconName = isFocused ? screen.filledIcon : screen.icon;
   const iconColor = isFocused ? '#F5F5F5' : '#FFFFFF';
+  let iconType;
+  if (screen.label === 'TABLE') {
+    iconType = isFocused ? screen.filledIcon : screen.icon;
+  } else {
+    iconType = screen.iconType;
+  }
 
   const handleNavigation = () => {
     navigation.navigate('MainTabs', { screen: screen.name });
@@ -54,7 +60,7 @@ function IconWithTooltip({
         onHoverIn={() => setHovered(true)}
         onHoverOut={() => setHovered(false)}
       >
-        <CustomIcon type={screen.iconType} name={iconName} size={24} color={iconColor} />
+        <CustomIcon type={iconType} name={iconName} size={24} color={iconColor} />
       </Pressable>
 
       {hovered && (

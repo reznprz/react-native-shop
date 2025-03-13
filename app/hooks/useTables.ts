@@ -32,6 +32,7 @@ export interface TableItem {
   orderType: OrderType;
   orderMenuType: OrderMenuType;
   orderItems: OrderItem[];
+  date: string;
   paymentInfo: PaymentInfo[];
 }
 
@@ -62,6 +63,7 @@ function toTableItem(order: Order): TableItem {
     orderType: order.orderType,
     orderMenuType: order.orderMenuType,
     orderItems: order.orderItems,
+    date: order.date,
     paymentInfo: [],
   };
 }

@@ -10,7 +10,7 @@ import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/nativ
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CountChip from '../common/CountChip';
 import CircularInitialNameChip from '../common/CircularInitialNameChip';
-
+import CircularImage from '../common/CircularImage';
 interface CustomHeaderProps {
   route: RouteProp<Record<string, object | undefined>, string>;
   navigation: any;
@@ -40,7 +40,9 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const tableChipMarginTop = isDesktop || isPad ? 30 : 40;
 
   // Replace with your actual restaurant/logo image
-  const FALLBACK_IMAGE_URI = 'https://picsum.photos/200';
+  const FALLBACK_IMAGE_URI = {
+    uri: 'https://scontent-iad3-2.xx.fbcdn.net/v/t39.30808-6/305317844_585693433122077_344970095824068810_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=r7kD9QA1mlQQ7kNvgHJbbOV&_nc_oc=AdiZct-jZiANu80Jsq8Lp6AAY-GHuVQ4rAt_VSj3-_8I8mzCUr97ZBiC-4ZXvnlT-OajiAHDHAhpvHXmntfji7sC&_nc_zt=23&_nc_ht=scontent-iad3-2.xx&_nc_gid=A8UMXgVaEr0Z7-01RqrXv2_&oh=00_AYHT5NrdlXnUfQVHpa4U3Zk0Tv1Uhdg3dutxkUiMljFelQ&oe=67D7D84B',
+  };
 
   const itemsCount = useMemo(() => {
     return prepTableItems.orderItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -49,12 +51,11 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   return (
     <View style={[styles.headerContainer, { height: containerHeight }]}>
       {/* Left Section: Logo + Title */}
-      <View style={[styles.leftSection, { paddingTop: leftSectionPaddingTop }]}>
-        <View style={styles.logoContainer}>
-          <Image source={{ uri: FALLBACK_IMAGE_URI }} style={styles.logo} />
-        </View>
-        <Text style={styles.title}>{title}</Text>
-      </View>
+      <CircularImage
+        title={title}
+        paddingTop={leftSectionPaddingTop}
+        fallbackImageUri={FALLBACK_IMAGE_URI}
+      />
 
       {/* Center Section (only for desktop/iPad) */}
       {isDesktop ? (
