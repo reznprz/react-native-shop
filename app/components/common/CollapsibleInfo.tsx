@@ -13,6 +13,8 @@ type CollapsibleInfoProps = {
   containerStyle?: string;
   labelTextSize?: string;
   collapsibleContent?: string;
+  collapsibleContentStyle?: string;
+  onPress?: () => void;
 };
 
 const CollapsibleInfo: React.FC<CollapsibleInfoProps> = ({
@@ -25,6 +27,8 @@ const CollapsibleInfo: React.FC<CollapsibleInfoProps> = ({
   containerStyle = 'mb-2',
   labelTextSize = 'text-base',
   collapsibleContent = '',
+  collapsibleContentStyle = '',
+  onPress,
 }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -36,32 +40,31 @@ const CollapsibleInfo: React.FC<CollapsibleInfoProps> = ({
   const toggleExpand = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setExpanded(!expanded);
+    if (onPress) {
+      onPress();
+    }
   };
 
   return (
     <View className={`flex-col ${containerStyle}`}>
-      {/* Row containing the icon and label on the same line */}
+      {/* Row containing the icon and label */}
       <TouchableOpacity
         onPress={toggleExpand}
         accessibilityRole="button"
         accessibilityLabel={`${label} toggle`}
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: 4,
-        }}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
       >
         <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
-
-        {/* Label next to the icon */}
         <Text className={`font-semibold ${labelTextSize} ${textColor}`} numberOfLines={1}>
           {label}
         </Text>
       </TouchableOpacity>
 
-      {/* Collapsible content below */}
+      {/* Collapsible content */}
       {expanded && collapsibleContent && (
-        <View className="mt-2 bg-gray-50 p-3 rounded-md border border-deepTeal shadow-sm">
+        <View
+          className={`${collapsibleContentStyle} mt-2 bg-gray-50 p-1 rounded-md border border-deepTeal shadow-sm`}
+        >
           <Text className="text-gray-700 text-sm leading-relaxed">{collapsibleContent}</Text>
         </View>
       )}

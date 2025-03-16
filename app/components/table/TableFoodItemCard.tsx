@@ -4,12 +4,12 @@ import { View, Text, Image, TouchableOpacity } from 'react-native';
 
 const FALLBACK_IMAGE_URI = 'https://picsum.photos/300/200';
 
-interface TableItemProps {
+interface TableFoodItemCardProps {
   item: OrderItem;
   updateQuantity: (item: OrderItem, newQuantity: number) => void;
 }
 
-const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
+const TableFoodItemCard: React.FC<TableFoodItemCardProps> = ({ item, updateQuantity }) => {
   return (
     <>
       <View className="flex-row items-center justify-evenly p-2 bg-white">
@@ -72,4 +72,4 @@ const TableItem: React.FC<TableItemProps> = ({ item, updateQuantity }) => {
   );
 };
 
-export default TableItem;
+export default TableFoodItemCard;

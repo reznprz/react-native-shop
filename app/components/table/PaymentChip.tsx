@@ -9,6 +9,8 @@ interface PaymentChipProps {
   paymentType: string;
   isSelected?: boolean;
   amount?: number;
+  textSize?: string;
+  paymentText?: string;
   onSelect?: (paymentType: string) => void;
 }
 
@@ -16,6 +18,8 @@ const PaymentChip: React.FC<PaymentChipProps> = ({
   paymentType,
   isSelected = false,
   amount,
+  paymentText,
+  textSize = 'text-base ml-2',
   onSelect,
 }) => {
   const iconDetails = getIconDetail(paymentType, 'Payment');
@@ -34,7 +38,7 @@ const PaymentChip: React.FC<PaymentChipProps> = ({
           color={isSelected ? '#fff' : '#000'}
         />
         <Text
-          className={`text-base pl-1 pr-1 ${isSelected ? 'text-white' : 'text-black'}`}
+          className={`${textSize} pl-1 pr-1 ${isSelected ? 'text-white' : 'text-black'}`}
         >{`${paymentType}`}</Text>
       </Pressable>
     );
@@ -42,13 +46,13 @@ const PaymentChip: React.FC<PaymentChipProps> = ({
 
   return (
     <IconLabel
-      label={`Paid with ${paymentType} : रु ${amount}`}
+      label={paymentText ? `${paymentText}` : `Paid with ${paymentType} : रु ${amount}`}
       iconName={iconDetails.iconName}
       iconSize={iconDetails.iconSize}
       iconType={iconDetails.iconType}
       containerStyle="ml-1 mb-2"
       textColor="text-gray-500"
-      labelTextSize="text-sm ml-2"
+      labelTextSize={textSize ? textSize : 'text-sm ml-2'}
       applyCircularIconBg={false}
       iconColor="gray"
     />

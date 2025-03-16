@@ -6,7 +6,7 @@ import ErrorMessagePopUp from '../ErrorMessagePopUp';
 export type ButtonState =
   | { status: 'idle' }
   | { status: 'loading' }
-  | { status: 'success' }
+  | { status: 'success'; reset?: () => void }
   | { status: 'error'; message: string; reset?: () => void };
 
 interface LoadingButtonProps extends CustomButtonProps {

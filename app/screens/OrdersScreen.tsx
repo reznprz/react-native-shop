@@ -50,6 +50,13 @@ export default function OrdersScreen() {
     navigate(ScreenNames.ORDER_DETAILS, { orderId: order.orderId.toString() });
   };
 
+  const handleMoreActionPress = (order: OrderDetails) => {
+    navigate(ScreenNames.ORDER_DETAILS, {
+      orderId: order.orderId.toString(),
+      actionType: 'More Action',
+    });
+  };
+
   return (
     <View className="flex-1 bg-gray-100 p-4 pb-0">
       <OrderScreenHeader
@@ -97,7 +104,13 @@ export default function OrdersScreen() {
             <View className={`flex gap-2 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
               {orders.map((order) =>
                 isLargeScreen ? (
-                  <OrderCard key={order.orderId} order={order} />
+                  <OrderCard
+                    key={order.orderId}
+                    order={order}
+                    onMoreActionPress={(order) => {
+                      handleMoreActionPress(order);
+                    }}
+                  />
                 ) : (
                   <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>
                     <OrderSummaryCard order={order} />

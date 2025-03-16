@@ -1,12 +1,12 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import OrderSummary from 'app/components/table/OrderSummary';
-import PaymentDetails, { SelectedPayment } from 'app/components/table/PaymentDetails';
+import PaymentDetails from 'app/components/table/PaymentDetails';
 import CustomButton from 'app/components/common/button/CustomButton';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import { TableItem } from 'app/hooks/useTables';
+import { PaymentInfo, TableItem } from 'app/hooks/useTables';
 import { OrderItem } from 'app/api/services/orderService';
 import { ButtonState } from '../common/button/LoadingButton';
+import TableFoodItemsSummary from './TableFoodItemsSummary';
 
 interface TableItemAndPaymentProps {
   tableItems: TableItem;
@@ -14,7 +14,7 @@ interface TableItemAndPaymentProps {
   handleAddDiscount: (discountAmount: number) => void;
   setShowPaymentModal?: (value: boolean) => void;
   onSwitchTableClick?: (seatName: string) => void;
-  handleCompleteOrder: (selectedPayments: SelectedPayment[]) => void;
+  handleCompleteOrder: (selectedPayments: PaymentInfo[]) => void;
   completeOrderState: ButtonState;
 }
 
@@ -40,7 +40,7 @@ export default function TableItemAndPayment({
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
-            <OrderSummary
+            <TableFoodItemsSummary
               tableItems={tableItems}
               updateQuantity={updateQuantity}
               onSwitchTableClick={onSwitchTableClick}
@@ -68,7 +68,7 @@ export default function TableItemAndPayment({
           contentContainerStyle={{ paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
         >
-          <OrderSummary
+          <TableFoodItemsSummary
             tableItems={tableItems}
             updateQuantity={updateQuantity}
             onSwitchTableClick={onSwitchTableClick}

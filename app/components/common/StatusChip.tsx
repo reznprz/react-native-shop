@@ -45,7 +45,7 @@ export function StatusChip({
       iconType: 'FontAwesome5',
       size: 'px-3 py-1 text-base',
     },
-    cancelled: {
+    canceled: {
       bg: 'bg-red-100',
       text: 'text-red-600',
       icon: 'times-circle',

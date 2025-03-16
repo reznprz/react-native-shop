@@ -17,7 +17,6 @@ import {
 } from 'app/api/services/orderService';
 import { useAddUpdateOrderMutation } from './useAddUpdateOrderMutation';
 import { resetPrepTableItems, setPrepTableItems } from 'app/redux/prepTableItemsSlice';
-import { SelectedPayment } from 'app/components/table/PaymentDetails';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 import { CommonActions } from '@react-navigation/native';
 
@@ -39,6 +38,7 @@ export interface TableItem {
 export interface PaymentInfo {
   amount: number;
   paymentType: string;
+  note?: string;
 }
 
 export interface CompleteOrderRequest {
@@ -184,7 +184,7 @@ export function useTables() {
       };
 
       // Dispatch the new state
-      dispatch(setPrepTableItems(updatedPrepTableItems));
+      // dispatch(setPrepTableItems(updatedPrepTableItems));
 
       // Now call the mutation using the updated state
       addOrUpdateOrder({
@@ -274,7 +274,7 @@ export function useTables() {
     [dispatch, fetchExistingOrderForTable, tableName],
   );
 
-  const handleGoToMenuClick = useCallback(
+  const handleGoToMenuPress = useCallback(
     (selectedTableName: string) => {
       fetchExistingOrderForTable(selectedTableName, 1);
 
@@ -310,13 +310,10 @@ export function useTables() {
   );
 
   const handleCompleteOrder = useCallback(
-    (selectedPayments: SelectedPayment[]) => {
+    (paymentInfos: PaymentInfo[]) => {
       const currentState = prepTableItems;
       const { id, totalPrice, discountAmount, subTotal } = currentState;
-      const paymentInfos = selectedPayments.map((p) => ({
-        amount: p.amount,
-        paymentType: p.paymentType,
-      }));
+
       const completeOrderRequest: CompleteOrderRequest = {
         discountAmount,
         totalAmount: totalPrice,
@@ -415,7 +412,7 @@ export function useTables() {
     exstingOrderForTableMutation,
 
     // HANDLERS
-    handleGoToMenuClick,
+    handleGoToMenuPress,
     handleTableClick,
     handleAddUpdateFoodItems,
     handleAddDiscount,

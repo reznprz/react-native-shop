@@ -3,7 +3,7 @@ import { Text, Pressable, GestureResponderEvent } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomIcon from '../CustomIcon';
 
-type SizeOption = 's' | 'm' | 'l' | '2l' | 'xl' | 'full';
+type SizeOption = 's' | 'm' | 'l' | '2l' | 'xl' | '2xl' | 'full';
 
 export interface CustomButtonProps {
   title: string;
@@ -55,6 +55,9 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     case 'xl':
       widthClass = 'w-56';
       break;
+    case '2xl':
+      widthClass = 'w-56';
+      break;
     case 'full':
       widthClass = 'w-full';
       break;
@@ -93,7 +96,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       disabled={disabled}
       className={
         customButtonStyle
-          ? customButtonStyle
+          ? `${customButtonStyle} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
+                  ${!disabled && 'pressed:bg-[#24415A]'} `
           : `${widthClass} ${heightClass} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
                   ${!disabled && 'pressed:bg-[#24415A]'} 
             flex flex-row items-center justify-center rounded px-2 py-1`

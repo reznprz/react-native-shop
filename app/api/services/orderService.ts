@@ -1,7 +1,7 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
 import { login } from './authService';
-import { CompleteOrderRequest } from 'app/hooks/useTables';
+import { CompleteOrderRequest, PaymentInfo } from 'app/hooks/useTables';
 import qs from 'qs';
 
 export interface OrderItem {
@@ -61,6 +61,7 @@ export interface OrderDetails {
   discountAmount: number;
   orderMenuType: string;
   payments: PaymentDetails[];
+  groupedPaymentByNotesAndDate?: Record<string, PaymentDetails[]>;
   timeStamp: TimeStamp;
 }
 
@@ -72,6 +73,7 @@ export interface PaymentDetails {
   creditAmount: number;
   amount: number;
   paymentMethod: string;
+  note?: string;
   paymentDate: string;
 }
 
@@ -167,4 +169,40 @@ export const findOrdersByFiltersAndOrdersApi = async (
 export const findOrdersByIdApi = async (orderId: number): Promise<ApiResponse<OrderDetails>> => {
   await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.get<OrderDetails>(`/public/api/orders/${orderId}`);
+};
+
+export const canceledOrderApi = async (orderId: number): Promise<ApiResponse<OrderDetails>> => {
+  await login({ username: 'ree', password: 'reeree' });
+  return await apiMethods.put<OrderDetails>(`/public/api/orders/canceled/${orderId}`, {});
+};
+
+export const switchTableApi = async (
+  orderId: number,
+  tableName: string,
+): Promise<ApiResponse<OrderDetails>> => {
+  await login({ username: 'ree', password: 'reeree' });
+  return await apiMethods.put<OrderDetails>(
+    `/public/api/orders/switch/table/${orderId}?tableName=${tableName}`,
+    {},
+  );
+};
+
+export const switchPaymentApi = async (
+  orderId: number,
+  paymentId: number,
+  paymentType: string,
+): Promise<ApiResponse<OrderDetails>> => {
+  await login({ username: 'ree', password: 'reeree' });
+  return await apiMethods.put<OrderDetails>(
+    `/public/api/orders/switch/payment/${orderId}/${paymentId}?paymentType=${paymentType}`,
+    {},
+  );
+};
+
+export const addPaymentsApi = async (
+  orderId: number,
+  paymentInfos: PaymentInfo[],
+): Promise<ApiResponse<OrderDetails>> => {
+  await login({ username: 'ree', password: 'reeree' });
+  return await apiMethods.post<OrderDetails>(`/public/api/orders/${orderId}/payment`, paymentInfos);
 };

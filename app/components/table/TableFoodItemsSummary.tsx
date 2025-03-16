@@ -4,17 +4,17 @@ import EmptyState from '../common/EmptyState';
 import IconLabel from '../common/IconLabel';
 import CustomButton from '../common/button/CustomButton';
 import { TableItem as TableItems } from 'app/hooks/useTables';
-import TableItem from './TableItem';
 import { OrderItem } from 'app/api/services/orderService';
 import { StatusChip } from '../common/StatusChip';
+import TableFoodItemCard from './TableFoodItemCard';
 
-interface OrderSummaryProps {
+interface TableFoodItemsSummaryProps {
   tableItems: TableItems;
   updateQuantity: (food: OrderItem, newQuantity: number) => void;
   onSwitchTableClick?: (seatName: string) => void;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({
+const TableFoodItemsSummary: React.FC<TableFoodItemsSummaryProps> = ({
   tableItems,
   updateQuantity,
   onSwitchTableClick,
@@ -74,11 +74,11 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
         />
       ) : (
         tableItems.orderItems.map((item) => (
-          <TableItem key={item.id} item={item} updateQuantity={updateQuantity} />
+          <TableFoodItemCard key={item.id} item={item} updateQuantity={updateQuantity} />
         ))
       )}
     </View>
   );
 };
 
-export default OrderSummary;
+export default TableFoodItemsSummary;

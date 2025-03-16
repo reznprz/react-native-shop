@@ -1,22 +1,33 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import PaymentChip from '../table/PaymentChip';
 import IconLabel from '../common/IconLabel';
 import { OrderDetails } from 'app/api/services/orderService';
 import { StatusChip } from '../common/StatusChip';
-import TableIcon from '../../../assets/table-filled.svg';
 import CollapsibleInfo from '../common/CollapsibleInfo';
+import CustomButton from '../common/button/CustomButton';
 
 type OrderItemSummaryProps = {
   order: OrderDetails;
   containerStyle?: string;
+  onMoreActionPress?: (order: OrderDetails) => void;
 };
 
-const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({ order, containerStyle = '' }) => {
+const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
+  order,
+  containerStyle = '',
+  onMoreActionPress,
+}) => {
+  const [showMoreAction, setShowMoreAction] = useState(false);
   const paymentStatus = order.paymentStatus ? order.paymentStatus : 'UNPAID';
-
-  const paidAmount = order.payments.reduce((sum, p) => sum + p.amount, 0);
+  const paidAmount = order?.payments?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
   const unpaidAmount = order.totalAmount - paidAmount;
+
+  const hideCollabsibleInfo = order.orderStatus === 'CANCELED';
+
+  const toggleMoreAction = () => {
+    setShowMoreAction(!showMoreAction);
+  };
 
   return (
     <View className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 ${containerStyle}`}>
@@ -44,55 +55,23 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({ order, containerSty
               containerStyle="justify-between"
             />
             <View className="flex-cols">
-              <StatusChip status={paymentStatus} margin="ml-20" />
-              {paymentStatus === 'UNPAID' && (
+              <StatusChip status={paymentStatus} margin="ml-10" />
+              {!hideCollabsibleInfo && paymentStatus === 'UNPAID' && onMoreActionPress && (
                 <CollapsibleInfo
                   label={'Add Payment ?'}
                   iconType={'FontAwesome'}
                   iconName={'question-circle'}
-                  iconSize={18}
+                  iconSize={14}
                   iconColor={'#2a4759'}
                   containerStyle={'items-end mb-1 mt-1'}
                   textColor={'text-black font-bold text-sm underline'}
-                  collapsibleContent={'Add Payment'}
+                  collapsibleContent={'Click more actions button!'}
+                  collapsibleContentStyle="w-28"
+                  onPress={toggleMoreAction}
                 />
               )}
             </View>
           </View>
-
-          {paidAmount > 0 && unpaidAmount > 0 && (
-            <>
-              <View className="flex-row justify-between rounded-md border border-gray-200 shadow-sm mb-2">
-                {paidAmount > 0 && (
-                  <IconLabel
-                    label="Paid"
-                    iconType="FontAwesome5"
-                    iconName="check-circle"
-                    iconSize={12}
-                    iconColor="#10B981"
-                    parentWidthHeight="w-6 h-6"
-                    labelTextSize="text-sm pl-0.5"
-                    subLabel={`: रु ${paidAmount.toString()}`}
-                    bgColor={`bg-green-100`}
-                    containerStyle={'p-2'}
-                  />
-                )}
-
-                <IconLabel
-                  label="Unpaid"
-                  iconType="FontAwesome5"
-                  iconName="clock"
-                  iconSize={12}
-                  iconColor="#EF4444"
-                  parentWidthHeight="w-6 h-6"
-                  labelTextSize="text-sm pl-2"
-                  subLabel={`: रु ${unpaidAmount.toString()}`}
-                  bgColor={`bg-red-100`}
-                  containerStyle={'p-2'}
-                />
-              </View>
-            </>
-          )}
 
           {order.payments.map((payment, index) => (
             <PaymentChip key={index} paymentType={payment.paymentMethod} amount={payment.amount} />
@@ -136,6 +115,38 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({ order, containerSty
           applyCircularIconBg={false}
           iconColor="blue-500"
         />
+      )}
+
+      {onMoreActionPress && !hideCollabsibleInfo && (
+        <CollapsibleInfo
+          label={'More Actions ?'}
+          iconType={'FontAwesome'}
+          iconName={'question-circle'}
+          iconSize={14}
+          iconColor={'#2a4759'}
+          containerStyle={'items-start mb-1 mt-2 ml-2'}
+          textColor={'text-black font-bold text-sm underline'}
+          collapsibleContent={
+            'Click the "More Actions" button to add food, switch tables, print receipts and cancel Order!'
+          }
+          collapsibleContentStyle="w-36"
+          onPress={toggleMoreAction}
+        />
+      )}
+
+      {showMoreAction && onMoreActionPress && (
+        <>
+          <View className="border-b border-gray-200 my-3" />
+
+          <CustomButton
+            title={'More Actions'}
+            onPress={() => {
+              onMoreActionPress(order);
+            }}
+            textSize="text-xl"
+            customButtonStyle="items-center justify-center rounded px-1 py-3 bg-[#2a4759]"
+          />
+        </>
       )}
     </View>
   );

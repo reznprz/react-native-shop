@@ -11,7 +11,7 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabsParamList>;
   Cart: undefined;
   QrMenuItemsScreen: { category: string };
-  OrderDetails: { orderId: string };
+  OrderDetails: { orderId: string; actionType?: string };
   Food: undefined;
 };
 

@@ -1,9 +1,13 @@
 import { ApiResponse } from 'app/api/handlers';
 import {
+  addPaymentsApi,
+  canceledOrderApi,
   findOrdersByFiltersAndOrdersApi,
   findOrdersByIdApi,
   FindOrdersFilters,
   OrderDetails,
+  switchPaymentApi,
+  switchTableApi,
 } from 'app/api/services/orderService';
 import { useCallback, useMemo, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
@@ -12,6 +16,8 @@ import {
   FilterStatus,
   mapSelectedFilterNames,
 } from 'app/components/filter/filter';
+import { PaymentInfo } from './useTables';
+import { ButtonState } from 'app/components/common/button/LoadingButton';
 
 export const useOrder = () => {
   const [orders, setOrders] = useState<OrderDetails[]>([]);
@@ -81,6 +87,101 @@ export const useOrder = () => {
     },
   );
 
+  const canceledOrderMutation = useMutation<ApiResponse<OrderDetails>, Error, { orderId: number }>({
+    mutationFn: async ({ orderId }) => {
+      if (!orderId || orderId === 0) {
+        throw new Error('Missing order Id');
+      }
+      const response: ApiResponse<OrderDetails> = await canceledOrderApi(orderId);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setOrder(response.data || null);
+    },
+    onError: (err) => {
+      console.warn('existing order fetch failed:', err);
+      setOrder(null);
+    },
+  });
+
+  const switchTableMutation = useMutation<
+    ApiResponse<OrderDetails>,
+    Error,
+    { orderId: number; tableName: string }
+  >({
+    mutationFn: async ({ orderId, tableName }) => {
+      if (!orderId || orderId === 0) {
+        throw new Error('Missing order Id');
+      }
+      const response: ApiResponse<OrderDetails> = await switchTableApi(orderId, tableName);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setOrder(response.data || null);
+    },
+    onError: (err) => {
+      console.warn('existing order fetch failed:', err);
+      setOrder(null);
+    },
+  });
+
+  const switchPaymentMutation = useMutation<
+    ApiResponse<OrderDetails>,
+    Error,
+    { orderId: number; paymentId: number; paymentType: string }
+  >({
+    mutationFn: async ({ orderId, paymentId, paymentType }) => {
+      if (!orderId || orderId === 0) {
+        throw new Error('Missing order Id');
+      }
+      const response: ApiResponse<OrderDetails> = await switchPaymentApi(
+        orderId,
+        paymentId,
+        paymentType,
+      );
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setOrder(response.data || null);
+    },
+    onError: (err) => {
+      console.warn('existing order fetch failed:', err);
+      setOrder(null);
+    },
+  });
+
+  const addPaymentsMutation = useMutation<
+    ApiResponse<OrderDetails>,
+    Error,
+    { orderId: number; paymentInfos: PaymentInfo[] }
+  >({
+    mutationFn: async ({ orderId, paymentInfos }) => {
+      if (!orderId || paymentInfos.length === 0) {
+        throw new Error('Missing order Id or payments');
+      }
+      const response: ApiResponse<OrderDetails> = await addPaymentsApi(orderId, paymentInfos);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setOrder(response.data || null);
+    },
+    onError: (err) => {
+      console.warn('existing order fetch failed:', err);
+    },
+  });
+
   const fetchOrders = useCallback(
     (filters: FindOrdersFilters) => {
       findOrdersByFiltersAndOrdersMutation.mutate({ filters });
@@ -93,6 +194,13 @@ export const useOrder = () => {
       findOrdersByIdMutation.mutate({ orderId });
     },
     [findOrdersByIdMutation],
+  );
+
+  const addPayments = useCallback(
+    (orderId: number, paymentInfos: PaymentInfo[]) => {
+      addPaymentsMutation.mutate({ orderId, paymentInfos });
+    },
+    [addPaymentsMutation],
   );
 
   const totalAmount = useMemo(
@@ -206,6 +314,106 @@ export const useOrder = () => {
     [fetchOrders, buildOrdersPayload],
   );
 
+  const handleAddPayments = useCallback(
+    (orderId: number, newPayments: PaymentInfo[]) => {
+      addPayments(orderId, newPayments);
+    },
+    [addPaymentsMutation],
+  );
+
+  const handleCancelOrder = useCallback(
+    (orderId: number) => {
+      canceledOrderMutation.mutate({ orderId: orderId });
+    },
+    [canceledOrderMutation],
+  );
+
+  const handleSwitchTable = useCallback(
+    (orderId: number, selectedTable: string) => {
+      switchTableMutation.mutate({ orderId: orderId, tableName: selectedTable });
+    },
+    [switchTableMutation],
+  );
+
+  const handleSwitchPayment = useCallback(
+    (orderId: number, paymentId: number, newPaymentType: string) => {
+      switchPaymentMutation.mutate({
+        orderId: orderId,
+        paymentId: paymentId,
+        paymentType: newPaymentType,
+      });
+    },
+    [switchPaymentMutation],
+  );
+
+  const addPaymentState: ButtonState = useMemo(() => {
+    if (addPaymentsMutation.isPending) {
+      return { status: 'loading' };
+    }
+    if (addPaymentsMutation.isError) {
+      return {
+        status: 'error',
+        message: addPaymentsMutation.error?.message || 'An error occurred',
+        reset: () => addPaymentsMutation.reset(),
+      };
+    }
+    if (addPaymentsMutation.isSuccess) {
+      return { status: 'success', reset: () => addPaymentsMutation.reset() };
+    }
+    return { status: 'idle' };
+  }, [addPaymentsMutation]);
+
+  const canceledOrderState: ButtonState = useMemo(() => {
+    if (canceledOrderMutation.isPending) {
+      return { status: 'loading' };
+    }
+    if (canceledOrderMutation.isError) {
+      return {
+        status: 'error',
+        message: canceledOrderMutation.error?.message || 'An error occurred',
+        reset: () => canceledOrderMutation.reset(),
+      };
+    }
+    if (canceledOrderMutation.isSuccess) {
+      return { status: 'success', reset: () => canceledOrderMutation.reset() };
+    }
+    return { status: 'idle' };
+  }, [canceledOrderMutation]);
+
+  const switchTableState: ButtonState = useMemo(() => {
+    if (switchTableMutation.isPending) {
+      return { status: 'loading' };
+    }
+    if (switchTableMutation.isError) {
+      return {
+        status: 'error',
+        message: switchTableMutation.error?.message || 'An error occurred',
+        reset: () => switchTableMutation.reset(),
+      };
+    }
+    if (switchTableMutation.isSuccess) {
+      return { status: 'success', reset: () => switchTableMutation.reset() };
+    }
+    return { status: 'idle' };
+  }, [switchTableMutation]);
+
+  const switchPaymentState: ButtonState = useMemo(() => {
+    if (switchPaymentMutation.isPending) {
+      return { status: 'loading' };
+    }
+    if (switchPaymentMutation.isError) {
+      return {
+        status: 'error',
+        message: switchPaymentMutation.error?.message || 'An error occurred',
+        reset: () => switchPaymentMutation.reset(),
+      };
+    }
+    if (switchPaymentMutation.isSuccess) {
+      return { status: 'success', reset: () => switchPaymentMutation.reset() };
+    }
+    return { status: 'idle' };
+  }, [switchPaymentMutation]);
+
   return {
     orders,
     totalAmount,
@@ -217,6 +425,18 @@ export const useOrder = () => {
     orderDetailScreen: findOrdersByIdMutation,
     order,
 
+    //add payment api
+    addPaymentState,
+
+    // canceled order api state
+    canceledOrderState,
+
+    // switchTable api State
+    switchTableState,
+
+    // switchPayment api state
+    switchPaymentState,
+
     // Filter statuses.
     orderStatuses,
     paymentStatuses,
@@ -227,5 +447,9 @@ export const useOrder = () => {
     handleApplyFilters,
     handleClearFilter,
     handleDateSelect,
+    handleAddPayments,
+    handleCancelOrder,
+    handleSwitchTable,
+    handleSwitchPayment,
   };
 };

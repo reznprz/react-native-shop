@@ -42,7 +42,7 @@ export default function TableScreen({ route }: TableScreenProps) {
     isTablesLoading,
     completeOrderState,
     handleAddUpdateFoodItems,
-    handleGoToMenuClick,
+    handleGoToMenuPress,
     handleTableClick,
     handleAddDiscount,
     refetchTables,
@@ -139,7 +139,7 @@ export default function TableScreen({ route }: TableScreenProps) {
                 totalCapacity={totalCapacity}
                 activeOrders={activeOrders}
                 isLargeScreen={isLargeScreen}
-                onGoToMenu={handleGoToMenuClick}
+                onGoToMenu={handleGoToMenuPress}
                 onGoToCart={handleGoToCart}
                 onSwitchTable={() => setShowSwitchTableModal(true)}
               />
