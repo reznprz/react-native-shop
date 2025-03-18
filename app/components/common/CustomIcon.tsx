@@ -6,6 +6,7 @@ import {
   Fontisto,
   MaterialCommunityIcons,
   FontAwesome,
+  Feather,
 } from '@expo/vector-icons';
 import { Image as RNImage, ImageSourcePropType } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
@@ -23,6 +24,7 @@ export const ICON_TYPES = {
   Fontisto,
   MaterialCommunityIcons,
   FontAwesome,
+  Feather,
   TableIcon: TableIconAdapter,
   TableIconOutline: TableIconOutlineAdapter,
   TableItems: TableItemsAdapter,
@@ -66,7 +68,21 @@ const CustomIcon: React.FC<CustomIconProps> = ({
   }
 
   // For other icon types, retrieve the corresponding component
-  const SelectedIcon = ICON_TYPES[type];
+  let SelectedIcon = ICON_TYPES[type];
+
+  // Validate if the provided icon name exists in the icon's glyphMap.
+  // if (
+  //   !SelectedIcon.glyphMap ||
+  //   !Object.prototype.hasOwnProperty.call(SelectedIcon.glyphMap, name)
+  // ) {
+  //   console.warn(
+  //     `"${name}" is not a valid icon name for family "${type}". Falling back to default icon configuration.`,
+  //   );
+  //   // Fallback to default configuration.
+  //   SelectedIcon = ICON_TYPES.Ionicons;
+  //   name = 'restaurant';
+  // }
+
   return (
     <SelectedIcon
       name={name as keyof typeof SelectedIcon.glyphMap}

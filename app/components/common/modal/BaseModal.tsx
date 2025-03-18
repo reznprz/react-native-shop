@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: 'white',
-    padding: 10,
+    padding: 0,
     borderRadius: 12,
     minWidth: Math.min(width - 40, 350), // Responsive width, min 350px or screen width - 40px
     maxWidth: 600, // Prevents excessive width
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#2a4759',
-    paddingVertical: 12,
+    paddingVertical: 18,
     paddingHorizontal: 15,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
@@ -94,9 +94,8 @@ const styles = StyleSheet.create({
     marginVertical: 15,
   },
   modalFooter: {
-    width: '100%',
     alignItems: 'center',
-    paddingTop: 10,
+    padding: 10,
   },
 });
 

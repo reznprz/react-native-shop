@@ -8,7 +8,7 @@ type IconLabelProps = {
   iconSize?: number;
   iconColor?: string;
   bgColor?: string;
-  label: string;
+  label?: string;
   value?: string | number;
   textColor?: string;
   subLabel?: string;
@@ -17,6 +17,7 @@ type IconLabelProps = {
   labelTextSize?: string;
   applyCircularIconBg?: boolean;
   parentWidthHeight?: string;
+  rounded?: string;
 };
 
 const IconLabel: React.FC<IconLabelProps> = ({
@@ -32,6 +33,7 @@ const IconLabel: React.FC<IconLabelProps> = ({
   containerStyle = 'mb-2',
   labelTextSize = 'ml-2 text-xl',
   parentWidthHeight = 'w-10 h-10',
+  rounded = 'rounded-full',
   applyCircularIconBg = true,
 }) => {
   iconSize = label === 'STORE' ? 18 : iconSize;
@@ -40,7 +42,7 @@ const IconLabel: React.FC<IconLabelProps> = ({
     <View className={`flex-row items-center ${containerStyle}`}>
       {applyCircularIconBg ? (
         <View
-          className={`${parentWidthHeight} ${bgColor} rounded-full flex items-center justify-center`}
+          className={`${parentWidthHeight} ${bgColor}  ${rounded} flex items-center justify-center`}
         >
           <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
         </View>
@@ -48,14 +50,16 @@ const IconLabel: React.FC<IconLabelProps> = ({
         <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
       )}
 
-      <Text
-        className={`font-semibold  ${labelTextSize} ${textColor}`}
-        numberOfLines={2}
-        ellipsizeMode="tail"
-      >
-        {label} {value}
-        {subLabel && <Text className="font-semibold">{subLabel}</Text>}
-      </Text>
+      {label && (
+        <Text
+          className={`font-semibold  ${labelTextSize} ${textColor}`}
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
+          {label} {value}
+          {subLabel && <Text className="font-semibold">{subLabel}</Text>}
+        </Text>
+      )}
     </View>
   );
 };

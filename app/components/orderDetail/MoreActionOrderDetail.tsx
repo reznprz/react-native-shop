@@ -7,7 +7,6 @@ import MoreActions from '../order/MoreAction';
 import { ButtonState } from '../common/button/LoadingButton';
 import { PaymentInfo } from 'app/hooks/useTables';
 import CollapsibleComponent from '../common/CollapsibleComponent';
-import PaymentChip from '../table/PaymentChip';
 import PaymentNotesInfo from './PaymentNotesInfo';
 import SwitchPaymentMethodSelector from './SwitchPaymentMethodSelector';
 

@@ -13,6 +13,7 @@ export type RootStackParamList = {
   QrMenuItemsScreen: { category: string };
   OrderDetails: { orderId: string; actionType?: string };
   Food: undefined;
+  Expense: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

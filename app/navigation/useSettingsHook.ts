@@ -36,7 +36,7 @@ export const useSettingsHook = () => {
         console.log('Navigating to Credit Orders');
         break;
       case 'Expenses':
-        console.log('Navigating to Expenses');
+        push(ScreenNames.EXPENSE);
         break;
       case 'Sales Analytics':
         console.log('Navigating to Sales Analytics');

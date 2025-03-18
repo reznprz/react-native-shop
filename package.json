@@ -48,6 +48,8 @@
     "react-native-screens": "^4.4.0",
     "react-native-svg": "^15.11.2",
     "react-native-svg-transformer": "^1.5.0",
+    "react-native-swipe-list-view": "^3.2.9",
+    "react-native-swipeable-item": "^2.0.9",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
     "react-redux": "^9.2.0",

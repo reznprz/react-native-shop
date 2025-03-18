@@ -13,7 +13,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './app/redux/store';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-
 // Initialize react-native-screens for performance
 enableScreens();
 

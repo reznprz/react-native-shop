@@ -9,6 +9,7 @@ import { createLazyScreen } from 'app/utils/lazyScreen';
 const QrMenuItemsScreen = React.lazy(() => import('app/screens/QrMenuItemsScreen'));
 const LazyOrderDetailsScreen = createLazyScreen(() => import('app/screens/OrderDetailsScreen'));
 const LazyFoodScreen = createLazyScreen(() => import('app/screens/FoodScreen'));
+const LazyExpenseScreen = createLazyScreen(() => import('app/screens/ExpenseScreen'));
 
 function LazyQrMenuItemsScreen(props: any) {
   return (
@@ -64,6 +65,24 @@ export default function RootNav() {
         component={LazyFoodScreen}
         options={{
           title: ScreenDisplayNames.FOOD,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.EXPENSE}
+        component={LazyExpenseScreen}
+        options={{
+          title: ScreenDisplayNames.EXPENSE,
           headerShown: true,
           headerStyle: {
             backgroundColor: '#2a4759',
