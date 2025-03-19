@@ -42,6 +42,7 @@ interface CustomIconProps {
   // Optional props for the image case:
   imageTitle?: string;
   imagePaddingTop?: number;
+  validate?: boolean;
 }
 
 const CustomIcon: React.FC<CustomIconProps> = ({
@@ -51,6 +52,7 @@ const CustomIcon: React.FC<CustomIconProps> = ({
   color = 'black',
   iconStyle = '',
   imageTitle = '',
+  validate = false,
   imagePaddingTop = 0,
 }) => {
   // Check if the icon type is "Image"
@@ -71,17 +73,19 @@ const CustomIcon: React.FC<CustomIconProps> = ({
   let SelectedIcon = ICON_TYPES[type];
 
   // Validate if the provided icon name exists in the icon's glyphMap.
-  // if (
-  //   !SelectedIcon.glyphMap ||
-  //   !Object.prototype.hasOwnProperty.call(SelectedIcon.glyphMap, name)
-  // ) {
-  //   console.warn(
-  //     `"${name}" is not a valid icon name for family "${type}". Falling back to default icon configuration.`,
-  //   );
-  //   // Fallback to default configuration.
-  //   SelectedIcon = ICON_TYPES.Ionicons;
-  //   name = 'restaurant';
-  // }
+  if (validate) {
+    if (
+      !SelectedIcon.glyphMap ||
+      !Object.prototype.hasOwnProperty.call(SelectedIcon.glyphMap, name)
+    ) {
+      console.warn(
+        `"${name}" is not a valid icon name for family "${type}". Falling back to default icon configuration.`,
+      );
+      // Fallback to default configuration.
+      SelectedIcon = ICON_TYPES.Ionicons;
+      name = 'restaurant';
+    }
+  }
 
   return (
     <SelectedIcon

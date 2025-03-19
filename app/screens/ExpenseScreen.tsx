@@ -14,6 +14,7 @@ import EmptyState from 'app/components/common/EmptyState';
 import NotificationBar from 'app/components/common/NotificationBar';
 import CustomIcon from 'app/components/common/CustomIcon';
 import { IconType } from 'app/navigation/screenConfigs';
+import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 
 const ExpenseScreen = () => {
   const {
@@ -31,6 +32,9 @@ const ExpenseScreen = () => {
   const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
   const [errorNotification, setErrorNotificaton] = useState('');
   const [successNotification, setSuccessNotificaton] = useState('');
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<number | null>(
+    null,
+  );
 
   const { totalExpenses, todayExpenses, thisMonthExpenses, expenses } = expenseDetails;
 
@@ -68,8 +72,8 @@ const ExpenseScreen = () => {
       {/* Summary Section */}
       <ExpenseMetrics
         totalExpenses={Number(totalExpenses)}
-        thisMonthExpenses={Number(todayExpenses)}
-        todayExpenses={Number(thisMonthExpenses)}
+        thisMonthExpenses={Number(thisMonthExpenses)}
+        todayExpenses={Number(todayExpenses)}
         isLargeScreen={isLargeScreen}
       />
 
@@ -134,10 +138,11 @@ const ExpenseScreen = () => {
                       type={(item.iconMetadataDetails?.iconType as IconType) || 'Feather'}
                       size={20}
                       color={item.iconMetadataDetails?.filledColor}
+                      validate={true}
                     />
                   }
                   onDelete={() => {
-                    handleDeleteExpense(item.id);
+                    setShowDeleteConfirmationModal(item.id);
                   }}
                 />
               ))}
@@ -163,6 +168,19 @@ const ExpenseScreen = () => {
       />
 
       <NotificationBar message={successNotification} onClose={() => setSuccessNotificaton('')} />
+
+      <ConfirmationModal
+        visible={showDeleteConfirmationModal !== null}
+        onRequestClose={() => setShowDeleteConfirmationModal(null)}
+        onConfirm={() => {
+          // showDeleteConfirmationModal carry the id
+          if (showDeleteConfirmationModal) {
+            handleDeleteExpense(showDeleteConfirmationModal);
+          }
+          setShowDeleteConfirmationModal(null);
+        }}
+        confirmationText="Are you sure you want to delete this item? This action cannot be undone."
+      />
     </View>
   );
 };

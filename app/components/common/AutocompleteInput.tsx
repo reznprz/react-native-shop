@@ -46,8 +46,9 @@ const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
               key={index}
               onPress={() => handleSuggestionPress(suggestion)}
               style={styles.suggestionItem}
+              activeOpacity={0.6}
             >
-              <Text>{suggestion}</Text>
+              <Text style={styles.suggestionText}>{suggestion}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -65,27 +66,38 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#f3f3f3',
     borderRadius: 8,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: '#ccc',
+    fontSize: 16,
   },
   suggestionsContainer: {
     position: 'absolute',
-    top: 50, // adjust based on your input's height
+    top: 45,
     left: 0,
     right: 0,
     backgroundColor: '#fff',
     borderColor: '#ccc',
     borderWidth: 1,
     borderTopWidth: 0,
-    // Ensure it appears on top:
-    zIndex: 9999, // iOS
-    elevation: 10, // Android
+    borderRadius: 8,
+    zIndex: 9999,
+    elevation: 10,
+    // Subtle shadow for a raised look
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   suggestionItem: {
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
+  },
+  suggestionText: {
+    fontSize: 15,
+    color: '#333',
   },
 });

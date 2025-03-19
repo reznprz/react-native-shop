@@ -5,13 +5,15 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import ScrollableBaseModal from '../common/modal/ScrollableBaseModal';
 import ErrorMessagePopUp from '../common/ErrorMessagePopUp';
 import { Expense } from 'app/api/services/expenseService';
 import AutocompleteInput from '../common/AutocompleteInput';
+import DateModal from '../common/modal/DateModal';
+import ConditionalWrapper from '../common/ConditionalWrapper';
 
 const expenseOptions = [
   'Groceries',
@@ -39,11 +41,20 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [quantity, setQuantity] = useState('');
+  // Store date as string in "YYYY-MM-DD" format.
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [error, setError] = useState('');
+  const [isDateModalVisible, setIsDateModalVisible] = useState(false);
+
+  const showPicker = () => setIsDateModalVisible(true);
+  const hidePicker = () => setIsDateModalVisible(false);
+
+  const getPickerDate = () => {
+    const parsed = new Date(date);
+    return isNaN(parsed.getTime()) ? new Date() : parsed;
+  };
 
   const handleAddExpense = () => {
-    // Validation
     if (!description.trim()) {
       setError('Description is required');
       return;
@@ -52,9 +63,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
       setError('Valid amount is required');
       return;
     }
-
-    setError(''); // Clear error if valid
-
+    setError('');
     const expense: Expense = {
       id: 0,
       description,
@@ -74,76 +83,101 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
     setDate(new Date().toISOString().split('T')[0]);
   };
 
-  // Define header content
+  // Header content using Tailwind classes
   const headerContent = (
-    <View style={styles.headerContainer}>
-      <Text style={styles.headerTitle}>Add New Expense</Text>
-      <Pressable onPress={onRequestClose} style={styles.closeButton}>
-        <Text style={styles.closeButtonText}>✕</Text>
+    <View className="flex-row items-center justify-between">
+      <Text className="text-white text-lg font-semibold">Add New Expense</Text>
+      <Pressable onPress={onRequestClose} className="p-1">
+        <Text className="text-white text-xl">✕</Text>
       </Pressable>
     </View>
   );
 
-  // Define body content
+  // Body content wrapped with the ConditionalWrapper so that keyboard dismissal happens on mobile only.
   const bodyContent = (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.bodyContainer} // Added a style here if needed
-    >
-      <View style={styles.field}>
-        <Text style={styles.label}>Description</Text>
-        <AutocompleteInput
-          value={description}
-          onChange={setDescription}
-          options={expenseOptions}
-          placeholder="Enter expense description"
-        />
-      </View>
+    <ConditionalWrapper>
+      <View className="flex-1">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          className="flex-1"
+        >
+          {/* Description Field */}
+          <View className="mb-3">
+            <Text className="mb-1 text-lg text-gray-800">Description</Text>
+            <AutocompleteInput
+              value={description}
+              onChange={setDescription}
+              options={expenseOptions}
+              placeholder="Enter expense description"
+            />
+          </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Amount</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="0.00"
-          keyboardType="decimal-pad"
-          value={amount}
-          onChangeText={setAmount}
-        />
-      </View>
+          {/* Amount Field */}
+          <View className="mb-3">
+            <Text className="mb-1 text-lg text-gray-800">Amount</Text>
+            <TextInput
+              className="bg-gray-100 rounded-md py-3 px-3 border border-gray-300"
+              placeholder="0.00"
+              keyboardType="decimal-pad"
+              value={amount}
+              onChangeText={setAmount}
+            />
+          </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Quantity</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="1"
-          keyboardType="numeric"
-          value={quantity}
-          onChangeText={setQuantity}
-        />
-      </View>
+          {/* Quantity Field */}
+          <View className="mb-3">
+            <Text className="mb-1 text-lg text-gray-800">Quantity</Text>
+            <TextInput
+              className="bg-gray-100 rounded-md py-3 px-3 border border-gray-300"
+              placeholder="1"
+              keyboardType="numeric"
+              value={quantity}
+              onChangeText={setQuantity}
+            />
+          </View>
 
-      <View style={styles.field}>
-        <Text style={styles.label}>Date</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="YYYY-MM-DD"
-          value={date}
-          onChangeText={setDate}
-        />
-      </View>
+          {/* Date Field using DateModal */}
+          <View className="mb-3">
+            <Text className="mb-1 text-lg text-gray-800">Date</Text>
+            <Pressable
+              onPress={showPicker}
+              className="bg-gray-100 rounded-md py-3 px-3 border border-gray-300"
+            >
+              <Text className="text-gray-700">{date}</Text>
+            </Pressable>
+          </View>
 
-      {error ? <ErrorMessagePopUp errorMessage={error} onClose={() => setError('')} /> : null}
-    </KeyboardAvoidingView>
+          <DateModal
+            isVisible={isDateModalVisible}
+            date={getPickerDate()}
+            onConfirm={(selectedDate: string) => {
+              setDate(selectedDate);
+              hidePicker();
+            }}
+            onCancel={hidePicker}
+            headerTitle="Select a Date"
+          />
+
+          {error ? <ErrorMessagePopUp errorMessage={error} onClose={() => setError('')} /> : null}
+        </KeyboardAvoidingView>
+      </View>
+    </ConditionalWrapper>
   );
 
-  // Define footer content
+  // Footer content using Tailwind classes
   const footerContent = (
-    <View style={styles.footerContainer}>
-      <Pressable onPress={onRequestClose} style={[styles.button, styles.cancelButton]}>
-        <Text style={styles.cancelButtonText}>Cancel</Text>
+    <View className="flex-row justify-between">
+      <Pressable
+        onPress={onRequestClose}
+        className="flex-1 py-4 rounded-md mx-1 items-center justify-center bg-gray-200"
+      >
+        <Text className="text-gray-800 font-medium">Cancel</Text>
       </Pressable>
-      <Pressable onPress={handleAddExpense} style={[styles.button, styles.addButton]}>
-        <Text style={styles.addButtonText}>Add Expense</Text>
+      <Pressable
+        onPress={handleAddExpense}
+        className="flex-1 py-4 rounded-md mx-1 items-center justify-center bg-[#2a4759]"
+      >
+        <Text className="text-white font-semibold">Add Expense</Text>
       </Pressable>
     </View>
   );
@@ -160,73 +194,3 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 };
 
 export default AddExpenseModal;
-
-const styles = StyleSheet.create({
-  // Header styles
-  headerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  closeButton: {
-    padding: 4,
-  },
-  closeButtonText: {
-    color: '#fff',
-    fontSize: 20,
-  },
-  // Body container (optional)
-  bodyContainer: {
-    // If the parent or modal sets overflow: 'hidden', suggestions can get clipped.
-    // Use overflow: 'visible' or remove overflow constraints in ScrollableBaseModal if needed.
-  },
-  // Field styles
-  field: {
-    marginBottom: 12,
-  },
-  label: {
-    marginBottom: 4,
-    fontWeight: '500',
-    color: '#333',
-  },
-  input: {
-    backgroundColor: '#f3f3f3',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  // Footer styles
-  footerContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginHorizontal: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#e2e8f0',
-  },
-  cancelButtonText: {
-    color: '#333',
-    fontWeight: '500',
-  },
-  addButton: {
-    backgroundColor: '#2a4759',
-  },
-  addButtonText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-});
