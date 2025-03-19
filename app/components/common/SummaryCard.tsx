@@ -1,21 +1,25 @@
 import React, { ReactNode } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-interface ExpenseSummaryCardProps {
+interface SummaryCardProps {
   title: string;
   amount: string;
   icon: ReactNode;
   iconBgColor?: string;
+  width?: string;
 }
 
-const ExpenseSummaryCard: React.FC<ExpenseSummaryCardProps> = ({
+const SummaryCard: React.FC<SummaryCardProps> = ({
   title,
   amount,
   icon,
   iconBgColor = '',
+  width = 'w-1/3',
 }) => {
   return (
-    <View className="flex-row bg-white p-4 mr-1 rounded-lg shadow-lg border border-gray-200 w-1/3 justify-between">
+    <View
+      className={`flex-row bg-white p-4 rounded-lg shadow-lg border border-gray-200 ${width} justify-between`}
+    >
       <View className="flex-col ">
         <Text className="text-lg text-gray-500">{title}</Text>
         <Text className="text-2xl font-bold text-gray-800 pl-1">रु {amount}</Text>
@@ -30,4 +34,4 @@ const ExpenseSummaryCard: React.FC<ExpenseSummaryCardProps> = ({
   );
 };
 
-export default ExpenseSummaryCard;
+export default SummaryCard;

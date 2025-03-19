@@ -45,6 +45,7 @@ export interface FindOrdersFilters {
   paymentStatuses?: string[];
   orderTypes?: string[];
   paymentMethods?: string[];
+  restaurantId: number;
 }
 
 export interface OrderDetails {
@@ -160,7 +161,7 @@ export const findOrdersByFiltersAndOrdersApi = async (
     queryParams.paymentMethod = filters.paymentMethods;
   }
 
-  return await apiMethods.get<OrderDetails[]>('/public/api/orders', {
+  return await apiMethods.get<OrderDetails[]>(`/public/api/orders/date/${filters.restaurantId}`, {
     params: queryParams,
     paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
   });

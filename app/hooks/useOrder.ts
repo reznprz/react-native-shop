@@ -245,7 +245,7 @@ export const useOrder = () => {
 
       // If no filters are selected, use default order statuses.
       if (totalSelected === 0) {
-        return { date, orderStatuses: ['CREATED', 'COMPLETED'] };
+        return { date, orderStatuses: ['CREATED', 'COMPLETED'], restaurantId: 1 };
       }
 
       return {
@@ -254,6 +254,7 @@ export const useOrder = () => {
         orderTypes: selectedOrderTypes,
         paymentMethods: selectedPaymentMethods,
         paymentStatuses: selectedPaymentStatuses,
+        restaurantId: 1,
       };
     },
     [],

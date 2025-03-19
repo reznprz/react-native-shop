@@ -94,10 +94,10 @@ const ExpenseScreen = () => {
         <FoodLoadingSpinner iconName="coffee" />
       ) : !expenses || expenses.length === 0 ? (
         <EmptyState
-          iconName="bag-personal"
+          iconName="bank"
           message="No Expenses available"
           subMessage="Please select different Date ."
-          iconSize={80}
+          iconSize={100}
         />
       ) : (
         <>
