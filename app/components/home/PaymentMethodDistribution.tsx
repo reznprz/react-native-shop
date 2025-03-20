@@ -23,8 +23,10 @@ const PaymentMethodDistribution: React.FC<Props> = ({ paymentMethods }) => {
           {paymentMethods.map((method, index) => (
             <View key={index} className="mb-4">
               <View className="flex-row justify-between mb-1">
-                <Text className="text-gray-800">{method.method}</Text>
-                <Text className="text-gray-800">{method.percentage}%</Text>
+                <Text className="text-gray-800">
+                  {method.method} ( रु {method.amount}){' '}
+                </Text>
+                <Text className="text-gray-800">{method.percentage.toFixed(2)}%</Text>
               </View>
               <View className="h-2 rounded-full bg-gray-200">
                 <View
@@ -33,7 +35,7 @@ const PaymentMethodDistribution: React.FC<Props> = ({ paymentMethods }) => {
                       ? 'bg-green-500'
                       : method.method === 'QR Payment'
                         ? 'bg-blue-500'
-                        : 'bg-purple-500'
+                        : 'bg-red-500'
                   }`}
                   style={{ width: `${method.percentage}%` }}
                 />

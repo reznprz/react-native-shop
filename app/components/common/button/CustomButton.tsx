@@ -1,5 +1,16 @@
-import React, { useState } from 'react';
-import { Text, Pressable, GestureResponderEvent } from 'react-native';
+import React, { useRef, useState } from 'react';
+import {
+  Text,
+  Pressable,
+  GestureResponderEvent,
+  StyleProp,
+  ViewStyle,
+  TextStyle,
+  Animated,
+  TouchableOpacity,
+  TouchableOpacityProps,
+  StyleSheet,
+} from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomIcon from '../CustomIcon';
 
@@ -21,6 +32,9 @@ export interface CustomButtonProps {
   iconColor?: string;
   iconSize?: number;
   iconType?: IconType;
+  buttonStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
+  buttonType?: 'TouchableOpacity' | 'Normal';
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -39,6 +53,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   iconColor = 'white',
   iconSize = 18,
   iconType = 'Ionicons',
+  buttonStyle,
+  textStyle,
+  buttonType = 'TouchableOpacity',
+  ...props
 }) => {
   // Map the width prop to a Tailwind width class
   let widthClass = '';
@@ -90,37 +108,99 @@ const CustomButton: React.FC<CustomButtonProps> = ({
       heightClass = 'h-10';
   }
 
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 3,
+      tension: 40,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      className={
-        customButtonStyle
-          ? `${customButtonStyle} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
+    <>
+      {buttonType === 'TouchableOpacity' ? (
+        <>
+          <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={onPress}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              style={[styles.button, buttonStyle]}
+              {...props}
+            >
+              <Text style={[styles.text, textStyle]}>{title}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </>
+      ) : (
+        <>
+          <Pressable
+            onPress={onPress}
+            disabled={disabled}
+            className={
+              customButtonStyle
+                ? `${customButtonStyle} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
                   ${!disabled && 'pressed:bg-[#24415A]'} `
-          : `${widthClass} ${heightClass} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
+                : `${widthClass} ${heightClass} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
                   ${!disabled && 'pressed:bg-[#24415A]'} 
             flex flex-row items-center justify-center rounded px-2 py-1`
-      }
-    >
-      {iconName && (
-        <CustomIcon
-          type={iconType}
-          name={iconName}
-          size={iconSize}
-          color={iconColor}
-          iconStyle="mr-2"
-        />
+            }
+          >
+            {iconName && (
+              <CustomIcon
+                type={iconType}
+                name={iconName}
+                size={iconSize}
+                color={iconColor}
+                iconStyle="mr-2"
+              />
+            )}
+            <Text
+              className={
+                customTextStyle
+                  ? customTextStyle
+                  : `${textSize} ${textColor} ${fontWeight} text-center`
+              }
+            >
+              {title}
+            </Text>
+          </Pressable>
+        </>
       )}
-      <Text
-        className={
-          customTextStyle ? customTextStyle : `${textSize} ${textColor} ${fontWeight} text-center`
-        }
-      >
-        {title}
-      </Text>
-    </Pressable>
+    </>
   );
 };
+
+const styles = StyleSheet.create({
+  button: {
+    backgroundColor: '#2a4759',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  text: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
 
 export default CustomButton;

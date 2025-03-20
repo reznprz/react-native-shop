@@ -13,8 +13,12 @@ import TopSellingProductsCard from 'app/components/home/TopSellingProductsCard';
 import RecentTransactionsSummary from 'app/components/home/RecentTransactionsSummary';
 
 const HomeScreen: React.FC = () => {
-  const { restaurantOverView, restaurantOverViewState, fetchRestaurantOverView } =
-    useRestaurantOverview();
+  const {
+    restaurantOverView,
+    restaurantOverViewState,
+    fetchRestaurantOverView,
+    handleViewAllPress,
+  } = useRestaurantOverview();
   const { isLargeScreen, width } = useIsDesktop();
   const isTablet = width >= 768;
 
@@ -94,13 +98,19 @@ const HomeScreen: React.FC = () => {
             style={{ width: isTablet ? '48%' : '100%' }}
             className="bg-white rounded-lg shadow-sm flex-1"
           >
-            <ExpenseSummary expenses={expense} />
+            <ExpenseSummary
+              expenses={expense}
+              onViewAllPress={() => handleViewAllPress('Expenses')}
+            />
           </View>
           <View
             style={{ width: isTablet ? '48%' : '100%' }}
             className="bg-white rounded-lg shadow-sm flex-1 mt-4 md:mt-0"
           >
-            <TopSellingProductsCard topSellingProducts={topSellingProducts} />
+            <TopSellingProductsCard
+              topSellingProducts={topSellingProducts}
+              onViewAllPress={() => handleViewAllPress('Products')}
+            />
           </View>
         </View>
 
@@ -111,7 +121,10 @@ const HomeScreen: React.FC = () => {
 
         {/* Recent Transactions - Full Width */}
         <View className="mb-4 bg-white rounded-lg shadow-sm">
-          <RecentTransactionsSummary recentTransactions={recentTransactions} />
+          <RecentTransactionsSummary
+            recentTransactions={recentTransactions}
+            onViewAllPress={() => handleViewAllPress('RecentTrans')}
+          />
         </View>
       </ScrollView>
     </View>

@@ -4,16 +4,16 @@ import CustomIcon from '../common/CustomIcon';
 import { IconType } from 'app/navigation/screenConfigs';
 import { TopSellingProduct } from 'app/api/services/restaurantOverviewService';
 import EmptyState from '../common/EmptyState';
+import CustomButton from '../common/button/CustomButton';
 
 interface Props {
   topSellingProducts: TopSellingProduct[];
+  onViewAllPress: () => void;
 }
 
-const TopSellingProductsCard: React.FC<Props> = ({ topSellingProducts }) => {
+const TopSellingProductsCard: React.FC<Props> = ({ topSellingProducts, onViewAllPress }) => {
   return (
-    <View className="bg-white rounded-lg p-5 mt-4 shadow-sm">
-      <Text className="text-lg font-bold mb-5">Top Selling Products</Text>
-
+    <View className="bg-white rounded-lg p-5  shadow-sm">
       {!topSellingProducts || topSellingProducts.length === 0 ? (
         <EmptyState
           iconName="package-variant"
@@ -23,6 +23,28 @@ const TopSellingProductsCard: React.FC<Props> = ({ topSellingProducts }) => {
         />
       ) : (
         <>
+          {/* Header */}
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-lg font-bold">Top Selling Products</Text>
+            <CustomButton
+              title="View All"
+              onPress={() => {
+                onViewAllPress();
+              }}
+              buttonType="TouchableOpacity"
+              buttonStyle={{
+                backgroundColor: 'transparent',
+                paddingVertical: 0,
+                paddingHorizontal: 0,
+                elevation: 0,
+              }}
+              textStyle={{
+                color: '#3b82f6',
+                fontSize: 16,
+                fontWeight: '500',
+              }}
+            />
+          </View>
           {topSellingProducts.map((product, index) => (
             <View key={index} className="flex-row justify-between items-start mb-5">
               {/* Left: Icon + Name + Orders */}

@@ -6,6 +6,7 @@ import { OrderDetails } from './orderService';
 
 export interface PaymentDistribution {
   method: string;
+  amount: number;
   percentage: number;
 }
 

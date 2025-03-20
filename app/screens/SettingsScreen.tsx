@@ -4,7 +4,7 @@ import UserProfileCard from 'app/components/common/UserProfileCard';
 import SettingOption from 'app/components/settings/SettingOption';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomButton from 'app/components/common/button/CustomButton';
-import { useSettingsHook } from 'app/navigation/useSettingsHook';
+import { useSettingsHook } from 'app/hooks/useSettingsHook';
 
 export default function SettingsScreen() {
   const { sections, handlePress } = useSettingsHook();

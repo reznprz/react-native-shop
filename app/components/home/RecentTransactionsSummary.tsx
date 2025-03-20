@@ -2,12 +2,15 @@ import { OrderDetails } from 'app/api/services/orderService';
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import EmptyState from '../common/EmptyState';
+import { StatusChip } from '../common/StatusChip';
+import CustomButton from '../common/button/CustomButton';
 
 interface Props {
   recentTransactions: OrderDetails[];
+  onViewAllPress: () => void;
 }
 
-const RecentTransactionsSummary: React.FC<Props> = ({ recentTransactions }) => {
+const RecentTransactionsSummary: React.FC<Props> = ({ recentTransactions, onViewAllPress }) => {
   return (
     <View className="bg-white rounded-lg p-5 mt-4 shadow-sm">
       {!recentTransactions || recentTransactions.length === 0 ? (
@@ -22,7 +25,22 @@ const RecentTransactionsSummary: React.FC<Props> = ({ recentTransactions }) => {
           {/* Header */}
           <View className="flex-row justify-between items-center mb-5">
             <Text className="text-lg font-bold">Recent Transactions</Text>
-            <Text className="text-blue-600 font-medium">View All</Text>
+            <CustomButton
+              title="View All"
+              onPress={() => onViewAllPress()}
+              buttonType="TouchableOpacity"
+              buttonStyle={{
+                backgroundColor: 'transparent',
+                paddingVertical: 0,
+                paddingHorizontal: 0,
+                elevation: 0,
+              }}
+              textStyle={{
+                color: '#3b82f6',
+                fontSize: 16,
+                fontWeight: '500',
+              }}
+            />
           </View>
 
           {/* Table Header */}
@@ -35,22 +53,26 @@ const RecentTransactionsSummary: React.FC<Props> = ({ recentTransactions }) => {
           </View>
 
           {/* Transactions */}
-          {recentTransactions.map((transaction, index) => (
-            <View
-              key={index}
-              className="flex-row items-center p-3 border-b border-gray-200 last:border-b-0"
-            >
-              <Text className="w-1/5 text-black">#{transaction.orderId}</Text>
-              <Text className="w-1/5 text-black">{transaction.timeStamp.completedTime}</Text>
-              <Text className="w-1/5 text-black">रु {transaction.totalAmount.toFixed(2)}</Text>
-              <Text className="w-1/5 text-black">{transaction.paymentMethod}</Text>
-              <View className="w-1/5">
-                <Text className="bg-green-100 text-green-700 rounded-full px-3 py-1 text-center text-xs">
-                  Completed
+          {recentTransactions.map((transaction, index) => {
+            const paymentMethods = transaction.payments
+              .map((payment) => payment.paymentMethod)
+              .join(', ');
+
+            return (
+              <View
+                key={index}
+                className="flex-row items-center p-3 border-b border-gray-200 last:border-b-0"
+              >
+                <Text className="w-1/5 text-black">#{transaction.orderId}</Text>
+                <Text className="w-1/5 text-black">{transaction.timeStamp.completedTime}</Text>
+                <Text className="w-1/5 text-black">रु {transaction.totalAmount.toFixed(2)}</Text>
+                <Text className="w-1/5 text-black" numberOfLines={1} ellipsizeMode="tail">
+                  {paymentMethods}
                 </Text>
+                <StatusChip status={transaction.orderStatus} />
               </View>
-            </View>
-          ))}
+            );
+          })}
         </>
       )}
     </View>

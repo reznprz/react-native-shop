@@ -4,16 +4,19 @@ import { Expense } from 'app/api/services/expenseService';
 import CustomIcon from '../common/CustomIcon';
 import { IconType } from 'app/navigation/screenConfigs';
 import EmptyState from '../common/EmptyState';
+import CustomButton from '../common/button/CustomButton';
 
 interface ExpenseSummaryProps {
   expenses: Expense[];
+  onViewAllPress: () => void;
 }
 
-const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({ expenses }) => {
+const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
+  expenses,
+  onViewAllPress = () => console.warn('onViewAllPress not provided'),
+}) => {
   return (
     <View className="bg-white rounded-lg shadow-sm">
-      <Text className="text-lg font-bold p-5">{'Expenses Summary'}</Text>
-
       {!expenses || expenses.length === 0 ? (
         <EmptyState
           iconName="bank"
@@ -23,6 +26,29 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({ expenses }) => {
         />
       ) : (
         <>
+          {/* Header */}
+          <View className="flex-row justify-between items-center m-6 mb-1">
+            <Text className="text-lg font-bold">Expenses Summary</Text>
+            <CustomButton
+              title="View All"
+              onPress={() => {
+                onViewAllPress();
+              }}
+              buttonType="TouchableOpacity"
+              buttonStyle={{
+                backgroundColor: 'transparent',
+                paddingVertical: 0,
+                paddingHorizontal: 0,
+                elevation: 0,
+              }}
+              textStyle={{
+                color: '#3b82f6',
+                fontSize: 16,
+                fontWeight: '500',
+              }}
+            />
+          </View>
+
           {expenses.map((item) => {
             const iconBgColor = item.iconMetadataDetails?.bgColor || '#E5E7EB';
             const date = item.expensesDate || '';
