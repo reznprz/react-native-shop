@@ -12,6 +12,7 @@ export enum ScreenNames {
   TABLE = 'TableScreen',
   FOOD = 'FoodScreen',
   EXPENSE = 'ExpenseScreen',
+  DAILYSALES = 'DailySalesScreen',
 }
 
 export enum ScreenDisplayNames {
@@ -22,6 +23,7 @@ export enum ScreenDisplayNames {
   TABLE = 'Table',
   FOOD = 'Food',
   EXPENSE = 'Expense',
+  DAILYSALES = 'DailySales',
 }
 
 // Create a constant object for screen details
@@ -53,5 +55,9 @@ export const Screens: Record<ScreenNames, ScreenDetail> = {
   [ScreenNames.EXPENSE]: {
     screenName: ScreenNames.EXPENSE,
     screenDisplayName: ScreenDisplayNames.EXPENSE,
+  },
+  [ScreenNames.DAILYSALES]: {
+    screenName: ScreenNames.DAILYSALES,
+    screenDisplayName: ScreenDisplayNames.DAILYSALES,
   },
 };

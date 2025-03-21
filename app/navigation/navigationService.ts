@@ -14,6 +14,7 @@ export type RootStackParamList = {
   OrderDetails: { orderId: string; actionType?: string };
   Food: undefined;
   Expense: undefined;
+  DailySales: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

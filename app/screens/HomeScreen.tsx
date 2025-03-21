@@ -88,7 +88,10 @@ const HomeScreen: React.FC = () => {
             style={{ width: isTablet ? '48%' : '100%' }}
             className="bg-white rounded-lg shadow-sm flex-1 mt-4 md:mt-0"
           >
-            <DailySalesTransactionCard salesTransaction={dailySalesTransaction} />
+            <DailySalesTransactionCard
+              salesTransaction={dailySalesTransaction}
+              onViewAllPress={() => handleViewAllPress('DailySales')}
+            />
           </View>
         </View>
 

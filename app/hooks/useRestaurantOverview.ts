@@ -3,7 +3,10 @@ import { navigate, navigationRef, push } from 'app/navigation/navigationService'
 import { useCallback, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import {
+  DailySalesDetails,
+  getDailySalesApi,
   getRestaurantOverviewApi,
+  initialDailySalesDetails,
   initializeRestaurantOverview,
   RestaurantOverview,
 } from 'app/api/services/restaurantOverviewService';
@@ -14,6 +17,8 @@ export const useRestaurantOverview = () => {
   const [restaurantOverView, setRestaurantOverView] = useState<RestaurantOverview>(
     initializeRestaurantOverview,
   );
+
+  const [dailySales, setDailysales] = useState<DailySalesDetails>(initialDailySalesDetails);
 
   const getRestaurantOverviewMutation = useMutation<
     ApiResponse<RestaurantOverview>,
@@ -37,14 +42,42 @@ export const useRestaurantOverview = () => {
     },
   });
 
+  const getDailySalesMutation = useMutation<
+    ApiResponse<DailySalesDetails>,
+    Error,
+    { restaurantId: number; date: string }
+  >({
+    mutationFn: async ({ restaurantId, date }) => {
+      const response: ApiResponse<DailySalesDetails> = await getDailySalesApi(restaurantId, date);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setDailysales(response.data || initialDailySalesDetails);
+    },
+    onError: (err) => {
+      console.warn('find expense fetch failed:', err);
+      setDailysales(initialDailySalesDetails);
+    },
+  });
+
   const fetchRestaurantOverView = useCallback(() => {
     getRestaurantOverviewMutation.mutate({ restaurantId: 1 });
   }, [getRestaurantOverviewMutation]);
 
+  const fetchDailySales = useCallback(
+    (date: string) => {
+      getDailySalesMutation.mutate({ restaurantId: 1, date: date });
+    },
+    [getDailySalesMutation],
+  );
+
   const handleViewAllPress = (label: string) => {
     switch (label) {
       case 'DailySales':
-        console.log('Navigating to DailySales');
+        push(ScreenNames.DAILYSALES);
         break;
       case 'Expenses':
         push(ScreenNames.EXPENSE);
@@ -73,8 +106,11 @@ export const useRestaurantOverview = () => {
 
   return {
     restaurantOverView,
+    dailySalesDetails: dailySales,
     restaurantOverViewState: getRestaurantOverviewMutation,
+    dailySalesState: getDailySalesMutation,
 
+    fetchDailySales,
     fetchRestaurantOverView,
     handleViewAllPress,
   };

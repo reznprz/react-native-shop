@@ -11,9 +11,14 @@ export interface PaymentDistribution {
 }
 
 export interface DailySalesTransaction {
-  openingCash: number; // BigDecimal equivalent
+  openingCash: number;
   expenses: number;
   totalSales: number;
+  cash: number;
+  qr: number;
+  closingCash: number;
+  unPaid: number;
+  date: string;
 }
 
 export interface InventoryStatus {
@@ -47,6 +52,13 @@ export interface RestaurantOverview {
   recentTransactions: OrderDetails[];
 }
 
+export interface DailySalesDetails {
+  dailySalesTransaction: DailySalesTransaction;
+  totalOverallSales: number;
+  thisMonth: number;
+  paymentMethodDistribution: PaymentDistribution[];
+}
+
 export const initializeRestaurantOverview = (): RestaurantOverview => ({
   totalSales: 0,
   totalNoOrders: 0,
@@ -60,6 +72,11 @@ export const initializeRestaurantOverview = (): RestaurantOverview => ({
     openingCash: 0,
     expenses: 0,
     totalSales: 0,
+    cash: 0,
+    closingCash: 0,
+    unPaid: 0,
+    qr: 0,
+    date: '',
   },
 
   inventoryStatus: [],
@@ -67,10 +84,37 @@ export const initializeRestaurantOverview = (): RestaurantOverview => ({
   recentTransactions: [],
 });
 
+export const initialDailySalesDetails: DailySalesDetails = {
+  dailySalesTransaction: {
+    openingCash: 0,
+    expenses: 0,
+    totalSales: 0,
+    cash: 0,
+    closingCash: 0,
+    unPaid: 0,
+    qr: 0,
+    date: '',
+  },
+  totalOverallSales: 0,
+  thisMonth: 0,
+  paymentMethodDistribution: [],
+};
+
 export const getRestaurantOverviewApi = async (
   restaurantId: number,
 ): Promise<ApiResponse<RestaurantOverview>> => {
   await login({ username: 'ree', password: 'reeree' });
 
   return await apiMethods.get<RestaurantOverview>(`/api/overview/${restaurantId}`);
+};
+
+export const getDailySalesApi = async (
+  restaurantId: number,
+  date: string,
+): Promise<ApiResponse<DailySalesDetails>> => {
+  await login({ username: 'ree', password: 'reeree' });
+
+  return await apiMethods.get<DailySalesDetails>(
+    `/api/overview/dailySales/${restaurantId}?date=${date}`,
+  );
 };

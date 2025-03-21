@@ -1,51 +1,51 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { Ionicons, Feather } from '@expo/vector-icons';
+import { Ionicons, Feather, FontAwesome5 } from '@expo/vector-icons';
 import HomeSummaryCard from '../common/SummaryCard';
 
-type RestaurantOverviewMetricsProps = {
-  totalSales: number;
-  totalOrders: number;
-  totalExpenses: number;
-  activeTables: number;
+type DailySalesMetricsProps = {
+  totalOverallSales: number;
+  thisMonth: number;
+  today: number;
+  unpaid: number;
   isLargeScreen: boolean;
 };
 
-export const RestaurantOverviewMetrics: React.FC<RestaurantOverviewMetricsProps> = ({
-  totalSales,
-  totalOrders,
-  totalExpenses,
-  activeTables,
+export const DailySalesMetrics: React.FC<DailySalesMetricsProps> = ({
+  totalOverallSales,
+  thisMonth,
+  today,
+  unpaid,
   isLargeScreen,
 }) => {
   const cards = (
     <>
       <HomeSummaryCard
-        title="Total's Sales"
-        amount={totalSales.toString()}
-        icon={<Ionicons name="wallet" size={20} color="#3B82F6" />}
+        title="All Sales"
+        amount={totalOverallSales.toString()}
+        icon={<FontAwesome5 name="coins" size={20} color="#3B82F6" />}
         iconBgColor={'bg-blue-200 '}
         width="w-1/4"
       />
       <HomeSummaryCard
-        title="Total Orders"
-        amount={totalOrders.toString()}
+        title="This Month"
+        amount={thisMonth.toString()}
         icon={<Feather name="bar-chart-2" size={20} color="#10B981" />}
         iconBgColor={'bg-green-100'}
         width="w-1/4"
       />
       <HomeSummaryCard
-        title="Total's Expenses"
-        amount={totalExpenses.toString()}
-        icon={<Ionicons name="time-outline" size={20} color="#8B5CF6" />}
+        title="Today's Sales"
+        amount={today.toString()}
+        icon={<FontAwesome5 name="check-circle" size={20} color="#8B5CF6" />}
         iconBgColor={' bg-purple-200 '}
         width="w-1/4"
       />
       <HomeSummaryCard
-        title="Total Orders"
-        amount={totalOrders.toString()}
-        icon={<Feather name="bar-chart-2" size={20} color="#10B981" />}
-        iconBgColor={'bg-green-100'}
+        title="Unpaid"
+        amount={unpaid.toString()}
+        icon={<FontAwesome5 name="clock" size={20} color="##EF4444" />}
+        iconBgColor={'bg-red-100'}
         width="w-1/4"
       />
     </>
