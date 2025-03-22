@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../redux/store';
 import { Food } from 'app/api/services/foodService';
@@ -369,12 +369,11 @@ export function useTables() {
 
   const navigateToOrdersScreen = useCallback(() => {
     if (navigationRef.isReady()) {
-      navigationRef.dispatch(
-        CommonActions.navigate({
-          name: 'MainTabs',
-          params: { screen: 'Orders' },
-        }),
-      );
+      navigate('MainTabs', {
+        screen: 'Orders',
+        params: { selectedTab: 'Todays Order' },
+      });
+
       completeOrderMutation.reset();
       dispatch(resetPrepTableItems());
       refetchTables();

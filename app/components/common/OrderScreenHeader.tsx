@@ -36,7 +36,7 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
   // For the date range picker
   const [isRangeModalVisible, setRangeModalVisible] = useState(false);
   // We'll store the user-selected date range as a string, e.g. "2025-03-20 → 2025-03-22"
-  const [displayDateRange, setDisplayDateRange] = useState('today');
+  const [displayDateRange, setDisplayDateRange] = useState('Last 7 Days');
 
   // Combine all filters into one array
   const combinedFilters = useMemo(() => {

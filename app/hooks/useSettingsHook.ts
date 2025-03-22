@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { Alert } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
-import { push } from 'app/navigation/navigationService';
+import { push, navigate } from 'app/navigation/navigationService';
 import { ScreenNames } from 'app/types/navigation';
 
 interface SettingOption {
@@ -33,7 +33,10 @@ export const useSettingsHook = () => {
         push(ScreenNames.DAILYSALES);
         break;
       case 'Past Orders':
-        console.log('Navigating to Past Orders');
+        navigate('MainTabs', {
+          screen: 'Orders',
+          params: { selectedTab: 'Past Orders' },
+        });
         break;
       case 'Credit Orders':
         console.log('Navigating to Credit Orders');

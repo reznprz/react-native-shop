@@ -26,10 +26,22 @@ import NotificationBar from 'app/components/common/NotificationBar';
 const tabs = ['Past Orders', 'Todays Order'];
 type TabType = (typeof tabs)[number];
 
-export default function OrdersScreen() {
+interface OrdersScreenRouteParams {
+  selectedTab?: TabType;
+}
+
+interface OrdersScreenProps {
+  route: {
+    params: OrdersScreenRouteParams;
+  };
+}
+
+export default function OrdersScreen({ route }: OrdersScreenProps) {
+  const { selectedTab } = route.params || {};
+
   const [showFilters, setShowFilters] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>('Todays Order');
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Todays Order');
 
   const { isLargeScreen } = useIsDesktop();
 
@@ -80,6 +92,21 @@ export default function OrdersScreen() {
       }
       // Dependencies = [] means it runs once on focus
     }, []),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedTab === 'Past Orders') {
+        setActiveTab('Past Orders');
+        setSelectedRange({
+          selectionType: DateRangeSelectionType.QUICK_RANGE,
+          quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
+        });
+      } else {
+        setActiveTab('Todays Order');
+        setSelectedRange({ selectionType: DateRangeSelectionType.SINGLE_DATE, date: 'Today' });
+      }
+    }, [selectedTab]),
   );
 
   /** Called when user selects an order from the list (e.g., on phone). */
@@ -143,7 +170,7 @@ export default function OrdersScreen() {
                   />
                 ) : (
                   <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>
-                    <OrderSummaryCard order={order} />
+                    <OrderSummaryCard order={order} showTable={false} />
                   </TouchableOpacity>
                 ),
               )}
@@ -151,19 +178,11 @@ export default function OrdersScreen() {
           ) : (
             // "Past Orders" or anything else
             <View className={`flex gap-1 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
-              {orders.map((order) =>
-                isLargeScreen ? (
-                  <OrderCard
-                    key={order.orderId}
-                    order={order}
-                    onMoreActionPress={handleMoreActionPress}
-                  />
-                ) : (
-                  <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>
-                    <OrderSummaryCard order={order} />
-                  </TouchableOpacity>
-                ),
-              )}
+              {orders.map((order) => (
+                <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>
+                  <OrderSummaryCard order={order} showTable={false} />
+                </TouchableOpacity>
+              ))}
             </View>
           )}
         </ScrollView>
@@ -200,7 +219,21 @@ export default function OrdersScreen() {
   return (
     <View className="h-full w-full bg-gray-100">
       {/* Tab selection at top */}
-      <SubTab tabs={tabs} activeTab={activeTab} onTabChange={(newTab) => setActiveTab(newTab)} />
+      <SubTab
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(newTab) => {
+          if (newTab === 'Todays Order') {
+            setSelectedRange({ selectionType: DateRangeSelectionType.SINGLE_DATE, date: 'Today' });
+          } else {
+            setSelectedRange({
+              selectionType: DateRangeSelectionType.QUICK_RANGE,
+              quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
+            });
+          }
+          setActiveTab(newTab);
+        }}
+      />
 
       {/* Content area */}
       <View className="flex-1 p-4 pb-0">
