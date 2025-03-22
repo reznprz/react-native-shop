@@ -4,11 +4,13 @@ import { useCallback, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import {
   DailySalesDetails,
+  DailySalesTransaction,
   getDailySalesApi,
   getRestaurantOverviewApi,
   initialDailySalesDetails,
   initializeRestaurantOverview,
   RestaurantOverview,
+  updateDailySalesApi,
 } from 'app/api/services/restaurantOverviewService';
 import { ScreenNames } from 'app/types/navigation';
 import { CommonActions } from '@react-navigation/native';
@@ -63,6 +65,30 @@ export const useRestaurantOverview = () => {
     },
   });
 
+  const updateDailySalesMutation = useMutation<
+    ApiResponse<DailySalesDetails>,
+    Error,
+    { restaurantId: number; paylaod: DailySalesTransaction }
+  >({
+    mutationFn: async ({ restaurantId, paylaod }) => {
+      const response: ApiResponse<DailySalesDetails> = await updateDailySalesApi(
+        restaurantId,
+        paylaod,
+      );
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setDailysales(response.data || initialDailySalesDetails);
+    },
+    onError: (err) => {
+      console.warn('find expense fetch failed:', err);
+      setDailysales(initialDailySalesDetails);
+    },
+  });
+
   const fetchRestaurantOverView = useCallback(() => {
     getRestaurantOverviewMutation.mutate({ restaurantId: 1 });
   }, [getRestaurantOverviewMutation]);
@@ -72,6 +98,24 @@ export const useRestaurantOverview = () => {
       getDailySalesMutation.mutate({ restaurantId: 1, date: date });
     },
     [getDailySalesMutation],
+  );
+
+  const handleUpdateOpeningCash = useCallback(
+    (amount: number) => {
+      const dailySalesTransaction: DailySalesTransaction = {
+        id: dailySales.dailySalesTransaction.id,
+        openingCash: amount,
+        expenses: dailySales.dailySalesTransaction.expenses,
+        totalSales: dailySales.dailySalesTransaction.totalSales,
+        cash: dailySales.dailySalesTransaction.cash,
+        closingCash: dailySales.dailySalesTransaction.closingCash,
+        unPaid: dailySales.dailySalesTransaction.unPaid,
+        qr: dailySales.dailySalesTransaction.qr,
+        date: dailySales.dailySalesTransaction.date,
+      };
+      updateDailySalesMutation.mutate({ restaurantId: 1, paylaod: dailySalesTransaction });
+    },
+    [updateDailySalesMutation],
   );
 
   const handleViewAllPress = (label: string) => {
@@ -109,9 +153,11 @@ export const useRestaurantOverview = () => {
     dailySalesDetails: dailySales,
     restaurantOverViewState: getRestaurantOverviewMutation,
     dailySalesState: getDailySalesMutation,
+    updateDailySalesState: updateDailySalesMutation,
 
     fetchDailySales,
     fetchRestaurantOverView,
     handleViewAllPress,
+    handleUpdateOpeningCash,
   };
 };

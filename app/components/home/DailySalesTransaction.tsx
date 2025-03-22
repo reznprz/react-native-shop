@@ -6,23 +6,27 @@ import CustomButton from '../common/button/CustomButton';
 interface Props {
   salesTransaction: DailySalesTransaction;
   onViewAllPress?: () => void;
+  fontSize?: number; // Added fontSize control
 }
 
-const DailySalesTransactionCard: React.FC<Props> = ({ salesTransaction, onViewAllPress }) => {
-  const { openingCash, expenses, totalSales, closingCash, cash, date, qr } = salesTransaction;
+const DailySalesTransactionCard: React.FC<Props> = ({
+  salesTransaction,
+  onViewAllPress,
+  fontSize = 14, // Default fontSize if not provided
+}) => {
+  const { openingCash, expenses, totalSales, closingCash, cash, qr } = salesTransaction;
 
   return (
-    <View className="bg-white rounded-lg p-5 mt-4 shadow-sm">
-      {/* <Text className="text-lg font-bold mb-5">Daily Sales Transaction</Text> */}
+    <View className="bg-white rounded-lg p-6 mt-4 shadow-sm">
       {/* Header */}
-      <View className="flex-row justify-between items-center mb-5 ">
-        <Text className="text-lg font-bold ">Daily Sales Transaction</Text>
+      <View className="flex-row justify-between items-center mb-6">
+        <Text className="font-bold" style={{ fontSize: fontSize + 2 }}>
+          Daily Sales Transaction
+        </Text>
         {onViewAllPress && (
           <CustomButton
             title="View All"
-            onPress={() => {
-              onViewAllPress();
-            }}
+            onPress={onViewAllPress}
             buttonType="TouchableOpacity"
             buttonStyle={{
               backgroundColor: 'transparent',
@@ -32,43 +36,76 @@ const DailySalesTransactionCard: React.FC<Props> = ({ salesTransaction, onViewAl
             }}
             textStyle={{
               color: '#3b82f6',
-              fontSize: 16,
+              fontSize: fontSize,
               fontWeight: '500',
             }}
           />
         )}
       </View>
 
-      <View className="flex-row justify-between mb-4">
+      {/* Row: Opening and Closing */}
+      <View className="flex-row justify-between mb-5">
         <View>
-          <Text className="text-gray-600">Opening Cash</Text>
-          <Text className="text-black font-semibold mt-1">रु {openingCash.toFixed(2)}</Text>
+          <Text className="text-gray-600" style={{ fontSize }}>
+            Opening Cash
+          </Text>
+          <Text className="text-black font-semibold mt-2" style={{ fontSize }}>
+            रु {openingCash.toFixed(2)}
+          </Text>
         </View>
         <View>
-          <Text className="text-gray-600">Closing Cash</Text>
-          <Text className="text-black font-semibold mt-1">रु {closingCash.toFixed(2)}</Text>
-        </View>
-      </View>
-
-      <View className="flex-row justify-between mb-4">
-        <View>
-          <Text className="text-gray-600">Expenses</Text>
-          <Text className="text-red-500 font-semibold mt-1">-रु {expenses.toFixed(2)}</Text>
-        </View>
-        <View>
-          <Text className="text-gray-600">Total Sales</Text>
-          <Text className="text-green-600 font-semibold mt-1">रु {totalSales.toFixed(2)}</Text>
+          <Text className="text-gray-600" style={{ fontSize }}>
+            Closing Cash
+          </Text>
+          <Text className="text-black font-semibold mt-2" style={{ fontSize }}>
+            रु {closingCash.toFixed(2)}
+          </Text>
         </View>
       </View>
 
-      <View className="flex-row justify-between">
+      {/* Row: Expenses and Sales */}
+      <View className="flex-row justify-between mb-5 mr-4">
         <View>
-          <Text className="text-gray-600">Cash</Text>
-          <Text className="text-green-500 font-semibold mt-1">रु {cash.toFixed(2)}</Text>
+          <Text className="text-gray-600" style={{ fontSize }}>
+            Expenses
+          </Text>
+          <Text
+            className="font-semibold mt-2"
+            style={{
+              fontSize,
+              color: '#ef4444',
+            }}
+          >
+            {'-रु'} {Math.abs(expenses).toFixed(2)}
+          </Text>
         </View>
         <View>
-          <Text className="text-gray-600">Qr</Text>
-          <Text className="text-black-600 font-semibold mt-1"> रु {qr.toFixed(2)}</Text>
+          <Text className="text-gray-600 " style={{ fontSize }}>
+            Total Sales
+          </Text>
+          <Text className="text-green-600 font-semibold mt-2" style={{ fontSize }}>
+            रु {totalSales.toFixed(2)}
+          </Text>
+        </View>
+      </View>
+
+      {/* Row: Cash and QR */}
+      <View className="flex-row justify-between mr-4">
+        <View>
+          <Text className="text-gray-600" style={{ fontSize }}>
+            Cash
+          </Text>
+          <Text className="text-green-600 font-semibold mt-2" style={{ fontSize }}>
+            रु {cash.toFixed(2)}
+          </Text>
+        </View>
+        <View>
+          <Text className="text-gray-600" style={{ fontSize }}>
+            Qr Amount
+          </Text>
+          <Text className="text-black font-semibold mt-2" style={{ fontSize }}>
+            रु {qr.toFixed(2)}
+          </Text>
         </View>
       </View>
     </View>

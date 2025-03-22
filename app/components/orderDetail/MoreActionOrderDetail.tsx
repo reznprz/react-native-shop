@@ -81,21 +81,23 @@ const MoreActionOrderDetail: React.FC<MoreActionOrderDetailProps> = ({
           </View>
         )}
 
-        <View className="p-2 m-1">
-          <CollapsibleComponent
-            title={'Switch Payment'}
-            show={true}
-            iconName="credit-card"
-            iconType="FontAwesome5"
-          >
-            <SwitchPaymentMethodSelector
-              paidPaymentTypes={order.payments}
-              onSelectPaymentType={(selectedPaymentType, paymentId) => {
-                handleSwitchPayment(order.orderId, paymentId, selectedPaymentType);
-              }}
-            />
-          </CollapsibleComponent>
-        </View>
+        {order.orderStatus === 'COMPLETED' && (
+          <View className="p-2 m-1">
+            <CollapsibleComponent
+              title={'Switch Payment'}
+              show={true}
+              iconName="credit-card"
+              iconType="FontAwesome5"
+            >
+              <SwitchPaymentMethodSelector
+                paidPaymentTypes={order.payments}
+                onSelectPaymentType={(selectedPaymentType, paymentId) => {
+                  handleSwitchPayment(order.orderId, paymentId, selectedPaymentType);
+                }}
+              />
+            </CollapsibleComponent>
+          </View>
+        )}
 
         {showAddPaymentCollapsible && (
           <AddPaymentCard

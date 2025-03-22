@@ -44,7 +44,7 @@ export const DailySalesMetrics: React.FC<DailySalesMetricsProps> = ({
       <HomeSummaryCard
         title="Unpaid"
         amount={unpaid.toString()}
-        icon={<FontAwesome5 name="clock" size={20} color="##EF4444" />}
+        icon={<FontAwesome5 name="clock" size={20} color="#EF4444" />}
         iconBgColor={'bg-red-100'}
         width="w-1/4"
       />

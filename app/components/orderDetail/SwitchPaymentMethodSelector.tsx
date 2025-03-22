@@ -5,7 +5,7 @@ import PaymentChip from '../table/PaymentChip';
 
 interface PaymentTypeSelectorProps {
   paymentTypes?: string[];
-  paidPaymentTypes: PaymentDetails[];
+  paidPaymentTypes: PaymentDetails[] | null;
   onSelectPaymentType?: (selectedPaymentType: string, paymentId: number) => void;
 }
 
@@ -13,7 +13,7 @@ const defaultPaymentTypes = ['CASH', 'ESEWA', 'FONE_PAY', 'CREDIT'];
 
 const SwitchPaymentMethodSelector: React.FC<PaymentTypeSelectorProps> = ({
   paymentTypes = defaultPaymentTypes,
-  paidPaymentTypes,
+  paidPaymentTypes = [],
   onSelectPaymentType,
 }) => {
   const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
@@ -27,7 +27,9 @@ const SwitchPaymentMethodSelector: React.FC<PaymentTypeSelectorProps> = ({
   };
 
   // Determine the payment method selected from the paidPaymentTypes
-  const selectedPaidPayment = paidPaymentTypes.find((payment) => payment.id === selectedPaymentId);
+  const selectedPaidPayment = paidPaymentTypes?.find(
+    (payment) => payment?.id === selectedPaymentId,
+  );
 
   // Filter out the selected payment method from available paymentTypes
   const filteredPaymentTypes = selectedPaidPayment
@@ -42,7 +44,7 @@ const SwitchPaymentMethodSelector: React.FC<PaymentTypeSelectorProps> = ({
 
       {/* Paid Payment Detail Cards */}
       <View className="flex-row flex-wrap justify-start gap-4 mb-4">
-        {paidPaymentTypes.map((payment) => {
+        {paidPaymentTypes?.map((payment) => {
           const isSelected = selectedPaymentId === payment.id;
           return (
             <TouchableOpacity

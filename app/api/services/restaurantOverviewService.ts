@@ -8,9 +8,11 @@ export interface PaymentDistribution {
   method: string;
   amount: number;
   percentage: number;
+  qrPaymentsDetails?: PaymentDistribution[];
 }
 
 export interface DailySalesTransaction {
+  id: number;
   openingCash: number;
   expenses: number;
   totalSales: number;
@@ -69,6 +71,7 @@ export const initializeRestaurantOverview = (): RestaurantOverview => ({
   expense: [],
 
   dailySalesTransaction: {
+    id: 0,
     openingCash: 0,
     expenses: 0,
     totalSales: 0,
@@ -86,6 +89,7 @@ export const initializeRestaurantOverview = (): RestaurantOverview => ({
 
 export const initialDailySalesDetails: DailySalesDetails = {
   dailySalesTransaction: {
+    id: 0,
     openingCash: 0,
     expenses: 0,
     totalSales: 0,
@@ -116,5 +120,29 @@ export const getDailySalesApi = async (
 
   return await apiMethods.get<DailySalesDetails>(
     `/api/overview/dailySales/${restaurantId}?date=${date}`,
+  );
+};
+
+export const updateDailySalesApi = async (
+  restaurantId: number,
+  dailySalesTransaction: DailySalesTransaction,
+): Promise<ApiResponse<DailySalesDetails>> => {
+  await login({ username: 'ree', password: 'reeree' });
+
+  const payload = {
+    id: dailySalesTransaction.id,
+    openingCash: dailySalesTransaction.openingCash,
+    expenses: dailySalesTransaction.expenses,
+    totalSales: dailySalesTransaction.totalSales,
+    cash: dailySalesTransaction.cash,
+    closingCash: dailySalesTransaction.closingCash,
+    unPaid: dailySalesTransaction.unPaid,
+    qr: dailySalesTransaction.qr,
+    date: dailySalesTransaction.date,
+  };
+
+  return await apiMethods.put<DailySalesDetails>(
+    `/api/overview/dailySales/${restaurantId}/${dailySalesTransaction.id}`,
+    payload,
   );
 };

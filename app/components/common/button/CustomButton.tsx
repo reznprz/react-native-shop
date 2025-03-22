@@ -133,10 +133,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={onPress}
-              onPressIn={handlePressIn}
-              onPressOut={handlePressOut}
-              style={[styles.button, buttonStyle]}
+              onPress={disabled ? undefined : onPress}
+              onPressIn={disabled ? undefined : handlePressIn}
+              onPressOut={disabled ? undefined : handlePressOut}
+              style={[styles.button, buttonStyle, disabled && styles.disabledButton]}
               {...props}
             >
               <Text style={[styles.text, textStyle]}>{title}</Text>
@@ -200,6 +200,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  disabledButton: {
+    backgroundColor: '#D1D5DB',
   },
 });
 

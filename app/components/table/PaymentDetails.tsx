@@ -128,11 +128,10 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
       <LoadingButton
         title="Complete Order"
         onPress={onCompletePress}
-        width="full"
-        height="2l"
-        textSize="text-xl"
         buttonState={completeOrderState}
         disabled={selectedPayments.length === 0}
+        buttonStyle={{ paddingVertical: 14 }}
+        textStyle={{ fontSize: 20 }}
       />
 
       <NotificationBar

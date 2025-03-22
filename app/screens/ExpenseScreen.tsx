@@ -7,7 +7,7 @@ import { ExpenseMetrics } from 'app/components/expense/ExpenseMetrics';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import IconLabel from 'app/components/common/IconLabel';
 import CustomButton from 'app/components/common/button/CustomButton';
-import AddExpenseModal from 'app/components/orderDetail/AddExpenseModal';
+import AddExpenseModal from 'app/components/modal/AddExpenseModal';
 import DateHeader from 'app/components/common/DateHeader';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';

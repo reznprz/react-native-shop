@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { Modal, View, Text, StyleSheet, Pressable, Dimensions, ViewStyle } from 'react-native';
 
 interface BaseModalProps {
   visible: boolean;
@@ -7,6 +7,7 @@ interface BaseModalProps {
   headerTitle?: string;
   body: React.ReactNode;
   footer?: React.ReactNode;
+  bodyStyle?: ViewStyle;
 }
 
 const BaseModal: React.FC<BaseModalProps> = ({
@@ -15,6 +16,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
   headerTitle,
   body,
   footer,
+  bodyStyle = { width: '100%', marginVertical: 15 },
 }) => {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onRequestClose}>
@@ -29,7 +31,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
           </View>
 
           {/* Body */}
-          <View style={styles.modalBody}>{body}</View>
+          <View style={bodyStyle}>{body}</View>
 
           {/* Footer */}
           {footer && <View style={styles.modalFooter}>{footer}</View>}
@@ -88,10 +90,6 @@ const styles = StyleSheet.create({
   closeButtonText: {
     fontSize: 18,
     color: 'white',
-  },
-  modalBody: {
-    width: '100%',
-    marginVertical: 15,
   },
   modalFooter: {
     alignItems: 'center',

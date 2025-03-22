@@ -14,6 +14,7 @@ import { Expense } from 'app/api/services/expenseService';
 import AutocompleteInput from '../common/AutocompleteInput';
 import DateModal from '../common/modal/DateModal';
 import ConditionalWrapper from '../common/ConditionalWrapper';
+import ModalActionsButton from '../common/modal/ModalActionsButton';
 
 const expenseOptions = [
   'Groceries',
@@ -166,20 +167,16 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 
   // Footer content using Tailwind classes
   const footerContent = (
-    <View className="flex-row justify-between">
-      <Pressable
-        onPress={onRequestClose}
-        className="flex-1 py-4 rounded-md mx-1 items-center justify-center bg-gray-200"
-      >
-        <Text className="text-gray-800 font-medium">Cancel</Text>
-      </Pressable>
-      <Pressable
-        onPress={handleAddExpense}
-        className="flex-1 py-4 rounded-md mx-1 items-center justify-center bg-[#2a4759]"
-      >
-        <Text className="text-white font-semibold">Add Expense</Text>
-      </Pressable>
-    </View>
+    <ModalActionsButton
+      cancelProps={{
+        title: 'Cancel',
+        onPress: () => onRequestClose(),
+      }}
+      actionProps={{
+        title: 'Add Expense',
+        onPress: () => handleAddExpense(),
+      }}
+    />
   );
 
   return (

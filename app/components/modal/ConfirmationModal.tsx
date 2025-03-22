@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import BaseModal from '../common/modal/BaseModal';
+import ModalActionsButton from '../common/modal/ModalActionsButton';
 
 interface ConfirmationModalProps {
   visible: boolean;
@@ -26,20 +27,16 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </View>
       }
       footer={
-        <View className="flex-row justify-between">
-          <Pressable
-            onPress={onRequestClose}
-            className="flex-1 py-4 rounded-md mx-1 items-center justify-center bg-gray-200"
-          >
-            <Text className="text-gray-800 font-medium">No</Text>
-          </Pressable>
-          <Pressable
-            onPress={onConfirm}
-            className="flex-1 py-4 rounded-md mx-1 items-center justify-center bg-[#2a4759]"
-          >
-            <Text className="text-white font-medium">Yes</Text>
-          </Pressable>
-        </View>
+        <ModalActionsButton
+          cancelProps={{
+            title: 'No',
+            onPress: () => onRequestClose(),
+          }}
+          actionProps={{
+            title: 'Yes',
+            onPress: () => onConfirm(),
+          }}
+        />
       }
     />
   );
