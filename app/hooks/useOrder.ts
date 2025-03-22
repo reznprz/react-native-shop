@@ -18,6 +18,7 @@ import {
 } from 'app/components/filter/filter';
 import { PaymentInfo } from './useTables';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
+import { DateRangeSelection, DateRangeSelectionType } from 'app/components/DateRangePickerModal';
 
 export const useOrder = () => {
   const [orders, setOrders] = useState<OrderDetails[]>([]);
@@ -230,12 +231,48 @@ export const useOrder = () => {
       finalPaymentStatuses: FilterStatus[],
       finalOrderTypes: FilterStatus[],
       finalPaymentMethods: FilterStatus[],
-      date: string,
+      selectedDateRange: DateRangeSelection,
     ): FindOrdersFilters => {
       const selectedOrderStatuses = mapSelectedFilterNames(finalOrderStatuses, true);
       const selectedOrderTypes = mapSelectedFilterNames(finalOrderTypes, true);
       const selectedPaymentMethods = mapSelectedFilterNames(finalPaymentMethods, true);
       const selectedPaymentStatuses = mapSelectedFilterNames(finalPaymentStatuses, true);
+
+      // Build the base object:
+      const base: FindOrdersFilters = {
+        restaurantId: 1,
+      };
+
+      //  Interpret the union:
+      switch (selectedDateRange.selectionType) {
+        case DateRangeSelectionType.QUICK_RANGE:
+          // e.g. { label: "Past 15 Mins", unit: "minutes", value: 15 }
+          base.quickRangeLabel = selectedDateRange.quickRange.label;
+          base.quickRangeUnit = selectedDateRange.quickRange.unit;
+          base.quickRangeValue = selectedDateRange.quickRange.value;
+          break;
+
+        case DateRangeSelectionType.TIME_RANGE_TODAY:
+          // e.g. { startHour, startMin, endHour, endMin }
+          base.timeRangeToday = {
+            startHour: selectedDateRange.startHour,
+            startMin: selectedDateRange.startMin,
+            endHour: selectedDateRange.endHour,
+            endMin: selectedDateRange.endMin,
+          };
+          break;
+
+        case DateRangeSelectionType.SINGLE_DATE:
+          // e.g. "2025-03-25"
+          base.singleDate = selectedDateRange.date;
+          break;
+
+        case DateRangeSelectionType.DATE_RANGE:
+          // e.g. "startDate" and "endDate"
+          base.startDate = selectedDateRange.startDate;
+          base.endDate = selectedDateRange.endDate;
+          break;
+      }
 
       const totalSelected =
         selectedOrderStatuses.length +
@@ -245,17 +282,26 @@ export const useOrder = () => {
 
       // If no filters are selected, use default order statuses.
       if (totalSelected === 0) {
-        return { date, orderStatuses: ['CREATED', 'COMPLETED'], restaurantId: 1 };
+        base.orderStatuses = ['CREATED', 'COMPLETED'];
+      } else {
+        // Add the filter arrays
+        if (selectedOrderStatuses.length > 0) {
+          base.orderStatuses = selectedOrderStatuses;
+        }
+        if (selectedOrderTypes.length > 0) {
+          base.orderTypes = selectedOrderTypes;
+        }
+        if (selectedPaymentMethods.length > 0) {
+          base.paymentMethods = selectedPaymentMethods;
+        }
+        if (selectedPaymentStatuses.length > 0) {
+          base.paymentStatuses = selectedPaymentStatuses;
+        }
       }
 
-      return {
-        date,
-        orderStatuses: selectedOrderStatuses,
-        orderTypes: selectedOrderTypes,
-        paymentMethods: selectedPaymentMethods,
-        paymentStatuses: selectedPaymentStatuses,
-        restaurantId: 1,
-      };
+      base.selectionType = selectedDateRange.selectionType;
+
+      return base;
     },
     [],
   );
@@ -267,7 +313,7 @@ export const useOrder = () => {
       finalPaymentStatuses: FilterStatus[],
       finalOrderTypes: FilterStatus[],
       finalPaymentMethods: FilterStatus[],
-      date: string,
+      selectedDateRange: DateRangeSelection,
     ) => {
       // Update state with new filter arrays.
       setOrderStatuses(finalOrderStatuses);
@@ -281,7 +327,7 @@ export const useOrder = () => {
         finalPaymentStatuses,
         finalOrderTypes,
         finalPaymentMethods,
-        date,
+        selectedDateRange,
       );
 
       // Execute the order fetch with the constructed payload.
@@ -299,14 +345,14 @@ export const useOrder = () => {
   }, [orderStatuses, paymentStatuses, orderTypes, paymentMethods]);
 
   const handleDateSelect = useCallback(
-    (selectedDate: string) => {
+    (selectedDateRange: DateRangeSelection) => {
       // Build payload using the helper function.
       const payload = buildOrdersPayload(
         orderStatuses,
         paymentStatuses,
         orderTypes,
         paymentMethods,
-        selectedDate,
+        selectedDateRange,
       );
 
       // Execute the order fetch with the constructed payload.

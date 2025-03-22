@@ -7,6 +7,7 @@ const LazyQRScreen = createLazyScreen(() => import('app/screens/QrMenuScreen'));
 const LazyTableScreen = createLazyScreen(() => import('app/screens/TableScreen'));
 const LazyOrdersScreen = createLazyScreen(() => import('app/screens/OrdersScreen'));
 const LazySettingsScreen = createLazyScreen(() => import('app/screens/SettingsScreen'));
+const LazyProfileScreen = createLazyScreen(() => import('app/screens/ProfileScreen'));
 
 export type IconType = keyof typeof ICON_TYPES;
 
@@ -53,11 +54,11 @@ export const tabScreenConfigs: TabScreenConfig[] = [
     iconType: 'MaterialIcons',
   },
   {
-    name: 'Settings',
-    label: 'SETTING',
-    component: LazySettingsScreen,
-    icon: 'settings',
-    filledIcon: 'settings',
-    iconType: 'MaterialIcons',
+    name: 'Profile',
+    label: 'PROFILE',
+    component: LazyProfileScreen,
+    icon: 'person-outline',
+    filledIcon: 'person',
+    iconType: 'Ionicons',
   },
 ];

@@ -33,7 +33,7 @@ export default function TableItemAndPayment({
     <>
       {isDesktop ? (
         /* ** Desktop Layout (Two Column)** */
-        <View className="flex-row flex-grow">
+        <View className="flex-1 flex-row flex-grow">
           {/* Left Panel - Order Summary */}
           <ScrollView
             style={styles.leftPanel}

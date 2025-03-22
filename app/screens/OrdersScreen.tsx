@@ -1,22 +1,38 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ScrollView, View, TouchableOpacity } from 'react-native';
-import { useOrder } from 'app/hooks/useOrder';
-import OrderCard from 'app/components/order/OrderCard';
-import OrderMetrics from 'app/components/OrderMetrics';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import OrderSummaryCard from 'app/components/order/OrderSummaryCard';
-import { navigate } from 'app/navigation/navigationService';
-import { ScreenNames } from 'app/types/navigation';
-import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
-import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
-import EmptyState from 'app/components/common/EmptyState';
-import { OrderDetails } from 'app/api/services/orderService';
-import { FiltersBottomSheetModal } from 'app/components/filter/FiltersBottomSheetModal';
-import OrderScreenHeader from 'app/components/common/OrderScreenHeader';
-import { removedFilter } from 'app/components/filter/filter';
+import { ScrollView, View, TouchableOpacity, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { useOrder } from 'app/hooks/useOrder';
+
+import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
+import EmptyState from 'app/components/common/EmptyState';
+import OrderScreenHeader from 'app/components/common/OrderScreenHeader';
+import SubTab from 'app/components/common/SubTab';
+
+import OrderCard from 'app/components/order/OrderCard';
+import OrderMetrics from 'app/components/OrderMetrics';
+import OrderSummaryCard from 'app/components/order/OrderSummaryCard';
+
+import { navigate } from 'app/navigation/navigationService';
+import { ScreenNames } from 'app/types/navigation';
+
+import { removedFilter } from 'app/components/filter/filter';
+import { OrderDetails } from 'app/api/services/orderService';
+import { DateRangeSelection, DateRangeSelectionType } from 'app/components/DateRangePickerModal';
+import { FiltersBottomSheetModal } from 'app/components/filter/FiltersBottomSheetModal';
+import NotificationBar from 'app/components/common/NotificationBar';
+
+const tabs = ['Past Orders', 'Todays Order'];
+type TabType = (typeof tabs)[number];
+
 export default function OrdersScreen() {
+  const [showFilters, setShowFilters] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>('Todays Order');
+
+  const { isLargeScreen } = useIsDesktop();
+
   const {
     orders,
     totalAmount,
@@ -32,84 +48,98 @@ export default function OrdersScreen() {
     handleApplyFilters,
     handleClearFilter,
   } = useOrder();
-  const { isLargeScreen } = useIsDesktop();
-  const [selectedDate, setSelectedDate] = useState('Today');
-  const [showFilters, setShowFilters] = useState(false);
 
+  /**
+   * For date/time selection, we store a union type from the DateRange modal.
+   * By default, let's say SINGLE_DATE = "Today"
+   */
+  const [selectedRange, setSelectedRange] = useState<DateRangeSelection>({
+    selectionType: DateRangeSelectionType.SINGLE_DATE,
+    date: 'Today',
+  });
+
+  /**
+   * Whenever `selectedRange` changes, fetch new data (except if it's invalid).
+   * For instance, if user picks "Past 15 Mins" or "2025-03-01" date, etc.
+   */
   useEffect(() => {
-    handleDateSelect(selectedDate);
-  }, [selectedDate]);
+    if (selectedRange) {
+      handleDateSelect(selectedRange);
+    }
+    // Only run when selectedRange changes
+  }, [selectedRange]);
 
+  /**
+   * If you'd like to re-fetch whenever the screen is focused,
+   * do so with the official `useFocusEffect`.
+   */
   useFocusEffect(
     useCallback(() => {
-      handleDateSelect(selectedDate);
+      if (selectedRange) {
+        handleDateSelect(selectedRange);
+      }
+      // Dependencies = [] means it runs once on focus
     }, []),
   );
 
-  const handleOrderPress = (order: OrderDetails) => {
+  /** Called when user selects an order from the list (e.g., on phone). */
+  const handleOrderPress = useCallback((order: OrderDetails) => {
     navigate(ScreenNames.ORDER_DETAILS, { orderId: order.orderId.toString() });
-  };
+  }, []);
 
-  const handleMoreActionPress = (order: OrderDetails) => {
+  /** Called for "More Actions" on an order. */
+  const handleMoreActionPress = useCallback((order: OrderDetails) => {
     navigate(ScreenNames.ORDER_DETAILS, {
       orderId: order.orderId.toString(),
       actionType: 'More Action',
     });
-  };
+  }, []);
 
-  return (
-    <View className="flex-1 bg-gray-100 p-4 pb-0">
-      <OrderScreenHeader
-        selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
-        onFilterPress={() => setShowFilters(true)}
-        orderStatuses={orderStatuses}
-        paymentMethods={paymentMethods}
-        orderTypes={orderTypes}
-        paymentStatuses={paymentStatuses}
-        onRemoveFilter={(removedFilterName) => {
-          handleApplyFilters(
-            removedFilter(removedFilterName, orderStatuses),
-            removedFilter(removedFilterName, paymentStatuses),
-            removedFilter(removedFilterName, orderTypes),
-            removedFilter(removedFilterName, paymentMethods),
-            selectedDate,
-          );
-        }}
-        onOverflowPress={() => {
-          setShowFilters(true);
-        }}
-      />
+  /** Pull-to-refresh logic. */
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await handleDateSelect(selectedRange);
+    setRefreshing(false);
+  }, [selectedRange]);
 
-      {orderScreenState?.status === 'pending' ? (
-        <FoodLoadingSpinner iconName="coffee" />
-      ) : !orders || orders.length === 0 ? (
+  /**
+   * Render the list of orders. We show different layouts if isLargeScreen
+   * or if the activeTab is "Todays Order" or "Past Orders" (demonstration).
+   */
+  const renderOrdersList = () => {
+    if (!orders || orders.length === 0) {
+      return (
         <EmptyState
           iconName="bag-personal"
           message="No Orders available"
           subMessage="Please select different Date or re-apply filter."
           iconSize={80}
         />
-      ) : (
-        /*  show the order metrics & order list */
-        <>
-          <OrderMetrics
-            totalAmount={totalAmount}
-            paidAmount={paidAmount}
-            unpaidAmount={unpaidAmount}
-            totalOrders={totalOrders}
-            isLargeScreen={isLargeScreen}
-          />
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View className={`flex gap-2 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
+      );
+    }
+
+    return (
+      <>
+        <OrderMetrics
+          totalAmount={totalAmount}
+          paidAmount={paidAmount}
+          unpaidAmount={unpaidAmount}
+          totalOrders={totalOrders}
+          isLargeScreen={isLargeScreen}
+        />
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}
+        >
+          {activeTab === 'Todays Order' ? (
+            <View className={`flex-1 gap-1 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
               {orders.map((order) =>
                 isLargeScreen ? (
                   <OrderCard
                     key={order.orderId}
                     order={order}
-                    onMoreActionPress={(order) => {
-                      handleMoreActionPress(order);
-                    }}
+                    onMoreActionPress={handleMoreActionPress}
                   />
                 ) : (
                   <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>
@@ -118,28 +148,107 @@ export default function OrdersScreen() {
                 ),
               )}
             </View>
-          </ScrollView>
-        </>
-      )}
+          ) : (
+            // "Past Orders" or anything else
+            <View className={`flex gap-1 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
+              {orders.map((order) =>
+                isLargeScreen ? (
+                  <OrderCard
+                    key={order.orderId}
+                    order={order}
+                    onMoreActionPress={handleMoreActionPress}
+                  />
+                ) : (
+                  <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>
+                    <OrderSummaryCard order={order} />
+                  </TouchableOpacity>
+                ),
+              )}
+            </View>
+          )}
+        </ScrollView>
+      </>
+    );
+  };
 
-      <ErrorMessagePopUp
-        errorMessage={orderScreenState?.error?.message || ''}
-        onClose={() => orderScreenState?.reset?.()}
-      />
+  /**
+   * Called when user changes the date/time in the header's date range picker
+   */
+  const handleApplyDate = useCallback((selectedDateRange: DateRangeSelection) => {
+    setSelectedRange(selectedDateRange);
+    console.log('Selected date range ->', selectedDateRange);
+  }, []);
 
-      <FiltersBottomSheetModal
-        visible={showFilters}
-        onClose={() => setShowFilters(false)}
-        orderStatuses={orderStatuses}
-        paymentStatuses={paymentStatuses}
-        orderTypes={orderTypes}
-        paymentMethods={paymentMethods}
-        onApplyFilters={(...p) => handleApplyFilters(...p, selectedDate)}
-        onClearFilter={() => {
-          handleClearFilter();
-          setShowFilters(false);
-        }}
-      />
+  /**
+   * Called when user removes a filter chip, we re-apply the filters (the date/time
+   * is also part of the final param).
+   */
+  const handleRemoveFilter = useCallback(
+    (removedFilterName: string) => {
+      handleApplyFilters(
+        removedFilter(removedFilterName, orderStatuses),
+        removedFilter(removedFilterName, paymentStatuses),
+        removedFilter(removedFilterName, orderTypes),
+        removedFilter(removedFilterName, paymentMethods),
+        selectedRange,
+      );
+    },
+    [orderStatuses, paymentStatuses, orderTypes, paymentMethods, selectedRange],
+  );
+
+  /** Render the main screen */
+  return (
+    <View className="h-full w-full bg-gray-100">
+      {/* Tab selection at top */}
+      <SubTab tabs={tabs} activeTab={activeTab} onTabChange={(newTab) => setActiveTab(newTab)} />
+
+      {/* Content area */}
+      <View className="flex-1 p-4 pb-0">
+        <OrderScreenHeader
+          handleApplyDate={handleApplyDate}
+          onFilterPress={() => setShowFilters(true)}
+          orderStatuses={orderStatuses}
+          paymentMethods={paymentMethods}
+          orderTypes={orderTypes}
+          paymentStatuses={paymentStatuses}
+          activeTab={activeTab}
+          onRemoveFilter={handleRemoveFilter}
+          onOverflowPress={() => setShowFilters(true)}
+        />
+
+        {/* If loading, show spinner */}
+        {orderScreenState?.status === 'pending' ? (
+          <FoodLoadingSpinner iconName="coffee" />
+        ) : (
+          // Otherwise render the orders (or empty)
+          renderOrdersList()
+        )}
+
+        {/* Error popup, if any */}
+        <NotificationBar
+          message={orderScreenState?.error?.message || ''}
+          variant="error"
+          onClose={() => orderScreenState?.reset?.()}
+        />
+
+        {/* Bottom sheet for filters */}
+        <FiltersBottomSheetModal
+          visible={showFilters}
+          onClose={() => setShowFilters(false)}
+          orderStatuses={orderStatuses}
+          paymentStatuses={paymentStatuses}
+          orderTypes={orderTypes}
+          paymentMethods={paymentMethods}
+          onApplyFilters={(...p) => {
+            handleApplyFilters(...p, selectedRange);
+            setShowFilters(false);
+          }}
+          onClearFilter={() => {
+            handleClearFilter();
+            setShowFilters(false);
+          }}
+        />
+      </View>
     </View>
   );
 }

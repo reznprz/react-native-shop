@@ -3,6 +3,7 @@ import { ApiResponse } from 'app/api/handlers/index';
 import { login } from './authService';
 import { CompleteOrderRequest, PaymentInfo } from 'app/hooks/useTables';
 import qs from 'qs';
+import { DateRangeSelectionType } from 'app/components/DateRangePickerModal';
 
 export interface OrderItem {
   id: number;
@@ -40,12 +41,30 @@ export interface Order {
 }
 
 export interface FindOrdersFilters {
-  date?: string;
+  restaurantId: number;
+
+  // filter status arrays of strings
   orderStatuses?: string[];
   paymentStatuses?: string[];
   orderTypes?: string[];
   paymentMethods?: string[];
-  restaurantId: number;
+
+  // The new date-range approach
+  quickRangeLabel?: string; // e.g. "Past 15 Mins"
+  quickRangeUnit?: 'minutes' | 'days';
+  quickRangeValue?: number;
+  selectionType?: DateRangeSelectionType;
+
+  timeRangeToday?: {
+    startHour: number;
+    startMin: number;
+    endHour: number;
+    endMin: number;
+  };
+
+  singleDate?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface OrderDetails {
@@ -144,10 +163,9 @@ export const findOrdersByFiltersAndOrdersApi = async (
 ): Promise<ApiResponse<OrderDetails[]>> => {
   await login({ username: 'ree', password: 'reeree' });
 
-  const queryParams: Record<string, string | string[]> = {
-    date: filters.date || '',
-  };
+  const queryParams: Record<string, any> = {};
 
+  // filters for order status, payment status, etc.
   if (filters.orderStatuses && filters.orderStatuses.length > 0) {
     queryParams.orderStatus = filters.orderStatuses;
   }
@@ -161,6 +179,35 @@ export const findOrdersByFiltersAndOrdersApi = async (
     queryParams.paymentMethod = filters.paymentMethods;
   }
 
+  // handle date/time selection type
+  queryParams.selectionType = filters.selectionType;
+
+  if (filters.quickRangeLabel) {
+    // e.g. "Past 15 Mins"
+    queryParams.quickRangeLabel = filters.quickRangeLabel;
+    if (filters.quickRangeUnit) {
+      queryParams.quickRangeUnit = filters.quickRangeUnit; // "minutes" or "days"
+    }
+    if (filters.quickRangeValue !== undefined) {
+      queryParams.quickRangeValue = filters.quickRangeValue; // e.g. 15
+    }
+  }
+  if (filters.timeRangeToday) {
+    queryParams.startHour = filters.timeRangeToday.startHour;
+    queryParams.startMin = filters.timeRangeToday.startMin;
+    queryParams.endHour = filters.timeRangeToday.endHour;
+    queryParams.endMin = filters.timeRangeToday.endMin;
+  }
+  if (filters.singleDate) {
+    queryParams.singleDate = filters.singleDate; // e.g. "2025-03-25T00:00:00.000Z"
+  }
+  if (filters.startDate && filters.endDate) {
+    // e.g. "2025-03-20T00:00:00.000Z" to "2025-03-22T00:00:00.000Z"
+    queryParams.startDate = filters.startDate;
+    queryParams.endDate = filters.endDate;
+  }
+
+  // Finally:
   return await apiMethods.get<OrderDetails[]>(`/public/api/orders/date/${filters.restaurantId}`, {
     params: queryParams,
     paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),

@@ -29,6 +29,9 @@ export const useSettingsHook = () => {
       case 'Inventory':
         console.log('Navigating to Inventory');
         break;
+      case 'DailySales':
+        push(ScreenNames.DAILYSALES);
+        break;
       case 'Past Orders':
         console.log('Navigating to Past Orders');
         break;
@@ -81,6 +84,12 @@ export const useSettingsHook = () => {
           icon: 'inventory',
           iconType: 'MaterialIcons',
           onPress: () => handlePress('Inventory'),
+        },
+        {
+          label: 'DailySales',
+          icon: 'cash-register',
+          iconType: 'MaterialCommunityIcons',
+          onPress: () => handlePress('DailySales'),
         },
       ],
     },

@@ -1,8 +1,8 @@
-import React from 'react';
-import { View, ScrollView } from 'react-native';
-import { TableCard } from 'app/components/table/TableCard';
+import React, { useCallback, useState } from 'react';
+import { View, ScrollView, RefreshControl } from 'react-native';
 import TableMetrics from 'app/components/table/TableMetrics';
 import { RestaurantTable } from 'app/api/services/tableService';
+import { SwipeTableCard } from './SwipeTableCard';
 
 interface TableListProps {
   tables: RestaurantTable[];
@@ -14,6 +14,7 @@ interface TableListProps {
   onGoToMenu: (tableName: string) => void;
   onGoToCart: (tableName: string) => void;
   onSwitchTable: (tableName: string) => void;
+  fetchTable: () => void;
 }
 
 export default function TableList({
@@ -26,7 +27,16 @@ export default function TableList({
   onGoToMenu,
   onGoToCart,
   onSwitchTable,
+  fetchTable,
 }: TableListProps) {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchTable();
+    setRefreshing(false);
+  }, [fetchTable]);
+
   return (
     <View className="flex-1 bg-gray-100 p-2">
       {/* Top Header Section */}
@@ -49,9 +59,10 @@ export default function TableList({
           },
         ]}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {tables.map((table, index) => (
-          <TableCard
+          <SwipeTableCard
             key={index}
             name={table.tableName}
             status={table.status}

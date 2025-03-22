@@ -1,109 +1,129 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, Platform, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable, StyleSheet } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
-import BaseModal from './modal/BaseModal';
 import CustomIcon from './CustomIcon';
 import { FilterStatus } from '../filter/filter';
 import FilterHeader from '../filter/FilterHeader';
+import {
+  DateRangePickerModal,
+  DateRangeSelection,
+  DateRangeSelectionType,
+} from '../DateRangePickerModal';
 
 type OrderScreenHeaderProps = {
-  selectedDate: string;
   orderStatuses: FilterStatus[];
   paymentStatuses: FilterStatus[];
   orderTypes: FilterStatus[];
   paymentMethods: FilterStatus[];
-  onDateChange: (date: string) => void;
+  activeTab: string;
   onFilterPress?: () => void;
   onRemoveFilter: (label: string) => void;
   onOverflowPress: () => void;
+  handleApplyDate: (selectedDateRange: DateRangeSelection) => void;
 };
 
 const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
-  selectedDate,
   orderStatuses = [],
   paymentStatuses = [],
   orderTypes = [],
   paymentMethods = [],
-  onDateChange,
+  activeTab,
   onFilterPress,
   onRemoveFilter,
   onOverflowPress,
+  handleApplyDate,
 }) => {
-  const [isMobileDatePickerVisible, setMobileDatePickerVisibility] = useState(false);
-  const [isWebModalVisible, setWebModalVisible] = useState(false);
+  // For the date range picker
+  const [isRangeModalVisible, setRangeModalVisible] = useState(false);
+  // We'll store the user-selected date range as a string, e.g. "2025-03-20 → 2025-03-22"
+  const [displayDateRange, setDisplayDateRange] = useState('today');
 
   // Combine all filters into one array
   const combinedFilters = useMemo(() => {
-    const statues = [...orderStatuses, ...paymentStatuses, ...orderTypes, ...paymentMethods];
-    return statues.filter((f) => f.isSelected);
+    const statuses = [...orderStatuses, ...paymentStatuses, ...orderTypes, ...paymentMethods];
+    return statuses.filter((f) => f.isSelected);
   }, [orderStatuses, paymentStatuses, orderTypes, paymentMethods]);
 
-  // Ensure a valid date
-  const getPickerDate = () => {
-    const parsed = new Date(selectedDate);
-    return isNaN(parsed.getTime()) ? new Date() : parsed;
-  };
+  const handleDateRangeApply = (selection: DateRangeSelection) => {
+    setRangeModalVisible(false);
 
-  const showDatePicker = () => {
-    if (Platform.OS === 'web') {
-      setWebModalVisible(true);
-    } else {
-      setMobileDatePickerVisibility(true);
+    switch (selection.selectionType) {
+      case DateRangeSelectionType.QUICK_RANGE:
+        // e.g. "Past 15 Mins"
+        setDisplayDateRange(selection.quickRange.label);
+        break;
+
+      case DateRangeSelectionType.TIME_RANGE_TODAY: {
+        // e.g. "Today 00:00 to 01:00"
+        const { startHour, startMin, endHour, endMin } = selection;
+        const formatHM = (h: number, m: number) =>
+          `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        setDisplayDateRange(
+          `Today ${formatHM(startHour, startMin)} → ${formatHM(endHour, endMin)}`,
+        );
+        break;
+      }
+
+      case DateRangeSelectionType.SINGLE_DATE: {
+        // e.g. "2025-03-25"
+        const dateStr = selection.date;
+        setDisplayDateRange(`Date: ${dateStr}`);
+        break;
+      }
+
+      case DateRangeSelectionType.DATE_RANGE: {
+        // e.g. "2025-03-20 → 2025-03-22"
+        const startStr = selection.startDate;
+        const endStr = selection.endDate;
+        setDisplayDateRange(`${startStr} → ${endStr}`);
+        break;
+      }
     }
-  };
 
-  const hideMobileDatePicker = () => setMobileDatePickerVisibility(false);
-  const hideWebModal = () => setWebModalVisible(false);
-
-  const handleMobileConfirm = (date: Date) => {
-    const formattedDate = date.toLocaleDateString(); // yyyy-MM-dd
-    onDateChange(formattedDate);
-    hideMobileDatePicker();
-  };
-
-  const handleWebDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onDateChange(event.target.value);
-    hideWebModal();
+    handleApplyDate(selection);
   };
 
   return (
     <View>
-      {/* 1) Top row with date selection & filter button */}
-      <View className="flex-row justify-between items-center bg-white p-3 rounded-lg border border-gray-200 mb-2">
-        {/* Date Selection */}
-        <TouchableOpacity
-          onPress={showDatePicker}
-          className="flex-row items-center bg-gray-100 px-3 py-2 rounded-md border border-gray-300"
-        >
-          <View className="flex-row items-center gap-2">
-            <FontAwesome5 name="calendar-alt" size={16} color="gray" />
-            <Text className="text-gray-600 font-semibold">{selectedDate}</Text>
-            <FontAwesome5 name="chevron-down" size={12} color="gray" />
-          </View>
-        </TouchableOpacity>
+      <View
+        style={{
+          ...styles.headerRow,
+          ...(activeTab !== 'Past Orders' && { borderWidth: 0, backgroundColor: '#F3F4F6' }),
+        }}
+      >
+        {/* Only show date range button if tab = "Past Orders" (per your old logic) */}
+        {activeTab === 'Past Orders' ? (
+          <TouchableOpacity onPress={() => setRangeModalVisible(true)} style={styles.dateRangeBtn}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <FontAwesome5 name="calendar-alt" size={16} color="gray" />
+              <Text style={styles.dateRangeBtnText}>{displayDateRange}</Text>
+              <FontAwesome5 name="chevron-down" size={12} color="gray" />
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <View />
+        )}
 
-        {/* Filter Button */}
-        <View className="flex-row items-center justify-end">
+        {/* Filter Button & FilterHeader */}
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {combinedFilters.length > 0 ? (
             <Pressable onPress={onFilterPress}>
               <CustomIcon name="filter" size={20} color="#2A4759" type="Fontisto" />
             </Pressable>
           ) : (
-            <>
-              <Pressable
-                onPress={onFilterPress}
-                className="bg-[#2A4759] px-4 py-2 rounded-md border border-[#2A4759]"
-                style={({ pressed }) => pressed && styles.pressedFilter}
-              >
-                <View className="flex-row items-center gap-2">
-                  <CustomIcon name="filter" size={16} color="#fff" type="Fontisto" />
-                  <Text className="text-white text-lg">Filters</Text>
-                </View>
-              </Pressable>
-            </>
+            <Pressable
+              onPress={onFilterPress}
+              style={({ pressed }) => [
+                styles.filterBtn,
+                pressed && { transform: [{ scale: 0.97 }] },
+              ]}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <CustomIcon name="filter" size={16} color="#fff" type="Fontisto" />
+                <Text style={styles.filterBtnText}>Filters</Text>
+              </View>
+            </Pressable>
           )}
-
           <FilterHeader
             filters={combinedFilters}
             onRemoveFilter={onRemoveFilter}
@@ -112,39 +132,14 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
         </View>
       </View>
 
-      {/* Mobile Date Picker */}
-      {Platform.OS !== 'web' && (
-        <DateTimePickerModal
-          isVisible={isMobileDatePickerVisible}
-          mode="date"
-          date={getPickerDate()}
-          onConfirm={handleMobileConfirm}
-          onCancel={hideMobileDatePicker}
-          themeVariant="light" // Force light theme on iOS
-        />
-      )}
-
-      {/* Web Date Picker */}
-      {Platform.OS === 'web' && (
-        <BaseModal
-          visible={isWebModalVisible}
-          onRequestClose={hideWebModal}
-          headerTitle="Select a Date"
-          body={
-            <input
-              type="date"
-              value={getPickerDate().toISOString().split('T')[0]}
-              onChange={handleWebDateChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:border-[#2A4759]"
-            />
-          }
-          footer={
-            <Pressable onPress={hideWebModal} className="bg-[#2A4759] px-4 py-2 rounded-md">
-              <Text className="text-white text-base font-semibold">Cancel</Text>
-            </Pressable>
-          }
-        />
-      )}
+      {/* The custom Date Range Modal */}
+      <DateRangePickerModal
+        visible={isRangeModalVisible}
+        onClose={() => setRangeModalVisible(false)}
+        onApply={(selectedDateRange) => {
+          handleDateRangeApply(selectedDateRange);
+        }}
+      />
     </View>
   );
 };
@@ -152,7 +147,44 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
 export default OrderScreenHeader;
 
 const styles = StyleSheet.create({
-  pressedFilter: {
-    transform: [{ scale: 0.97 }],
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    marginBottom: 8,
+  },
+  dateRangeBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F3F5',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#D4D4D8',
+  },
+  dateRangeBtnText: {
+    marginHorizontal: 6,
+    color: '#666',
+    fontWeight: '600',
+  },
+  filterBtn: {
+    backgroundColor: '#2A4759',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#2A4759',
+    marginRight: 8,
+  },
+  filterBtnText: {
+    color: '#fff',
+    fontSize: 16,
+    marginLeft: 6,
   },
 });

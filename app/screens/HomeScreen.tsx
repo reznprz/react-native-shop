@@ -19,10 +19,6 @@ const HomeScreen: React.FC = () => {
     fetchRestaurantOverView,
     handleViewAllPress,
   } = useRestaurantOverview();
-  const { isLargeScreen, width } = useIsDesktop();
-  const isTablet = width >= 768;
-
-  const [refreshing, setRefreshing] = useState(false);
 
   const {
     totalSales,
@@ -36,6 +32,11 @@ const HomeScreen: React.FC = () => {
     topSellingProducts,
     recentTransactions,
   } = restaurantOverView;
+
+  const { isLargeScreen, width } = useIsDesktop();
+  const isTablet = width >= 768;
+
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchRestaurantOverView();
@@ -126,6 +127,7 @@ const HomeScreen: React.FC = () => {
         <View className="mb-4 bg-white rounded-lg shadow-sm">
           <RecentTransactionsSummary
             recentTransactions={recentTransactions}
+            isLargeScreen={isLargeScreen}
             onViewAllPress={() => handleViewAllPress('RecentTrans')}
           />
         </View>

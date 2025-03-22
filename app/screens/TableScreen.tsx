@@ -142,6 +142,7 @@ export default function TableScreen({ route }: TableScreenProps) {
                 onGoToMenu={handleGoToMenuPress}
                 onGoToCart={handleGoToCart}
                 onSwitchTable={() => setShowSwitchTableModal(true)}
+                fetchTable={refetchTables}
               />
             )}
           </>

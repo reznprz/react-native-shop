@@ -68,6 +68,5 @@ export const findExpenseByDateRangeApi = async (
 
 export const deleteExpenseApi = async (id: number): Promise<ApiResponse<ExpenseDetailResponse>> => {
   await login({ username: 'ree', password: 'reeree' });
-
   return await apiMethods.delete<ExpenseDetailResponse>(`/api/expenses/${id}`);
 };

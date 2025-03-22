@@ -7,10 +7,15 @@ import CustomButton from '../common/button/CustomButton';
 
 interface Props {
   recentTransactions: OrderDetails[];
+  isLargeScreen: boolean;
   onViewAllPress: () => void;
 }
 
-const RecentTransactionsSummary: React.FC<Props> = ({ recentTransactions, onViewAllPress }) => {
+const RecentTransactionsSummary: React.FC<Props> = ({
+  recentTransactions,
+  isLargeScreen,
+  onViewAllPress,
+}) => {
   return (
     <View className="bg-white rounded-lg p-5 mt-4 shadow-sm">
       {!recentTransactions || recentTransactions.length === 0 ? (
@@ -69,7 +74,13 @@ const RecentTransactionsSummary: React.FC<Props> = ({ recentTransactions, onView
                 <Text className="w-1/5 text-black" numberOfLines={1} ellipsizeMode="tail">
                   {paymentMethods}
                 </Text>
-                <StatusChip status={transaction.orderStatus} />
+                {isLargeScreen ? (
+                  <StatusChip status={transaction.orderStatus} />
+                ) : (
+                  <Text className="w-1/5 text-black" numberOfLines={1} ellipsizeMode="tail">
+                    {transaction.orderStatus}
+                  </Text>
+                )}
               </View>
             );
           })}
