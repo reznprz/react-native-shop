@@ -44,8 +44,6 @@ export const useFood = () => {
   const filterGroupedFoodsByCategory = useCallback(
     (selectedSubCategory: SubCategory) => {
       dispatch(setLoading());
-
-      console.log('selectedSubCategory', selectedSubCategory);
       if (!foods) {
         dispatch(setError('Food list is not available')); // Set error in Redux
         return;

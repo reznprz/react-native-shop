@@ -11,7 +11,6 @@ export function useFetchExistingOrderForTable(
 ) {
   return useMutation<ApiResponse<Order>, Error, { tableName: string; restaurantId: number }>({
     mutationFn: async ({ tableName, restaurantId }) => {
-      console.log('Mutation triggered with:', { tableName, restaurantId });
       if (!tableName || !restaurantId) {
         throw new Error('Missing tableName or restaurantId');
       }

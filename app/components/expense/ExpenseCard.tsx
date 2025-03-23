@@ -27,7 +27,6 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
   onUpdate,
   onDelete,
 }) => {
-  console.log(iconBgColor);
   return (
     /**
      * SwipeRow manages a single "front" view (rowFront)

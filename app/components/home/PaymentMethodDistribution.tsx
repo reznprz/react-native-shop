@@ -22,8 +22,6 @@ const PaymentMethodDistribution: React.FC<Props> = ({ paymentMethods, fontSize =
             : '#EF4444'; // red-500
   };
 
-  console.log(paymentMethods);
-
   const totalAmount = paymentMethods.reduce((sum, pm) => sum + pm.amount, 0);
 
   return (

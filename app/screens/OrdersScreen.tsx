@@ -195,7 +195,6 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
    */
   const handleApplyDate = useCallback((selectedDateRange: DateRangeSelection) => {
     setSelectedRange(selectedDateRange);
-    console.log('Selected date range ->', selectedDateRange);
   }, []);
 
   /**

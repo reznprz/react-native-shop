@@ -46,7 +46,6 @@ const ExpenseListScreen = () => {
 
   // Called when the user taps "Delete"
   const handleDelete = (rowKey: string) => {
-    console.log('Delete pressed for: ', rowKey);
     // Remove from state
     setExpenses((prev) => prev.filter((item) => item.key !== rowKey));
   };

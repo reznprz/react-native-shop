@@ -31,7 +31,6 @@ export const useExpenses = () => {
       setExpenseDetails(response.data || initialExpenseDetailResponse);
     },
     onError: (err) => {
-      console.warn('create expense fetch failed:', err);
       setExpenseDetails(initialExpenseDetailResponse);
     },
   });
@@ -55,7 +54,6 @@ export const useExpenses = () => {
       setExpenseDetails(response.data || initialExpenseDetailResponse);
     },
     onError: (err) => {
-      console.warn('find expense fetch failed:', err);
       setExpenseDetails(initialExpenseDetailResponse);
     },
   });
@@ -76,7 +74,6 @@ export const useExpenses = () => {
       setExpenseDetails(response.data || initialExpenseDetailResponse);
     },
     onError: (err) => {
-      console.warn('delete expense fetch failed:', err);
       setExpenseDetails(initialExpenseDetailResponse);
     },
   });
