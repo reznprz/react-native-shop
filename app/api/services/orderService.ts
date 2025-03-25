@@ -4,6 +4,7 @@ import { login } from './authService';
 import { CompleteOrderRequest, PaymentInfo } from 'app/hooks/useTables';
 import qs from 'qs';
 import { DateRangeSelectionType } from 'app/components/DateRangePickerModal';
+import { IconMetadata } from './expenseService';
 
 export interface OrderItem {
   id: number;
@@ -13,6 +14,7 @@ export interface OrderItem {
   unitPrice: number;
   total: number;
   imageUrl?: string;
+  iconDetails?: IconMetadata;
 }
 
 export enum OrderType {
