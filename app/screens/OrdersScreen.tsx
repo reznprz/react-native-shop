@@ -36,6 +36,11 @@ interface OrdersScreenProps {
   };
 }
 
+const initialSelectedDateRange: DateRangeSelection = {
+  selectionType: DateRangeSelectionType.QUICK_RANGE,
+  quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
+};
+
 export default function OrdersScreen({ route }: OrdersScreenProps) {
   const { selectedTab } = route.params || {};
 
@@ -65,10 +70,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
    * For date/time selection, we store a union type from the DateRange modal.
    * By default, let's say SINGLE_DATE = "Today"
    */
-  const [selectedRange, setSelectedRange] = useState<DateRangeSelection>({
-    selectionType: DateRangeSelectionType.SINGLE_DATE,
-    date: 'Today',
-  });
+  const [selectedRange, setSelectedRange] = useState<DateRangeSelection | null>(null);
 
   /**
    * Whenever `selectedRange` changes, fetch new data (except if it's invalid).
@@ -81,30 +83,39 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
     // Only run when selectedRange changes
   }, [selectedRange]);
 
-  /**
-   * If you'd like to re-fetch whenever the screen is focused,
-   * do so with the official `useFocusEffect`.
-   */
-  useFocusEffect(
-    useCallback(() => {
-      if (selectedRange) {
-        handleDateSelect(selectedRange);
-      }
-      // Dependencies = [] means it runs once on focus
-    }, []),
-  );
+  useEffect(() => {
+    if (selectedRange && activeTab === 'Past Orders') {
+      handleDateSelect(selectedRange);
+    }
+    // Only run when selectedRange changes
+  }, [activeTab]);
+
+  // /**
+  //  * If you'd like to re-fetch whenever the screen is focused,
+  //  * do so with the official `useFocusEffect`.
+  //  */
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     if (selectedRange) {
+  //       handleDateSelect(selectedRange);
+  //     }
+  //     // Dependencies = [] means it runs once on focus
+  //   }, []),
+  // );
+
+  // fetch todays orders
+  const handleTodaysSubtabSelect = useCallback(() => {
+    handleDateSelect({ selectionType: DateRangeSelectionType.SINGLE_DATE, date: 'Today' });
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       if (selectedTab === 'Past Orders') {
         setActiveTab('Past Orders');
-        setSelectedRange({
-          selectionType: DateRangeSelectionType.QUICK_RANGE,
-          quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
-        });
+        setSelectedRange(selectedRange);
       } else {
         setActiveTab('Todays Order');
-        setSelectedRange({ selectionType: DateRangeSelectionType.SINGLE_DATE, date: 'Today' });
+        handleTodaysSubtabSelect();
       }
     }, [selectedTab]),
   );
@@ -125,7 +136,9 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
   /** Pull-to-refresh logic. */
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
-    await handleDateSelect(selectedRange);
+    if (selectedRange) {
+      await handleDateSelect(selectedRange);
+    }
     setRefreshing(false);
   }, [selectedRange]);
 
@@ -208,7 +221,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
         removedFilter(removedFilterName, paymentStatuses),
         removedFilter(removedFilterName, orderTypes),
         removedFilter(removedFilterName, paymentMethods),
-        selectedRange,
+        selectedRange ? selectedRange : initialSelectedDateRange,
       );
     },
     [orderStatuses, paymentStatuses, orderTypes, paymentMethods, selectedRange],
@@ -223,12 +236,13 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
         activeTab={activeTab}
         onTabChange={(newTab) => {
           if (newTab === 'Todays Order') {
-            setSelectedRange({ selectionType: DateRangeSelectionType.SINGLE_DATE, date: 'Today' });
+            handleTodaysSubtabSelect();
           } else {
-            setSelectedRange({
-              selectionType: DateRangeSelectionType.QUICK_RANGE,
-              quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
-            });
+            if (selectedRange) {
+              setSelectedRange(selectedRange);
+            } else {
+              setSelectedRange(initialSelectedDateRange);
+            }
           }
           setActiveTab(newTab);
         }}
@@ -272,7 +286,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
           orderTypes={orderTypes}
           paymentMethods={paymentMethods}
           onApplyFilters={(...p) => {
-            handleApplyFilters(...p, selectedRange);
+            handleApplyFilters(...p, selectedRange ? selectedRange : initialSelectedDateRange);
             setShowFilters(false);
           }}
           onClearFilter={() => {

@@ -208,6 +208,7 @@ export const useOrder = () => {
     () => orders.reduce((sum, order) => sum + order.totalAmount, 0),
     [orders],
   );
+
   const paidAmount = useMemo(
     () =>
       orders

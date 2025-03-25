@@ -1,6 +1,8 @@
 import { OrderItem } from 'app/api/services/orderService';
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
+import CustomIcon from '../common/CustomIcon';
+import { IconType } from 'app/navigation/screenConfigs';
 
 const FALLBACK_IMAGE_URI = 'https://picsum.photos/300/200';
 
@@ -14,10 +16,22 @@ const TableFoodItemCard: React.FC<TableFoodItemCardProps> = ({ item, updateQuant
     <>
       <View className="flex-row items-center justify-evenly p-2 bg-white">
         {/* Product Image */}
-        <Image
+        {/* <Image
           source={{ uri: item.imageUrl || FALLBACK_IMAGE_URI }}
           className="w-12 h-12 rounded-full"
-        />
+        /> */}
+        <View
+          className={`p-3 rounded-md mr-3`}
+          style={{ backgroundColor: item.iconDetails?.bgColor || 'bg-blue-400' }}
+        >
+          <CustomIcon
+            name={item.iconDetails?.iconName || ''}
+            type={(item.iconDetails?.iconType as IconType) || 'Feather'}
+            size={20}
+            color={item.iconDetails?.filledColor}
+            validate={true}
+          />
+        </View>
 
         {/* Product Details: Name & Price */}
         <View className="flex-1 px-2">

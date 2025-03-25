@@ -1,0 +1,18 @@
+import React from 'react';
+import { View } from 'react-native';
+import WorkInProgress from '../../app/components/WorkInProgress';
+import { TEXT_MESSAGES } from 'app/constants/constants';
+
+const InventoryScreen: React.FC = () => {
+  return (
+    <View className="flex-1 items-center justify-center">
+      <WorkInProgress
+        title={'InventoryScreen ' + TEXT_MESSAGES.FEATURE_COMING_SOON}
+        subtitle={TEXT_MESSAGES.WORK_IN_PROGRESS_SUBTITLE}
+        iconName="progress-wrench"
+      />
+    </View>
+  );
+};
+
+export default InventoryScreen;

@@ -21,13 +21,15 @@ export const useSettingsHook = () => {
   const handlePress = useCallback((label: string) => {
     switch (label) {
       case 'Dashboard':
-        console.log('Navigating to Dashboard');
+        navigate('MainTabs', {
+          screen: 'Home',
+        });
         break;
       case 'Food Menu':
         push(ScreenNames.FOOD);
         break;
       case 'Inventory':
-        console.log('Navigating to Inventory');
+        push(ScreenNames.INVENTORY);
         break;
       case 'DailySales':
         push(ScreenNames.DAILYSALES);
@@ -45,7 +47,7 @@ export const useSettingsHook = () => {
         push(ScreenNames.EXPENSE);
         break;
       case 'Sales Analytics':
-        console.log('Navigating to Sales Analytics');
+        push(ScreenNames.SALESANALYTICS);
         break;
       case 'Subscription':
         console.log('Navigating to Subscription');

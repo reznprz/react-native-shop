@@ -5,6 +5,7 @@ export type MainTabsParamList = {
   Menu: { selectedTab?: string };
   TableScreen: { tableId?: string };
   Orders: { selectedTab?: string };
+  Home: undefined;
 };
 
 export type RootStackParamList = {
@@ -15,6 +16,8 @@ export type RootStackParamList = {
   Food: undefined;
   Expense: undefined;
   DailySales: undefined;
+  Inventory: undefined;
+  SalesAnalytics: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

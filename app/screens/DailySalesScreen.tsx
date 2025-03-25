@@ -75,10 +75,6 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
     }
   }, [updateDailySalesState]);
 
-  // if (dailySalesState?.status === 'pending' || updateDailySalesState?.status === 'pending') {
-  //   return <FoodLoadingSpinner iconName="hamburger" />;
-  // }
-
   useFocusEffect(
     useCallback(() => {
       if (selectedTab === 'Past') {
@@ -144,7 +140,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
               showsVerticalScrollIndicator={false}
               refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             >
-              {/* Payment Methods and Expenses - Equal Height Pair */}
+              {/* Payment Methods and Expenses */}
               <View className={`mb-4 ${isTablet ? 'flex-row justify-between gap-2' : 'flex-col'}`}>
                 <View
                   style={{ width: isTablet ? '48%' : '100%' }}
