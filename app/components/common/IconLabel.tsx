@@ -52,7 +52,7 @@ const IconLabel: React.FC<IconLabelProps> = ({
 
       {label && (
         <Text
-          className={`font-semibold  ${labelTextSize} ${textColor}`}
+          className={`font-semibold ml-1 ${labelTextSize} ${textColor}`}
           numberOfLines={2}
           ellipsizeMode="tail"
         >

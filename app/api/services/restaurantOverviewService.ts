@@ -3,6 +3,8 @@ import { ApiResponse } from 'app/api/handlers/index';
 import { login } from './authService';
 import { Expense, IconMetadata } from './expenseService';
 import { OrderDetails } from './orderService';
+import { DateRangeSelection } from 'app/components/DateRangePickerModal';
+import qs from 'qs';
 
 export interface PaymentDistribution {
   method: string;
@@ -114,13 +116,36 @@ export const getRestaurantOverviewApi = async (
 
 export const getDailySalesApi = async (
   restaurantId: number,
-  date: string,
+  date: DateRangeSelection,
 ): Promise<ApiResponse<DailySalesDetails>> => {
   await login({ username: 'ree', password: 'reeree' });
 
-  return await apiMethods.get<DailySalesDetails>(
-    `/api/overview/dailySales/${restaurantId}?date=${date}`,
-  );
+  const queryParams: Record<string, any> = {};
+
+  queryParams.selectionType = date.selectionType;
+
+  if (date.selectionType === 'QUICK_RANGE') {
+    queryParams.quickRangeLabel = date.quickRange.label;
+    if (date.quickRange.unit) {
+      queryParams.quickRangeUnit = date.quickRange.unit; // "minutes" or "days"
+    }
+    if (date.quickRange.value !== undefined) {
+      queryParams.quickRangeValue = date.quickRange.value; // e.g. 15
+    }
+  }
+  if (date.selectionType === 'SINGLE_DATE' && date.date) {
+    queryParams.singleDate = date.date;
+  }
+
+  if (date.selectionType === 'DATE_RANGE' && date.startDate && date.endDate) {
+    queryParams.startDate = date.startDate;
+    queryParams.endDate = date.endDate;
+  }
+
+  return await apiMethods.get<DailySalesDetails>(`/api/overview/dailySales/${restaurantId}`, {
+    params: queryParams,
+    paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
+  });
 };
 
 export const updateDailySalesApi = async (

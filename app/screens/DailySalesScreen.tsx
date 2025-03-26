@@ -1,3 +1,7 @@
+import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, ScrollView, RefreshControl } from 'react-native';
+
 import CustomButton from 'app/components/common/button/CustomButton';
 import DateHeader from 'app/components/common/DateHeader';
 import NotificationBar from 'app/components/common/NotificationBar';
@@ -10,9 +14,6 @@ import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribu
 import UpdateOpeningCashModal from 'app/components/modal/UpdateOpeningCashModal';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { useRestaurantOverview } from 'app/hooks/useRestaurantOverview';
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, ScrollView, RefreshControl } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
 
 const tabs = ['Past', 'Todays'];
 type TabType = (typeof tabs)[number];
@@ -27,7 +28,13 @@ interface DailySalesScreenProps {
   };
 }
 
+const initialSelectedDateRange: DateRangeSelection = {
+  selectionType: DateRangeSelectionType.QUICK_RANGE,
+  quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
+};
+
 const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
+  const { selectedTab } = route.params || {};
   const {
     dailySalesDetails,
     dailySalesState,
@@ -35,87 +42,127 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
     fetchDailySales,
     handleUpdateOpeningCash,
   } = useRestaurantOverview();
-  const { selectedTab } = route.params || {};
 
   const { isLargeScreen, width } = useIsDesktop();
   const isTablet = width >= 768;
 
+  // State
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Todays');
   const [selectedDate, setSelectedDate] = useState('Today');
+  const [selectedRange, setSelectedRange] = useState<DateRangeSelection>(initialSelectedDateRange);
   const [isCashModalVisible, setIsCashModalVisible] = useState(false);
   const [errorNotification, setErrorNotificaton] = useState('');
   const [successNotification, setSuccessNotificaton] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Todays');
-  const [selectedRange, setSelectedRange] = useState<DateRangeSelection>({
-    selectionType: DateRangeSelectionType.SINGLE_DATE,
-    date: 'Today',
-  });
 
+  // Destructure from dailySalesDetails for clarity
   const { paymentMethodDistribution, dailySalesTransaction, totalOverallSales, thisMonth } =
     dailySalesDetails;
 
-  useEffect(() => {
-    fetchDailySales(selectedDate);
-  }, [selectedDate]);
+  // Fetch sales for "Today" sub-tab
+  const handleFetchTodaySales = useCallback(
+    (date: string) => {
+      fetchDailySales({ selectionType: DateRangeSelectionType.SINGLE_DATE, date });
+    },
+    [fetchDailySales],
+  );
 
+  // Fetch sales for "Past" sub-tab
+  const handleFetchPastSales = useCallback(
+    (range: DateRangeSelection) => {
+      fetchDailySales(range);
+    },
+    [fetchDailySales],
+  );
+
+  // Handler for date change in Today sub-tab
+  const handleDateChange = useCallback(
+    (date: string) => {
+      setSelectedDate(date);
+      if (activeTab === 'Todays') {
+        handleFetchTodaySales(date);
+      }
+    },
+    [activeTab, handleFetchTodaySales],
+  );
+
+  // Handler for applying date range in Past sub-tab
+  const handleApplyDate = useCallback(() => {
+    if (activeTab === 'Past') {
+      handleFetchPastSales(selectedRange);
+    }
+  }, [activeTab, handleFetchPastSales, selectedRange]);
+
+  // SubTab switch
+  const handleTabChange = useCallback(
+    (newTab: TabType) => {
+      setActiveTab(newTab);
+      if (newTab === 'Past') {
+        handleFetchPastSales(selectedRange);
+      } else {
+        handleFetchTodaySales(selectedDate);
+      }
+    },
+    [handleFetchTodaySales, handleFetchPastSales, selectedDate, selectedRange],
+  );
+
+  // Pull-down refresh
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchDailySales(selectedDate);
+    if (activeTab === 'Past') {
+      handleFetchPastSales(selectedRange);
+    } else {
+      handleFetchTodaySales(selectedDate);
+    }
     setRefreshing(false);
-  }, [fetchDailySales]);
+  }, [activeTab, handleFetchPastSales, handleFetchTodaySales, selectedDate, selectedRange]);
 
+  // Check if there's an error or success upon updating opening cash
   useEffect(() => {
     if (updateDailySalesState.status === 'error') {
-      setErrorNotificaton(updateDailySalesState.error?.message || 'Opps Something went wrong!.');
+      setErrorNotificaton(updateDailySalesState.error?.message || 'Oops! Something went wrong.');
       updateDailySalesState.reset?.();
     }
     if (updateDailySalesState.status === 'success') {
-      setSuccessNotificaton('Updated Opening Cash Success!.');
+      setSuccessNotificaton('Updated Opening Cash successfully!');
       updateDailySalesState.reset?.();
     }
   }, [updateDailySalesState]);
 
+  // When screen comes into focus, verify the correct tab and fetch data if needed
   useFocusEffect(
     useCallback(() => {
       if (selectedTab === 'Past') {
         setActiveTab('Past');
-        setSelectedRange({
-          selectionType: DateRangeSelectionType.QUICK_RANGE,
-          quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
-        });
+        handleFetchPastSales(selectedRange);
       } else {
         setActiveTab('Todays');
-        setSelectedRange({ selectionType: DateRangeSelectionType.SINGLE_DATE, date: 'Today' });
+        handleFetchTodaySales(selectedDate);
       }
-    }, [selectedTab]),
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedTab, selectedRange, selectedDate]),
   );
 
   return (
     <View className="h-full w-full bg-gray-100">
-      <SubTab
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(newTab) => {
-          if (newTab === 'Todays Order') {
-            setSelectedRange({ selectionType: DateRangeSelectionType.SINGLE_DATE, date: 'Today' });
-          } else {
-            setSelectedRange({
-              selectionType: DateRangeSelectionType.QUICK_RANGE,
-              quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
-            });
-          }
-          setActiveTab(newTab);
-        }}
-      />
+      {/* SubTab */}
+      <SubTab tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
 
       <View className="flex-1 p-4 pb-0">
         {/* Date Header */}
-        <DateHeader selectedDate={selectedDate} onDateChange={setSelectedDate} />
+        <DateHeader
+          activeTab={activeTab || ''}
+          selectedDate={selectedDate}
+          onDateChange={handleDateChange}
+          handleApplyDate={handleApplyDate}
+        />
 
+        {/* Loading */}
         {dailySalesState?.status === 'pending' || updateDailySalesState?.status === 'pending' ? (
           <FoodLoadingSpinner iconName="coffee" />
         ) : (
           <>
+            {/* Daily Sales Metrics */}
             <DailySalesMetrics
               totalOverallSales={totalOverallSales}
               thisMonth={thisMonth}
@@ -127,11 +174,9 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
             {activeTab === 'Todays' && (
               <View className="flex-row justify-end items-end ml-2 mt-1 mb-6">
                 <CustomButton
-                  title={'+ Update daily Sales'}
-                  onPress={() => {
-                    setIsCashModalVisible(true);
-                  }}
-                  customButtonStyle="w-40 h-12 mr-2 flex items-center justify-center rounded-lg  bg-[#2a4759] shadow-md"
+                  title="+ Update daily Sales"
+                  onPress={() => setIsCashModalVisible(true)}
+                  customButtonStyle="w-40 h-12 mr-2 flex items-center justify-center rounded-lg bg-[#2a4759] shadow-md"
                 />
               </View>
             )}
@@ -142,6 +187,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
             >
               {/* Payment Methods and Expenses */}
               <View className={`mb-4 ${isTablet ? 'flex-row justify-between gap-2' : 'flex-col'}`}>
+                {/* Payment Method Distribution */}
                 <View
                   style={{ width: isTablet ? '48%' : '100%' }}
                   className="bg-white rounded-lg shadow-sm flex-1"
@@ -151,6 +197,8 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
                     fontSize={18}
                   />
                 </View>
+
+                {/* Sales Transactions */}
                 <View
                   style={{ width: isTablet ? '48%' : '100%' }}
                   className="bg-white rounded-lg shadow-sm flex-1 mt-4 md:mt-0"
@@ -167,6 +215,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
           </>
         )}
 
+        {/* Update Opening Cash Modal */}
         <UpdateOpeningCashModal
           visible={isCashModalVisible}
           onRequestClose={() => setIsCashModalVisible(false)}
@@ -174,12 +223,12 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
           onUpdateOpeningCash={(updatedAmount) => handleUpdateOpeningCash(updatedAmount)}
         />
 
+        {/* Notification Bars */}
         <NotificationBar
           message={errorNotification}
           variant="error"
           onClose={() => setErrorNotificaton('')}
         />
-
         <NotificationBar message={successNotification} onClose={() => setSuccessNotificaton('')} />
       </View>
     </View>

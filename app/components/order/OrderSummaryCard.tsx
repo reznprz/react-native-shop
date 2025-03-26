@@ -85,7 +85,7 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({
             )}
           </View>
         </View>
-        <View className="flex-row justify-between">
+        <View className="flex-row justify-between gap-4 mt-2">
           <IconLabel
             label={`${order.totalAmount.toFixed(2)}`}
             iconName="money-bill-wave"
@@ -97,6 +97,9 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({
             applyCircularIconBg={false}
             iconColor="black"
           />
+          {order.orderMenuType && order.orderMenuType === 'TOURIST' && (
+            <StatusChip status={order.orderMenuType} customSize={'px-2 py-1 p-2'} />
+          )}
           <IconLabel
             label={order.orderType}
             iconName={orderTypeIconDetail.iconName}
@@ -109,12 +112,6 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({
             iconColor="brown"
           />
         </View>
-
-        {order.orderMenuType && order.orderMenuType === 'TOURIST' && (
-          <View className="flex-row justify-end pt-4">
-            <StatusChip status={order.orderMenuType} customSize={'px-2 py-1 text-base p-2'} />
-          </View>
-        )}
       </View>
     </View>
   );

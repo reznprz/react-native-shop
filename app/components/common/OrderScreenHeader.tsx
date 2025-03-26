@@ -9,6 +9,7 @@ import {
   DateRangeSelection,
   DateRangeSelectionType,
 } from '../DateRangePickerModal';
+import { getDisplayDateRange } from '../date/utils';
 
 type OrderScreenHeaderProps = {
   orderStatuses: FilterStatus[];
@@ -47,39 +48,11 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
   const handleDateRangeApply = (selection: DateRangeSelection) => {
     setRangeModalVisible(false);
 
-    switch (selection.selectionType) {
-      case DateRangeSelectionType.QUICK_RANGE:
-        // e.g. "Past 15 Mins"
-        setDisplayDateRange(selection.quickRange.label);
-        break;
+    const label = getDisplayDateRange(selection);
+    // for display
+    setDisplayDateRange(label);
 
-      case DateRangeSelectionType.TIME_RANGE_TODAY: {
-        // e.g. "Today 00:00 to 01:00"
-        const { startHour, startMin, endHour, endMin } = selection;
-        const formatHM = (h: number, m: number) =>
-          `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        setDisplayDateRange(
-          `Today ${formatHM(startHour, startMin)} → ${formatHM(endHour, endMin)}`,
-        );
-        break;
-      }
-
-      case DateRangeSelectionType.SINGLE_DATE: {
-        // e.g. "2025-03-25"
-        const dateStr = selection.date;
-        setDisplayDateRange(`Date: ${dateStr}`);
-        break;
-      }
-
-      case DateRangeSelectionType.DATE_RANGE: {
-        // e.g. "2025-03-20 → 2025-03-22"
-        const startStr = selection.startDate;
-        const endStr = selection.endDate;
-        setDisplayDateRange(`${startStr} → ${endStr}`);
-        break;
-      }
-    }
-
+    // makes api call
     handleApplyDate(selection);
   };
 

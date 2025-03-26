@@ -14,6 +14,7 @@ import {
 } from 'app/api/services/restaurantOverviewService';
 import { ScreenNames } from 'app/types/navigation';
 import { CommonActions } from '@react-navigation/native';
+import { DateRangeSelection } from 'app/components/DateRangePickerModal';
 
 export const useRestaurantOverview = () => {
   const [restaurantOverView, setRestaurantOverView] = useState<RestaurantOverview>(
@@ -47,7 +48,7 @@ export const useRestaurantOverview = () => {
   const getDailySalesMutation = useMutation<
     ApiResponse<DailySalesDetails>,
     Error,
-    { restaurantId: number; date: string }
+    { restaurantId: number; date: DateRangeSelection }
   >({
     mutationFn: async ({ restaurantId, date }) => {
       const response: ApiResponse<DailySalesDetails> = await getDailySalesApi(restaurantId, date);
@@ -94,7 +95,7 @@ export const useRestaurantOverview = () => {
   }, [getRestaurantOverviewMutation]);
 
   const fetchDailySales = useCallback(
-    (date: string) => {
+    (date: DateRangeSelection) => {
       getDailySalesMutation.mutate({ restaurantId: 1, date: date });
     },
     [getDailySalesMutation],
