@@ -15,6 +15,7 @@ import NotificationBar from 'app/components/common/NotificationBar';
 import CustomIcon from 'app/components/common/CustomIcon';
 import { IconType } from 'app/navigation/screenConfigs';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
+import { DateRangeSelection } from 'app/components/DateRangePickerModal';
 
 const ExpenseScreen = () => {
   const {
@@ -67,7 +68,12 @@ const ExpenseScreen = () => {
   return (
     <View className="flex-1 bg-gray-100 p-4">
       {/* Date Header */}
-      <DateHeader selectedDate={selectedDate} onDateChange={setSelectedDate} />
+      <DateHeader
+        selectedDate={selectedDate}
+        onDateChange={setSelectedDate}
+        activeTab={''}
+        handleApplyDate={() => {}}
+      />
 
       {/* Summary Section */}
       <ExpenseMetrics

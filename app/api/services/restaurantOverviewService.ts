@@ -1,6 +1,5 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
-import { login } from './authService';
 import { Expense, IconMetadata } from './expenseService';
 import { OrderDetails } from './orderService';
 import { DateRangeSelection } from 'app/components/DateRangePickerModal';
@@ -109,8 +108,6 @@ export const initialDailySalesDetails: DailySalesDetails = {
 export const getRestaurantOverviewApi = async (
   restaurantId: number,
 ): Promise<ApiResponse<RestaurantOverview>> => {
-  await login({ username: 'ree', password: 'reeree' });
-
   return await apiMethods.get<RestaurantOverview>(`/api/overview/${restaurantId}`);
 };
 
@@ -118,8 +115,6 @@ export const getDailySalesApi = async (
   restaurantId: number,
   date: DateRangeSelection,
 ): Promise<ApiResponse<DailySalesDetails>> => {
-  await login({ username: 'ree', password: 'reeree' });
-
   const queryParams: Record<string, any> = {};
 
   queryParams.selectionType = date.selectionType;
@@ -152,8 +147,6 @@ export const updateDailySalesApi = async (
   restaurantId: number,
   dailySalesTransaction: DailySalesTransaction,
 ): Promise<ApiResponse<DailySalesDetails>> => {
-  await login({ username: 'ree', password: 'reeree' });
-
   const payload = {
     id: dailySalesTransaction.id,
     openingCash: dailySalesTransaction.openingCash,

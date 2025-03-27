@@ -168,6 +168,9 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
               thisMonth={thisMonth}
               today={dailySalesTransaction.totalSales}
               unpaid={dailySalesTransaction.unPaid}
+              expensesAmount={
+                activeTab === 'Past' ? dailySalesDetails.dailySalesTransaction.expenses : 0
+              }
               isLargeScreen={isLargeScreen}
             />
 

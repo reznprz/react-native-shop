@@ -3,6 +3,8 @@ import { Alert } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
 import { push, navigate } from 'app/navigation/navigationService';
 import { ScreenNames } from 'app/types/navigation';
+import { logoutAll } from 'app/redux/actions';
+import { useDispatch } from 'react-redux';
 
 interface SettingOption {
   label: string;
@@ -17,6 +19,8 @@ interface Section {
 }
 
 export const useSettingsHook = () => {
+  const dispatch = useDispatch();
+
   // Define onPress handlers for each setting option
   const handlePress = useCallback((label: string) => {
     switch (label) {
@@ -66,6 +70,14 @@ export const useSettingsHook = () => {
         break;
     }
   }, []);
+
+  const handleLoginPress = useCallback(() => {
+    push(ScreenNames.LOGIN);
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(logoutAll());
+  };
 
   // Define sections with onPress handlers
   const sections: Section[] = [
@@ -146,5 +158,5 @@ export const useSettingsHook = () => {
     },
   ];
 
-  return { sections, handlePress };
+  return { sections, handlePress, handleLoginPress, handleLogout };
 };

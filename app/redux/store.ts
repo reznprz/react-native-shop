@@ -1,9 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
-import foodReducer from './foodSlice';
-import tableReducer from './tableSlice';
-import prepTableItemReducer from './prepTableItemsSlice';
 import { persistStore, persistReducer } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { rootReducer, RootState } from './rootReducer';
 
 const persistConfig = {
   key: 'root',
@@ -11,17 +9,14 @@ const persistConfig = {
   blacklist: ['filteredFoods'],
 };
 
-const persistedFoodReducer = persistReducer(persistConfig, foodReducer);
+const persistedReducer = persistReducer<RootState>(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: {
-    foods: persistedFoodReducer,
-    table: tableReducer,
-    prepTableItems: prepTableItemReducer,
-  },
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
+        // Required so redux-persist doesn't trigger warnings
         ignoredActions: ['persist/PERSIST'],
       },
     }),
@@ -29,6 +24,6 @@ export const store = configureStore({
 
 export const persistor = persistStore(store);
 
-// Export types for usage throughout your app
-export type RootState = ReturnType<typeof store.getState>;
+// Typed hooks, if you use them
 export type AppDispatch = typeof store.dispatch;
+export type { RootState };

@@ -1,6 +1,5 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
-import { login } from './authService';
 import { CompleteOrderRequest, PaymentInfo } from 'app/hooks/useTables';
 import qs from 'qs';
 import { DateRangeSelectionType } from 'app/components/DateRangePickerModal';
@@ -113,12 +112,9 @@ export const addUpdateOrderApi = async (
   orderItem: OrderItem,
   orderMenuType: string,
   totalPrice: number,
+  restaurantId: number,
+  userId: number,
 ): Promise<ApiResponse<Order>> => {
-  await login({ username: 'ree', password: 'reeree' });
-
-  const restaurantId = 1;
-  const userId = 1;
-
   const orderItems = {
     id: orderItem.id,
     orderId: orderItem.orderId,
@@ -133,7 +129,7 @@ export const addUpdateOrderApi = async (
     userId: userId,
     restaurantId: restaurantId,
     tableName: tableName,
-    tableId: 1,
+    tableId: 0,
     totalPrice: totalPrice,
     orderType: OrderType.STORE,
     orderItem: orderItems,
@@ -146,7 +142,6 @@ export const fetchExistingOrderByTableNameApi = async (
   tableName: string,
   restaurantId: number,
 ): Promise<ApiResponse<Order>> => {
-  await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.get<Order>('/public/api/orders/find-by-table-and-restaurant', {
     params: { tableName, restaurantId },
   });
@@ -156,15 +151,12 @@ export const completeOrderApi = async (
   payload: CompleteOrderRequest,
   orderId: number,
 ): Promise<ApiResponse<Order>> => {
-  await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.post<Order>(`/public/api/orders/${orderId}/complete`, payload);
 };
 
 export const findOrdersByFiltersAndOrdersApi = async (
   filters: FindOrdersFilters,
 ): Promise<ApiResponse<OrderDetails[]>> => {
-  await login({ username: 'ree', password: 'reeree' });
-
   const queryParams: Record<string, any> = {};
 
   // filters for order status, payment status, etc.
@@ -217,12 +209,10 @@ export const findOrdersByFiltersAndOrdersApi = async (
 };
 
 export const findOrdersByIdApi = async (orderId: number): Promise<ApiResponse<OrderDetails>> => {
-  await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.get<OrderDetails>(`/public/api/orders/${orderId}`);
 };
 
 export const canceledOrderApi = async (orderId: number): Promise<ApiResponse<OrderDetails>> => {
-  await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.put<OrderDetails>(`/public/api/orders/canceled/${orderId}`, {});
 };
 
@@ -230,7 +220,6 @@ export const switchTableApi = async (
   orderId: number,
   tableName: string,
 ): Promise<ApiResponse<OrderDetails>> => {
-  await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.put<OrderDetails>(
     `/public/api/orders/switch/table/${orderId}?tableName=${tableName}`,
     {},
@@ -242,7 +231,6 @@ export const switchPaymentApi = async (
   paymentId: number,
   paymentType: string,
 ): Promise<ApiResponse<OrderDetails>> => {
-  await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.put<OrderDetails>(
     `/public/api/orders/switch/payment/${orderId}/${paymentId}?paymentType=${paymentType}`,
     {},
@@ -253,6 +241,5 @@ export const addPaymentsApi = async (
   orderId: number,
   paymentInfos: PaymentInfo[],
 ): Promise<ApiResponse<OrderDetails>> => {
-  await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.post<OrderDetails>(`/public/api/orders/${orderId}/payment`, paymentInfos);
 };

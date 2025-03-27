@@ -35,11 +35,11 @@ const initialState: FoodState = {
 };
 
 // Async thunk to fetch foods
-export const fetchFoods = createAsyncThunk<Food[], void, { rejectValue: string }>(
+export const fetchFoods = createAsyncThunk<Food[], number, { rejectValue: string }>(
   'foods/fetchFoods',
-  async (_, { rejectWithValue }) => {
+  async (restaurantId, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<Food[]> = await fetchAllFoods();
+      const response: ApiResponse<Food[]> = await fetchAllFoods(restaurantId);
       if (response.status === 'success') {
         return response.data || [];
       } else {
@@ -52,11 +52,11 @@ export const fetchFoods = createAsyncThunk<Food[], void, { rejectValue: string }
 );
 
 // Async thunk to fetch categories
-export const fetchCategories = createAsyncThunk<Category[], void, { rejectValue: string }>(
+export const fetchCategories = createAsyncThunk<Category[], number, { rejectValue: string }>(
   'foods/fetchCategories',
-  async (_, { rejectWithValue }) => {
+  async (restaurantId, { rejectWithValue }) => {
     try {
-      const response: ApiResponse<Category[]> = await fetchAllCategories();
+      const response: ApiResponse<Category[]> = await fetchAllCategories(restaurantId);
       if (response.status === 'success') {
         return response.data || [];
       } else {
@@ -114,7 +114,6 @@ const foodSlice = createSlice({
     builder.addCase(fetchFoods.fulfilled, (state, action: PayloadAction<Food[]>) => {
       state.loading = false;
       state.foods = action.payload;
-      state.groupedFoods = groupFoodBySubCategory(action.payload);
     });
     builder.addCase(fetchFoods.rejected, (state, action) => {
       state.loading = false;

@@ -15,6 +15,8 @@ import {
 import { ScreenNames } from 'app/types/navigation';
 import { CommonActions } from '@react-navigation/native';
 import { DateRangeSelection } from 'app/components/DateRangePickerModal';
+import type { RootState } from '../redux/store';
+import { useSelector } from 'react-redux';
 
 export const useRestaurantOverview = () => {
   const [restaurantOverView, setRestaurantOverView] = useState<RestaurantOverview>(
@@ -23,12 +25,19 @@ export const useRestaurantOverview = () => {
 
   const [dailySales, setDailysales] = useState<DailySalesDetails>(initialDailySalesDetails);
 
+  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
+
+  const { restaurantId: storeRestaurantId = 0, userId: storedUserId = 0 } = storedAuthData || {};
+
   const getRestaurantOverviewMutation = useMutation<
     ApiResponse<RestaurantOverview>,
     Error,
     { restaurantId: number }
   >({
     mutationFn: async ({ restaurantId }) => {
+      if (!restaurantId || restaurantId === 0) {
+        throw new Error('RestaurantId is not valid');
+      }
       const response: ApiResponse<RestaurantOverview> =
         await getRestaurantOverviewApi(restaurantId);
       if (response.status !== 'success') {
@@ -91,12 +100,12 @@ export const useRestaurantOverview = () => {
   });
 
   const fetchRestaurantOverView = useCallback(() => {
-    getRestaurantOverviewMutation.mutate({ restaurantId: 1 });
+    getRestaurantOverviewMutation.mutate({ restaurantId: storeRestaurantId });
   }, [getRestaurantOverviewMutation]);
 
   const fetchDailySales = useCallback(
     (date: DateRangeSelection) => {
-      getDailySalesMutation.mutate({ restaurantId: 1, date: date });
+      getDailySalesMutation.mutate({ restaurantId: storeRestaurantId, date: date });
     },
     [getDailySalesMutation],
   );
@@ -114,7 +123,10 @@ export const useRestaurantOverview = () => {
         qr: dailySales.dailySalesTransaction.qr,
         date: dailySales.dailySalesTransaction.date,
       };
-      updateDailySalesMutation.mutate({ restaurantId: 1, paylaod: dailySalesTransaction });
+      updateDailySalesMutation.mutate({
+        restaurantId: storeRestaurantId,
+        paylaod: dailySalesTransaction,
+      });
     },
     [updateDailySalesMutation],
   );

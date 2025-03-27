@@ -15,10 +15,9 @@ import {
   OrderMenuType,
   OrderType,
 } from 'app/api/services/orderService';
-import { useAddUpdateOrderMutation } from './useAddUpdateOrderMutation';
+import { useAddUpdateOrderMutation } from './apiQuery/useAddUpdateOrderMutation';
 import { resetPrepTableItems, setPrepTableItems } from 'app/redux/prepTableItemsSlice';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
-import { CommonActions } from '@react-navigation/native';
 
 export interface TableItem {
   id: number;
@@ -78,15 +77,16 @@ export const convertFoodToOrderItem = (food: Food, orderMenuType: string): Order
   imageUrl: food.img,
 });
 
-// Query: Fetch Restaurant Tables
-export const useRestaurantTablesQuery = (): UseQueryResult<
-  ApiResponse<RestaurantTable[]>,
-  Error
-> => {
+export const useRestaurantTablesQuery = (
+  restaurantId: number,
+): UseQueryResult<ApiResponse<RestaurantTable[]>, Error> => {
   return useQuery<ApiResponse<RestaurantTable[]>, Error>({
     queryKey: ['restaurantTables'],
     queryFn: async (): Promise<ApiResponse<RestaurantTable[]>> => {
-      const response = await fetchAllTablesApi();
+      if (!restaurantId || restaurantId === 0) {
+        throw new Error('Restaurant is not valid');
+      }
+      const response = await fetchAllTablesApi(restaurantId);
       if (response.status !== 'success' || !response.data) {
         throw new Error(response.message || 'Error fetching tables');
       }
@@ -101,13 +101,16 @@ export function useTables() {
   const dispatch: AppDispatch = useDispatch();
   const tableName = useSelector((state: RootState) => state.table.tableName);
   const prepTableItems = useSelector((state: RootState) => state.prepTableItems);
+  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
+
+  const { restaurantId: storeRestaurantId = 0, userId: storedUserId = 0 } = storedAuthData || {};
 
   const {
     data: tablesData,
     isLoading: isTablesLoading,
     error: tablesError,
     refetch: refetchTables,
-  } = useRestaurantTablesQuery();
+  } = useRestaurantTablesQuery(storeRestaurantId);
 
   const tables: RestaurantTable[] = tablesData?.data || [];
 
@@ -120,9 +123,9 @@ export function useTables() {
   } = useAddUpdateOrderMutation({
     onSuccess: (response) => {
       if (response.data) {
-        const updatedOrder = response.data;
-        const updatedTableItem = toTableItem(updatedOrder);
-        dispatch(setPrepTableItems(updatedTableItem));
+        // const updatedOrder = response.data;
+        // const updatedTableItem = toTableItem(updatedOrder);
+        // dispatch(setPrepTableItems(updatedTableItem));
       }
     },
     onError: (err) => {
@@ -178,13 +181,13 @@ export function useTables() {
       const updatedPrepTableItems = {
         ...currentState,
         tableName: tableName, // from redux
-        restaurantId: 1,
+        restaurantId: storeRestaurantId,
         totalPrice: updatedTotalPrice,
         orderItems: updatedOrderItems,
       };
 
       // Dispatch the new state
-      // dispatch(setPrepTableItems(updatedPrepTableItems));
+      dispatch(setPrepTableItems(updatedPrepTableItems));
 
       // Now call the mutation using the updated state
       addOrUpdateOrder({
@@ -192,8 +195,10 @@ export function useTables() {
         tableName: tableName,
         orderMenuType: orderMenuType,
         totalPrice: item.unitPrice * newQuantity,
+        restaurantId: storeRestaurantId,
+        userId: storeRestaurantId,
         orderItems: {
-          id: 0, // new item id created when inserted into db
+          id: 0,
           orderId: updatedPrepTableItems.id,
           productName: item.productName,
           quantity: newQuantity,
@@ -267,7 +272,7 @@ export function useTables() {
 
   const handleTableClick = useCallback(
     (selectedTableName: string) => {
-      fetchExistingOrderForTable(selectedTableName, 1);
+      fetchExistingOrderForTable(selectedTableName, storeRestaurantId);
 
       dispatch(setTableName(selectedTableName));
     },
@@ -276,7 +281,7 @@ export function useTables() {
 
   const handleGoToMenuPress = useCallback(
     (selectedTableName: string) => {
-      fetchExistingOrderForTable(selectedTableName, 1);
+      fetchExistingOrderForTable(selectedTableName, storeRestaurantId);
 
       dispatch(setTableName(selectedTableName));
       navigate('MainTabs', {
@@ -289,7 +294,7 @@ export function useTables() {
 
   const handleSelectTable = useCallback(
     (selectedTableName: string) => {
-      fetchExistingOrderForTable(selectedTableName, 1);
+      fetchExistingOrderForTable(selectedTableName, storeRestaurantId);
       dispatch(setTableName(selectedTableName));
     },
     [dispatch, tableName],

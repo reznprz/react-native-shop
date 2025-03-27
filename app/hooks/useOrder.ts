@@ -1,4 +1,5 @@
 import { ApiResponse } from 'app/api/handlers';
+import { useSelector } from 'react-redux';
 import {
   addPaymentsApi,
   canceledOrderApi,
@@ -19,10 +20,12 @@ import {
 import { PaymentInfo } from './useTables';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 import { DateRangeSelection, DateRangeSelectionType } from 'app/components/DateRangePickerModal';
+import { RootState } from 'app/redux/rootReducer';
 
 export const useOrder = () => {
   const [orders, setOrders] = useState<OrderDetails[]>([]);
   const [order, setOrder] = useState<OrderDetails | null>(null);
+  const storedRestaurantId = useSelector((state: RootState) => state.auth.authData?.restaurantId);
 
   // Initial filter setup
   const initialFilters = {
@@ -241,7 +244,7 @@ export const useOrder = () => {
 
       // Build the base object:
       const base: FindOrdersFilters = {
-        restaurantId: 1,
+        restaurantId: storedRestaurantId || 0,
       };
 
       //  Interpret the union:

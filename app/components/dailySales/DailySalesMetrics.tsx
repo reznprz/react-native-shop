@@ -8,6 +8,7 @@ type DailySalesMetricsProps = {
   thisMonth: number;
   today: number;
   unpaid: number;
+  expensesAmount: number;
   isLargeScreen: boolean;
 };
 
@@ -16,6 +17,7 @@ export const DailySalesMetrics: React.FC<DailySalesMetricsProps> = ({
   thisMonth,
   today,
   unpaid,
+  expensesAmount,
   isLargeScreen,
 }) => {
   const cards = (
@@ -35,8 +37,8 @@ export const DailySalesMetrics: React.FC<DailySalesMetricsProps> = ({
         width="w-1/4"
       />
       <HomeSummaryCard
-        title="Today's Sales"
-        amount={today.toString()}
+        title={expensesAmount > 0 ? 'Expense' : "Today's Sales"}
+        amount={expensesAmount > 0 ? expensesAmount.toString() : today.toString()}
         icon={<FontAwesome5 name="check-circle" size={20} color="#8B5CF6" />}
         iconBgColor={' bg-purple-200 '}
         width="w-1/4"

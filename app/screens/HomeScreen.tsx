@@ -11,6 +11,7 @@ import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import InventoryStatusSummaryCard from 'app/components/home/InventoryStatusSummaryCard';
 import TopSellingProductsCard from 'app/components/home/TopSellingProductsCard';
 import RecentTransactionsSummary from 'app/components/home/RecentTransactionsSummary';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HomeScreen: React.FC = () => {
   const {
@@ -38,9 +39,11 @@ const HomeScreen: React.FC = () => {
 
   const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetchRestaurantOverView();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchRestaurantOverView();
+    }, []),
+  );
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

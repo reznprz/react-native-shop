@@ -35,7 +35,7 @@ export const RestaurantOverviewMetrics: React.FC<RestaurantOverviewMetricsProps>
         width="w-1/4"
       />
       <HomeSummaryCard
-        title="Total's Expenses"
+        title="Expenses"
         amount={totalExpenses.toString()}
         icon={<Ionicons name="time-outline" size={20} color="#8B5CF6" />}
         iconBgColor={' bg-purple-200 '}

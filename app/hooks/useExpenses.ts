@@ -9,11 +9,17 @@ import {
 } from 'app/api/services/expenseService';
 import { useCallback, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import type { RootState } from '../redux/store';
+import { useSelector } from 'react-redux';
 
 export const useExpenses = () => {
   const [expenseDetails, setExpenseDetails] = useState<ExpenseDetailResponse>(
     initialExpenseDetailResponse,
   );
+
+  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
+
+  const { restaurantId: storeRestaurantId = 0, userId: storedUserId = 0 } = storedAuthData || {};
 
   const createExpenseMutation = useMutation<
     ApiResponse<ExpenseDetailResponse>,
@@ -21,7 +27,11 @@ export const useExpenses = () => {
     { newExpense: Expense }
   >({
     mutationFn: async ({ newExpense }) => {
-      const response: ApiResponse<ExpenseDetailResponse> = await addExpenseApi(1, 1, newExpense);
+      const response: ApiResponse<ExpenseDetailResponse> = await addExpenseApi(
+        storeRestaurantId,
+        storedUserId,
+        newExpense,
+      );
       if (response.status !== 'success') {
         throw new Error(response.message);
       }
@@ -80,7 +90,7 @@ export const useExpenses = () => {
 
   const fetchExpense = useCallback(
     (date: string) => {
-      findExpenseByDateRangeMutation.mutate({ date: date, restaurantId: 1 });
+      findExpenseByDateRangeMutation.mutate({ date: date, restaurantId: storeRestaurantId });
     },
     [findExpenseByDateRangeMutation],
   );

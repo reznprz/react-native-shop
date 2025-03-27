@@ -1,6 +1,5 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
-import { login } from './authService';
 
 export interface IconMetadata {
   iconName: string;
@@ -41,8 +40,6 @@ export const addExpenseApi = async (
   userId: number,
   expense: Expense,
 ): Promise<ApiResponse<ExpenseDetailResponse>> => {
-  await login({ username: 'ree', password: 'reeree' });
-
   const expenseRequest = {
     quantity: expense.quantity,
     description: expense.description,
@@ -59,14 +56,11 @@ export const findExpenseByDateRangeApi = async (
   date: string,
   restaurantId: number,
 ): Promise<ApiResponse<ExpenseDetailResponse>> => {
-  await login({ username: 'ree', password: 'reeree' });
-
   return await apiMethods.get<ExpenseDetailResponse>(
     `/api/expenses/date/${restaurantId}?date=${date}`,
   );
 };
 
 export const deleteExpenseApi = async (id: number): Promise<ApiResponse<ExpenseDetailResponse>> => {
-  await login({ username: 'ree', password: 'reeree' });
   return await apiMethods.delete<ExpenseDetailResponse>(`/api/expenses/${id}`);
 };

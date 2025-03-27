@@ -1,6 +1,5 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
-import { login } from './authService';
 
 export interface GetAllFoodsResponse {
   requestId: string | null;
@@ -32,16 +31,16 @@ export interface Category {
 }
 
 // Fetch all foods
-export const fetchAllFoods = async (): Promise<ApiResponse<Food[]>> => {
-  await login({ username: 'ree', password: 'reeree' });
+export const fetchAllFoods = async (restaurantId: number): Promise<ApiResponse<Food[]>> => {
   const params: { searchType?: string; searchValue?: string } = {};
   params.searchType = 'ALL';
   params.searchValue = undefined;
-  return await apiMethods.get<Food[]>('/api/food', { params: params });
+  return await apiMethods.get<Food[]>(`/api/food/${restaurantId}`, { params: params });
 };
 
 // Fetch all Categories
-export const fetchAllCategories = async (): Promise<ApiResponse<Category[]>> => {
-  await login({ username: 'ree', password: 'reeree' });
-  return await apiMethods.get<Category[]>('/api/food/categories');
+export const fetchAllCategories = async (
+  restaurantId: number,
+): Promise<ApiResponse<Category[]>> => {
+  return await apiMethods.get<Category[]>(`/api/food/categories/${restaurantId}`);
 };

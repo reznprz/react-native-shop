@@ -26,6 +26,7 @@ interface FoodsMenuProps {
   handleCategoryClick: (category: string) => void;
   setSelectedCategory: (category: string) => void;
   updateCartItemForFood: (food: Food, quantity: number) => void;
+  refetchFoods: () => void;
 }
 
 export default function FoodsMenu({
@@ -40,8 +41,16 @@ export default function FoodsMenu({
   handleCategoryClick,
   setSelectedCategory,
   updateCartItemForFood,
+  refetchFoods,
 }: FoodsMenuProps) {
   const { width, numColumns, isDesktop } = useIsDesktop();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refetchFoods();
+    setRefreshing(false);
+  };
 
   return (
     <>
@@ -51,7 +60,7 @@ export default function FoodsMenu({
         onBackPress={() => console.log('Go back')}
         onSearch={handleSearch}
         onFilterPress={() => console.log('Filter pressed')}
-        filters={categories.map((category) => category.name)}
+        filters={categories?.map((category) => category.name) || ['none']}
         isDesktop={isDesktop}
         handleFilterClick={(selectedCategory) => {
           handleCategoryClick(selectedCategory);
@@ -84,6 +93,8 @@ export default function FoodsMenu({
           keyExtractor={(_, index) => String(index)}
           contentContainerStyle={{ paddingVertical: 4, margin: 10 }}
           numColumns={numColumns}
+          onRefresh={handleRefresh}
+          refreshing={refreshing}
           renderItem={({ item }) => {
             // Each item should take an equal slice of the row width
             const itemWidth = width / numColumns - 8;

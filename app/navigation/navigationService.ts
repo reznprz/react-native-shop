@@ -18,6 +18,7 @@ export type RootStackParamList = {
   DailySales: undefined;
   Inventory: undefined;
   SalesAnalytics: undefined;
+  Login: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

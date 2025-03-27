@@ -1,5 +1,5 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { addUpdateOrderApi, Order, OrderItem } from '../api/services/orderService';
+import { addUpdateOrderApi, Order, OrderItem } from '../../api/services/orderService';
 import { ApiResponse } from 'app/api/handlers';
 
 export interface AddUpdateOrderParams {
@@ -8,6 +8,8 @@ export interface AddUpdateOrderParams {
   orderItems: OrderItem;
   orderMenuType: string;
   totalPrice: number;
+  restaurantId: number;
+  userId: number;
 }
 
 /**
@@ -21,7 +23,8 @@ export function useAddUpdateOrderMutation(
   return useMutation<ApiResponse<Order>, Error, AddUpdateOrderParams>({
     // Our mutation function (required)
     mutationFn: async (params: AddUpdateOrderParams) => {
-      const { orderId, tableName, orderItems, orderMenuType, totalPrice } = params;
+      const { orderId, tableName, orderItems, orderMenuType, totalPrice, restaurantId, userId } =
+        params;
       if (!tableName || !orderItems) {
         throw new Error('Missing tableName, or orderItems');
       }
@@ -31,6 +34,8 @@ export function useAddUpdateOrderMutation(
         orderItems,
         orderMenuType,
         totalPrice,
+        restaurantId,
+        userId,
       );
 
       if (response.status !== 'success') {

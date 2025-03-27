@@ -5,11 +5,11 @@ import SubTab from 'app/components/common/SubTab';
 import { useTables } from 'app/hooks/useTables';
 import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
 import FoodsMenu, { SubTabType } from 'app/components/FoodMenu/FoodsMenu';
-import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
 import { useFocusEffect } from '@react-navigation/native';
 import TableListModal from 'app/components/modal/TableListModal';
 import { Food } from 'app/api/services/foodService';
 import { OrderMenuType } from 'app/api/services/orderService';
+import NotificationBar from 'app/components/common/NotificationBar';
 
 const tabs = ['All Foods', 'Food Items'];
 
@@ -44,10 +44,6 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Foods');
   const [activeSubTab, setActiveSubTab] = useState<SubTabType>(OrderMenuType.NORMAL);
   const [showTableListModal, setShowTableListModal] = useState(false);
-
-  useEffect(() => {
-    refetch();
-  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -92,7 +88,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
       />
 
       <View className="flex-1 bg-gray-100">
-        {activeTab !== 'All Foods' ? (
+        {activeTab === 'Food Items' ? (
           <TableItemAndPayment
             tableItems={prepTableItems}
             updateQuantity={(item, newQty) => {
@@ -119,12 +115,14 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             updateCartItemForFood={(food, qty) => {
               onHandleAddUpdateFoodItems(qty, food);
             }}
+            refetchFoods={refetch}
           />
         )}
       </View>
 
-      <ErrorMessagePopUp
-        errorMessage={addUpdateOrderError?.message || ''}
+      <NotificationBar
+        message={addUpdateOrderError?.message || ''}
+        variant="error"
         onClose={() => {
           resetAddOrUpdateOrder();
         }}

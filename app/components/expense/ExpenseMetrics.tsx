@@ -19,7 +19,7 @@ export const ExpenseMetrics: React.FC<ExpenseMetricsProps> = ({
   const cards = (
     <>
       <ExpenseSummaryCard
-        title="Total Expenses"
+        title="All Expenses"
         amount={totalExpenses.toString()}
         icon={<Ionicons name="wallet" size={20} color="#3B82F6" />}
         iconBgColor={'bg-blue-200 '}

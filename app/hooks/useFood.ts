@@ -17,6 +17,7 @@ import { SubCategory } from './utils/groupFoodBySubCategory';
 export const useFood = () => {
   const dispatch = useDispatch<AppDispatch>();
   const tableName = useSelector((state: RootState) => state.table.tableName);
+  const storedRestaurantId = useSelector((state: RootState) => state.auth.authData?.restaurantId);
 
   // Local state for search and category
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,9 +37,11 @@ export const useFood = () => {
 
   // Function to fetch foods and Categories
   const refetch = useCallback(() => {
-    dispatch(fetchFoods());
-    dispatch(fetchCategories());
-  }, [dispatch]);
+    if (storedRestaurantId && storedRestaurantId > 0) {
+      dispatch(fetchFoods(storedRestaurantId));
+      dispatch(fetchCategories(storedRestaurantId));
+    }
+  }, [dispatch, storedRestaurantId]);
 
   // Function to filter foods by category
   const filterGroupedFoodsByCategory = useCallback(

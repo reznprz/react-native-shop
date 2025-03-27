@@ -1,5 +1,4 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { config } from 'app/config';
 
 export interface Credentials {
@@ -42,62 +41,31 @@ export interface AuthResponse {
 }
 
 /**
- * Log in and store the JWT tokens.
+ * Log in and store the JWT tokens in AsyncStorage (if you want).
+ * Then you also dispatch setAuthData(...) in Redux to keep them in store.
  */
 export const login = async (credentials: Credentials): Promise<AuthResponse> => {
-  try {
-    const response = await axios.post<AuthResponse>(
-      `${config.tokenBaseURL}/auth/login`,
-      credentials,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        timeout: 10000,
-      },
-    );
-    const authResponse = response.data;
-    // Store tokens in AsyncStorage for later use
-    await AsyncStorage.setItem('jwtToken', authResponse.accessToken);
-    await AsyncStorage.setItem('refreshToken', authResponse.refreshToken);
-    await AsyncStorage.setItem('restaurantId', authResponse.restaurantId.toString());
-    await AsyncStorage.setItem('userId', authResponse.userId.toString());
+  const response = await axios.post<AuthResponse>(
+    `${config.tokenBaseURL}/auth/login`,
+    credentials,
+    {
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      timeout: 10000,
+    },
+  );
+  const authResponse = response.data;
 
-    return authResponse;
-  } catch (error) {
-    throw error;
-  }
+  return authResponse;
 };
 
-/**
- * Retrieve the stored JWT access token.
- */
-export const getToken = async (): Promise<string | null> => {
-  try {
-    return await AsyncStorage.getItem('jwtToken');
-  } catch (error) {
-    console.error('Error retrieving token:', error);
-    return null;
-  }
-};
-
-export const getRestaurantId = async (): Promise<number> => {
-  try {
-    const restaurantId = await AsyncStorage.getItem('restaurantId');
-    return restaurantId ? Number(restaurantId) || 0 : 0;
-  } catch (error) {
-    console.error('Error retrieving restaurantId:', error);
-    return 0;
-  }
-};
-
-export const getUserId = async (): Promise<number> => {
-  try {
-    const userId = await AsyncStorage.getItem('userId');
-    return userId ? Number(userId) || 0 : 0;
-  } catch (error) {
-    console.error('Error retrieving userId:', error);
-    return 0;
-  }
+export const refreshTokenApi = async (refreshToken: string): Promise<string> => {
+  const response = await axios.post<{ accessToken: string }>(
+    `${config.tokenBaseURL}/auth/refresh`,
+    { token: refreshToken },
+    {
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      timeout: 10000,
+    },
+  );
+  return response.data.accessToken;
 };
