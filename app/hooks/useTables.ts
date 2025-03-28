@@ -40,6 +40,13 @@ export interface PaymentInfo {
   note?: string;
 }
 
+export enum OperationType {
+  ADD = 'ADD',
+  DELETE = 'DELETE',
+  UPDATE = 'UPDATE',
+  NONE = 'NONE',
+}
+
 export interface CompleteOrderRequest {
   discountAmount: number;
   totalAmount: number;
@@ -67,15 +74,93 @@ function toTableItem(order: Order): TableItem {
   };
 }
 
-export const convertFoodToOrderItem = (food: Food, orderMenuType: string): OrderItem => ({
+export const convertFoodToOrderItem = (
+  food: Food,
+  orderMenuType: string,
+  newQuantity: number,
+): OrderItem => ({
   id: 0,
   orderId: 0,
   productName: food.name,
-  quantity: 1,
+  quantity: newQuantity,
   unitPrice: orderMenuType === 'TOURIST' ? food.touristPrice : food.price,
   total: food.price,
   imageUrl: food.img,
 });
+
+export function determineOperation(
+  order: TableItem,
+  updatedItem: OrderItem,
+  newQuantity: number,
+): OperationType {
+  // Look for an existing item with the same product name
+  const existingItem = order.orderItems.find(
+    (item) => item.productName === updatedItem.productName,
+  );
+  // If the quantity is 0, we intend to delete the item
+  if (newQuantity === 0) {
+    return OperationType.DELETE;
+  }
+  // If no matching item exists, this is a new item addition
+  else if (!existingItem) {
+    return OperationType.ADD;
+  }
+  // If found and any attribute has changed, update the item
+  else {
+    if (existingItem.quantity !== newQuantity || existingItem.unitPrice !== updatedItem.unitPrice) {
+      return OperationType.UPDATE;
+    }
+  }
+  return OperationType.NONE;
+}
+
+export function updateTableItemWithOrderItem(
+  order: TableItem,
+  updatedItem: OrderItem,
+  newQuantity: number,
+): TableItem {
+  const op = determineOperation(order, updatedItem, newQuantity);
+  switch (op) {
+    case OperationType.ADD:
+      // Add the new item to orderItems
+      return {
+        ...order,
+        orderItems: [...order.orderItems, updatedItem],
+      };
+
+    case OperationType.DELETE:
+      // Remove the item matching the product name
+      return {
+        ...order,
+        orderItems: order.orderItems.filter((item) => item.productName !== updatedItem.productName),
+      };
+
+    case OperationType.UPDATE:
+      // Partially update only the fields you want (e.g., quantity)
+      return {
+        ...order,
+        orderItems: order.orderItems.map((item) => {
+          if (item.productName !== updatedItem.productName) {
+            return item;
+          }
+          return {
+            ...item,
+            // Update only the props you want to change
+            quantity: newQuantity,
+            // e.g., if unitPrice also changed
+            unitPrice: updatedItem.unitPrice,
+            // You can recalc total if needed
+            total: newQuantity * updatedItem.unitPrice,
+          };
+        }),
+      };
+
+    case OperationType.NONE:
+    default:
+      // No changes
+      return order;
+  }
+}
 
 export const useRestaurantTablesQuery = (
   restaurantId: number,
@@ -114,7 +199,9 @@ export function useTables() {
 
   const tables: RestaurantTable[] = tablesData?.data || [];
 
-  // Mutation: Add or Update Order
+  /**
+   * Update state for a Food item, then call api for update with mutation on success we update the orderId.
+   */
   const {
     mutate: addOrUpdateOrder,
     error: addUpdateOrderError,
@@ -123,9 +210,21 @@ export function useTables() {
   } = useAddUpdateOrderMutation({
     onSuccess: (response) => {
       if (response.data) {
-        // const updatedOrder = response.data;
-        // const updatedTableItem = toTableItem(updatedOrder);
-        // dispatch(setPrepTableItems(updatedTableItem));
+        const updatedOrder = response.data;
+
+        const updatedFields = {
+          id: updatedOrder.id,
+          tableName: updatedOrder.tableName,
+          restaurantId: updatedOrder.restaurantId,
+          userId: updatedOrder.userId,
+        };
+
+        const updatedState = {
+          ...prepTableItems,
+          ...updatedFields,
+        };
+
+        dispatch(setPrepTableItems(updatedState));
       }
     },
     onError: (err) => {
@@ -142,56 +241,17 @@ export function useTables() {
       // current state from redux
       const currentState = prepTableItems;
 
-      const item = orderItem || convertFoodToOrderItem(food!, orderMenuType);
+      const item = orderItem || convertFoodToOrderItem(food!, orderMenuType, newQuantity);
 
-      // check for existing item
-      const existingIndex = currentState.orderItems.findIndex(
-        (item) => item.productName === item.productName,
-      );
+      // Compute updated table
+      const updatedTableItems = updateTableItemWithOrderItem(currentState, item, newQuantity);
 
-      let updatedOrderItems: OrderItem[] = [];
-
-      // ts returns -1 if not found
-      if (existingIndex > -1) {
-        // Update existing item
-        updatedOrderItems = [...currentState.orderItems];
-        const existingItem = updatedOrderItems[existingIndex];
-        updatedOrderItems[existingIndex] = {
-          ...existingItem,
-          quantity: newQuantity,
-          total: item.unitPrice * newQuantity,
-        };
-      } else {
-        // Add new item
-        updatedOrderItems = [
-          ...currentState.orderItems,
-          {
-            id: 0, // new item id created when inserted into db
-            orderId: currentState.id,
-            productName: item.productName,
-            quantity: newQuantity,
-            unitPrice: item.unitPrice,
-            total: item.unitPrice * newQuantity,
-          },
-        ];
-      }
-
-      const updatedTotalPrice = updatedOrderItems.reduce((acc, item) => acc + item.total, 0);
-
-      const updatedPrepTableItems = {
-        ...currentState,
-        tableName: tableName, // from redux
-        restaurantId: storeRestaurantId,
-        totalPrice: updatedTotalPrice,
-        orderItems: updatedOrderItems,
-      };
-
-      // Dispatch the new state
-      dispatch(setPrepTableItems(updatedPrepTableItems));
+      // Dispatch Redux action to update store
+      dispatch(setPrepTableItems(updatedTableItems));
 
       // Now call the mutation using the updated state
       addOrUpdateOrder({
-        orderId: updatedPrepTableItems.id,
+        orderId: updatedTableItems.id,
         tableName: tableName,
         orderMenuType: orderMenuType,
         totalPrice: item.unitPrice * newQuantity,
@@ -199,7 +259,7 @@ export function useTables() {
         userId: storeRestaurantId,
         orderItems: {
           id: 0,
-          orderId: updatedPrepTableItems.id,
+          orderId: updatedTableItems.id,
           productName: item.productName,
           quantity: newQuantity,
           unitPrice: item.unitPrice,
@@ -337,7 +397,6 @@ export function useTables() {
     { payload: CompleteOrderRequest; orderId: number }
   >({
     mutationFn: async ({ payload, orderId }) => {
-      console.log('Completing order:', orderId, payload);
       if (!orderId || payload.paymentInfos.length === 0) {
         throw new Error('Missing orderId or payment Information');
       }

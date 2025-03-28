@@ -74,7 +74,11 @@ const TableFoodItemsSummary: React.FC<TableFoodItemsSummaryProps> = ({
         />
       ) : (
         tableItems.orderItems.map((item) => (
-          <TableFoodItemCard key={item.id} item={item} updateQuantity={updateQuantity} />
+          <TableFoodItemCard
+            key={item.id + item.productName}
+            item={item}
+            updateQuantity={updateQuantity}
+          />
         ))
       )}
     </View>

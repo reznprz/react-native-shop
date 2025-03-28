@@ -47,6 +47,12 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   useFocusEffect(
     useCallback(() => {
+      refetch();
+    }, []),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
       if (selectedTab === 'Food Items') {
         setActiveTab('Food Items');
       } else {

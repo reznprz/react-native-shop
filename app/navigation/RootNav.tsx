@@ -13,7 +13,6 @@ const LazyExpenseScreen = createLazyScreen(() => import('app/screens/ExpenseScre
 const LazyDailySalesScreen = createLazyScreen(() => import('app/screens/DailySalesScreen'));
 const LazyInventoryScreen = createLazyScreen(() => import('app/screens/InventoryScreen'));
 const LazySalesAnalytics = createLazyScreen(() => import('app/screens/SalesAnalyticsScreen'));
-const LazyLoginScreen = createLazyScreen(() => import('app/screens/LoginScreen'));
 
 function LazyQrMenuItemsScreen(props: any) {
   return (
@@ -141,24 +140,6 @@ export default function RootNav() {
         component={LazySalesAnalytics}
         options={{
           title: ScreenDisplayNames.SALESANALYTICS,
-          headerShown: true,
-          headerStyle: {
-            backgroundColor: '#2a4759',
-          },
-          headerBackTitle: 'Go Back',
-          headerTintColor: '#ffffff',
-          headerTitleStyle: {
-            fontWeight: 'bold',
-            fontSize: 18,
-          },
-        }}
-      />
-
-      <Stack.Screen
-        name={ScreenNames.LOGIN}
-        component={LazyLoginScreen}
-        options={{
-          title: ScreenDisplayNames.LOGIN,
           headerShown: true,
           headerStyle: {
             backgroundColor: '#2a4759',

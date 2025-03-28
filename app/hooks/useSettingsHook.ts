@@ -71,10 +71,6 @@ export const useSettingsHook = () => {
     }
   }, []);
 
-  const handleLoginPress = useCallback(() => {
-    push(ScreenNames.LOGIN);
-  }, []);
-
   const handleLogout = () => {
     dispatch(logoutAll());
   };
@@ -158,5 +154,5 @@ export const useSettingsHook = () => {
     },
   ];
 
-  return { sections, handlePress, handleLoginPress, handleLogout };
+  return { sections, handlePress, handleLogout };
 };

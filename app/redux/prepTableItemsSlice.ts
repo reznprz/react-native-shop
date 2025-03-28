@@ -10,6 +10,7 @@ const initialTableItem: TableItem = {
   totalPrice: 0,
   subTotal: 0,
   discountAmount: 0,
+  date: '',
   orderType: OrderType.STORE,
   orderMenuType: OrderMenuType.NORMAL,
   orderItems: [],

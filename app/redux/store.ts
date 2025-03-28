@@ -6,7 +6,6 @@ import { rootReducer, RootState } from './rootReducer';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  blacklist: ['filteredFoods'],
 };
 
 const persistedReducer = persistReducer<RootState>(persistConfig, rootReducer);

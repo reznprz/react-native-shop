@@ -7,7 +7,7 @@ import CustomButton from 'app/components/common/button/CustomButton';
 import { useSettingsHook } from 'app/hooks/useSettingsHook';
 
 export default function ProfileScreen() {
-  const { sections, handlePress, handleLoginPress, handleLogout } = useSettingsHook();
+  const { sections, handlePress, handleLogout } = useSettingsHook();
 
   return (
     <ScrollView
@@ -50,22 +50,6 @@ export default function ProfileScreen() {
           title={'Logout'}
           onPress={() => {
             handleLogout();
-          }}
-          width="full"
-          height="l"
-          bgColor="bg-gray-300"
-          textColor="black"
-          iconType="FontAwesome5"
-          iconName="sign-out-alt"
-          iconColor="black"
-        />
-      </View>
-
-      <View className="p-4 mt-4">
-        <CustomButton
-          title={'Login'}
-          onPress={() => {
-            handleLoginPress();
           }}
           width="full"
           height="l"

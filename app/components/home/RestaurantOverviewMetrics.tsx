@@ -42,7 +42,7 @@ export const RestaurantOverviewMetrics: React.FC<RestaurantOverviewMetricsProps>
         width="w-1/4"
       />
       <HomeSummaryCard
-        title="Total Orders"
+        title="Orders Count"
         amount={totalOrders.toString()}
         icon={<Feather name="bar-chart-2" size={20} color="#10B981" />}
         iconBgColor={'bg-green-100'}

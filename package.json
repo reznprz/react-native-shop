@@ -33,6 +33,7 @@
     "axios": "^1.7.9",
     "expo": "^52.0.25",
     "lodash": "^4.17.21",
+    "lodash.debounce": "^4.0.8",
     "nativewind": "4.0.1",
     "qs": "^6.14.0",
     "react": "18.3.1",
@@ -58,6 +59,7 @@
   "devDependencies": {
     "@babel/core": "^7.21.0",
     "@types/lodash": "^4.17.14",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/qs": "^6.9.18",
     "@types/react": "~18.3.12",
     "@types/react-native-vector-icons": "^6.4.18",

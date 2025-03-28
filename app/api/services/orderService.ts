@@ -13,7 +13,7 @@ export interface OrderItem {
   unitPrice: number;
   total: number;
   imageUrl?: string;
-  iconDetails?: IconMetadata;
+  iconMetadata?: IconMetadata;
 }
 
 export enum OrderType {

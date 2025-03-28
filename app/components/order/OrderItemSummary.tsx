@@ -20,9 +20,6 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
 }) => {
   const [showMoreAction, setShowMoreAction] = useState(false);
   const paymentStatus = order.paymentStatus ? order.paymentStatus : 'UNPAID';
-  const paidAmount = order?.payments?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
-  const unpaidAmount = order.totalAmount - paidAmount;
-
   const hideCollabsibleInfo = order.orderStatus === 'CANCELED';
 
   const toggleMoreAction = () => {
@@ -93,7 +90,6 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
           <View className="flex-row justify-between py-1">
             <Text className="text-gray-600">Discount</Text>
             <Text className="text-gray-700 font-semibold">
-              {' '}
               रु {order.discountAmount.toFixed(2)}
             </Text>
           </View>

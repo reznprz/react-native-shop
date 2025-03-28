@@ -5,7 +5,7 @@ import './global.css'; // Typically not needed in pure React Native projects
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme, Theme } from '@react-navigation/native';
 import { navigationRef } from './app/navigation/navigationService';
-import RootNav from './app/navigation/RootNav';
+import AppContent from './app/navigation/AppContent';
 import ErrorBoundary from './app/components/ErrorBoundary';
 import FoodLoadingSpinner from './app/components/FoodLoadingSpinner';
 import { Provider } from 'react-redux';
@@ -44,7 +44,7 @@ const App: React.FC = () => {
           <SafeAreaProvider>
             <NavigationContainer ref={navigationRef} theme={MyTheme}>
               <React.Suspense fallback={<FoodLoadingSpinner />}>
-                <RootNav />
+              <AppContent />
               </React.Suspense>
             </NavigationContainer>
           </SafeAreaProvider>

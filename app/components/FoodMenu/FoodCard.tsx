@@ -3,6 +3,7 @@ import { View, Text, Image, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Food } from 'app/api/services/foodService';
 import { OrderItem } from 'app/api/services/orderService';
+import { useDebouncedQuantity } from 'app/hooks/useDebouncedQuantity';
 
 interface FoodCardProps {
   food: Food;
@@ -23,23 +24,14 @@ export default function FoodCard({
   selectedSubTab,
   updateCartItemForFood,
 }: FoodCardProps) {
-  const handleDecrement = () => {
-    if (quantity > 0) {
-      const newQty = quantity - 1;
-      updateCartItemForFood(food, newQty);
-    }
-  };
-
-  const handleIncrement = () => {
-    const newQty = quantity + 1;
-    updateCartItemForFood(food, newQty);
-  };
-
-  const img = food.img || FALLBACK_IMAGE_URI;
-
-  const quantity = tableItem?.quantity || 0;
+  // Use the custom hook. Pass in the external quantity and a function that wraps your update function.
+  const { tempQuantity, handleIncrement, handleDecrement } = useDebouncedQuantity(
+    tableItem?.quantity ?? 0,
+    (newQty) => updateCartItemForFood(food, newQty),
+  );
 
   const price = selectedSubTab === 'NORMAL' ? food.price : food.touristPrice;
+  const img = food.img || FALLBACK_IMAGE_URI;
 
   return (
     <View className="flex-1 bg-white rounded-xl shadow-sm border border-gray-200 p-2">
@@ -74,7 +66,7 @@ export default function FoodCard({
         <Text className="font-bold text-base text-gray-600">${price.toFixed(2)}</Text>
 
         <View className="flex-row items-center px-2 py-1 rounded-full">
-          {quantity > 0 && (
+          {tempQuantity > 0 && (
             <>
               <Pressable
                 onPress={handleDecrement}
@@ -83,7 +75,7 @@ export default function FoodCard({
                 <Ionicons name="remove" size={20} color="black" />
               </Pressable>
 
-              <Text className="text-xl font-semibold mx-2">{quantity}</Text>
+              <Text className="text-xl font-semibold mx-2">{tempQuantity}</Text>
             </>
           )}
 

@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useLoginMutation } from './apiQuery/useLoginQuery';
 import { Credentials } from 'app/api/services/authService';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 import { navigate } from 'app/navigation/navigationService';
-import { useFood } from './useFood';
+// import { fetchFoods, fetchCategories } from 'app/redux/foodSlice';
+// import { RootState, AppDispatch } from 'app/redux/store';
+// import { useDispatch, useSelector } from 'react-redux';
 
 interface UseLoginResult {
   username: string;
@@ -31,7 +33,8 @@ export function useLogin(): UseLoginResult {
     reset: resetLoginState,
   } = useLoginMutation();
 
-  const { refetch: fetchFood } = useFood();
+  // const storedRestaurantId = useSelector((state: RootState) => state.auth.authData?.restaurantId);
+  // const dispatch = useDispatch<AppDispatch>();
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -45,12 +48,15 @@ export function useLogin(): UseLoginResult {
     loginMutate(creds);
   };
 
-  const handleLoginSuccess = () => {
-    fetchFood();
+  const handleLoginSuccess = useCallback(() => {
+    // if (storedRestaurantId && storedRestaurantId > 0) {
+    //   dispatch(fetchFoods(storedRestaurantId));
+    //   dispatch(fetchCategories(storedRestaurantId));
+    // }
     navigate('MainTabs', {
       screen: 'Home',
     });
-  };
+  }, []);
 
   const loginState: ButtonState = useMemo(() => {
     if (loginApiState === 'pending') {
