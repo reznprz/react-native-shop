@@ -18,6 +18,8 @@ export function getSubTabIcon(
       'table items': { icon: 'utensils', iconType: 'TableItems', iconSize: 22 },
       'past orders': { icon: 'history', iconType: 'FontAwesome5', iconSize: 22 },
       'todays order': { icon: 'clock', iconType: 'FontAwesome5', iconSize: 22 },
+      details: { icon: 'information-circle', iconType: 'Ionicons', iconSize: 22 },
+      'more actions': { icon: 'ellipsis-horizontal-circle', iconType: 'Ionicons', iconSize: 22 },
       past: { icon: 'history', iconType: 'FontAwesome5', iconSize: 22 },
       todays: { icon: 'clock', iconType: 'FontAwesome5', iconSize: 22 },
       tourist: { icon: 'earth-outline', iconType: 'Ionicons', iconSize: 18 },

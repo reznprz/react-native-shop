@@ -37,7 +37,7 @@ const SwitchPaymentMethodSelector: React.FC<PaymentTypeSelectorProps> = ({
     : paymentTypes;
 
   return (
-    <View className="p-4 bg-white border border-gray-200">
+    <View className="p-2 bg-white">
       <Text className="text-xl font-semibold mb-4 text-gray-800">
         Paid Payment Details, Select Payment to Switch PaymentType.
       </Text>

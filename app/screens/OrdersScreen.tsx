@@ -189,7 +189,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
               )}
             </View>
           ) : (
-            // "Past Orders" or anything else
+            // "Past Orders"
             <View className={`flex gap-1 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
               {orders.map((order) => (
                 <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>

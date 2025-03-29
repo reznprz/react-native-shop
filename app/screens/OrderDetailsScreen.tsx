@@ -12,6 +12,11 @@ import { useTables } from 'app/hooks/useTables';
 import PaymentNotesInfo from 'app/components/orderDetail/PaymentNotesInfo';
 import CollapsibleComponent from 'app/components/common/CollapsibleComponent';
 import NotificationBar from 'app/components/common/NotificationBar';
+import { useFocusEffect } from '@react-navigation/native';
+import SubTab from 'app/components/common/SubTab';
+
+const tabs = ['Details', 'More Actions'];
+type TabType = (typeof tabs)[number];
 
 interface MenuScreenRouteParams {
   orderId?: string;
@@ -42,7 +47,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
   const { tables, handleGoToMenuPress } = useTables();
 
   const [showSpinner, setShowSpinner] = useState(true);
-  const [showMoreActionOrderDetail, setShowMoreActionOrderDetail] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabType>(actionType ?? 'Details');
   const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
   const [successNotification, setSuccessNotificaton] = useState('');
 
@@ -61,17 +66,15 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
     }
   }, [order]);
 
-  useEffect(() => {
-    if (actionType && actionType === 'More Action') {
-      setShowMoreActionOrderDetail(true);
-    } else {
-      setShowMoreActionOrderDetail(false);
-    }
-  }, [actionType]);
+  useFocusEffect(
+    useCallback(() => {
+      setActiveTab(actionType === 'Details' ? 'Details' : 'More Actions');
+    }, [actionType]),
+  );
 
   useEffect(() => {
     if (addPaymentState.status === 'success') {
-      setShowMoreActionOrderDetail(false);
+      setActiveTab('Details');
       setSuccessNotificaton('Payment Added!.');
       addPaymentState.reset?.();
     }
@@ -79,7 +82,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
 
   useEffect(() => {
     if (canceledOrderState.status === 'success') {
-      setShowMoreActionOrderDetail(false);
+      setActiveTab('Details');
       setSuccessNotificaton('Order Canceled!.');
       canceledOrderState.reset?.();
     }
@@ -87,7 +90,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
 
   useEffect(() => {
     if (switchTableState.status === 'success') {
-      setShowMoreActionOrderDetail(false);
+      setActiveTab('Details');
       setSuccessNotificaton('Table Switch Successfully!.');
       switchTableState.reset?.();
     }
@@ -95,7 +98,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
 
   useEffect(() => {
     if (switchPaymentState.status === 'success') {
-      setShowMoreActionOrderDetail(false);
+      setActiveTab('Details');
       setSuccessNotificaton('Payment Switch Successfully!.');
       switchPaymentState.reset?.();
     }
@@ -114,8 +117,46 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
     );
   }
 
+  const renderOrderDetails = () => (
+    <View className="space-y-4">
+      <OrderSummaryCard order={order} containerStyle="p-4 rounded-xl bg-white shadow-md m-2" />
+      <OrderItemSummary order={order} containerStyle="p-4 rounded-xl bg-white shadow-md m-2" />
+      {order.groupedPaymentByNotesAndDate && (
+        <View className="p-4 rounded-xl bg-white shadow-md m-2 border border-gray-200">
+          <CollapsibleComponent
+            title="Payment Notes"
+            containerStyle={{}}
+            headerStyle={{ padding: 2 }}
+            childContentStyle={{ padding: 4 }}
+          >
+            <PaymentNotesInfo groupedPaymentByNotesAndDate={order.groupedPaymentByNotesAndDate} />
+          </CollapsibleComponent>
+        </View>
+      )}
+    </View>
+  );
+
+  const renderMoreActions = () => (
+    <MoreActionOrderDetail
+      order={order}
+      addPaymentState={addPaymentState}
+      canceledOrderState={canceledOrderState}
+      handleAddPayment={handleAddPayments}
+      handleAddFoodItemsPress={handleGoToMenuPress}
+      handleSiwtchTablePress={() => {
+        setShowSwitchTableModal(true);
+      }}
+      handleCancelOrderPress={() => handleCancelOrder(order.orderId)}
+      handleSwitchPayment={handleSwitchPayment}
+    />
+  );
+
   return (
-    <>
+    <View className="h-full w-full bg-gray-100">
+      {/* Tab selection */}
+      <SubTab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {/* Main content area */}
       {orderDetailScreen?.status === 'pending' ||
       switchTableState.status === 'loading' ||
       switchPaymentState.status === 'loading' ? (
@@ -123,55 +164,14 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
           <FoodLoadingSpinner iconName="hamburger" />
         </View>
       ) : (
-        <>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {showMoreActionOrderDetail ? (
-              <MoreActionOrderDetail
-                order={order}
-                addPaymentState={addPaymentState}
-                canceledOrderState={canceledOrderState}
-                handleAddPayment={handleAddPayments}
-                handleAddFoodItemsPress={handleGoToMenuPress}
-                handleSiwtchTablePress={() => {
-                  setShowSwitchTableModal(true);
-                }}
-                handleCancelOrderPress={() => {
-                  handleCancelOrder(order.orderId);
-                }}
-                handleSwitchPayment={handleSwitchPayment}
-              />
-            ) : (
-              <View className="space-y-4">
-                <OrderSummaryCard
-                  order={order}
-                  containerStyle="p-4 rounded-xl bg-white shadow-md m-2"
-                />
-                <OrderItemSummary
-                  order={order}
-                  containerStyle="p-4 rounded-xl bg-white shadow-md m-2"
-                />
-                {order.groupedPaymentByNotesAndDate && (
-                  <View className="p-4 rounded-xl bg-white shadow-md m-2 bg-white p-4 rounded-lg shadow-sm border border-gray-200">
-                    <CollapsibleComponent
-                      title={'Payment Notes'}
-                      containerStyle={{}}
-                      headerStyle={{ padding: 2 }}
-                      childContentStyle={{ padding: 4 }}
-                    >
-                      <PaymentNotesInfo
-                        groupedPaymentByNotesAndDate={order.groupedPaymentByNotesAndDate}
-                      />
-                    </CollapsibleComponent>
-                  </View>
-                )}
-              </View>
-            )}
-          </ScrollView>
-        </>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          {activeTab === 'More Actions' ? renderMoreActions() : renderOrderDetails()}
+        </ScrollView>
       )}
 
+      {/* Modal for switching tables */}
       <TableListModal
-        tables={tables.filter((table) => table.status.toLocaleLowerCase() === 'available')}
+        tables={tables.filter((table) => table.status.toLowerCase() === 'available')}
         visible={showSwitchTableModal}
         onClose={() => setShowSwitchTableModal(false)}
         onSelectTable={(selectedTable) => {
@@ -180,12 +180,14 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
         }}
       />
 
+      {/* Error popup */}
       <ErrorMessagePopUp
         errorMessage={orderDetailScreen?.error?.message || ''}
         onClose={() => orderDetailScreen?.reset?.()}
       />
 
+      {/* Success notification */}
       <NotificationBar message={successNotification} onClose={() => setSuccessNotificaton('')} />
-    </>
+    </View>
   );
 }

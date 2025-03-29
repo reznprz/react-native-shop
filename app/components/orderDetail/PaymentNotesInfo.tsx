@@ -72,17 +72,9 @@ const styles = StyleSheet.create({
   container: {},
   sectionContainer: {
     backgroundColor: '#fff',
-    padding: 8,
-    margin: 4,
+    padding: 2,
+    margin: 2,
     marginBottom: 2,
-    borderRadius: 8,
-    // iOS shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 3,
-    // Android elevation
-    elevation: 2,
   },
   sectionTitle: {
     fontSize: 16,
