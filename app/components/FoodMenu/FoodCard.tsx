@@ -24,6 +24,8 @@ export default function FoodCard({
   selectedSubTab,
   updateCartItemForFood,
 }: FoodCardProps) {
+  console.log('tableItem', tableItem);
+
   // Use the custom hook. Pass in the external quantity and a function that wraps your update function.
   const { tempQuantity, handleIncrement, handleDecrement } = useDebouncedQuantity(
     tableItem?.quantity ?? 0,

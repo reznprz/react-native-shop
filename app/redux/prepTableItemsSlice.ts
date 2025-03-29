@@ -21,8 +21,11 @@ const prepTableItemsSlice = createSlice({
   name: 'prepTableItems',
   initialState: initialTableItem,
   reducers: {
-    setPrepTableItems: (state, action: PayloadAction<TableItem>) => {
-      return action.payload;
+    setPrepTableItems: (state, action: PayloadAction<Partial<TableItem>>) => {
+      return {
+        ...state,
+        ...action.payload,
+      };
     },
     resetPrepTableItems: () => {
       return initialTableItem;

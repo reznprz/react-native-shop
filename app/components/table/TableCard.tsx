@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Pressable, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StatusChip } from '../common/StatusChip';
 import { ActionsMenu } from '../common/ActionsMenu';
-import { FontAwesome5 } from '@expo/vector-icons';
 import IconLabel from '../common/IconLabel';
 
 type TableCardProps = {

@@ -207,24 +207,15 @@ export function useTables() {
     error: addUpdateOrderError,
     data: addUpdateOrderData,
     reset: resetAddOrUpdateOrder,
+    status: addOrUpdateApiState,
   } = useAddUpdateOrderMutation({
     onSuccess: (response) => {
       if (response.data) {
-        const updatedOrder = response.data;
-
-        const updatedFields = {
-          id: updatedOrder.id,
-          tableName: updatedOrder.tableName,
-          restaurantId: updatedOrder.restaurantId,
-          userId: updatedOrder.userId,
-        };
-
-        const updatedState = {
-          ...prepTableItems,
-          ...updatedFields,
-        };
-
-        dispatch(setPrepTableItems(updatedState));
+        if (response.data) {
+          const updatedOrder = response.data;
+          const updatedTableItem = toTableItem(updatedOrder);
+          dispatch(setPrepTableItems(updatedTableItem));
+        }
       }
     },
     onError: (err) => {
@@ -363,11 +354,9 @@ export function useTables() {
   const handleAddDiscount = useCallback(
     (discountAmount: number) => {
       const currentState = prepTableItems;
-      const newTotal = currentState.subTotal - discountAmount;
       const updatedPrepTableItems = {
-        ...currentState,
         discountAmount: discountAmount,
-        totalPrice: newTotal,
+        totalPrice: currentState.subTotal - discountAmount,
       };
       dispatch(setPrepTableItems(updatedPrepTableItems));
     },

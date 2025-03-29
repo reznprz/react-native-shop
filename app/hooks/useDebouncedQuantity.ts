@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { debounce } from 'lodash';
 
 export function useDebouncedQuantity(
@@ -6,8 +6,11 @@ export function useDebouncedQuantity(
   onUpdate: (newQuantity: number) => void,
   delay: number = 300,
 ) {
+  const qty = useMemo(() => {
+    return externalQuantity;
+  }, [externalQuantity]);
   // Local state for immediate UI updates.
-  const [tempQuantity, setTempQuantity] = useState(externalQuantity);
+  const [tempQuantity, setTempQuantity] = useState(qty);
 
   // Ref to hold the last quantity sent to onUpdate.
   const lastSyncedQuantity = useRef(externalQuantity);
