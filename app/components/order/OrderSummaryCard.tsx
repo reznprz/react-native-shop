@@ -29,6 +29,7 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({
           iconName="clipboard-list"
           label={`#ORD-${order.orderId}`}
           containerStyle="justify-between"
+          labelTextSize="ml-2 text-lg"
         />
         <StatusChip status={order.orderStatus} margin={showTable ? '' : 'ml-8 mr-8'} />
       </View>
@@ -98,7 +99,13 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({
             iconColor="black"
           />
           {order.orderMenuType && order.orderMenuType === 'TOURIST' && (
-            <StatusChip status={order.orderMenuType} customSize={'px-2 py-1 p-2'} />
+            <CustomIcon
+              type={'Ionicons'}
+              name={'earth-outline'}
+              size={18}
+              color={'blue-300'}
+              iconStyle="mt-2"
+            />
           )}
           <IconLabel
             label={order.orderType}

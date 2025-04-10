@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { StatusChip } from '../common/StatusChip';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,7 +15,7 @@ type SwipeTableCardProps = {
   onSwitchTable: () => void;
 };
 
-const ITEM_HEIGHT = 160; // fixed height for each card
+const ITEM_HEIGHT = 156; // fixed height for each card
 const SWIPE_WIDTH = 120; // total width for 2 buttons @ 70px each
 
 export function SwipeTableCard({
@@ -83,10 +83,19 @@ export function SwipeTableCard({
 const styles = StyleSheet.create({
   /** The hidden (back) row revealed when swiping left */
   rowBack: {
-    flex: 1,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    height: ITEM_HEIGHT,
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginHorizontal: 6,
+    marginVertical: 4,
   },
   backButton: {
     width: SWIPE_WIDTH,

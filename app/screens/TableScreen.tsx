@@ -50,7 +50,7 @@ export default function TableScreen({ route }: TableScreenProps) {
     navigateToOrdersScreen,
   } = useTables();
 
-  const { isDesktop, isLargeScreen } = useIsDesktop();
+  const { isDesktop, isLargeScreen, isMobile } = useIsDesktop();
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
@@ -138,6 +138,7 @@ export default function TableScreen({ route }: TableScreenProps) {
                 occupiedTables={occupiedTables}
                 totalCapacity={totalCapacity}
                 activeOrders={activeOrders}
+                isMobile={isMobile}
                 isLargeScreen={isLargeScreen}
                 onGoToMenu={handleGoToMenuPress}
                 onGoToCart={handleGoToCart}

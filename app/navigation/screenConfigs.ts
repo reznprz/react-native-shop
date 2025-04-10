@@ -57,8 +57,8 @@ export const tabScreenConfigs: TabScreenConfig[] = [
     name: 'Profile',
     label: 'PROFILE',
     component: LazyProfileScreen,
-    icon: 'person-outline',
-    filledIcon: 'person',
-    iconType: 'Ionicons',
+    icon: 'account-tie-outline',
+    filledIcon: 'account-tie',
+    iconType: 'MaterialCommunityIcons',
   },
 ];

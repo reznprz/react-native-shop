@@ -62,5 +62,7 @@ export function useIsDesktop() {
     numColumns = 6;
   }
 
-  return { deviceType, isDesktop, width, height, isLargeScreen, numColumns };
+  const isMobile = deviceType === 'iPhone' || deviceType === 'Android Phone';
+
+  return { deviceType, isDesktop, width, height, isLargeScreen, numColumns, isMobile };
 }

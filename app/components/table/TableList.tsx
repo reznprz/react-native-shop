@@ -11,6 +11,7 @@ interface TableListProps {
   totalCapacity: number;
   activeOrders: number;
   isLargeScreen: boolean;
+  isMobile: boolean;
   onGoToMenu: (tableName: string) => void;
   onGoToCart: (tableName: string) => void;
   onSwitchTable: (tableName: string) => void;
@@ -24,6 +25,7 @@ export default function TableList({
   totalCapacity,
   activeOrders,
   isLargeScreen,
+  isMobile,
   onGoToMenu,
   onGoToCart,
   onSwitchTable,
@@ -52,7 +54,7 @@ export default function TableList({
       <ScrollView
         contentContainerStyle={[
           { gap: 4 },
-          isLargeScreen && {
+          !isMobile && {
             flexDirection: 'row',
             flexWrap: 'wrap',
             justifyContent: 'center',

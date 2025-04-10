@@ -40,11 +40,7 @@ export default function TableItemAndPayment({
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
-            <TableFoodItemsSummary
-              tableItems={tableItems}
-              updateQuantity={updateQuantity}
-              onSwitchTableClick={onSwitchTableClick}
-            />
+            <TableFoodItemsSummary tableItems={tableItems} updateQuantity={updateQuantity} />
           </ScrollView>
 
           {/* Right Panel - Payment Details */}

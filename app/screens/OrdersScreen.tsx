@@ -48,7 +48,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Todays Order');
 
-  const { isLargeScreen } = useIsDesktop();
+  const { isLargeScreen, isMobile } = useIsDesktop();
 
   const {
     orders,
@@ -90,19 +90,6 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
     // Only run when selectedRange changes
   }, [activeTab]);
 
-  // /**
-  //  * If you'd like to re-fetch whenever the screen is focused,
-  //  * do so with the official `useFocusEffect`.
-  //  */
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     if (selectedRange) {
-  //       handleDateSelect(selectedRange);
-  //     }
-  //     // Dependencies = [] means it runs once on focus
-  //   }, []),
-  // );
-
   // fetch todays orders
   const handleTodaysSubtabSelect = useCallback(() => {
     handleDateSelect({ selectionType: DateRangeSelectionType.SINGLE_DATE, date: 'Today' });
@@ -122,7 +109,10 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
 
   /** Called when user selects an order from the list (e.g., on phone). */
   const handleOrderPress = useCallback((order: OrderDetails) => {
-    navigate(ScreenNames.ORDER_DETAILS, { orderId: order.orderId.toString() });
+    navigate(ScreenNames.ORDER_DETAILS, {
+      orderId: order.orderId.toString(),
+      actionType: 'Details',
+    });
   }, []);
 
   /** Called for "More Actions" on an order. */
@@ -175,7 +165,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
           {activeTab === 'Todays Order' ? (
             <View className={`flex-1 gap-1 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
               {orders.map((order) =>
-                isLargeScreen ? (
+                !isMobile ? (
                   <OrderCard
                     key={order.orderId}
                     order={order}

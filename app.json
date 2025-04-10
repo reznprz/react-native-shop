@@ -14,7 +14,11 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.reznprz.reactnativeshop",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +30,20 @@
       "favicon": "./assets/favicon.png"
     },
     "expo": {
-    "assetBundlePatterns": ["**/*"]
-  }
+      "assetBundlePatterns": [
+        "**/*"
+      ]
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bd6f8b22-cb19-4111-9e6e-750d576fe5d9"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/bd6f8b22-cb19-4111-9e6e-750d576fe5d9"
+    }
   }
 }
