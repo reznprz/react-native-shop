@@ -16,7 +16,11 @@ import {
   OrderType,
 } from 'app/api/services/orderService';
 import { useAddUpdateOrderMutation } from './apiQuery/useAddUpdateOrderMutation';
-import { resetPrepTableItems, setPrepTableItems } from 'app/redux/prepTableItemsSlice';
+import {
+  resetPrepTableItems,
+  setPrepTableItems,
+  applyDiscount,
+} from 'app/redux/prepTableItemsSlice';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 
 export interface TableItem {
@@ -352,15 +356,8 @@ export function useTables() {
   );
 
   const handleAddDiscount = useCallback(
-    (discountAmount: number) => {
-      const currentState = prepTableItems;
-      const updatedPrepTableItems = {
-        discountAmount: discountAmount,
-        totalPrice: currentState.subTotal - discountAmount,
-      };
-      dispatch(setPrepTableItems(updatedPrepTableItems));
-    },
-    [dispatch, prepTableItems],
+    (amount: number) => dispatch(applyDiscount(amount)),
+    [dispatch],
   );
 
   const handleCompleteOrder = useCallback(

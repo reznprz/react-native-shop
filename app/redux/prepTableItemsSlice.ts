@@ -17,6 +17,12 @@ const initialTableItem: TableItem = {
   paymentInfo: [],
 };
 
+/** Utility that every reducer can reuse */
+const recalcTotals = (draft: TableItem) => {
+  draft.subTotal = draft.orderItems.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+  draft.totalPrice = draft.subTotal - draft.discountAmount;
+};
+
 const prepTableItemsSlice = createSlice({
   name: 'prepTableItems',
   initialState: initialTableItem,
@@ -30,8 +36,13 @@ const prepTableItemsSlice = createSlice({
     resetPrepTableItems: () => {
       return initialTableItem;
     },
+    applyDiscount(state, action: PayloadAction<number>) {
+      state.discountAmount = action.payload;
+      recalcTotals(state);
+    },
   },
 });
 
-export const { setPrepTableItems, resetPrepTableItems } = prepTableItemsSlice.actions;
+export const { setPrepTableItems, resetPrepTableItems, applyDiscount } =
+  prepTableItemsSlice.actions;
 export default prepTableItemsSlice.reducer;

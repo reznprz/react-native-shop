@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, TextInput } from 'react-native';
+import { View, Text, Pressable, TextInput, TouchableOpacity } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import PrimaryHeaderFilter from '../FoodMenu/CategoryFilter';
 import { RestaurantTable } from 'app/api/services/tableService';
@@ -10,6 +10,7 @@ interface PrimaryHeaderProps {
   onSearch?: (text: string) => void;
   handleFilterClick: (filterName: string) => void;
   onFilterPress?: () => void;
+  searchTerm: string;
   showBackPress?: boolean;
   filters?: string[];
   tableInfo?: RestaurantTable[];
@@ -22,6 +23,7 @@ export default function PrimaryHeader({
   onBackPress,
   onSearch,
   onFilterPress,
+  searchTerm,
   showBackPress = false,
   isDesktop = false,
   filters = [],
@@ -49,23 +51,36 @@ export default function PrimaryHeader({
               // Desktop: full search input with larger padding and shadow
               <View className="flex-row items-center bg-white rounded-md shadow-md border border-gray-300 max-w-[400px] px-4 py-2">
                 <Ionicons name="search" size={20} color="gray" />
+
                 <TextInput
                   placeholder="Search"
                   placeholderTextColor="gray"
-                  className="ml-2 flex-1 text-base"
+                  className="ml-2 mb-1 flex-1 text-base"
                   onChangeText={onSearch}
+                  value={searchTerm}
                 />
+                {searchTerm && searchTerm.length > 0 && (
+                  <TouchableOpacity onPress={() => onSearch('')}>
+                    <Ionicons name="close-circle" size={20} color="gray" />
+                  </TouchableOpacity>
+                )}
               </View>
             ) : (
               // Mobile: full search input with slightly leaner styling
               <View className="flex-row items-center bg-white rounded-full shadow-sm border border-gray-200 px-3 py-1 max-w-[200px] w-auto">
                 <Ionicons name="search" size={20} color="gray" />
+
                 <TextInput
                   placeholder="Search"
                   placeholderTextColor="gray"
                   className="ml-2 flex-1 text-sm"
                   onChangeText={onSearch}
                 />
+                {searchTerm && searchTerm.length > 0 && (
+                  <TouchableOpacity onPress={() => onSearch('')}>
+                    <Ionicons name="close-circle" size={20} color="gray" />
+                  </TouchableOpacity>
+                )}
               </View>
             )}
           </View>

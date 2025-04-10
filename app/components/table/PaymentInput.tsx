@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TextInput } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getPaymentTypeIconforIcons } from 'app/hooks/utils/getPaymentTypeIconforIcons';
+import CustomDebouncedTextInput from '../common/CustomDebouncedTextInput';
 
 interface PaymentInputProps {
   paymentType: string;
@@ -10,6 +11,8 @@ interface PaymentInputProps {
 }
 
 const PaymentInput: React.FC<PaymentInputProps> = ({ paymentType, onInput, amount }) => {
+  const stringValue = amount === 0 ? '' : amount.toString();
+
   return (
     <View className="flex-row items-center justify-between px-4 py-3 bg-gray-100 rounded-lg shadow-md mt-2">
       {/* Left section: icon + label */}
@@ -19,10 +22,10 @@ const PaymentInput: React.FC<PaymentInputProps> = ({ paymentType, onInput, amoun
       </View>
 
       {/* Right section: text input */}
-      <TextInput
+      <CustomDebouncedTextInput
         placeholder="Enter amount"
-        value={amount.toString()}
-        onChangeText={(text) => onInput(parseFloat(text) || 0)}
+        value={stringValue}
+        onDebouncedChange={(text) => onInput(parseFloat(text) || 0)}
         className="bg-white text-deepTeal border border-gray-400 rounded-md px-3 py-2 w-30 text-right"
         keyboardType="numeric"
       />

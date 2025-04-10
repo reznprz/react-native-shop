@@ -28,7 +28,8 @@ interface MenuScreenProps {
 export default function MenuScreen({ route }: MenuScreenProps) {
   const { selectedTab } = route.params || {};
 
-  const { foods, refetch, categories, handleSearch, handleCategoryClick, tableName } = useFood();
+  const { foods, refetch, searchTerm, categories, handleSearch, handleCategoryClick, tableName } =
+    useFood();
 
   const {
     tables,
@@ -116,6 +117,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
               setActiveSubTab(selectedSubTab);
             }}
             handleSearch={handleSearch}
+            searchTerm={searchTerm}
             handleCategoryClick={handleCategoryClick}
             setSelectedCategory={setSelectedCategory}
             updateCartItemForFood={(food, qty) => {

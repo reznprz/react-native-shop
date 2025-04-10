@@ -21,6 +21,7 @@ interface FoodsMenuProps {
   selectedCategory: string;
   activatedSubTab: SubTabType;
   isFoodsMenuLoading: boolean;
+  searchTerm: string;
   handleSubTabChange: (selectedTab: SubTabType) => void;
   handleSearch: (text: string) => void;
   handleCategoryClick: (category: string) => void;
@@ -36,6 +37,7 @@ export default function FoodsMenu({
   selectedCategory,
   activatedSubTab,
   isFoodsMenuLoading,
+  searchTerm,
   handleSubTabChange,
   handleSearch,
   handleCategoryClick,
@@ -59,6 +61,7 @@ export default function FoodsMenu({
         title="Categories"
         onBackPress={() => console.log('Go back')}
         onSearch={handleSearch}
+        searchTerm={searchTerm}
         onFilterPress={() => console.log('Filter pressed')}
         filters={categories?.map((category) => category.name) || ['none']}
         isDesktop={isDesktop}

@@ -51,6 +51,8 @@ const TableFoodItemsSummary: React.FC<TableFoodItemsSummaryProps> = ({
                 onSwitchTableClick('');
               }}
               iconName="swap-horizontal-outline"
+              customButtonStyle="flex flex-row items-center justify-center rounded px-1 py-2 w-36 h-30 bg-deepTeal m-1"
+              customTextStyle="text-md text-center text-white font-semibold"
             />
           )}
 
