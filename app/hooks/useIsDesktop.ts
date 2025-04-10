@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dimensions, Platform, ScaledSize } from 'react-native';
 
 interface DimensionsEvent {
@@ -62,7 +62,22 @@ export function useIsDesktop() {
     numColumns = 6;
   }
 
+  const numColumnsRegisterScreen = useMemo(() => {
+    if (width < 640) return 2;
+    if (width < 768) return 3;
+    return 4;
+  }, [width]);
+
   const isMobile = deviceType === 'iPhone' || deviceType === 'Android Phone';
 
-  return { deviceType, isDesktop, width, height, isLargeScreen, numColumns, isMobile };
+  return {
+    deviceType,
+    isDesktop,
+    width,
+    height,
+    isLargeScreen,
+    numColumns,
+    isMobile,
+    numColumnsRegisterScreen,
+  };
 }

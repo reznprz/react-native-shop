@@ -87,6 +87,7 @@ export default function TableScreen({ route }: TableScreenProps) {
               onFilterPress={() => console.log('Filter pressed')}
               filters={tableNames}
               isDesktop={isDesktop}
+              searchTerm=""
               handleFilterClick={(selectedTable) => {
                 setSelectedTable(selectedTable);
                 handleTableClick(selectedTable);

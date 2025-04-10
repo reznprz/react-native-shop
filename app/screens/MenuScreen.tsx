@@ -10,6 +10,7 @@ import TableListModal from 'app/components/modal/TableListModal';
 import { Food } from 'app/api/services/foodService';
 import { OrderMenuType } from 'app/api/services/orderService';
 import NotificationBar from 'app/components/common/NotificationBar';
+import Register from 'app/components/FoodMenu/Register/Register';
 
 const tabs = ['All Foods', 'Food Items'];
 
@@ -33,12 +34,17 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   const {
     tables,
+    tableNames,
     addUpdateOrderError,
     prepTableItems,
     exstingOrderForTableMutation,
+    completeOrderState,
     handleAddUpdateFoodItems,
     resetAddOrUpdateOrder,
     handleSelectTable,
+    handleTableClick,
+    handleAddDiscount,
+    handleCompleteOrder,
   } = useTables();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -96,14 +102,23 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
       <View className="flex-1 bg-gray-100">
         {activeTab === 'Food Items' ? (
-          <TableItemAndPayment
+          <Register
             tableItems={prepTableItems}
-            updateQuantity={(item, newQty) => {
-              handleAddUpdateFoodItems(newQty, undefined, item);
+            updateCartItemForFood={(food, qty) => {
+              onHandleAddUpdateFoodItems(qty, food);
             }}
-            handleAddDiscount={() => {}}
-            handleCompleteOrder={() => {}}
-            completeOrderState={{ status: 'idle' }}
+            handleAddDiscount={handleAddDiscount}
+            handleCompleteOrder={handleCompleteOrder}
+            completeOrderState={completeOrderState}
+            tableNames={tableNames}
+            tables={tables}
+            handleTableClick={handleTableClick}
+            foods={foods}
+            categories={categories?.map((category) => category.name) || ['none']}
+            handleSubTabChange={(selectedSubTab) => {
+              setActiveSubTab(selectedSubTab);
+            }}
+            activatedSubTab={activeSubTab}
           />
         ) : (
           <FoodsMenu
