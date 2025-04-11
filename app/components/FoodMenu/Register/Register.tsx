@@ -4,9 +4,8 @@ import PaymentDetails from 'app/components/table/PaymentDetails';
 import CustomButton from 'app/components/common/button/CustomButton';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { PaymentInfo, TableItem } from 'app/hooks/useTables';
-import { OrderItem, OrderMenuType } from 'app/api/services/orderService';
+import { OrderMenuType } from 'app/api/services/orderService';
 import { ButtonState } from '../../common/button/LoadingButton';
-import PrimaryHeader from '../../common/PrimaryHeader';
 import { RestaurantTable } from 'app/api/services/tableService';
 import RegisterFoodMenu from './RegisterFoodMenu';
 import { Food } from 'app/api/services/foodService';
@@ -19,47 +18,39 @@ export type SubTabType = (typeof subtabs)[number];
 
 interface RegisterProps {
   tableItems: TableItem;
-  tableNames: string[];
   tables: RestaurantTable[];
   foods: Food[];
   categories: string[];
+  activatedSubTab: SubTabType;
+  completeOrderState: ButtonState;
+  currentTable: string;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
   handleAddDiscount: (discountAmount: number) => void;
   onSwitchTableClick?: (seatName: string) => void;
   handleCompleteOrder: (selectedPayments: PaymentInfo[]) => void;
-  handleTableClick: (selectedTableName: string) => void;
   handleSubTabChange: (selectedTab: SubTabType) => void;
-  activatedSubTab: SubTabType;
-  completeOrderState: ButtonState;
+  handleCategoryClick: (categoryName: string) => void;
+  onSelectTable: (selectedTable: string) => void;
 }
 
 export default function Register({
   tableItems,
-  tableNames,
   tables,
   foods,
   categories,
   activatedSubTab,
+  currentTable,
   updateCartItemForFood,
   handleAddDiscount,
   onSwitchTableClick,
   handleCompleteOrder,
-  handleTableClick,
+  onSelectTable,
   handleSubTabChange,
+  handleCategoryClick,
   completeOrderState,
 }: RegisterProps) {
   const { isDesktop } = useIsDesktop();
-  const [selectedTable, setSelectedTable] = useState('All');
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-
-  // Callback for handling table filter clicks
-  const onFilterClick = useCallback(
-    (selectedFilter: string) => {
-      setSelectedTable(selectedFilter);
-      handleTableClick(selectedFilter);
-    },
-    [handleTableClick],
-  );
 
   // Callback for opening and closing the Payment Modal
   const openPaymentModal = useCallback(() => {
@@ -70,25 +61,9 @@ export default function Register({
     setShowPaymentModal(false);
   }, []);
 
-  // Extracted header component (used for both mobile & desktop)
-  const renderHeader = () => (
-    <PrimaryHeader
-      title="Tables"
-      onBackPress={() => console.log('Go back')}
-      onFilterPress={() => console.log('Filter pressed')}
-      filters={tableNames}
-      isDesktop={isDesktop}
-      searchTerm=""
-      handleFilterClick={onFilterClick}
-      selectedFilter={selectedTable}
-      tableInfo={tables}
-    />
-  );
-
   // Render function for Desktop layout
   const renderDesktopLayout = () => (
     <View style={styles.desktopContainer}>
-      {renderHeader()}
       <View style={styles.desktopContent}>
         {/* Left Panel - Order Summary */}
         <View style={styles.leftPanel}>
@@ -106,6 +81,11 @@ export default function Register({
             foods={foods}
             selectedSubTab={activatedSubTab}
             tableItems={tableItems}
+            tables={tables}
+            currentTable={currentTable}
+            onSwitchTableClick={onSwitchTableClick}
+            handleCategoryClick={handleCategoryClick}
+            onSelectTable={onSelectTable}
           />
         </View>
 
@@ -129,7 +109,6 @@ export default function Register({
   // Render function for Mobile layout
   const renderMobileLayout = () => (
     <>
-      {renderHeader()}
       <SubTab
         tabs={subtabs}
         activeTab={activatedSubTab}
@@ -144,6 +123,11 @@ export default function Register({
         foods={foods}
         selectedSubTab={activatedSubTab}
         tableItems={tableItems}
+        tables={tables}
+        currentTable={currentTable}
+        onSwitchTableClick={onSwitchTableClick}
+        handleCategoryClick={handleCategoryClick}
+        onSelectTable={onSelectTable}
       />
 
       {/* Floating Button */}
@@ -178,7 +162,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   leftPanel: {
-    flexBasis: '65%',
+    flexBasis: '60%',
     backgroundColor: '#FFFFFF',
     padding: 10,
     marginTop: 8,
@@ -194,7 +178,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   rightPanel: {
-    flexBasis: '35%',
+    flexBasis: '40%',
     padding: 16,
     marginLeft: 16,
     backgroundColor: '#FFFFFF',

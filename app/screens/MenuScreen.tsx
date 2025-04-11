@@ -3,7 +3,6 @@ import { View } from 'react-native';
 import { useFood } from 'app/hooks/useFood';
 import SubTab from 'app/components/common/SubTab';
 import { useTables } from 'app/hooks/useTables';
-import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
 import FoodsMenu, { SubTabType } from 'app/components/FoodMenu/FoodsMenu';
 import { useFocusEffect } from '@react-navigation/native';
 import TableListModal from 'app/components/modal/TableListModal';
@@ -11,8 +10,9 @@ import { Food } from 'app/api/services/foodService';
 import { OrderMenuType } from 'app/api/services/orderService';
 import NotificationBar from 'app/components/common/NotificationBar';
 import Register from 'app/components/FoodMenu/Register/Register';
+import { useOrder } from 'app/hooks/useOrder';
 
-const tabs = ['All Foods', 'Food Items'];
+const tabs = ['Register', 'All Foods'];
 
 type TabType = (typeof tabs)[number];
 
@@ -32,25 +32,28 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   const { foods, refetch, searchTerm, categories, handleSearch, handleCategoryClick, tableName } =
     useFood();
 
+  const { handleSwitchTable } = useOrder();
+
   const {
     tables,
-    tableNames,
+    currentTable,
     addUpdateOrderError,
     prepTableItems,
     exstingOrderForTableMutation,
     completeOrderState,
+    refreshPrepTableItems,
     handleAddUpdateFoodItems,
     resetAddOrUpdateOrder,
-    handleSelectTable,
     handleTableClick,
     handleAddDiscount,
     handleCompleteOrder,
   } = useTables();
 
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Foods');
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Register');
   const [activeSubTab, setActiveSubTab] = useState<SubTabType>(OrderMenuType.NORMAL);
   const [showTableListModal, setShowTableListModal] = useState(false);
+  const [successNotification, setSuccessNotificaton] = useState('');
 
   useFocusEffect(
     useCallback(() => {
@@ -60,10 +63,10 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   useFocusEffect(
     useCallback(() => {
-      if (selectedTab === 'Food Items') {
-        setActiveTab('Food Items');
-      } else {
+      if (selectedTab === 'All Foods') {
         setActiveTab('All Foods');
+      } else {
+        setActiveTab('Register');
       }
     }, [setActiveTab, selectedTab]),
   );
@@ -75,6 +78,14 @@ export default function MenuScreen({ route }: MenuScreenProps) {
       setActiveSubTab(OrderMenuType.NORMAL);
     }
   }, [prepTableItems?.orderMenuType]);
+
+  useEffect(() => {
+    if (completeOrderState.status === 'success') {
+      refreshPrepTableItems(currentTable);
+      setSuccessNotificaton('Order Completed Successfully!');
+      completeOrderState.reset?.();
+    }
+  }, [completeOrderState]);
 
   // Check if the Table is Selected
   const onHandleAddUpdateFoodItems = (qty: number, food: Food) => {
@@ -101,24 +112,28 @@ export default function MenuScreen({ route }: MenuScreenProps) {
       />
 
       <View className="flex-1 bg-gray-100">
-        {activeTab === 'Food Items' ? (
+        {activeTab === 'Register' ? (
           <Register
             tableItems={prepTableItems}
+            activatedSubTab={activeSubTab}
+            completeOrderState={completeOrderState}
+            tables={tables}
+            foods={foods}
+            currentTable={currentTable}
+            categories={categories?.map((category) => category.name) || ['none']}
+            handleSubTabChange={(selectedSubTab) => {
+              setActiveSubTab(selectedSubTab);
+            }}
             updateCartItemForFood={(food, qty) => {
               onHandleAddUpdateFoodItems(qty, food);
             }}
             handleAddDiscount={handleAddDiscount}
             handleCompleteOrder={handleCompleteOrder}
-            completeOrderState={completeOrderState}
-            tableNames={tableNames}
-            tables={tables}
-            handleTableClick={handleTableClick}
-            foods={foods}
-            categories={categories?.map((category) => category.name) || ['none']}
-            handleSubTabChange={(selectedSubTab) => {
-              setActiveSubTab(selectedSubTab);
+            onSelectTable={handleTableClick}
+            onSwitchTableClick={() => {
+              setShowTableListModal(true);
             }}
-            activatedSubTab={activeSubTab}
+            handleCategoryClick={handleCategoryClick}
           />
         ) : (
           <FoodsMenu
@@ -158,9 +173,12 @@ export default function MenuScreen({ route }: MenuScreenProps) {
         onClose={() => setShowTableListModal(false)}
         onSelectTable={(selectedTable) => {
           setShowTableListModal(false);
-          handleSelectTable(selectedTable);
+          handleSwitchTable(prepTableItems.id, selectedTable);
         }}
       />
+
+      {/* Success notification */}
+      <NotificationBar message={successNotification} onClose={() => setSuccessNotificaton('')} />
     </View>
   );
 }

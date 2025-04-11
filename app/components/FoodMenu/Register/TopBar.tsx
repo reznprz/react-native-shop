@@ -3,19 +3,21 @@ import { ScrollView, Text, TouchableOpacity, View, StyleSheet, Platform } from '
 
 interface TopBarProps {
   onCategoryClick: () => void;
-  onSwitchTableClick?: (seatName: string) => void;
+  onSwitchTableClick?: () => void;
+  onTableClick: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ onCategoryClick, onSwitchTableClick }) => {
+const TopBar: React.FC<TopBarProps> = ({ onCategoryClick, onSwitchTableClick, onTableClick }) => {
   const [selected, setSelected] = useState<string>('Category');
 
   const buttons = [
+    { label: 'Table', action: onTableClick },
     { label: 'Category', action: onCategoryClick },
     { label: 'Top Breakfast', action: () => {} },
     { label: 'Top Lunch', action: () => {} },
     { label: 'Top Drink', action: () => {} },
     { label: 'Add Food', action: () => {} },
-    { label: 'Switch Table', action: () => onSwitchTableClick?.('switch') },
+    { label: 'Switch Table', action: () => onSwitchTableClick?.() },
   ];
 
   const handlePress = (label: string, action: () => void) => {

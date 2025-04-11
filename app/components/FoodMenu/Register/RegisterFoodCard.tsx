@@ -22,7 +22,6 @@ const RegisterFoodCard: React.FC<Props> = ({
   updateCartItemForFood,
   numColumnsRegisterScreen,
 }) => {
-
   const boxDynamicStyle = useMemo<ViewStyle>(
     () => ({ width: calcWidth(numColumnsRegisterScreen) }),
     [numColumnsRegisterScreen],
@@ -37,18 +36,12 @@ const RegisterFoodCard: React.FC<Props> = ({
 
   return (
     <TouchableOpacity
-      style={[
-        styles.card,
-        boxDynamicStyle,
-        tempQuantity > 0 && styles.activeCard,
-      ]}
+      style={[styles.card, boxDynamicStyle, tempQuantity > 0 && styles.activeCard]}
       onPress={handleIncrement}
       activeOpacity={0.7}
     >
       <View style={styles.cardInner}>
-        {tempQuantity > 0 && (
-          <CountChip count={tempQuantity} style={styles.countChipPosition} />
-        )}
+        {tempQuantity > 0 && <CountChip count={tempQuantity} style={styles.countChipPosition} />}
         <Text style={styles.name} numberOfLines={3}>
           {food.name}
         </Text>
@@ -56,50 +49,49 @@ const RegisterFoodCard: React.FC<Props> = ({
       </View>
     </TouchableOpacity>
   );
-};  
+};
 
 export default RegisterFoodCard;
 
 const styles = StyleSheet.create({
-    card: {
-      backgroundColor: '#ffffff',
-      borderRadius: 10,
-      height: 80,
-      justifyContent: 'center',
-      alignItems: 'center',
-      elevation: 2,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.08,
-      shadowRadius: 3,
-      paddingHorizontal: 6,
-      borderWidth: 1,
-      borderColor: '#f0f0f0',
-    },
-    activeCard: {
-      backgroundColor: '#d1e8f5',
-    },
-    cardInner: {
-      position: 'relative', // 🔑 needed to anchor the absolute CountChip
-      width: '100%',
-      height: '100%',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    name: {
-      fontSize: 14,
-      fontWeight: '600',
-      color: '#2a4759',
-      marginBottom: 4,
-    },
-    price: {
-      fontSize: 14,
-      color: '#555',
-    },
-    countChipPosition: {
-      position: 'absolute',
-      top: -4,
-      right: -14,
-    },
-  });
-  
+  card: {
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    height: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    paddingHorizontal: 6,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  activeCard: {
+    backgroundColor: '#d1e8f5',
+  },
+  cardInner: {
+    position: 'relative', // needed to anchor the absolute CountChip
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  name: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#2a4759',
+    marginBottom: 4,
+  },
+  price: {
+    fontSize: 14,
+    color: '#555',
+  },
+  countChipPosition: {
+    position: 'absolute',
+    top: -4,
+    right: -14,
+  },
+});

@@ -31,6 +31,7 @@ export default function TableScreen({ route }: TableScreenProps) {
   const { selectedTab } = route.params || {};
 
   const {
+    currentTable,
     tables,
     availableTables,
     occupiedTables,
@@ -54,7 +55,7 @@ export default function TableScreen({ route }: TableScreenProps) {
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
-  const [selectedTable, setSelectedTable] = useState('All');
+  const [selectedTable, setSelectedTable] = useState(currentTable ? currentTable : 'All');
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Tables');
 
   const handleGoToCart = (tableName: string) => console.log('Go to cart:', tableName);

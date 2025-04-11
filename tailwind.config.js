@@ -5,6 +5,9 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontSize: {
+        'xxs': '0.625rem', // 10px
+      },
       colors: {
         mocha: '#7a4f34', // Rich Mocha (Primary Accent, slightly deeper for contrast)
         lightCream: '#f7f1e7', // Softer Cream (Balanced Background)

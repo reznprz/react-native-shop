@@ -48,6 +48,13 @@ export function getFilterIcon(
       wrap: 'fast-food',
     };
 
+    if (cat.includes('momo')) return { iconName: 'Momo', iconType: 'Momo' };
+    if (cat.includes('special wings')) return { iconName: 'Wings', iconType: 'Wings' };
+    if (cat.includes('cigarette')) return { iconName: 'Cigarette', iconType: 'Cigarette' };
+    if (cat.includes('noodle')) return { iconName: 'Noodles', iconType: 'Noodles' };
+    if (cat.includes('chowmein')) return { iconName: 'Noodles', iconType: 'Noodles' };
+    if (cat.includes('fried rice')) return { iconName: 'Rice', iconType: 'Rice' };
+
     // Find matching key in categoryIcons
     for (const key in categoryIcons) {
       if (cat.includes(key)) {

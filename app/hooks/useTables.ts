@@ -355,6 +355,14 @@ export function useTables() {
     [dispatch, tableName],
   );
 
+  const refreshPrepTableItems = useCallback(
+    (selectedTableName: string) => {
+      fetchExistingOrderForTable(selectedTableName, storeRestaurantId);
+      dispatch(setTableName(selectedTableName));
+    },
+    [dispatch, tableName],
+  );
+
   const handleAddDiscount = useCallback(
     (amount: number) => dispatch(applyDiscount(amount)),
     [dispatch],
@@ -390,6 +398,7 @@ export function useTables() {
       if (response.status !== 'success') {
         throw new Error(response.message);
       }
+
       return response;
     },
     onSuccess: (response) => {
@@ -412,7 +421,7 @@ export function useTables() {
       };
     }
     if (completeOrderMutation.isSuccess) {
-      return { status: 'success' };
+      return { status: 'success', reset: () => completeOrderMutation.reset() };
     }
     return { status: 'idle' };
   }, [completeOrderMutation]);
@@ -447,6 +456,7 @@ export function useTables() {
 
     // REDUX APP STATE
     prepTableItems,
+    currentTable: tableName,
 
     // DERIVED
     totalTables,
@@ -458,6 +468,7 @@ export function useTables() {
 
     //Existing Order Mutation
     fetchExistingOrderForTable,
+    refreshPrepTableItems,
     exstingOrderForTableMutation,
 
     // HANDLERS

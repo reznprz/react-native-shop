@@ -21,6 +21,7 @@ export function getSubTabIcon(
       details: { icon: 'information-circle', iconType: 'Ionicons', iconSize: 22 },
       'more actions': { icon: 'ellipsis-horizontal-circle', iconType: 'Ionicons', iconSize: 22 },
       past: { icon: 'history', iconType: 'FontAwesome5', iconSize: 22 },
+      register: { icon: 'Register', iconType: 'Register', iconSize: 22 },
       todays: { icon: 'clock', iconType: 'FontAwesome5', iconSize: 22 },
       tourist: { icon: 'earth-outline', iconType: 'Ionicons', iconSize: 18 },
     };

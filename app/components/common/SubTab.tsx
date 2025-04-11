@@ -60,7 +60,7 @@ const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange, tabStyle 
               iconStyle="mr-1.5"
             />
             <Text
-              className={`text-lg font-semibold ${
+              className={`text-lg font-semibold pl-1 ${
                 activeTab === tab ? 'text-[#2a4759]' : 'text-slate-500'
               }`}
             >

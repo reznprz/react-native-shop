@@ -1,15 +1,14 @@
 import React from 'react';
-import { FlatList, View, StyleSheet, Dimensions } from 'react-native';
+import { FlatList, StyleSheet } from 'react-native';
 import { Food } from 'app/api/services/foodService';
-import { OrderItem } from 'app/api/services/orderService';
 import RegisterFoodCard from './RegisterFoodCard';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { TableItem } from 'app/hooks/useTables';
 
 interface Props {
   foods: Food[];
   selectedSubTab: string;
   tableItems: TableItem;
+  numColumnsRegisterScreen: number;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
 }
 
@@ -17,10 +16,9 @@ const RegisterFoodList: React.FC<Props> = ({
   foods,
   selectedSubTab,
   tableItems,
+  numColumnsRegisterScreen,
   updateCartItemForFood,
 }) => {
-  const { numColumnsRegisterScreen } = useIsDesktop();
-
   return (
     <FlatList
       data={foods}

@@ -10,6 +10,7 @@ type StatusChipProps = {
   margin?: string;
   applyBg?: boolean;
   customSize?: string;
+  textSize?: string;
 };
 
 export function StatusChip({
@@ -18,6 +19,7 @@ export function StatusChip({
   hideText = false,
   margin = '',
   applyBg = true,
+  textSize = '',
   customSize,
 }: StatusChipProps) {
   const statusStyles = {
@@ -122,7 +124,7 @@ export function StatusChip({
           color={iconColor}
         />
       )}
-      {!hideText && <Text className={`font-semibold ${text}`}>{status}</Text>}
+      {!hideText && <Text className={`font-semibold ${textSize} ${text}`}>{status}</Text>}
     </View>
   );
 }

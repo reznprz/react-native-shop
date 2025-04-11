@@ -2,7 +2,6 @@ import React from 'react';
 import { Text, StyleSheet, ScrollView, Pressable, View } from 'react-native';
 import BaseModal from '../common/modal/BaseModal';
 import FilterChip from '../common/FilterChip';
-import IconLabel from '../common/IconLabel';
 import { RestaurantTable } from 'app/api/services/tableService';
 import CollapsibleInfo from '../common/CollapsibleInfo';
 

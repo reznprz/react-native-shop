@@ -16,6 +16,12 @@ import TableItemsAdapter from './svg/TableItemsAdapter';
 import RestaurantAdapter from './svg/RestaurantAdapter';
 import CircularImage from '../common/CircularImage';
 import RupeeAdapter from './svg/RupeeAdapter';
+import RegisterAdapter from './svg/RegisterAdapter';
+import MomoAdapter from './svg/MomoAdapter';
+import WingsAdapter from './svg/WingsAdapter';
+import CigaretteAdapter from './svg/CigaretteAdapter';
+import RiceAdapter from './svg/RiceAdapter';
+import NoodlesAdapter from './svg/NoodlesAdapter';
 
 export const ICON_TYPES = {
   Ionicons,
@@ -30,6 +36,12 @@ export const ICON_TYPES = {
   TableItems: TableItemsAdapter,
   Restaurant: RestaurantAdapter,
   Rupee: RupeeAdapter,
+  Register: RegisterAdapter,
+  Momo: MomoAdapter,
+  Wings: WingsAdapter,
+  Cigarette: CigaretteAdapter,
+  Rice: RiceAdapter,
+  Noodles: NoodlesAdapter,
   Image: RNImage,
 };
 

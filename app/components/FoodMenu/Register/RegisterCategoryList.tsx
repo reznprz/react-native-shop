@@ -1,18 +1,24 @@
 import React, { useMemo } from 'react';
-import { FlatList, Text, TouchableOpacity, StyleSheet, ViewStyle } from 'react-native';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { FlatList, Text, TouchableOpacity, StyleSheet, ViewStyle, View } from 'react-native';
+import CustomIcon from 'app/components/common/CustomIcon';
+import { getFilterIcon } from 'app/hooks/utils/getFilterIcon';
 
 interface Props {
   categories: string[];
   onSelectCategory: (category: string) => void;
+  selectedCategory: string;
+  numColumnsRegisterScreen: number;
 }
 
 /** helper: 100 % minus a 4 % gap, divided by the column count */
 const calcWidth = (cols: number): `${number}%` => `${(100 - 4) / cols}%` as `${number}%`;
 
-const RegisterCategoryList: React.FC<Props> = ({ categories, onSelectCategory }) => {
-  const { numColumnsRegisterScreen } = useIsDesktop();
-
+const RegisterCategoryList: React.FC<Props> = ({
+  categories,
+  selectedCategory,
+  numColumnsRegisterScreen,
+  onSelectCategory,
+}) => {
   const boxDynamicStyle = useMemo<ViewStyle>(
     () => ({ width: calcWidth(numColumnsRegisterScreen) }),
     [numColumnsRegisterScreen],
@@ -26,16 +32,29 @@ const RegisterCategoryList: React.FC<Props> = ({ categories, onSelectCategory })
       keyExtractor={(item) => item}
       contentContainerStyle={styles.listContainer}
       columnWrapperStyle={styles.columnWrapper}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          onPress={() => onSelectCategory(item)}
-          style={[styles.box, boxDynamicStyle]}
-        >
-          <Text style={styles.label} numberOfLines={2}>
-            {item}
-          </Text>
-        </TouchableOpacity>
-      )}
+      renderItem={({ item }) => {
+        const isSelected = selectedCategory === item;
+        const { iconName, iconType } = getFilterIcon('Categories', item);
+
+        return (
+          <TouchableOpacity
+            onPress={() => onSelectCategory(item)}
+            style={[styles.box, boxDynamicStyle, isSelected && { backgroundColor: '#2a4759' }]}
+          >
+            <View>
+              <CustomIcon
+                type={iconType}
+                name={iconName}
+                size={24}
+                color={isSelected ? '#fff' : '#2a4759'}
+              />
+            </View>
+            <Text style={styles.label} numberOfLines={2}>
+              {item}
+            </Text>
+          </TouchableOpacity>
+        );
+      }}
     />
   );
 };
@@ -52,7 +71,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   box: {
-    backgroundColor: '#ffffff',
     borderRadius: 10,
     height: 80,
     justifyContent: 'center',
@@ -67,6 +85,7 @@ const styles = StyleSheet.create({
     borderColor: '#f0f0f0',
   },
   label: {
+    marginTop: 4,
     color: '#2a4759',
     fontSize: 13,
     fontWeight: '600',
