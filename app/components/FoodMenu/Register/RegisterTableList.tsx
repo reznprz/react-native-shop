@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { RestaurantTable } from 'app/api/services/tableService';
@@ -10,6 +10,7 @@ interface RegisterTableListProps {
   numColumnsRegisterScreen: number;
   screenWidth: number;
   onSelectTable: (selectedTable: string) => void;
+  refetchTables: () => void;
 }
 
 const RegisterTableList: React.FC<RegisterTableListProps> = ({
@@ -18,7 +19,16 @@ const RegisterTableList: React.FC<RegisterTableListProps> = ({
   screenWidth,
   currentTable,
   onSelectTable,
+  refetchTables,
 }) => {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refetchTables();
+    setRefreshing(false);
+  };
+
   return (
     <FlatList
       data={tables}
@@ -28,6 +38,8 @@ const RegisterTableList: React.FC<RegisterTableListProps> = ({
       contentContainerStyle={styles.listContainer}
       columnWrapperStyle={styles.columnWrapper}
       showsVerticalScrollIndicator={false}
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
       renderItem={({ item }) => (
         <RegisterTableCard
           name={item.tableName}

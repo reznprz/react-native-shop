@@ -24,6 +24,7 @@ export interface RegisterFoodMenuProps {
   onSwitchTableClick?: (seatName: string) => void;
   handleCategoryClick: (categoryName: string) => void;
   onSelectTable: (selectedTable: string) => void;
+  refetchTables: () => void;
 }
 
 const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
@@ -37,6 +38,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   onSwitchTableClick,
   handleCategoryClick,
   onSelectTable,
+  refetchTables,
 }) => {
   const { numColumnsRegisterScreen, width } = useIsDesktop();
 
@@ -83,6 +85,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
               numColumnsRegisterScreen={numColumnsRegisterScreen}
               screenWidth={width}
               onSelectTable={onSelectTable}
+              refetchTables={refetchTables}
             />
           )}
         </View>

@@ -1,16 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+
+// hooks
 import { useTables } from 'app/hooks/useTables';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
+
+// ui components
 import PrimaryHeader from 'app/components/common/PrimaryHeader';
+import SubTab from 'app/components/common/SubTab';
 import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
 import TableList from 'app/components/table/TableList';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
 import TableListModal from 'app/components/modal/TableListModal';
-import SubTab from 'app/components/common/SubTab';
 import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
-import { useFocusEffect } from '@react-navigation/native';
 import EmptyState from 'app/components/common/EmptyState';
 
 const tabs = ['All Tables', 'Table Items'];
@@ -27,9 +31,15 @@ interface TableScreenProps {
   };
 }
 
-export default function TableScreen({ route }: TableScreenProps) {
+const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
+  // local state
   const { selectedTab } = route.params || {};
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Tables');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
+  const [selectedTable, setSelectedTable] = useState('All');
 
+  // external state & actions
   const {
     currentTable,
     tables,
@@ -53,18 +63,17 @@ export default function TableScreen({ route }: TableScreenProps) {
 
   const { isDesktop, isLargeScreen, isMobile } = useIsDesktop();
 
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
-  const [selectedTable, setSelectedTable] = useState(currentTable ? currentTable : 'All');
-  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Tables');
-
-  const handleGoToCart = (tableName: string) => console.log('Go to cart:', tableName);
-  const handleSwitchTable = (tableName: string) => console.log('Switch table:', tableName);
-
+  // effects
   useFocusEffect(
     useCallback(() => {
       refetchTables();
     }, [refetchTables]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedTable(currentTable ?? 'All');
+    }, [currentTable]),
   );
 
   useEffect(() => {
@@ -72,87 +81,74 @@ export default function TableScreen({ route }: TableScreenProps) {
       setShowPaymentModal(false);
       navigateToOrdersScreen();
     }
-  }, [completeOrderState]);
+  }, [completeOrderState, navigateToOrdersScreen]);
+
+  const renderTableItems = () => (
+    <View className="flex-1">
+      <PrimaryHeader
+        title="Tables"
+        onBackPress={() => console.log('Go back')}
+        onFilterPress={() => console.log('Filter pressed')}
+        filters={tableNames}
+        isDesktop={isDesktop}
+        searchTerm=""
+        handleFilterClick={(name) => {
+          setSelectedTable(name);
+          handleTableClick(name);
+        }}
+        selectedFilter={selectedTable}
+        tableInfo={tables}
+      />
+
+      {exstingOrderForTableMutation.isPending ? (
+        <FoodLoadingSpinner iconName="hamburger" />
+      ) : prepTableItems.orderItems.length === 0 && prepTableItems.id === 0 ? (
+        <EmptyState
+          iconName="food-off"
+          message="No food items available"
+          subMessage="Please add items to the Customer table."
+          iconSize={90}
+        />
+      ) : (
+        <TableItemAndPayment
+          tableItems={prepTableItems}
+          updateQuantity={(item, qty) => handleAddUpdateFoodItems(qty, undefined, item)}
+          handleAddDiscount={handleAddDiscount}
+          setShowPaymentModal={setShowPaymentModal}
+          onSwitchTableClick={() => setShowSwitchTableModal(true)}
+          handleCompleteOrder={handleCompleteOrder}
+          completeOrderState={completeOrderState}
+        />
+      )}
+    </View>
+  );
+
+  const renderTableList = () =>
+    isTablesLoading ? (
+      <FoodLoadingSpinner iconName="hamburger" />
+    ) : (
+      <TableList
+        tables={tables}
+        availableTables={availableTables}
+        occupiedTables={occupiedTables}
+        totalCapacity={totalCapacity}
+        activeOrders={activeOrders}
+        isMobile={isMobile}
+        isLargeScreen={isLargeScreen}
+        onGoToMenu={handleGoToMenuPress}
+        onGoToCart={(name) => console.log('Go to cart:', name)}
+        onSwitchTable={() => setShowSwitchTableModal(true)}
+        fetchTable={refetchTables}
+      />
+    );
 
   return (
     <View className="h-full w-full bg-gray-100">
       <SubTab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-
       <View className="flex-1 bg-gray-100">
-        {activeTab !== 'All Tables' ? (
-          <View className="flex-1">
-            {/* HEADER */}
-            <PrimaryHeader
-              title="Tables"
-              onBackPress={() => console.log('Go back')}
-              onFilterPress={() => console.log('Filter pressed')}
-              filters={tableNames}
-              isDesktop={isDesktop}
-              searchTerm=""
-              handleFilterClick={(selectedTable) => {
-                setSelectedTable(selectedTable);
-                handleTableClick(selectedTable);
-              }}
-              selectedFilter={selectedTable}
-              tableInfo={tables}
-            />
-
-            {exstingOrderForTableMutation.isPending ? (
-              <FoodLoadingSpinner iconName="hamburger" />
-            ) : (
-              <>
-                {prepTableItems.orderItems.length === 0 && prepTableItems.id === 0 ? (
-                  <EmptyState
-                    iconName="food-off"
-                    message="No food items available"
-                    subMessage="Please add items to the Customer table."
-                    iconSize={90}
-                  />
-                ) : (
-                  <>
-                    <View className="flex-1">
-                      {/* Order Summary & Payment Section */}
-                      <TableItemAndPayment
-                        tableItems={prepTableItems}
-                        updateQuantity={(item, newQty) => {
-                          handleAddUpdateFoodItems(newQty, undefined, item);
-                        }}
-                        handleAddDiscount={handleAddDiscount}
-                        setShowPaymentModal={setShowPaymentModal}
-                        onSwitchTableClick={() => setShowSwitchTableModal(true)}
-                        handleCompleteOrder={handleCompleteOrder}
-                        completeOrderState={completeOrderState}
-                      />
-                    </View>
-                  </>
-                )}
-              </>
-            )}
-          </View>
-        ) : (
-          <>
-            {isTablesLoading ? (
-              <FoodLoadingSpinner iconName="hamburger" />
-            ) : (
-              <TableList
-                tables={tables}
-                availableTables={availableTables}
-                occupiedTables={occupiedTables}
-                totalCapacity={totalCapacity}
-                activeOrders={activeOrders}
-                isMobile={isMobile}
-                isLargeScreen={isLargeScreen}
-                onGoToMenu={handleGoToMenuPress}
-                onGoToCart={handleGoToCart}
-                onSwitchTable={() => setShowSwitchTableModal(true)}
-                fetchTable={refetchTables}
-              />
-            )}
-          </>
-        )}
+        {activeTab === 'All Tables' ? renderTableList() : renderTableItems()}
       </View>
 
-      {/* Payment Modal */}
       <PaymentDetailsModal
         visible={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}
@@ -163,20 +159,18 @@ export default function TableScreen({ route }: TableScreenProps) {
       />
 
       <TableListModal
-        tables={tables.filter((table) => table.status.toLocaleLowerCase() === 'available')}
+        tables={tables.filter((t) => t.status.toLowerCase() === 'available')}
         visible={showSwitchTableModal}
         onClose={() => setShowSwitchTableModal(false)}
-        onSelectTable={() => {
-          setShowSwitchTableModal(false);
-        }}
+        onSelectTable={() => setShowSwitchTableModal(false)}
       />
 
       <ErrorMessagePopUp
-        errorMessage={exstingOrderForTableMutation.error?.message || ''}
-        onClose={() => {
-          exstingOrderForTableMutation.reset();
-        }}
+        errorMessage={exstingOrderForTableMutation.error?.message ?? ''}
+        onClose={() => exstingOrderForTableMutation.reset()}
       />
     </View>
   );
-}
+};
+
+export default TableScreen;

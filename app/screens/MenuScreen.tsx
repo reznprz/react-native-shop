@@ -41,6 +41,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
     prepTableItems,
     exstingOrderForTableMutation,
     completeOrderState,
+    refetchTables,
     refreshPrepTableItems,
     handleAddUpdateFoodItems,
     resetAddOrUpdateOrder,
@@ -134,6 +135,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
               setShowTableListModal(true);
             }}
             handleCategoryClick={handleCategoryClick}
+            refetchTables={refetchTables}
           />
         ) : (
           <FoodsMenu
