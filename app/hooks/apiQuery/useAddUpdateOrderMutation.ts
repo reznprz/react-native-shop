@@ -14,7 +14,7 @@ export interface AddUpdateOrderParams {
 
 /**
  * React Query Mutation for creating/updating an Order
- * for React Query v5.
+ *  (single food item granularity)
  */
 export function useAddUpdateOrderMutation(
   options?: UseMutationOptions<ApiResponse<Order>, Error, AddUpdateOrderParams>,

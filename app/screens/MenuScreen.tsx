@@ -1,16 +1,20 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { useFood } from 'app/hooks/useFood';
-import SubTab from 'app/components/common/SubTab';
-import { useTables } from 'app/hooks/useTables';
-import FoodsMenu, { SubTabType } from 'app/components/FoodMenu/FoodsMenu';
 import { useFocusEffect } from '@react-navigation/native';
+
+// hooks
+import { useOrder } from 'app/hooks/useOrder';
+import { useTables } from 'app/hooks/useTables';
+import { useFood } from 'app/hooks/useFood';
+
+// ui components
+import SubTab from 'app/components/common/SubTab';
+import FoodsMenu, { SubTabType } from 'app/components/FoodMenu/FoodsMenu';
 import TableListModal from 'app/components/modal/TableListModal';
 import { Food } from 'app/api/services/foodService';
 import { OrderMenuType } from 'app/api/services/orderService';
 import NotificationBar from 'app/components/common/NotificationBar';
 import Register from 'app/components/FoodMenu/Register/Register';
-import { useOrder } from 'app/hooks/useOrder';
 
 const tabs = ['Register', 'All Foods'];
 
@@ -27,8 +31,17 @@ interface MenuScreenProps {
 }
 
 export default function MenuScreen({ route }: MenuScreenProps) {
+  // route param
   const { selectedTab } = route.params || {};
 
+  // local state
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Register');
+  const [activeSubTab, setActiveSubTab] = useState<SubTabType>(OrderMenuType.NORMAL);
+  const [showTableListModal, setShowTableListModal] = useState(false);
+  const [successNotification, setSuccessNotificaton] = useState('');
+
+  // external state & actions
   const { foods, refetch, searchTerm, categories, handleSearch, handleCategoryClick, tableName } =
     useFood();
 
@@ -50,12 +63,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
     handleCompleteOrder,
   } = useTables();
 
-  const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Register');
-  const [activeSubTab, setActiveSubTab] = useState<SubTabType>(OrderMenuType.NORMAL);
-  const [showTableListModal, setShowTableListModal] = useState(false);
-  const [successNotification, setSuccessNotificaton] = useState('');
-
+  // effects
   useFocusEffect(
     useCallback(() => {
       refetch();
@@ -170,6 +178,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
         }}
       />
 
+      {/* Available TableList for Switch table  */}
       <TableListModal
         tables={tables}
         visible={showTableListModal}

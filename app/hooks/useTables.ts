@@ -2,19 +2,10 @@ import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../redux/store';
 import { Food } from 'app/api/services/foodService';
-import { ApiResponse } from 'app/api/handlers';
-import { fetchAllTablesApi, RestaurantTable, TableStatus } from 'app/api/services/tableService';
-import { useMutation, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { RestaurantTable, TableStatus } from 'app/api/services/tableService';
 import { setTableName } from 'app/redux/tableSlice';
 import { navigate, navigationRef } from 'app/navigation/navigationService';
-import {
-  completeOrderApi,
-  fetchExistingOrderByTableNameApi,
-  Order,
-  OrderItem,
-  OrderMenuType,
-  OrderType,
-} from 'app/api/services/orderService';
+import { Order, OrderItem, OrderMenuType, OrderType } from 'app/api/services/orderService';
 import { useAddUpdateOrderMutation } from './apiQuery/useAddUpdateOrderMutation';
 import {
   resetPrepTableItems,
@@ -23,6 +14,12 @@ import {
 } from 'app/redux/prepTableItemsSlice';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 
+// Local Api Query & helpers
+import { useRestaurantTablesQuery } from './apiQuery/useRestaurantTablesQuery';
+import { useExistingOrderMutation } from './apiQuery/useExistingOrderMutation';
+import { useCompleteOrderMutation } from './apiQuery/useCompleteOrderMutation';
+
+// Types
 export interface TableItem {
   id: number;
   userId: number;
@@ -166,42 +163,44 @@ export function updateTableItemWithOrderItem(
   }
 }
 
-export const useRestaurantTablesQuery = (
-  restaurantId: number,
-): UseQueryResult<ApiResponse<RestaurantTable[]>, Error> => {
-  return useQuery<ApiResponse<RestaurantTable[]>, Error>({
-    queryKey: ['restaurantTables'],
-    queryFn: async (): Promise<ApiResponse<RestaurantTable[]>> => {
-      if (!restaurantId || restaurantId === 0) {
-        throw new Error('Restaurant is not valid');
-      }
-      const response = await fetchAllTablesApi(restaurantId);
-      if (response.status !== 'success' || !response.data) {
-        throw new Error(response.message || 'Error fetching tables');
-      }
-      return response;
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 5 * 60 * 1000,
-  });
-};
-
 export function useTables() {
+  // Redux state & dispatch
   const dispatch: AppDispatch = useDispatch();
   const tableName = useSelector((state: RootState) => state.table.tableName);
   const prepTableItems = useSelector((state: RootState) => state.prepTableItems);
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
-
   const { restaurantId: storeRestaurantId = 0, userId: storedUserId = 0 } = storedAuthData || {};
 
+  // Queries Api
   const {
     data: tablesData,
     isLoading: isTablesLoading,
     error: tablesError,
     refetch: refetchTables,
   } = useRestaurantTablesQuery(storeRestaurantId);
-
   const tables: RestaurantTable[] = tablesData?.data || [];
+
+  const {
+    mutate: completeOrderMutation,
+    data: completeOrderData,
+    isError: isCompleteOrderError,
+    isPending: isCompleteOrderPending, // React Query v5 uses isPending
+    error: completeOrderError,
+    isSuccess: isCompleteOrderSuccess,
+    reset: resetCompleteOrder,
+  } = useCompleteOrderMutation();
+
+  // Derived values (memoised)
+  const [totalTables, availableTables, occupiedTables, totalCapacity, activeOrders, tableNames] =
+    useMemo(() => {
+      const total = tables.length;
+      const available = tables.filter((t) => t.status === TableStatus.AVAILABLE).length;
+      const occupied = total - available;
+      const capacity = tables.reduce((sum, t) => sum + t.capacity, 0);
+      const active = tables.reduce((sum, t) => sum + t.orderItemsCount, 0);
+      const names = tables.map((t) => t.tableName);
+      return [total, available, occupied, capacity, active, names];
+    }, [tables]);
 
   /**
    * Update state for a Food item, then call api for update with mutation on success we update the orderId.
@@ -238,18 +237,15 @@ export function useTables() {
    */
   const handleAddUpdateFoodItems = useCallback(
     (newQuantity: number, food?: Food, orderItem?: OrderItem, orderMenuType: string = 'NORMAL') => {
-      // current state from redux
       const currentState = prepTableItems;
 
       const item = orderItem || convertFoodToOrderItem(food!, orderMenuType, newQuantity);
 
       // Compute updated table
       const updatedTableItems = updateTableItemWithOrderItem(currentState, item, newQuantity);
-
-      // Dispatch Redux action to update store
       dispatch(setPrepTableItems(updatedTableItems));
 
-      // Now call the mutation using the updated state
+      // Query Api call
       addOrUpdateOrder({
         orderId: updatedTableItems.id,
         tableName: tableName,
@@ -270,61 +266,23 @@ export function useTables() {
     [prepTableItems, dispatch, tableName, addOrUpdateOrder],
   );
 
-  // Memoized Calculations
-  const totalTables = useMemo(() => tables.length, [tables]);
-
-  const availableTables = useMemo(() => {
-    return tables.filter((table) => table.status === TableStatus.AVAILABLE).length;
-  }, [tables]);
-
-  const occupiedTables = useMemo(() => {
-    return tables.filter((table) => table.status === TableStatus.OCCUPIED).length;
-  }, [tables]);
-
-  const totalCapacity = useMemo(() => {
-    return tables.reduce((sum, table) => sum + table.capacity, 0);
-  }, [tables]);
-
-  const activeOrders = useMemo(() => {
-    return tables.reduce((sum, table) => sum + table.orderItemsCount, 0);
-  }, [tables]);
-
-  const tableNames = useMemo(() => tables.map((t) => t.tableName), [tables]);
-
-  const exstingOrderForTableMutation = useMutation<
-    ApiResponse<Order>,
-    Error,
-    { tableName: string; restaurantId: number }
-  >({
-    mutationFn: async ({ tableName, restaurantId }) => {
-      if (!tableName || !restaurantId) {
-        throw new Error('Missing tableName or restaurantId');
-      }
-      const response: ApiResponse<Order> = await fetchExistingOrderByTableNameApi(
-        tableName,
-        restaurantId,
-      );
-      if (response.status !== 'success') {
-        throw new Error(response.message);
-      }
-      return response;
-    },
-    onSuccess: (response) => {
-      if (response.data && response.data.orderItems && response.data.orderItems.length > 0) {
-        dispatch(setPrepTableItems(toTableItem(response.data)));
+  const exstingOrderForTable = useExistingOrderMutation(
+    (order) => {
+      if (order && order.orderItems && order.orderItems.length > 0) {
+        dispatch(setPrepTableItems(toTableItem(order)));
       } else {
         dispatch(resetPrepTableItems());
       }
     },
-    onError: (err) => {
-      console.warn('existing order fetch failed:', err);
+    (error) => {
+      console.warn('existing order fetch failed:', error);
       dispatch(resetPrepTableItems());
     },
-  });
+  );
 
   // Expose a function that accepts tableId and restaurantId to trigger the API call.
   const fetchExistingOrderForTable = async (tableNameParam: string, restaurantIdParam: number) => {
-    await exstingOrderForTableMutation.mutateAsync({
+    await exstingOrderForTable.mutateAsync({
       tableName: tableNameParam,
       restaurantId: restaurantIdParam,
     });
@@ -385,51 +343,34 @@ export function useTables() {
         paymentInfos,
       };
 
-      completeOrderMutation.mutate({ payload: completeOrderRequest, orderId: id });
+      completeOrderMutation({ payload: completeOrderRequest, orderId: id });
     },
     [dispatch, prepTableItems],
   );
 
-  const completeOrderMutation = useMutation<
-    ApiResponse<Order>,
-    Error,
-    { payload: CompleteOrderRequest; orderId: number }
-  >({
-    mutationFn: async ({ payload, orderId }) => {
-      if (!orderId || payload.paymentInfos.length === 0) {
-        throw new Error('Missing orderId or payment Information');
-      }
-      const response: ApiResponse<Order> = await completeOrderApi(payload, orderId);
-      if (response.status !== 'success') {
-        throw new Error(response.message);
-      }
-
-      return response;
-    },
-    onSuccess: (response) => {
-      console.warn('existing order fetch failed:', response);
-    },
-    onError: (err) => {
-      console.warn('existing order fetch failed:', err);
-    },
-  });
-
+  // Custom state for UI LoadingButton
   const completeOrderState: ButtonState = useMemo(() => {
-    if (completeOrderMutation.isPending) {
+    if (isCompleteOrderPending) {
       return { status: 'loading' };
     }
-    if (completeOrderMutation.isError) {
+    if (isCompleteOrderError) {
       return {
         status: 'error',
-        message: completeOrderMutation.error?.message || 'An error occurred',
-        reset: () => completeOrderMutation.reset(),
+        message: completeOrderError?.message || 'An error occurred',
+        reset: () => resetCompleteOrder(),
       };
     }
-    if (completeOrderMutation.isSuccess) {
-      return { status: 'success', reset: () => completeOrderMutation.reset() };
+    if (isCompleteOrderSuccess) {
+      return { status: 'success', reset: () => resetCompleteOrder() };
     }
     return { status: 'idle' };
-  }, [completeOrderMutation]);
+  }, [
+    isCompleteOrderPending,
+    isCompleteOrderError,
+    completeOrderError,
+    isCompleteOrderSuccess,
+    resetCompleteOrder,
+  ]);
 
   const navigateToOrdersScreen = useCallback(() => {
     if (navigationRef.isReady()) {
@@ -438,7 +379,7 @@ export function useTables() {
         params: { selectedTab: 'Todays Order' },
       });
 
-      completeOrderMutation.reset();
+      resetCompleteOrder();
       dispatch(resetPrepTableItems());
       refetchTables();
     }
@@ -474,7 +415,7 @@ export function useTables() {
     //Existing Order Mutation
     fetchExistingOrderForTable,
     refreshPrepTableItems,
-    exstingOrderForTableMutation,
+    exstingOrderForTableMutation: exstingOrderForTable,
 
     // HANDLERS
     handleGoToMenuPress,
