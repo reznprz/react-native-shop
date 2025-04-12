@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, StyleSheet, ViewStyle, View } from 'react-native';
 import CustomIcon from 'app/components/common/CustomIcon';
 import { getFilterIcon } from 'app/hooks/utils/getFilterIcon';
@@ -8,6 +8,7 @@ interface Props {
   onSelectCategory: (category: string) => void;
   selectedCategory: string;
   numColumnsRegisterScreen: number;
+  refetchFoods: () => void;
 }
 
 /** helper: 100 % minus a 4 % gap, divided by the column count */
@@ -18,11 +19,20 @@ const RegisterCategoryList: React.FC<Props> = ({
   selectedCategory,
   numColumnsRegisterScreen,
   onSelectCategory,
+  refetchFoods,
 }) => {
+  const [refreshing, setRefreshing] = useState(false);
+
   const boxDynamicStyle = useMemo<ViewStyle>(
     () => ({ width: calcWidth(numColumnsRegisterScreen) }),
     [numColumnsRegisterScreen],
   );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await refetchFoods();
+    setRefreshing(false);
+  };
 
   return (
     <FlatList
@@ -32,6 +42,9 @@ const RegisterCategoryList: React.FC<Props> = ({
       keyExtractor={(item) => item}
       contentContainerStyle={styles.listContainer}
       columnWrapperStyle={styles.columnWrapper}
+      showsVerticalScrollIndicator={false}
+      onRefresh={handleRefresh}
+      refreshing={refreshing}
       renderItem={({ item }) => {
         const isSelected = selectedCategory === item;
         const { iconName, iconType } = getFilterIcon('Categories', item);

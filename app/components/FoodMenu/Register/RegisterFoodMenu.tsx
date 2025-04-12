@@ -25,6 +25,7 @@ export interface RegisterFoodMenuProps {
   handleCategoryClick: (categoryName: string) => void;
   onSelectTable: (selectedTable: string) => void;
   refetchTables: () => void;
+  refetchFoods: () => void;
 }
 
 const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
@@ -39,6 +40,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   handleCategoryClick,
   onSelectTable,
   refetchTables,
+  refetchFoods,
 }) => {
   const { numColumnsRegisterScreen, width } = useIsDesktop();
 
@@ -55,7 +57,10 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
         <TopBar
           onCategoryClick={() => setActiveView('categories')}
           onSwitchTableClick={() => onSwitchTableClick?.(tableItems.tableName)}
-          onTableClick={() => setActiveView('table')}
+          onTableClick={() => {
+            setActiveView('table');
+            refetchTables();
+          }}
         />
         {/* Adjust content container to account for fixed TopBar */}
         <View style={[styles.content, { marginTop: TOPBAR_HEIGHT }]}>
@@ -64,6 +69,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
               categories={categories}
               selectedCategory="All"
               onSelectCategory={handleCategorySelect}
+              refetchFoods={refetchFoods}
               numColumnsRegisterScreen={numColumnsRegisterScreen}
             />
           )}

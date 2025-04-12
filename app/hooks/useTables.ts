@@ -216,9 +216,14 @@ export function useTables() {
     onSuccess: (response) => {
       if (response.data) {
         if (response.data) {
-          const updatedOrder = response.data;
-          const updatedTableItem = toTableItem(updatedOrder);
-          dispatch(setPrepTableItems(updatedTableItem));
+          if (response.data.orderItems && response.data.orderItems.length > 0) {
+            const updatedOrder = response.data;
+            const updatedTableItem = toTableItem(updatedOrder);
+            dispatch(setPrepTableItems(updatedTableItem));
+          } else {
+            refetchTables();
+            dispatch(resetPrepTableItems());
+          }
         }
       }
     },

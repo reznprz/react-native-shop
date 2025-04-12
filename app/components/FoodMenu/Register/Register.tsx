@@ -32,6 +32,7 @@ interface RegisterProps {
   handleCategoryClick: (categoryName: string) => void;
   onSelectTable: (selectedTable: string) => void;
   refetchTables: () => void;
+  refetchFoods: () => void;
 }
 
 export default function Register({
@@ -49,6 +50,7 @@ export default function Register({
   handleSubTabChange,
   handleCategoryClick,
   refetchTables,
+  refetchFoods,
   completeOrderState,
 }: RegisterProps) {
   const { isDesktop } = useIsDesktop();
@@ -89,6 +91,7 @@ export default function Register({
             handleCategoryClick={handleCategoryClick}
             onSelectTable={onSelectTable}
             refetchTables={refetchTables}
+            refetchFoods={refetchFoods}
           />
         </View>
 
@@ -132,6 +135,7 @@ export default function Register({
         handleCategoryClick={handleCategoryClick}
         onSelectTable={onSelectTable}
         refetchTables={refetchTables}
+        refetchFoods={refetchFoods}
       />
 
       {/* Floating Button */}

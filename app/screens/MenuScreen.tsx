@@ -83,6 +83,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   useEffect(() => {
     if (completeOrderState.status === 'success') {
       refreshPrepTableItems(currentTable);
+      refetchTables();
       setSuccessNotificaton('Order Completed Successfully!');
       completeOrderState.reset?.();
     }
@@ -136,6 +137,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             }}
             handleCategoryClick={handleCategoryClick}
             refetchTables={refetchTables}
+            refetchFoods={refetch}
           />
         ) : (
           <FoodsMenu
