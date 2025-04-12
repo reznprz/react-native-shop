@@ -2,25 +2,31 @@ import React from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
-import PaymentDetails, { SelectedPayment } from '../table/PaymentDetails';
-import { TableItem } from 'app/hooks/useTables';
+import { PaymentInfo, TableItem } from 'app/hooks/useTables';
 import { ButtonState } from '../common/button/LoadingButton';
+import RegisterPaymentDetails from '../FoodMenu/Register/RegisterPaymentDetails';
+import { OrderItem } from 'app/api/services/orderService';
 
 interface PaymentDetailsModalProps {
   visible: boolean;
+  currentTable: string;
   onClose: () => void;
   tableItems: TableItem;
   setDiscount: (amount: number) => void;
-  handleCompleteOrder: (selectedPayments: SelectedPayment[]) => void;
+  handleCompleteOrder: (selectedPayments: PaymentInfo[]) => void;
+  updateQuantity: (item: OrderItem, newQuantity: number) => void;
+
   completeOrderState: ButtonState;
 }
 
 export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   visible,
+  currentTable,
   onClose,
   tableItems,
   setDiscount,
   handleCompleteOrder,
+  updateQuantity,
   completeOrderState,
 }) => {
   return (
@@ -34,11 +40,13 @@ export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
         </View>
 
         <View style={styles.paymentDetailsContainer}>
-          <PaymentDetails
+          <RegisterPaymentDetails
+            currentTable={currentTable}
             tableItems={tableItems}
-            setDiscount={setDiscount}
+            onApplyDiscount={setDiscount}
             handleCompleteOrder={handleCompleteOrder}
             completeOrderState={completeOrderState}
+            updateQuantity={updateQuantity}
           />
         </View>
       </ScrollView>

@@ -2,24 +2,39 @@ import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View, StyleSheet, Platform } from 'react-native';
 
 interface TopBarProps {
+  showSwitchTable: boolean;
+  onFoodClick: () => void;
   onCategoryClick: () => void;
   onSwitchTableClick?: () => void;
   onTableClick: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ onCategoryClick, onSwitchTableClick, onTableClick }) => {
+const TopBar: React.FC<TopBarProps> = ({
+  showSwitchTable,
+  onFoodClick,
+  onCategoryClick,
+  onSwitchTableClick,
+  onTableClick,
+}) => {
   const [selected, setSelected] = useState<string>('Category');
 
+  // Define common buttons
   const buttons = [
     { label: 'Table', action: onTableClick },
+    { label: 'Food', action: onFoodClick },
     { label: 'Category', action: onCategoryClick },
     { label: 'Top Breakfast', action: () => {} },
     { label: 'Top Lunch', action: () => {} },
     { label: 'Top Drink', action: () => {} },
     { label: 'Add Food', action: () => {} },
-    { label: 'Switch Table', action: () => onSwitchTableClick?.() },
   ];
 
+  // Conditionally add 'Switch Table' button
+  if (showSwitchTable) {
+    buttons.push({ label: 'Switch Table', action: () => onSwitchTableClick?.() });
+  }
+
+  // Handle button press
   const handlePress = (label: string, action: () => void) => {
     setSelected(label);
     action();
@@ -99,7 +114,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
   },
   webButton: {
-    // Add cursor styling or platform-specific tweaks here
-    // We can't add transitions due to type restrictions
+    // Add web-specific styling if needed
   },
 });

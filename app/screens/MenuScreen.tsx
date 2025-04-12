@@ -130,12 +130,17 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             tables={tables}
             foods={foods}
             currentTable={currentTable}
+            handleSearch={handleSearch}
+            searchTerm={searchTerm}
             categories={categories?.map((category) => category.name) || ['none']}
             handleSubTabChange={(selectedSubTab) => {
               setActiveSubTab(selectedSubTab);
             }}
             updateCartItemForFood={(food, qty) => {
               onHandleAddUpdateFoodItems(qty, food);
+            }}
+            updateCartItemForOrderItem={(orderItem, qty) => {
+              handleAddUpdateFoodItems(qty, undefined, orderItem, activeSubTab);
             }}
             handleAddDiscount={handleAddDiscount}
             handleCompleteOrder={handleCompleteOrder}

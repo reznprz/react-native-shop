@@ -14,6 +14,7 @@ type CollapsibleInfoProps = {
   labelTextSize?: string;
   collapsibleContent?: string;
   collapsibleContentStyle?: string;
+  showIcon?: boolean;
   onPress?: () => void;
 };
 
@@ -28,6 +29,7 @@ const CollapsibleInfo: React.FC<CollapsibleInfoProps> = ({
   labelTextSize = 'text-base',
   collapsibleContent = '',
   collapsibleContentStyle = '',
+  showIcon = true,
   onPress,
 }) => {
   const [expanded, setExpanded] = useState(false);
@@ -54,7 +56,9 @@ const CollapsibleInfo: React.FC<CollapsibleInfoProps> = ({
         accessibilityLabel={`${label} toggle`}
         style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
       >
-        <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
+        {showIcon && (
+          <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
+        )}
         <Text className={`font-semibold ${labelTextSize} ${textColor}`} numberOfLines={1}>
           {label}
         </Text>

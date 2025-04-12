@@ -14,12 +14,15 @@ type ActiveView = 'categories' | 'food' | 'table';
 const TOPBAR_HEIGHT = 60;
 
 export interface RegisterFoodMenuProps {
+  isMobile: boolean;
   categories: string[];
   foods: Food[];
   selectedSubTab: string;
   tableItems: TableItem;
   tables: RestaurantTable[];
   currentTable: string;
+  searchTerm: string;
+  handleSearch: (text: string) => void;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
   onSwitchTableClick?: (seatName: string) => void;
   handleCategoryClick: (categoryName: string) => void;
@@ -29,12 +32,15 @@ export interface RegisterFoodMenuProps {
 }
 
 const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
+  isMobile,
   categories,
   foods,
   selectedSubTab,
   tableItems,
   tables,
   currentTable,
+  searchTerm,
+  handleSearch,
   updateCartItemForFood,
   onSwitchTableClick,
   handleCategoryClick,
@@ -55,6 +61,8 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <TopBar
+          showSwitchTable={tableItems.id > 0}
+          onFoodClick={() => setActiveView('food')}
           onCategoryClick={() => setActiveView('categories')}
           onSwitchTableClick={() => onSwitchTableClick?.(tableItems.tableName)}
           onTableClick={() => {
@@ -76,11 +84,16 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
 
           {activeView === 'food' && (
             <RegisterFoodList
+              isMobile={isMobile}
               foods={foods}
-              updateCartItemForFood={updateCartItemForFood}
+              categories={categories}
               selectedSubTab={selectedSubTab}
               tableItems={tableItems}
               numColumnsRegisterScreen={numColumnsRegisterScreen}
+              handleSearch={handleSearch}
+              searchTerm={searchTerm}
+              updateCartItemForFood={updateCartItemForFood}
+              handleCategoryClick={handleCategoryClick}
             />
           )}
 

@@ -42,7 +42,7 @@ const RegisterFoodCard: React.FC<Props> = ({
     >
       <View style={styles.cardInner}>
         {tempQuantity > 0 && <CountChip count={tempQuantity} style={styles.countChipPosition} />}
-        <Text style={styles.name} numberOfLines={3}>
+        <Text style={styles.name} numberOfLines={4}>
           {food.name}
         </Text>
         <Text style={styles.price}>${price.toFixed(2)}</Text>
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: '#ffffff',
     borderRadius: 10,
-    height: 80,
+    height: 100,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 2,

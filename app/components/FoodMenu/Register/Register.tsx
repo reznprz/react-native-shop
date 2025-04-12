@@ -1,16 +1,16 @@
 import React, { useState, useCallback } from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import PaymentDetails from 'app/components/table/PaymentDetails';
 import CustomButton from 'app/components/common/button/CustomButton';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { PaymentInfo, TableItem } from 'app/hooks/useTables';
-import { OrderMenuType } from 'app/api/services/orderService';
+import { OrderItem, OrderMenuType } from 'app/api/services/orderService';
 import { ButtonState } from '../../common/button/LoadingButton';
 import { RestaurantTable } from 'app/api/services/tableService';
 import RegisterFoodMenu from './RegisterFoodMenu';
 import { Food } from 'app/api/services/foodService';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
 import SubTab from 'app/components/common/SubTab';
+import RegisterPaymentDetails from './RegisterPaymentDetails';
 
 const subtabs: string[] = Object.values(OrderMenuType);
 
@@ -24,7 +24,10 @@ interface RegisterProps {
   activatedSubTab: SubTabType;
   completeOrderState: ButtonState;
   currentTable: string;
+  searchTerm: string;
+  handleSearch: (text: string) => void;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
+  updateCartItemForOrderItem: (item: OrderItem, newQuantity: number) => void;
   handleAddDiscount: (discountAmount: number) => void;
   onSwitchTableClick?: (seatName: string) => void;
   handleCompleteOrder: (selectedPayments: PaymentInfo[]) => void;
@@ -42,7 +45,10 @@ export default function Register({
   categories,
   activatedSubTab,
   currentTable,
+  searchTerm,
+  handleSearch,
   updateCartItemForFood,
+  updateCartItemForOrderItem,
   handleAddDiscount,
   onSwitchTableClick,
   handleCompleteOrder,
@@ -53,7 +59,7 @@ export default function Register({
   refetchFoods,
   completeOrderState,
 }: RegisterProps) {
-  const { isDesktop } = useIsDesktop();
+  const { isDesktop, isMobile } = useIsDesktop();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   // Callback for opening and closing the Payment Modal
@@ -80,6 +86,7 @@ export default function Register({
             tabStyle="py-2"
           />
           <RegisterFoodMenu
+            isMobile={isMobile}
             updateCartItemForFood={updateCartItemForFood}
             categories={categories}
             foods={foods}
@@ -87,6 +94,8 @@ export default function Register({
             tableItems={tableItems}
             tables={tables}
             currentTable={currentTable}
+            handleSearch={handleSearch}
+            searchTerm={searchTerm}
             onSwitchTableClick={onSwitchTableClick}
             handleCategoryClick={handleCategoryClick}
             onSelectTable={onSelectTable}
@@ -101,11 +110,13 @@ export default function Register({
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <PaymentDetails
+          <RegisterPaymentDetails
+            currentTable={currentTable}
             tableItems={tableItems}
-            setDiscount={handleAddDiscount}
+            onApplyDiscount={handleAddDiscount}
             handleCompleteOrder={handleCompleteOrder}
             completeOrderState={completeOrderState}
+            updateQuantity={updateCartItemForOrderItem}
           />
         </ScrollView>
       </View>
@@ -124,6 +135,7 @@ export default function Register({
         tabStyle="py-2"
       />
       <RegisterFoodMenu
+        isMobile={isMobile}
         updateCartItemForFood={updateCartItemForFood}
         categories={categories}
         foods={foods}
@@ -131,6 +143,8 @@ export default function Register({
         tableItems={tableItems}
         tables={tables}
         currentTable={currentTable}
+        handleSearch={handleSearch}
+        searchTerm={searchTerm}
         onSwitchTableClick={onSwitchTableClick}
         handleCategoryClick={handleCategoryClick}
         onSelectTable={onSelectTable}
@@ -138,10 +152,14 @@ export default function Register({
         refetchFoods={refetchFoods}
       />
 
-      {/* Floating Button */}
-      <View style={styles.floatingButtonContainer}>
-        <CustomButton title="Proceed Payment" onPress={openPaymentModal} />
-      </View>
+      {tableItems?.id > 0 && (
+        <>
+          {/* Floating Button */}
+          <View style={styles.floatingButtonContainer}>
+            <CustomButton title="Proceed Payment" onPress={openPaymentModal} />
+          </View>
+        </>
+      )}
     </>
   );
 
@@ -149,11 +167,16 @@ export default function Register({
     <>
       {isDesktop ? renderDesktopLayout() : renderMobileLayout()}
       <PaymentDetailsModal
+        currentTable={currentTable}
         visible={showPaymentModal}
         onClose={closePaymentModal}
         tableItems={tableItems}
         setDiscount={handleAddDiscount}
-        handleCompleteOrder={handleCompleteOrder}
+        handleCompleteOrder={(paymentInfos) => {
+          handleCompleteOrder(paymentInfos);
+          setShowPaymentModal(false);
+        }}
+        updateQuantity={updateCartItemForOrderItem}
         completeOrderState={completeOrderState}
       />
     </>
@@ -187,7 +210,7 @@ const styles = StyleSheet.create({
   },
   rightPanel: {
     flexBasis: '40%',
-    padding: 16,
+    padding: 10,
     marginLeft: 16,
     backgroundColor: '#FFFFFF',
     marginTop: 8,

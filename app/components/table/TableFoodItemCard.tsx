@@ -11,13 +11,23 @@ const FALLBACK_IMAGE_URI = 'https://picsum.photos/300/200';
 
 interface TableFoodItemCardProps {
   item: OrderItem;
+  hideIcon?: boolean;
+  smallText?: boolean;
+  itemHeight?: number;
+  deleteButtonTopPosition?: number;
   updateQuantity: (item: OrderItem, newQuantity: number) => void;
 }
 
-const ITEM_HEIGHT = 90;
 const SWIPE_WIDTH = 90;
 
-const TableFoodItemCard: React.FC<TableFoodItemCardProps> = ({ item, updateQuantity }) => {
+const TableFoodItemCard: React.FC<TableFoodItemCardProps> = ({
+  item,
+  hideIcon = false,
+  smallText = false,
+  itemHeight = 90,
+  deleteButtonTopPosition = 0,
+  updateQuantity,
+}) => {
   const { tempQuantity, handleIncrement, handleDecrement } = useDebouncedQuantity(
     item?.quantity ?? 0,
     (newQty) => updateQuantity(item, newQty),
@@ -27,9 +37,9 @@ const TableFoodItemCard: React.FC<TableFoodItemCardProps> = ({ item, updateQuant
     // @ts-ignore
     <SwipeRow rightOpenValue={-SWIPE_WIDTH} disableLeftSwipe={false} disableRightSwipe={true}>
       {/* Hidden back view */}
-      <View style={styles.rowBack}>
+      <View style={[styles.rowBack, { top: deleteButtonTopPosition }]}>
         <TouchableOpacity
-          style={[styles.backButton, { backgroundColor: 'red' }]}
+          style={[styles.backButton, { height: itemHeight, backgroundColor: 'red' }]}
           onPress={() => updateQuantity(item, 0)}
         >
           <MaterialIcons name="delete" size={24} color="#FFF" />
@@ -38,29 +48,33 @@ const TableFoodItemCard: React.FC<TableFoodItemCardProps> = ({ item, updateQuant
       </View>
 
       {/* Front view (card) */}
-      <View style={styles.cardContainer}>
+      <View style={[styles.cardContainer, { height: itemHeight }]}>
         {/* Icon */}
-        <View
-          style={[
-            styles.iconContainer,
-            { backgroundColor: item.iconMetadata?.bgColor || '#3498db' },
-          ]}
-        >
-          <CustomIcon
-            name={item.iconMetadata?.iconName || ''}
-            type={(item.iconMetadata?.iconType as IconType) || 'Feather'}
-            size={22}
-            color={item.iconMetadata?.filledColor}
-            validate={true}
-          />
-        </View>
+        {!hideIcon && (
+          <View
+            style={[
+              styles.iconContainer,
+              { backgroundColor: item.iconMetadata?.bgColor || '#3498db' },
+            ]}
+          >
+            <CustomIcon
+              name={item.iconMetadata?.iconName || ''}
+              type={(item.iconMetadata?.iconType as IconType) || 'Feather'}
+              size={22}
+              color={item.iconMetadata?.filledColor}
+              validate={true}
+            />
+          </View>
+        )}
 
         {/* Info section */}
         <View style={styles.infoContainer}>
-          <Text style={styles.productName} numberOfLines={2}>
+          <Text style={[styles.productName, smallText && { fontSize: 13 }]} numberOfLines={3}>
             {item.productName}
           </Text>
-          <Text style={styles.unitPrice}>${item.unitPrice.toFixed(2)}</Text>
+          <Text style={[styles.unitPrice, smallText && { fontSize: 11 }]}>
+            ${item.unitPrice.toFixed(2)}
+          </Text>
         </View>
 
         {/* Quantity + Total Price */}
@@ -78,7 +92,7 @@ const TableFoodItemCard: React.FC<TableFoodItemCardProps> = ({ item, updateQuant
           </View>
 
           <View style={styles.totalPriceContainer}>
-            <Text style={styles.totalPriceText}>
+            <Text style={[styles.totalPriceText, smallText && { fontSize: 12 }]}>
               ${`${(item.unitPrice * item.quantity).toFixed(2)}`}
             </Text>
           </View>
@@ -94,7 +108,6 @@ const styles = StyleSheet.create({
   /** Swipe hidden back view */
   rowBack: {
     position: 'absolute',
-    top: 0,
     left: 0,
     right: 0,
     bottom: 0,
@@ -109,7 +122,6 @@ const styles = StyleSheet.create({
   },
   backButton: {
     width: SWIPE_WIDTH,
-    height: ITEM_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
     borderTopRightRadius: 8,
@@ -128,7 +140,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingHorizontal: 12,
     paddingVertical: 10,
-    height: ITEM_HEIGHT,
     borderRadius: 8,
     elevation: 2,
     shadowColor: '#000',
@@ -153,6 +164,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   productName: {
+    marginTop: 4,
     fontSize: 15,
     fontWeight: '600',
     color: '#184E57',
