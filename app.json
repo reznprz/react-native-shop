@@ -29,12 +29,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "expo": {
-      "assetBundlePatterns": [
-        "**/*"
-      ]
-    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "extra": {
+      "env": "uat",
       "eas": {
         "projectId": "bd6f8b22-cb19-4111-9e6e-750d576fe5d9"
       }

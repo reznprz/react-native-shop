@@ -3,7 +3,6 @@
     "version": ">= 16.1.0",
     "appVersionSource": "remote"
   },
-
   "build": {
     "local": {
       "developmentClient": true,
@@ -15,7 +14,6 @@
         "EXPO_PUBLIC_ENV": "local"
       }
     },
-
     "uat": {
       "channel": "uat",
       "env": {
@@ -24,7 +22,6 @@
         "EXPO_PUBLIC_ENV": "uat"
       }
     },
-
     "production": {
       "channel": "production",
       "env": {
@@ -34,7 +31,6 @@
       }
     }
   },
-
   "submit": {
     "production": {
       "ios": {},

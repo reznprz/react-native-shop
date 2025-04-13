@@ -7,32 +7,25 @@
     "start:local": "dotenv -e .env.local expo start -c",
     "start:uat": "dotenv -e .env.uat expo start -c",
     "start:prod": "dotenv -e .env.prod expo start -c",
-
-    "android":        "expo run:android",
+    "android": "expo run:android",
     "android:local": "dotenv -e .env.local expo run:android",
     "android:uat": "dotenv -e .env.uat expo run:android",
     "android:prod": "dotenv -e .env.prod expo run:android",
-
-    "ios":        "expo run:ios",
+    "ios": "expo run:ios",
     "ios:local": "dotenv -e .env.local expo run:ios",
     "ios:uat": "dotenv -e .env.uat expo run:ios",
     "ios:prod": "dotenv -e .env.prod expo run:ios",
-
-    "web":        "expo start --web -c",
+    "web": "expo start --web -c",
     "web:uat": "expo start --web --env-file .env.uat",
     "web:prod": "expo start --web --env-file .env.prod",
-
     "build:local:android": "eas build --profile local      --platform android",
-    "build:uat:android":   "eas build --profile uat        --platform android",
-    "build:prod:android":  "eas build --profile production --platform android",
-
-    "build:uat:ios":  "eas build --profile uat        --platform ios",
+    "build:uat:android": "eas build --profile uat        --platform android",
+    "build:prod:android": "eas build --profile production --platform android",
+    "build:uat:ios": "eas build --profile uat        --platform ios",
     "build:prod:ios": "eas build --profile production --platform ios",
-
     "update:local": "eas update --branch local",
-    "update:uat": "eas update",
+    "update:uat": "dotenv -e .env.uat -- eas update --branch",
     "update:prod": "eas update --branch production",
-    
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
     "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix"
   },
@@ -77,6 +70,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
+    "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.14",
     "@types/lodash.debounce": "^4.0.9",
     "@types/node": "^22.14.1",
