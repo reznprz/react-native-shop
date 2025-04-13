@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { ApiResponse, ApiStatus, ErrorStatus } from './index';
-import { config } from 'app/config';
+import { config } from 'app/config/config';
 import { refreshTokenApi } from 'app/api/services/authService';
 import { store } from 'app/redux/store';
 import { updateAccessToken, clearAuthData } from 'app/redux/authSlice';
