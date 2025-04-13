@@ -1,8 +1,18 @@
 import 'dotenv/config';
 import { ExpoConfig, ConfigContext } from '@expo/config';
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
+interface ExpoConfigWithEAS extends ExpoConfig {
+    eas?: {
+      projectId: string;
+    };
+  }
+
+export default ({ config }: ConfigContext): ExpoConfigWithEAS => ({
   ...config,
+
+  eas: {
+    projectId: 'bd6f8b22-cb19-4111-9e6e-750d576fe5d9',
+  } as any,
 
   /** dynamic branding */
   name: `MyApp (${process.env.EXPO_PUBLIC_ENV})`,

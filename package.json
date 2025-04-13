@@ -30,7 +30,7 @@
     "build:prod:ios": "eas build --profile production --platform ios",
 
     "update:local": "eas update --branch local",
-    "update:uat": "eas update --branch uat",
+    "update:uat": "eas update",
     "update:prod": "eas update --branch production",
     
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
