@@ -24,8 +24,8 @@
     "build:uat:ios": "eas build --profile uat        --platform ios",
     "build:prod:ios": "eas build --profile production --platform ios",
     "update:local": "eas update --branch local",
-    "update:uat": "dotenv -e .env.uat -- eas update --branch",
-    "update:prod": "eas update --branch production",
+    "update:uat": "dotenv -e .env.uat -- eas update",
+    "update:prod": "dotenv -e .env.uat -- eas update --branch master",
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
     "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix"
   },
