@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { config } from 'app/config/config';
 import {
   View,
   Text,
@@ -54,6 +55,9 @@ const LoginScreen: React.FC = () => {
             {/* Title */}
             <Text className="text-2xl font-semibold text-center text-gray-900">
               Restaurant POS Login
+            </Text>
+            <Text className="text-2xl font-semibold text-center text-gray-900">
+              {config.env}
             </Text>
             <Text className="text-center text-gray-500 mt-2">Please sign in to continue</Text>
 
