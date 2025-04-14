@@ -1,8 +1,23 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Animated, Easing, StyleSheet, Platform, ActivityIndicator } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
+import { IconType } from 'app/navigation/screenConfigs';
+import CustomIcon from './common/CustomIcon';
 
-const FoodLoadingSpinner: React.FC = () => {
+type FoodLoadingSpinnerProps = {
+  iconSize?: number;
+  iconColor?: string;
+  iconBgColor?: string;
+  iconName?: string;
+  iconType?: IconType;
+};
+
+const FoodLoadingSpinner: React.FC<FoodLoadingSpinnerProps> = ({
+  iconSize = 40,
+  iconColor = '#2a4759',
+  iconBgColor = 'rgba(42, 71, 89, 0.1)',
+  iconName = 'utensils',
+  iconType = 'FontAwesome5',
+}) => {
   // If on web, just render a simple ActivityIndicator
   if (Platform.OS === 'web') {
     return (
@@ -69,7 +84,7 @@ const FoodLoadingSpinner: React.FC = () => {
           },
         ]}
       >
-        <FontAwesome5 name="utensils" size={40} color="#2a4759" />
+        <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
       </Animated.View>
     </View>
   );

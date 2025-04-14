@@ -2,9 +2,9 @@ export function getPaymentTypeIconforIcons(paymentType: string) {
   // Convert to lowercase for consistent matching
   const payment = paymentType.toLowerCase();
 
-  if (paymentType.includes('cash')) return 'cash';
-  if (paymentType.includes('e-sewa')) return 'wallet-outline';
-  if (paymentType.includes('fone-pay')) return 'call-outline';
+  if (payment.includes('cash')) return 'cash';
+  if (payment.includes('esewa')) return 'wallet-outline';
+  if (payment.includes('fone_pay')) return 'call-outline';
 
   // Fallback icon if no match
   return 'cash-sharp';

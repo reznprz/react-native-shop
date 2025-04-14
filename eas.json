@@ -1,0 +1,40 @@
+{
+  "cli": {
+    "version": ">= 16.1.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "local": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "channel": "local",
+      "env": {
+        "EXPO_PUBLIC_TOKEN_BASE_URL": "http://192.168.1.158:8080",
+        "EXPO_PUBLIC_API_BASE_URL": "http://192.168.1.158:8082",
+        "EXPO_PUBLIC_ENV": "local"
+      }
+    },
+    "uat": {
+      "channel": "uat",
+      "env": {
+        "EXPO_PUBLIC_TOKEN_BASE_URL": "http://34.131.152.121:8080",
+        "EXPO_PUBLIC_API_BASE_URL": "http://34.131.152.121:8082",
+        "EXPO_PUBLIC_ENV": "uat"
+      }
+    },
+    "production": {
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_TOKEN_BASE_URL": "https://auth.mycorp.com",
+        "EXPO_PUBLIC_API_BASE_URL": "https://api.mycorp.com",
+        "EXPO_PUBLIC_ENV": "prod"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {},
+      "android": {}
+    }
+  }
+}

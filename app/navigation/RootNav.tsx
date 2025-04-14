@@ -9,6 +9,10 @@ import { createLazyScreen } from 'app/utils/lazyScreen';
 const QrMenuItemsScreen = React.lazy(() => import('app/screens/QrMenuItemsScreen'));
 const LazyOrderDetailsScreen = createLazyScreen(() => import('app/screens/OrderDetailsScreen'));
 const LazyFoodScreen = createLazyScreen(() => import('app/screens/FoodScreen'));
+const LazyExpenseScreen = createLazyScreen(() => import('app/screens/ExpenseScreen'));
+const LazyDailySalesScreen = createLazyScreen(() => import('app/screens/DailySalesScreen'));
+const LazyInventoryScreen = createLazyScreen(() => import('app/screens/InventoryScreen'));
+const LazySalesAnalytics = createLazyScreen(() => import('app/screens/SalesAnalyticsScreen'));
 
 function LazyQrMenuItemsScreen(props: any) {
   return (
@@ -50,6 +54,7 @@ export default function RootNav() {
           headerStyle: {
             backgroundColor: '#2a4759',
           },
+          headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
           headerTitleStyle: {
             fontWeight: 'bold',
@@ -67,6 +72,79 @@ export default function RootNav() {
           headerStyle: {
             backgroundColor: '#2a4759',
           },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.EXPENSE}
+        component={LazyExpenseScreen}
+        options={{
+          title: ScreenDisplayNames.EXPENSE,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.DAILYSALES}
+        component={LazyDailySalesScreen}
+        options={{
+          title: ScreenDisplayNames.DAILYSALES,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.INVENTORY}
+        component={LazyInventoryScreen}
+        options={{
+          title: ScreenDisplayNames.INVENTORY,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.SALESANALYTICS}
+        component={LazySalesAnalytics}
+        options={{
+          title: ScreenDisplayNames.SALESANALYTICS,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
           headerTitleStyle: {
             fontWeight: 'bold',

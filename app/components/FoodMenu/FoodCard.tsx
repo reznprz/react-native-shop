@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { OrderItem } from 'app/redux/cartSlice';
 import { Food } from 'app/api/services/foodService';
+import { OrderItem } from 'app/api/services/orderService';
+import { useDebouncedQuantity } from 'app/hooks/useDebouncedQuantity';
 
 interface FoodCardProps {
   food: Food;
+  tableItem?: OrderItem;
   isDesktop?: boolean;
   width?: number;
+  selectedSubTab: string;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
 }
 
@@ -15,26 +18,19 @@ const FALLBACK_IMAGE_URI = 'https://picsum.photos/300/200';
 
 export default function FoodCard({
   food,
+  tableItem,
   isDesktop = false,
   width = 1025,
+  selectedSubTab,
   updateCartItemForFood,
 }: FoodCardProps) {
-  const [quantity, setQuantity] = useState(0);
+  // Use the custom hook. Pass in the external quantity and a function that wraps your update function.
+  const { tempQuantity, handleIncrement, handleDecrement } = useDebouncedQuantity(
+    tableItem?.quantity ?? 0,
+    (newQty) => updateCartItemForFood(food, newQty),
+  );
 
-  const handleDecrement = () => {
-    if (quantity > 1) {
-      const newQty = quantity - 1;
-      setQuantity(newQty);
-      updateCartItemForFood(food, newQty);
-    }
-  };
-
-  const handleIncrement = () => {
-    const newQty = quantity + 1;
-    setQuantity(newQty);
-    updateCartItemForFood(food, newQty);
-  };
-
+  const price = selectedSubTab === 'NORMAL' ? food.price : food.touristPrice;
   const img = food.img || FALLBACK_IMAGE_URI;
 
   return (
@@ -67,10 +63,10 @@ export default function FoodCard({
 
       {/* Bottom Content: Price & Quantity Controller */}
       <View className="flex-row items-center justify-between mt-2 ml-2 mr-2 ">
-        <Text className="font-bold text-base text-gray-600">${food.price.toFixed(2)}</Text>
+        <Text className="font-bold text-base text-gray-600">${price.toFixed(2)}</Text>
 
         <View className="flex-row items-center px-2 py-1 rounded-full">
-          {quantity > 0 && (
+          {tempQuantity > 0 && (
             <>
               <Pressable
                 onPress={handleDecrement}
@@ -79,7 +75,7 @@ export default function FoodCard({
                 <Ionicons name="remove" size={20} color="black" />
               </Pressable>
 
-              <Text className="text-xl font-semibold mx-2">{quantity}</Text>
+              <Text className="text-xl font-semibold mx-2">{tempQuantity}</Text>
             </>
           )}
 

@@ -5,11 +5,14 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontSize: {
+        'xxs': '0.625rem', // 10px
+      },
       colors: {
         mocha: '#7a4f34', // Rich Mocha (Primary Accent, slightly deeper for contrast)
         lightCream: '#f7f1e7', // Softer Cream (Balanced Background)
         softRose: '#b85c57', // Soft Rose (Refined Highlight Text / Accent)
-        deepTeal: '#2a4759', // Dark Blue-Gray (Primary Dark Background)
+        deepTeal: '#2a4759', // Dark Blue-Gray (Primary Dark Background) 
         sand: '#c2956d', // Muted Sand (Subtle Accent, slightly softer)
         darkTan: '#8a5a3b', // Dark Tan (Warm, Earthy)
         'darkTan-400': '#8a5a3b', // Consistent Dark Tan Shade

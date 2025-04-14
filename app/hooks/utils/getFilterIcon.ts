@@ -4,12 +4,11 @@ export function getFilterIcon(
   filterName: string,
   filterLabel: string,
 ): { iconName: string; iconType: IconType } {
-  const cat = filterLabel.toLowerCase();
-
+  const cat = filterLabel?.toLowerCase() || '';
   // If filterName is "Tables", return a table icon (MaterialCommunityIcons)
   if (filterName === 'Tables') {
     if (cat.includes('all')) return { iconName: 'list-outline', iconType: 'Ionicons' };
-    return { iconName: 'table', iconType: 'MaterialCommunityIcons' };
+    return { iconName: 'table', iconType: 'TableIcon' };
   }
 
   // If filterName is "Categories", return category-based icons (Ionicons)
@@ -48,6 +47,13 @@ export function getFilterIcon(
       noodle: 'fast-food',
       wrap: 'fast-food',
     };
+
+    if (cat.includes('momo')) return { iconName: 'Momo', iconType: 'Momo' };
+    if (cat.includes('special wings')) return { iconName: 'Wings', iconType: 'Wings' };
+    if (cat.includes('cigarette')) return { iconName: 'Cigarette', iconType: 'Cigarette' };
+    if (cat.includes('noodle')) return { iconName: 'Noodles', iconType: 'Noodles' };
+    if (cat.includes('chowmein')) return { iconName: 'Noodles', iconType: 'Noodles' };
+    if (cat.includes('fried rice')) return { iconName: 'Rice', iconType: 'Rice' };
 
     // Find matching key in categoryIcons
     for (const key in categoryIcons) {

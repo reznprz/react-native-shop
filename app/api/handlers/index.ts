@@ -16,10 +16,3 @@ export interface ApiResponse<T> {
   statusCode: number; // HTTP status code
   message: string; // Success or error message
 }
-
-export interface ApiResponse2 {
-  status: ApiStatus; // "success" or "error"
-  data: GetAllfoodRes | null; // Data for success or null for errors
-  statusCode: number; // HTTP status code
-  message: string; // Success or error message
-}

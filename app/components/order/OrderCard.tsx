@@ -1,20 +1,20 @@
 import { View, Text } from 'react-native';
-import { FontAwesome5 } from '@expo/vector-icons';
 
 import React from 'react';
-import { OrderDetails } from 'app/hooks/useOrder';
 import OrderSummaryCard from './OrderSummaryCard';
 import OrderItemSummary from './OrderItemSummary';
+import { OrderDetails } from 'app/api/services/orderService';
 
 type OrderCardProps = {
   order: OrderDetails;
+  onMoreActionPress?: (order: OrderDetails) => void;
 };
 
-const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
+const OrderCard: React.FC<OrderCardProps> = ({ order, onMoreActionPress }) => {
   return (
-    <View className="bg-white p-4 rounded-lg shadow-md">
+    <View className="bg-white p-4 rounded-lg shadow-md mb-2">
       <OrderSummaryCard order={order} />
-      <OrderItemSummary order={order} />
+      <OrderItemSummary order={order} onMoreActionPress={onMoreActionPress} />
     </View>
   );
 };

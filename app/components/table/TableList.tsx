@@ -1,18 +1,21 @@
-import React from 'react';
-import { View, ScrollView } from 'react-native';
-import { TableCard } from 'app/components/table/TableCard';
+import React, { useCallback, useState } from 'react';
+import { View, ScrollView, RefreshControl } from 'react-native';
 import TableMetrics from 'app/components/table/TableMetrics';
+import { RestaurantTable } from 'app/api/services/tableService';
+import { SwipeTableCard } from './SwipeTableCard';
 
 interface TableListProps {
-  tables: { name: string; status: string; seats: number; items: number }[];
+  tables: RestaurantTable[];
   availableTables: number;
   occupiedTables: number;
   totalCapacity: number;
   activeOrders: number;
   isLargeScreen: boolean;
+  isMobile: boolean;
   onGoToMenu: (tableName: string) => void;
   onGoToCart: (tableName: string) => void;
   onSwitchTable: (tableName: string) => void;
+  fetchTable: () => void;
 }
 
 export default function TableList({
@@ -22,10 +25,20 @@ export default function TableList({
   totalCapacity,
   activeOrders,
   isLargeScreen,
+  isMobile,
   onGoToMenu,
   onGoToCart,
   onSwitchTable,
+  fetchTable,
 }: TableListProps) {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchTable();
+    setRefreshing(false);
+  }, [fetchTable]);
+
   return (
     <View className="flex-1 bg-gray-100 p-2">
       {/* Top Header Section */}
@@ -41,24 +54,25 @@ export default function TableList({
       <ScrollView
         contentContainerStyle={[
           { gap: 4 },
-          isLargeScreen && {
+          !isMobile && {
             flexDirection: 'row',
             flexWrap: 'wrap',
             justifyContent: 'center',
           },
         ]}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {tables.map((table, index) => (
-          <TableCard
+          <SwipeTableCard
             key={index}
-            name={table.name}
+            name={table.tableName}
             status={table.status}
-            seats={table.seats}
-            items={table.items}
-            onGoToMenu={() => onGoToMenu(table.name)}
-            onGoToCart={() => onGoToCart(table.name)}
-            onSwitchTable={() => onSwitchTable(table.name)}
+            seats={table.capacity}
+            items={table.orderItemsCount}
+            onGoToMenu={() => onGoToMenu(table.tableName)}
+            onGoToCart={() => onGoToCart(table.tableName)}
+            onSwitchTable={() => onSwitchTable(table.tableName)}
           />
         ))}
       </ScrollView>

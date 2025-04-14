@@ -1,13 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { useFood } from 'app/hooks/useFood';
-import { useCart } from 'app/hooks/useCart';
-import SubTab from 'app/components/common/SubTab';
-import { useTables } from 'app/hooks/useTables';
-import TableItemAndPayment from 'app/components/table/TableItemAndPayment';
-import FoodsMenu from 'app/components/FoodMenu/FoodsMenu';
+import { useFocusEffect } from '@react-navigation/native';
 
-const tabs = ['All Foods', 'Food Items'];
+// hooks
+import { useOrder } from 'app/hooks/useOrder';
+import { useTables } from 'app/hooks/useTables';
+import { useFood } from 'app/hooks/useFood';
+
+// ui components
+import SubTab from 'app/components/common/SubTab';
+import FoodsMenu, { SubTabType } from 'app/components/FoodMenu/FoodsMenu';
+import TableListModal from 'app/components/modal/TableListModal';
+import { Food } from 'app/api/services/foodService';
+import { OrderMenuType } from 'app/api/services/orderService';
+import NotificationBar from 'app/components/common/NotificationBar';
+import Register from 'app/components/FoodMenu/Register/Register';
+
+const tabs = ['Register', 'All Foods'];
 
 type TabType = (typeof tabs)[number];
 
@@ -22,18 +31,80 @@ interface MenuScreenProps {
 }
 
 export default function MenuScreen({ route }: MenuScreenProps) {
+  // route param
   const { selectedTab } = route.params || {};
 
-  const { foods, refetch, categories, handleSearch, handleCategoryClick } = useFood();
-  const { cart, updateCartItemForOrderItem } = useTables();
-
-  const { updateCartItemForFood } = useCart();
+  // local state
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'All Foods');
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Register');
+  const [activeSubTab, setActiveSubTab] = useState<SubTabType>(OrderMenuType.NORMAL);
+  const [showTableListModal, setShowTableListModal] = useState(false);
+  const [successNotification, setSuccessNotificaton] = useState('');
+
+  // external state & actions
+  const { foods, refetch, searchTerm, categories, handleSearch, handleCategoryClick, tableName } =
+    useFood();
+
+  const { handleSwitchTable } = useOrder();
+
+  const {
+    tables,
+    currentTable,
+    addUpdateOrderError,
+    prepTableItems,
+    exstingOrderForTableMutation,
+    completeOrderState,
+    refetchTables,
+    refreshPrepTableItems,
+    handleAddUpdateFoodItems,
+    resetAddOrUpdateOrder,
+    handleTableClick,
+    handleAddDiscount,
+    handleCompleteOrder,
+  } = useTables();
+
+  // effects
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, []),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (selectedTab === 'All Foods') {
+        setActiveTab('All Foods');
+      } else {
+        setActiveTab('Register');
+      }
+    }, [setActiveTab, selectedTab]),
+  );
 
   useEffect(() => {
-    refetch();
-  }, []);
+    if (prepTableItems?.orderMenuType === 'TOURIST') {
+      setActiveSubTab(OrderMenuType.TOURIST);
+    } else {
+      setActiveSubTab(OrderMenuType.NORMAL);
+    }
+  }, [prepTableItems?.orderMenuType]);
+
+  useEffect(() => {
+    if (completeOrderState.status === 'success') {
+      refreshPrepTableItems(currentTable);
+      refetchTables();
+      setSuccessNotificaton('Order Completed Successfully!');
+      completeOrderState.reset?.();
+    }
+  }, [completeOrderState]);
+
+  // Check if the Table is Selected
+  const onHandleAddUpdateFoodItems = (qty: number, food: Food) => {
+    if (!tableName || tableName.trim() === '') {
+      setShowTableListModal(true);
+      return;
+    }
+    handleAddUpdateFoodItems(qty, food, undefined, activeSubTab);
+  };
 
   return (
     <View className="h-full w-full bg-gray-100">
@@ -51,24 +122,81 @@ export default function MenuScreen({ route }: MenuScreenProps) {
       />
 
       <View className="flex-1 bg-gray-100">
-        {activeTab !== 'All Foods' ? (
-          <TableItemAndPayment
-            cartItems={cart.cartItems}
-            updateQuantity={updateCartItemForOrderItem}
-            showPaymentModal={false}
+        {activeTab === 'Register' ? (
+          <Register
+            tableItems={prepTableItems}
+            activatedSubTab={activeSubTab}
+            completeOrderState={completeOrderState}
+            tables={tables}
+            foods={foods}
+            currentTable={currentTable}
+            handleSearch={handleSearch}
+            searchTerm={searchTerm}
+            categories={categories?.map((category) => category.name) || ['none']}
+            handleSubTabChange={(selectedSubTab) => {
+              setActiveSubTab(selectedSubTab);
+            }}
+            updateCartItemForFood={(food, qty) => {
+              onHandleAddUpdateFoodItems(qty, food);
+            }}
+            updateCartItemForOrderItem={(orderItem, qty) => {
+              handleAddUpdateFoodItems(qty, undefined, orderItem, activeSubTab);
+            }}
+            handleAddDiscount={handleAddDiscount}
+            handleCompleteOrder={handleCompleteOrder}
+            onSelectTable={handleTableClick}
+            onSwitchTableClick={() => {
+              setShowTableListModal(true);
+            }}
+            handleCategoryClick={handleCategoryClick}
+            refetchTables={refetchTables}
+            refetchFoods={refetch}
           />
         ) : (
           <FoodsMenu
             foods={foods}
             categories={categories}
+            tableItems={prepTableItems}
             selectedCategory={selectedCategory}
+            activatedSubTab={activeSubTab}
+            isFoodsMenuLoading={exstingOrderForTableMutation.isPending}
+            handleSubTabChange={(selectedSubTab) => {
+              setActiveSubTab(selectedSubTab);
+            }}
             handleSearch={handleSearch}
+            searchTerm={searchTerm}
             handleCategoryClick={handleCategoryClick}
             setSelectedCategory={setSelectedCategory}
-            updateCartItemForFood={updateCartItemForFood}
+            updateCartItemForFood={(food, qty) => {
+              onHandleAddUpdateFoodItems(qty, food);
+            }}
+            refetchFoods={refetch}
           />
         )}
       </View>
+
+      <NotificationBar
+        message={addUpdateOrderError?.message || ''}
+        variant="error"
+        onClose={() => {
+          resetAddOrUpdateOrder();
+        }}
+      />
+
+      {/* Available TableList for Switch table  */}
+      <TableListModal
+        tables={tables}
+        visible={showTableListModal}
+        showAvailableIcon={false}
+        onClose={() => setShowTableListModal(false)}
+        onSelectTable={(selectedTable) => {
+          setShowTableListModal(false);
+          handleSwitchTable(prepTableItems.id, selectedTable);
+        }}
+      />
+
+      {/* Success notification */}
+      <NotificationBar message={successNotification} onClose={() => setSuccessNotificaton('')} />
     </View>
   );
 }

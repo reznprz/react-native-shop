@@ -4,14 +4,21 @@ import { NavigatorScreenParams } from '@react-navigation/native';
 export type MainTabsParamList = {
   Menu: { selectedTab?: string };
   TableScreen: { tableId?: string };
+  Orders: { selectedTab?: string };
+  Home: undefined;
 };
 
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabsParamList>;
   Cart: undefined;
   QrMenuItemsScreen: { category: string };
-  OrderDetails: { orderId: string };
+  OrderDetails: { orderId: string; actionType?: string };
   Food: undefined;
+  Expense: undefined;
+  DailySales: undefined;
+  Inventory: undefined;
+  SalesAnalytics: undefined;
+  Login: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

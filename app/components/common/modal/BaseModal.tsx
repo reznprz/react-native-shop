@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { Modal, View, Text, StyleSheet, Pressable, Dimensions, ViewStyle } from 'react-native';
 
 interface BaseModalProps {
   visible: boolean;
@@ -7,6 +7,7 @@ interface BaseModalProps {
   headerTitle?: string;
   body: React.ReactNode;
   footer?: React.ReactNode;
+  bodyStyle?: ViewStyle;
 }
 
 const BaseModal: React.FC<BaseModalProps> = ({
@@ -15,6 +16,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
   headerTitle,
   body,
   footer,
+  bodyStyle = { width: '100%', marginVertical: 15 },
 }) => {
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onRequestClose}>
@@ -29,7 +31,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
           </View>
 
           {/* Body */}
-          <View style={styles.modalBody}>{body}</View>
+          <View style={bodyStyle}>{body}</View>
 
           {/* Footer */}
           {footer && <View style={styles.modalFooter}>{footer}</View>}
@@ -51,7 +53,7 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: 'white',
-    padding: 10,
+    padding: 0,
     borderRadius: 12,
     minWidth: Math.min(width - 40, 350), // Responsive width, min 350px or screen width - 40px
     maxWidth: 600, // Prevents excessive width
@@ -66,7 +68,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#2a4759',
-    paddingVertical: 12,
+    paddingVertical: 18,
     paddingHorizontal: 15,
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
@@ -89,14 +91,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'white',
   },
-  modalBody: {
-    width: '100%',
-    marginVertical: 15,
-  },
   modalFooter: {
-    width: '100%',
     alignItems: 'center',
-    paddingTop: 10,
+    padding: 10,
   },
 });
 

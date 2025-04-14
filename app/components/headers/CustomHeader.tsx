@@ -1,63 +1,79 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, TouchableOpacity } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/native';
-import { tabScreenConfigs } from '../../navigation/screenConfigs';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import React, { useMemo } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from 'app/redux/store';
 import CustomIcon from '../common/CustomIcon';
-
-/** Helper: Get the label from route name */
-function getRouteLabel(routeName: string): string {
-  const match = tabScreenConfigs.find((s) => s.name === routeName);
-  return match ? match.label : routeName;
-}
-
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { tabScreenConfigs } from '../../navigation/screenConfigs';
+import CenterDesktopIcons from './CenterDesktopIcons';
+import { getFocusedRouteNameFromRoute, RouteProp } from '@react-navigation/native';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import CountChip from '../common/CountChip';
+import CircularInitialNameChip from '../common/CircularInitialNameChip';
+import CircularImage from '../common/CircularImage';
 interface CustomHeaderProps {
   route: RouteProp<Record<string, object | undefined>, string>;
   navigation: any;
 }
 
+// Helper: Get route label from your screen configs
+function getRouteLabel(routeName: string): string {
+  const match = tabScreenConfigs.find((s) => s.name === routeName);
+  return match ? match.label : routeName;
+}
+
 export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
-  const { isDesktop, deviceType } = useIsDesktop();
+  const { deviceType } = useIsDesktop();
+  const tableName = useSelector((state: RootState) => state.table.tableName);
+  const prepTableItems = useSelector((state: RootState) => state.prepTableItems);
 
-  const desktop = isDesktop && deviceType === 'Desktop';
+  const isDesktop = deviceType === 'Desktop';
+  const isPad = deviceType === 'iPad';
 
+  // Current route name & label
   const activeRouteName = getFocusedRouteNameFromRoute(route) ?? 'Home';
   const title = getRouteLabel(activeRouteName);
 
-  return (
-    <View
-      className={`
-        w-full flex-row items-center justify-between px-8 bg-deepTeal
-        ${isDesktop ? 'h-20' : 'h-28'}
-      `}
-    >
-      {/* Left Section: Title */}
-      <Text
-        className={`
-          text-lightCream text-2xl font-anticSlab
-          ${isDesktop ? 'pt-6' : 'pt-16'}
-        `}
-      >
-        {title}
-      </Text>
+  // Dynamically control size & spacing
+  const containerHeight = isDesktop || isPad ? 100 : 110;
+  const leftSectionPaddingTop = isDesktop || isPad ? 30 : 40;
+  const tableChipMarginTop = isDesktop || isPad ? 30 : 40;
 
-      {/* Center Section: Icons (Only for Desktop) */}
-      {desktop && (
-        <View className="absolute left-1/2 -translate-x-1/2 flex-row space-x-6">
-          {tabScreenConfigs.map((screen) => (
-            <IconWithTooltip
-              key={screen.name}
-              navigation={navigation}
-              screen={screen}
-              isFocused={screen.name === activeRouteName} // Determine if it's selected
-            />
-          ))}
+  // Replace with your actual restaurant/logo image
+  const FALLBACK_IMAGE_URI = {
+    uri: 'https://scontent-iad3-2.xx.fbcdn.net/v/t39.30808-6/305317844_585693433122077_344970095824068810_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=r7kD9QA1mlQQ7kNvgHJbbOV&_nc_oc=AdiZct-jZiANu80Jsq8Lp6AAY-GHuVQ4rAt_VSj3-_8I8mzCUr97ZBiC-4ZXvnlT-OajiAHDHAhpvHXmntfji7sC&_nc_zt=23&_nc_ht=scontent-iad3-2.xx&_nc_gid=A8UMXgVaEr0Z7-01RqrXv2_&oh=00_AYHT5NrdlXnUfQVHpa4U3Zk0Tv1Uhdg3dutxkUiMljFelQ&oe=67D7D84B',
+  };
+
+  const itemsCount = useMemo(() => {
+    return prepTableItems.orderItems.reduce((sum, item) => sum + item.quantity, 0);
+  }, [prepTableItems]);
+
+  return (
+    <View style={[styles.headerContainer, { height: containerHeight }]}>
+      {/* Left Section: Logo + Title */}
+      <CircularImage
+        title={title}
+        paddingTop={leftSectionPaddingTop}
+        fallbackImageUri={FALLBACK_IMAGE_URI}
+      />
+
+      {/* Center Section (only for desktop/iPad) */}
+      {isDesktop ? (
+        <View style={styles.centerSection}>
+          <CenterDesktopIcons
+            tabScreenConfigs={tabScreenConfigs}
+            navigation={navigation}
+            activeRouteName={activeRouteName}
+          />
         </View>
+      ) : (
+        // If not desktop, just render an empty View or nothing
+        <View style={{ flex: 1 }} />
       )}
 
-      {/* Right Section: Table Icon */}
+      {/* Right Section: Table “Chip” */}
       <TouchableOpacity
+        style={[styles.tableChip, { marginTop: tableChipMarginTop }]}
         onPress={() =>
           navigation.navigate('MainTabs', {
             screen: 'Table',
@@ -65,46 +81,69 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
           })
         }
       >
-        <CustomIcon
-          iconStyle={`${isDesktop ? 'pt-6' : 'pt-16'}`}
-          name={'table'}
-          type={'MaterialCommunityIcons'}
-          size={30}
-          color="#fef6eb"
-        />
+        {/* Count Chip */}
+        <CountChip count={itemsCount} style={styles.countChipPosition} />
+        <CircularInitialNameChip initials={'RP'} size={38} style={{ marginRight: 12 }} />
+        <CustomIcon name="chair" type="FontAwesome5" size={18} color="#FFFFFF" />
+        <Text style={styles.tableText}>{tableName}</Text>
+        <Ionicons name="chevron-down-outline" size={25} color="#FFFFFF" />
       </TouchableOpacity>
     </View>
   );
 }
 
-/** ✅ Icon Component with Selection Logic */
-const IconWithTooltip = ({ navigation, screen, isFocused }: any) => {
-  const [hovered, setHovered] = useState(false);
-
-  // Choose correct icon & color based on selection
-  const iconName = isFocused ? screen.filledIcon : screen.icon;
-  const iconColor = isFocused ? 'black' : 'white';
-
-  const handleNavigation = () => {
-    navigation.navigate('MainTabs', { screen: screen.name });
-  };
-
-  return (
-    <View className="relative flex items-center">
-      <Pressable
-        className="p-2 flex items-center"
-        onPress={handleNavigation}
-        onHoverIn={() => setHovered(true)}
-        onHoverOut={() => setHovered(false)}
-      >
-        <CustomIcon type={screen.iconType} name={iconName} size={26} color={iconColor} />
-      </Pressable>
-
-      {hovered && (
-        <View className="absolute top-10 bg-black px-2 py-1 rounded-md">
-          <Text className="text-white text-xs">{screen.label}</Text>
-        </View>
-      )}
-    </View>
-  );
-};
+const styles = StyleSheet.create({
+  headerContainer: {
+    width: '100%',
+    backgroundColor: '#2E3A47',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  leftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  centerSection: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tableChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#506D82',
+    borderRadius: 20,
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+  },
+  tableText: {
+    marginLeft: 6,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  countChipPosition: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+  },
+});

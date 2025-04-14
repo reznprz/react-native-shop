@@ -3,10 +3,11 @@ import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
 import FilterChip from '../common/FilterChip';
+import { RestaurantTable } from 'app/api/services/tableService';
 
 interface AllFiltersModalProps {
   title: string;
-  tableInfo?: { name: string; status: string; seats: number; items: number }[];
+  tableInfo?: RestaurantTable[];
   visible: boolean;
   onClose: () => void;
   filters: string[];
@@ -25,7 +26,7 @@ export const AllFiltersModal: React.FC<AllFiltersModalProps> = ({
 }) => {
   const getTableStatus = useCallback(
     (tableName: string) => {
-      return tableInfo?.find((table) => table.name === tableName)?.status;
+      return tableInfo?.find((table) => table.tableName === tableName)?.status;
     },
     [tableInfo],
   );

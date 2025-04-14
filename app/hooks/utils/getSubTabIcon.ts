@@ -15,8 +15,15 @@ export function getSubTabIcon(
   if (tabType === 'SubTab') {
     const subTabsIcons: Record<string, IconConfig> = {
       all: { icon: 'list-outline', iconType: 'Ionicons', iconSize: 24 },
-      'table items': { icon: 'utensils', iconType: 'FontAwesome5', iconSize: 18 },
-      'tourist menu': { icon: 'earth-outline', iconType: 'Ionicons', iconSize: 18 },
+      'table items': { icon: 'utensils', iconType: 'TableItems', iconSize: 22 },
+      'past orders': { icon: 'history', iconType: 'FontAwesome5', iconSize: 22 },
+      'todays order': { icon: 'clock', iconType: 'FontAwesome5', iconSize: 22 },
+      details: { icon: 'information-circle', iconType: 'Ionicons', iconSize: 22 },
+      'more actions': { icon: 'ellipsis-horizontal-circle', iconType: 'Ionicons', iconSize: 22 },
+      past: { icon: 'history', iconType: 'FontAwesome5', iconSize: 22 },
+      register: { icon: 'Register', iconType: 'Register', iconSize: 22 },
+      todays: { icon: 'clock', iconType: 'FontAwesome5', iconSize: 22 },
+      tourist: { icon: 'earth-outline', iconType: 'Ionicons', iconSize: 18 },
     };
 
     for (const key in subTabsIcons) {

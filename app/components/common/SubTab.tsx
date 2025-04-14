@@ -18,7 +18,7 @@ const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange, tabStyle 
         const iconInfo = getSubTabIcon(tab);
 
         // If no icon info is found, render a fallback (text only).
-        if (!iconInfo || tab === 'Normal Menu') {
+        if (!iconInfo || tab === 'NORMAL') {
           return (
             <Pressable
               key={tab}
@@ -60,7 +60,7 @@ const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange, tabStyle 
               iconStyle="mr-1.5"
             />
             <Text
-              className={`text-lg font-semibold ${
+              className={`text-lg font-semibold pl-1 ${
                 activeTab === tab ? 'text-[#2a4759]' : 'text-slate-500'
               }`}
             >

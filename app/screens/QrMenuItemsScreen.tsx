@@ -4,7 +4,7 @@ import ResponsiveList, { ResponsiveListHandle } from 'app/components/common/Resp
 import Header from 'app/components/FoodMenu/Header';
 import CategoryBar from 'app/components/FoodMenu/CategoryBar';
 import QrFoodList from 'app/components/FoodMenu/QrFoodList';
-import ErrorNotification from 'app/components/ErrorNotification';
+import ErrorNotification from 'app/components/Notification';
 import LoadingSpinner from 'app/components/FoodLoadingSpinner';
 import { ERROR_MESSAGES } from 'app/constants/constants';
 import { goBack } from 'app/navigation/navigationService';

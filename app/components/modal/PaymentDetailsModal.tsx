@@ -2,35 +2,52 @@ import React from 'react';
 import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
-import CategoryChip from '../common/FilterChip';
-import { OrderItem } from 'app/redux/cartSlice';
-import PaymentDetails from '../table/PaymentDetails';
+import { PaymentInfo, TableItem } from 'app/hooks/useTables';
+import { ButtonState } from '../common/button/LoadingButton';
+import RegisterPaymentDetails from '../FoodMenu/Register/RegisterPaymentDetails';
+import { OrderItem } from 'app/api/services/orderService';
 
 interface PaymentDetailsModalProps {
   visible: boolean;
+  currentTable: string;
   onClose: () => void;
-  orderItems: OrderItem[];
+  tableItems: TableItem;
   setDiscount: (amount: number) => void;
+  handleCompleteOrder: (selectedPayments: PaymentInfo[]) => void;
+  updateQuantity: (item: OrderItem, newQuantity: number) => void;
+
+  completeOrderState: ButtonState;
 }
 
 export const PaymentDetailsModal: React.FC<PaymentDetailsModalProps> = ({
   visible,
+  currentTable,
   onClose,
-  orderItems,
+  tableItems,
   setDiscount,
+  handleCompleteOrder,
+  updateQuantity,
+  completeOrderState,
 }) => {
   return (
     <BaseBottomSheetModal visible={visible} onClose={onClose}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Payment</Text>
-        <Pressable onPress={onClose} style={styles.closeIcon}>
-          <Ionicons name="close" size={24} color="#000" />
-        </Pressable>
-      </View>
+      <ScrollView contentContainerStyle={{ paddingBottom: 10 }}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Payment</Text>
+          <Pressable onPress={onClose} style={styles.closeIcon}>
+            <Ionicons name="close" size={24} color="#000" />
+          </Pressable>
+        </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <View style={styles.categoriesContainer}>
-          <PaymentDetails orderItems={orderItems} setDiscount={setDiscount} />
+        <View style={styles.paymentDetailsContainer}>
+          <RegisterPaymentDetails
+            currentTable={currentTable}
+            tableItems={tableItems}
+            onApplyDiscount={setDiscount}
+            handleCompleteOrder={handleCompleteOrder}
+            completeOrderState={completeOrderState}
+            updateQuantity={updateQuantity}
+          />
         </View>
       </ScrollView>
     </BaseBottomSheetModal>
@@ -51,7 +68,7 @@ const styles = StyleSheet.create({
   closeIcon: {
     padding: 4,
   },
-  categoriesContainer: {
+  paymentDetailsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     flex: 1,

@@ -2,11 +2,13 @@ import React from 'react';
 import { Text, StyleSheet, ScrollView, Pressable, View } from 'react-native';
 import BaseModal from '../common/modal/BaseModal';
 import FilterChip from '../common/FilterChip';
-import IconLabel from '../common/IconLabel';
+import { RestaurantTable } from 'app/api/services/tableService';
+import CollapsibleInfo from '../common/CollapsibleInfo';
 
 interface TableListModalProps {
   visible: boolean;
-  tables: { name: string; status: string; seats: number; items: number }[];
+  tables: RestaurantTable[];
+  showAvailableIcon?: boolean;
   onClose: () => void;
   onSelectTable: (selectedTable: string) => void;
 }
@@ -14,30 +16,33 @@ interface TableListModalProps {
 const TableListModal: React.FC<TableListModalProps> = ({
   visible,
   tables,
+  showAvailableIcon = true,
   onClose,
   onSelectTable,
 }) => {
   // Body: list of seats rendered in a ScrollView
   const bodyContent = (
     <>
-      <IconLabel
-        label={'Available Tables'}
-        iconType={'FontAwesome'}
-        iconName={'question-circle'}
-        iconSize={24}
-        applyCircularIconBg={false}
-        iconColor={'#2a4759'}
-        containerStyle={'ml-2 mb-4'}
-        textColor={'text-black font-bold underline'}
-      />
+      {showAvailableIcon && (
+        <CollapsibleInfo
+          label={'Available Tables ?'}
+          iconType={'FontAwesome'}
+          iconName={'question-circle'}
+          iconSize={24}
+          iconColor={'#2a4759'}
+          containerStyle={'ml-2 mb-4'}
+          textColor={'text-black font-bold text-lg underline'}
+          collapsibleContent={'Can only switch to available tables.'}
+        />
+      )}
 
       <ScrollView contentContainerStyle={styles.seatListContainer}>
         <View className="flex-row flex-wrap gap-1 pl-4 pr-4 pb-2">
           {tables.map((table, index) => (
             <FilterChip
-              key={table.name}
+              key={table.tableName}
               filterName={'Tables'}
-              label={table.name}
+              label={table.tableName}
               chipStatus={table.status}
               isSelected={false}
               onSelect={(value) => {
@@ -54,7 +59,7 @@ const TableListModal: React.FC<TableListModalProps> = ({
     <BaseModal
       visible={visible}
       onRequestClose={onClose}
-      headerTitle="Select a Seat"
+      headerTitle="Select a Table"
       body={bodyContent}
       footer={
         <Pressable onPress={onClose} style={styles.footerButton}>

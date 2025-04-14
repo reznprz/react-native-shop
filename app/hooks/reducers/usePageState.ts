@@ -7,7 +7,7 @@ type Action =
   | { type: 'SET_SUCCESS' }
   | { type: 'SET_FAILURE'; payload?: any }
   | { type: 'CLEAR_ERROR' }
-  | { type: 'RESET' }; // New action
+  | { type: 'RESET' };
 
 interface State {
   current: PageState;
@@ -49,7 +49,7 @@ export const usePageState = () => {
     [],
   );
   const clearError = useCallback(() => dispatch({ type: 'CLEAR_ERROR' }), []);
-  const resetPageState = useCallback(() => dispatch({ type: 'RESET' }), []); // New reset function
+  const resetPageState = useCallback(() => dispatch({ type: 'RESET' }), []);
 
   return {
     state: state.current,

@@ -10,12 +10,12 @@ import {
   FlatList,
 } from 'react-native';
 import PrimaryImage from '../../components/PrimaryImage';
-import ErrorNotification from '../../components/ErrorNotification';
 import { Food } from 'app/api/services/foodService';
 import Header from './Header';
 import CategoryBar from './CategoryBar';
 import QrFoodList from './QrFoodList';
 import ResponsiveList from '../common/ResponsiveList';
+import Notification from '../Notification';
 
 interface QrFoodItemProps {
   subCategoryMap: Map<string, Food[]>;
@@ -116,8 +116,8 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
       <PrimaryImage
         src="/shajhya.jpg"
         alt="Shajhya"
-        mobileHeight={'175'}
-        desktopHeight={'300'}
+        mobileHeight={175}
+        desktopHeight={300}
         objectFit="cover"
       />
       <View style={styles.headerContainer}>
@@ -145,7 +145,9 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
           showsVerticalScrollIndicator: false,
         }}
       />
-      {errorMessage !== '' && <ErrorNotification message={errorMessage} onClose={closeError} />}
+      {errorMessage !== '' && (
+        <Notification message={errorMessage} onClose={closeError} type={'error'} />
+      )}
     </View>
   );
 };

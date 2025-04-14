@@ -66,7 +66,10 @@ yarn add react-native-gesture-handler react-native-reanimated react-native-scree
 - **npm**: v6.x or later (or **Yarn** as an alternative)
 - **Expo CLI**: Local CLI is used (`npx expo`).
 
----
+-----
+
+
+-----
 
 ## Getting Started
 
@@ -108,6 +111,20 @@ npx expo start -c
 
 ```bash
 yarn add @reduxjs/toolkit react-redux redux-persist @react-native-async-storage/async-storage
+```
+
+- *** app doesn't start on ios/andriod**: install local expo
+### 6. local CLI (npx expo)
+
+```bash
+npx expo install react-native-reanimated
+```
+
+- *** app doesn't start on ios/andriod**: install local expo
+### 6. local CLI (npx expo)
+
+```bash
+yarn add postcss
 ```
 
 ### Note. To run the app in andriod/Ios dowload the Expo Go App

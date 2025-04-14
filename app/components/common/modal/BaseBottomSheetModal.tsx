@@ -98,6 +98,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
+    maxHeight: '90%',
     // Shadow for iOS
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },

@@ -1,44 +1,46 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import OrderSummary from 'app/components/table/OrderSummary';
 import PaymentDetails from 'app/components/table/PaymentDetails';
 import CustomButton from 'app/components/common/button/CustomButton';
-import { OrderItem } from 'app/redux/cartSlice';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { PaymentInfo, TableItem } from 'app/hooks/useTables';
+import { OrderItem } from 'app/api/services/orderService';
+import { ButtonState } from '../common/button/LoadingButton';
+import TableFoodItemsSummary from './TableFoodItemsSummary';
 
 interface TableItemAndPaymentProps {
-  cartItems: OrderItem[];
+  tableItems: TableItem;
   updateQuantity: (item: OrderItem, newQty: number) => void;
-  showPaymentModal: boolean;
+  handleAddDiscount: (discountAmount: number) => void;
   setShowPaymentModal?: (value: boolean) => void;
   onSwitchTableClick?: (seatName: string) => void;
+  handleCompleteOrder: (selectedPayments: PaymentInfo[]) => void;
+  completeOrderState: ButtonState;
 }
 
 export default function TableItemAndPayment({
-  cartItems,
+  tableItems,
   updateQuantity,
-  showPaymentModal,
+  handleAddDiscount,
   setShowPaymentModal,
   onSwitchTableClick,
+  handleCompleteOrder,
+  completeOrderState,
 }: TableItemAndPaymentProps) {
   const { isDesktop } = useIsDesktop();
 
   return (
     <>
       {isDesktop ? (
-        /** 📌 **Desktop Layout (Two Column)** */
-        <View className="flex-row flex-grow">
+        /* ** Desktop Layout (Two Column)** */
+        <View className="flex-1 flex-row flex-grow">
           {/* Left Panel - Order Summary */}
           <ScrollView
             style={styles.leftPanel}
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
-            <OrderSummary
-              cartItems={cartItems}
-              updateQuantity={updateQuantity}
-              onSwitchTableClick={onSwitchTableClick}
-            />
+            <TableFoodItemsSummary tableItems={tableItems} updateQuantity={updateQuantity} />
           </ScrollView>
 
           {/* Right Panel - Payment Details */}
@@ -47,25 +49,30 @@ export default function TableItemAndPayment({
             contentContainerStyle={{ paddingBottom: 100 }}
             showsVerticalScrollIndicator={false}
           >
-            <PaymentDetails orderItems={cartItems} setDiscount={() => {}} />
+            <PaymentDetails
+              tableItems={tableItems}
+              setDiscount={(discountAmount) => handleAddDiscount(discountAmount)}
+              handleCompleteOrder={handleCompleteOrder}
+              completeOrderState={completeOrderState}
+            />
           </ScrollView>
         </View>
       ) : (
-        /** 📌 **Mobile Layout (Single Column)** */
+        /* **Mobile Layout (Single Column)** */
         <ScrollView
           style={styles.mobilePanel}
           contentContainerStyle={{ paddingBottom: 100 }}
           showsVerticalScrollIndicator={false}
         >
-          <OrderSummary
-            cartItems={cartItems}
+          <TableFoodItemsSummary
+            tableItems={tableItems}
             updateQuantity={updateQuantity}
             onSwitchTableClick={onSwitchTableClick}
           />
         </ScrollView>
       )}
 
-      {/* ✅ Floating Button - Only for Mobile */}
+      {/* Floating Button - Only for Mobile */}
       {!isDesktop && setShowPaymentModal && (
         <View className="absolute bottom-10 left-1/2 -translate-x-1/2 z-50">
           <CustomButton

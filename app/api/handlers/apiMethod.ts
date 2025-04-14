@@ -18,6 +18,7 @@ const apiMethods = {
     config?: AxiosRequestConfig,
   ): Promise<ApiResponse<T>> => {
     try {
+      console.log('POST URL:', url);
       const response = await axiosInstance.post<T>(url, payload, config);
       return responseHandler<T>(response);
     } catch (error) {

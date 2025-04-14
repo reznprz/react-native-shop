@@ -12,20 +12,35 @@ export interface GetAllFoodsResponse {
 export interface Food {
   id: number;
   name: string;
-  authorId: number | null;
-  description: string | null;
+  description: string;
   price: number;
-  categoryId: number | null;
-  categoryName: string | null;
-  categoryNameTwo: string | null;
-  img: string | null;
-  ingredients: string | null;
-  calories: number | null;
-  servingSize: string | null;
-  priceTwo: number;
+  touristPrice: number;
+  img: string;
+  calories: number;
+  servingSize: string;
+  categoryName: string;
+  isKitchenFood: boolean;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+  categoryNameTwo: string;
+  categoryIcon: string;
 }
 
 // Fetch all foods
-export const fetchAllFoods = async (): Promise<ApiResponse<GetAllFoodsResponse>> => {
-  return await apiMethods.get<GetAllFoodsResponse>('/api/foods/v2');
+export const fetchAllFoods = async (restaurantId: number): Promise<ApiResponse<Food[]>> => {
+  const params: { searchType?: string; searchValue?: string } = {};
+  params.searchType = 'ALL';
+  params.searchValue = undefined;
+  return await apiMethods.get<Food[]>(`/api/food/${restaurantId}`, { params: params });
+};
+
+// Fetch all Categories
+export const fetchAllCategories = async (
+  restaurantId: number,
+): Promise<ApiResponse<Category[]>> => {
+  return await apiMethods.get<Category[]>(`/api/food/categories/${restaurantId}`);
 };
