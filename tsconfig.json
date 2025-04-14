@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["nativewind/types","expo", "jest", "node"],
+    "types": ["nativewind/types","expo", "node"],
     "baseUrl": ".", // This sets the root directory for absolute imports
     "paths": {
       "app/*": ["app/*"], // Maps "app/" to your "app" directory

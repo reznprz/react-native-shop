@@ -16,6 +16,7 @@ import TableListModal from 'app/components/modal/TableListModal';
 import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';
+import { OrderItem } from 'app/api/services/orderService';
 
 const tabs = ['All Tables', 'Table Items'];
 
@@ -156,6 +157,8 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
         setDiscount={handleAddDiscount}
         handleCompleteOrder={handleCompleteOrder}
         completeOrderState={completeOrderState}
+        currentTable={''}
+        updateQuantity={() => {}}
       />
 
       <TableListModal

@@ -56,9 +56,8 @@ const LoginScreen: React.FC = () => {
             <Text className="text-2xl font-semibold text-center text-gray-900">
               Restaurant POS Login
             </Text>
-            <Text className="text-2xl font-semibold text-center text-gray-900">
-              {config.env}
-            </Text>
+            <Text className="text-2xl font-semibold text-center text-gray-900">{config.env}</Text>
+            <Text className="text-2xl font-semibold text-center text-gray-900">{config.apiBaseURL}</Text>
             <Text className="text-center text-gray-500 mt-2">Please sign in to continue</Text>
 
             <View className="mt-8">
