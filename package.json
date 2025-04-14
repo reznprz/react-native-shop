@@ -24,8 +24,8 @@
     "build:uat:ios": "eas build --profile uat        --platform ios",
     "build:prod:ios": "eas build --profile production --platform ios",
     "update:local": "eas update --branch local",
-    "update:uat": "dotenv -e .env.uat -- eas update",
-    "update:prod": "dotenv -e .env.uat -- eas update --branch master",
+    "update:uat": "cross-env EXPO_NO_DOTENV=1 dotenv -e .env.uat -o -- eas update",
+    "update:prod": "cross-env EXPO_NO_DOTENV=1 dotenv -e .env.prod -o -- eas update --branch master",
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
     "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix"
   },
@@ -79,6 +79,7 @@
     "@types/react-native-vector-icons": "^6.4.18",
     "autoprefixer": "^10.4.20",
     "babel-preset-expo": "^12.0.6",
+    "cross-env": "^7.0.3",
     "dotenv-cli": "^8.0.0",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.1",

@@ -29,6 +29,9 @@ const LoginScreen: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  const appVersion = 'v1.0.0'; // You can update this later
+  const showEnvDetails = config.env === 'local' || config.env === 'uat';
+
   useEffect(() => {
     if (loginState.status === 'success') {
       handleLoginSuccess();
@@ -48,18 +51,29 @@ const LoginScreen: React.FC = () => {
           {/* Card Container */}
           <View className="bg-white w-full max-w-md rounded-xl shadow-md p-8">
             {/* Icon */}
-            <View className="items-center mb-6">
+            <View className="items-center mb-4">
               <MaterialCommunityIcons name="silverware-fork-knife" size={48} color="#374151" />
             </View>
+
+            {/* Env + Version */}
+            {showEnvDetails && (
+              <View className="items-center mb-4">
+                <View className="bg-gray-100 px-3 py-1 rounded-full flex-row space-x-2 items-center border border-gray-300">
+                  <Text className="text-sm text-gray-700 font-medium">
+                    {config.env.toUpperCase()}
+                  </Text>
+                  <Text className="text-sm text-gray-500">{appVersion}</Text>
+                </View>
+              </View>
+            )}
 
             {/* Title */}
             <Text className="text-2xl font-semibold text-center text-gray-900">
               Restaurant POS Login
             </Text>
-            <Text className="text-2xl font-semibold text-center text-gray-900">{config.env}</Text>
-            <Text className="text-2xl font-semibold text-center text-gray-900">{config.apiBaseURL}</Text>
             <Text className="text-center text-gray-500 mt-2">Please sign in to continue</Text>
 
+            {/* Username */}
             <View className="mt-8">
               <Text className="text-gray-700 mb-2">Username</Text>
               <View className="flex-row items-center border border-gray-300 rounded-lg px-4 py-3 bg-white">
@@ -74,7 +88,7 @@ const LoginScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* Password Field */}
+            {/* Password */}
             <View className="mt-6">
               <Text className="text-gray-700 mb-2">Password</Text>
               <View className="flex-row items-center border border-gray-300 rounded-xl px-4 py-3 bg-white">
@@ -124,9 +138,7 @@ const LoginScreen: React.FC = () => {
             <View className="mt-6">
               <LoadingButton
                 title={'Sign In'}
-                onPress={() => {
-                  handleLogin();
-                }}
+                onPress={handleLogin}
                 buttonStyle={{ paddingVertical: 14 }}
                 textStyle={{ fontSize: 20 }}
                 buttonState={loginState}
