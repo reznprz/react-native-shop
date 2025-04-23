@@ -21,6 +21,9 @@ interface RegisterProps {
   tables: RestaurantTable[];
   foods: Food[];
   categories: string[];
+  topBreakFast: Food[];
+  topLunch: Food[];
+  topDrinks: Food[];
   activatedSubTab: SubTabType;
   completeOrderState: ButtonState;
   currentTable: string;
@@ -42,6 +45,9 @@ export default function Register({
   tableItems,
   tables,
   foods,
+  topBreakFast,
+  topDrinks,
+  topLunch,
   categories,
   activatedSubTab,
   currentTable,
@@ -90,6 +96,9 @@ export default function Register({
             updateCartItemForFood={updateCartItemForFood}
             categories={categories}
             foods={foods}
+            topBreakFast={topBreakFast}
+            topDrinks={topDrinks}
+            topLunch={topLunch}
             selectedSubTab={activatedSubTab}
             tableItems={tableItems}
             tables={tables}
@@ -139,6 +148,9 @@ export default function Register({
         updateCartItemForFood={updateCartItemForFood}
         categories={categories}
         foods={foods}
+        topBreakFast={topBreakFast}
+        topDrinks={topDrinks}
+        topLunch={topLunch}
         selectedSubTab={activatedSubTab}
         tableItems={tableItems}
         tables={tables}

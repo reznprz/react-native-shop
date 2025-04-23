@@ -1,26 +1,24 @@
 import { useMutation } from '@tanstack/react-query';
-import { useDispatch } from 'react-redux';
 import { AuthResponse, Credentials, login } from 'app/api/services/authService';
-import { setAuthData } from 'app/redux/authSlice';
 
-export function useLoginMutation() {
-  const dispatch = useDispatch();
-
-  /**
-   * Wrap the `login` API call in a mutation:
-   */
-  return useMutation<AuthResponse, unknown, Credentials>({
-    mutationKey: ['login'], // optional, but helpful to organize or reset the mutation
-    mutationFn: (credentials: Credentials) => login(credentials),
-
-    onSuccess: (data: AuthResponse) => {
-      // Optionally store tokens or user info in Redux state
-      dispatch(setAuthData(data));
+export function useLoginMutation(
+  onSuccess?: (res: AuthResponse) => void,
+  onError?: (err: Error) => void,
+) {
+  return useMutation<AuthResponse, Error, Credentials>({
+    mutationFn: async (credentials: Credentials) => {
+      if (!credentials.username || !credentials.password)
+        throw new Error('Username or password is not valid');
+      const response: AuthResponse = await login(credentials);
+      console.log('Login response from useLoginQuery:', response);
+      return response;
     },
-
-    onError: (error) => {
-      console.error('Login failed:', error);
-      // You can handle error messages or logging here as well
+    onSuccess: (response) => {
+      if (!response) {
+        throw new Error('Login Failed');
+      }
+      onSuccess?.(response);
     },
+    onError,
   });
 }

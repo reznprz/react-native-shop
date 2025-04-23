@@ -45,8 +45,6 @@ export interface AuthResponse {
  * Then you also dispatch setAuthData(...) in Redux to keep them in store.
  */
 export const login = async (credentials: Credentials): Promise<AuthResponse> => {
-  console.log('login URL:', config.tokenBaseURL);
-
   const response = await axios.post<AuthResponse>(
     `${config.tokenBaseURL}/auth/login`,
     credentials,

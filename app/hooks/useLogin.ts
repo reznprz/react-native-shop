@@ -1,11 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useLoginMutation } from './apiQuery/useLoginQuery';
-import { Credentials } from 'app/api/services/authService';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 import { navigate } from 'app/navigation/navigationService';
-// import { fetchFoods, fetchCategories } from 'app/redux/foodSlice';
-// import { RootState, AppDispatch } from 'app/redux/store';
-// import { useDispatch, useSelector } from 'react-redux';
+import { useFoodMenuActions } from './apiQuery/useFoodMenuAction';
+import { useDispatch } from 'react-redux';
+import { setAuthData } from 'app/redux/authSlice';
+import { Credentials } from 'app/api/services/authService';
 
 interface UseLoginResult {
   username: string;
@@ -26,15 +26,19 @@ export function useLogin(): UseLoginResult {
   const [remember, setRemember] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  const dispatch = useDispatch();
+
   const {
     mutate: loginMutate,
-    error: apiError,
-    status: loginApiState,
+    error: loginError,
+    data: loginRes,
+    isPending: isLoading,
+    isError,
+    isSuccess,
     reset: resetLoginState,
   } = useLoginMutation();
 
-  // const storedRestaurantId = useSelector((state: RootState) => state.auth.authData?.restaurantId);
-  // const dispatch = useDispatch<AppDispatch>();
+  const { loadFoodMenu } = useFoodMenuActions();
 
   const handleLogin = async () => {
     if (!username || !password) {
@@ -48,32 +52,23 @@ export function useLogin(): UseLoginResult {
     loginMutate(creds);
   };
 
-  const handleLoginSuccess = useCallback(() => {
-    // if (storedRestaurantId && storedRestaurantId > 0) {
-    //   dispatch(fetchFoods(storedRestaurantId));
-    //   dispatch(fetchCategories(storedRestaurantId));
-    // }
-    navigate('MainTabs', {
-      screen: 'Home',
-    });
-  }, []);
+  const handleLoginSuccess = useCallback(async () => {
+    if (loginRes && loginRes?.restaurantId) {
+      dispatch(setAuthData(loginRes));
+      console.log('Fetching food menu for restaurant ID:', loginRes?.restaurantId);
 
-  const loginState: ButtonState = useMemo(() => {
-    if (loginApiState === 'pending') {
-      return { status: 'loading' };
+      await loadFoodMenu(loginRes.restaurantId);
     }
-    if (loginApiState === 'error') {
-      return {
-        status: 'error',
-        message: String(apiError) || 'An error occurred',
-        reset: () => resetLoginState(),
-      };
-    }
-    if (loginApiState === 'success') {
-      return { status: 'success', reset: () => resetLoginState() };
-    }
-    return { status: 'idle' };
-  }, [loginApiState]);
+    navigate('MainTabs', { screen: 'Home' });
+  }, [loginRes, dispatch, loadFoodMenu, navigate]);
+
+  const loginState: ButtonState = isLoading
+    ? { status: 'loading' }
+    : isError
+      ? { status: 'error', message: String(loginError), reset: resetLoginState }
+      : isSuccess
+        ? { status: 'success', reset: resetLoginState }
+        : { status: 'idle' };
 
   return {
     username,
