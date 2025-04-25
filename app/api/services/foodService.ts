@@ -22,6 +22,14 @@ export interface Food {
   isKitchenFood: boolean;
 }
 
+export interface FoodMenuResponse {
+  foods: Food[];
+  topBreakFast: Food[];
+  topLunch: Food[];
+  topDrinks: Food[];
+  categories: Category[];
+}
+
 export interface Category {
   id: number;
   name: string;
@@ -36,6 +44,13 @@ export const fetchAllFoods = async (restaurantId: number): Promise<ApiResponse<F
   params.searchType = 'ALL';
   params.searchValue = undefined;
   return await apiMethods.get<Food[]>(`/api/food/${restaurantId}`, { params: params });
+};
+
+export const fetchFoodMenu = async (
+  restaurantId: number,
+): Promise<ApiResponse<FoodMenuResponse>> => {
+  console.log('Fetching food menu for restaurant ID:', restaurantId);
+  return await apiMethods.get<FoodMenuResponse>(`/api/food/menu/${restaurantId}`);
 };
 
 // Fetch all Categories

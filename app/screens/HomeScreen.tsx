@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, ScrollView, RefreshControl } from 'react-native';
 import { useRestaurantOverview } from 'app/hooks/useRestaurantOverview';
 import ExpenseSummary from 'app/components/home/ExpensesSummary';
@@ -14,6 +14,8 @@ import RecentTransactionsSummary from 'app/components/home/RecentTransactionsSum
 import { useFocusEffect } from '@react-navigation/native';
 
 const HomeScreen: React.FC = () => {
+  const [refreshing, setRefreshing] = useState(false);
+
   const {
     restaurantOverView,
     restaurantOverViewState,
@@ -36,8 +38,6 @@ const HomeScreen: React.FC = () => {
 
   const { isLargeScreen, width } = useIsDesktop();
   const isTablet = width >= 768;
-
-  const [refreshing, setRefreshing] = useState(false);
 
   useFocusEffect(
     useCallback(() => {

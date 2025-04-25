@@ -1,3 +1,4 @@
+import { on } from 'events';
 import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View, StyleSheet, Platform } from 'react-native';
 
@@ -5,6 +6,9 @@ interface TopBarProps {
   showSwitchTable: boolean;
   onFoodClick: () => void;
   onCategoryClick: () => void;
+  onTopBreakFastClick: () => void;
+  onTopLunchClick: () => void;
+  onTopDrinkClick: () => void;
   onSwitchTableClick?: () => void;
   onTableClick: () => void;
 }
@@ -14,6 +18,9 @@ const TopBar: React.FC<TopBarProps> = ({
   onFoodClick,
   onCategoryClick,
   onSwitchTableClick,
+  onTopBreakFastClick,
+  onTopLunchClick,
+  onTopDrinkClick,
   onTableClick,
 }) => {
   const [selected, setSelected] = useState<string>('Category');
@@ -23,9 +30,9 @@ const TopBar: React.FC<TopBarProps> = ({
     { label: 'Table', action: onTableClick },
     { label: 'Food', action: onFoodClick },
     { label: 'Category', action: onCategoryClick },
-    { label: 'Top Breakfast', action: () => {} },
-    { label: 'Top Lunch', action: () => {} },
-    { label: 'Top Drink', action: () => {} },
+    { label: 'Top Breakfast', action: onTopBreakFastClick },
+    { label: 'Top Lunch', action: onTopLunchClick },
+    { label: 'Top Drink', action: onTopDrinkClick },
     { label: 'Add Food', action: () => {} },
   ];
 

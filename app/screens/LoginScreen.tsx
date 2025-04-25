@@ -29,7 +29,7 @@ const LoginScreen: React.FC = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
-  const appVersion = 'v1.0.0'; // You can update this later
+  const appVersion = 'v1.0.0';
   const showEnvDetails = config.env === 'local' || config.env === 'uat';
 
   useEffect(() => {

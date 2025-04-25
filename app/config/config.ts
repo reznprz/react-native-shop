@@ -9,5 +9,5 @@ export interface AppConfig {
 export const config: AppConfig = {
   tokenBaseURL: process.env.EXPO_PUBLIC_TOKEN_BASE_URL ?? '',
   apiBaseURL: process.env.EXPO_PUBLIC_API_BASE_URL ?? '',
-  env: (process.env.EXPO_PUBLIC_ENV as Env) ?? 'uat',
+  env: (process.env.EXPO_PUBLIC_ENV as Env) ?? 'local',
 };

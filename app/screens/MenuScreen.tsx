@@ -42,10 +42,20 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   const [successNotification, setSuccessNotificaton] = useState('');
 
   // external state & actions
-  const { foods, refetch, searchTerm, categories, handleSearch, handleCategoryClick, tableName } =
-    useFood();
+  const {
+    foods,
+    foodMenu,
+    refetch,
+    searchTerm,
+    categories,
+    handleSearch,
+    handleCategoryClick,
+    tableName,
+  } = useFood();
 
   const { handleSwitchTable } = useOrder();
+
+  const { topBreakFast, topDrinks, topLunch } = foodMenu;
 
   const {
     tables,
@@ -62,13 +72,6 @@ export default function MenuScreen({ route }: MenuScreenProps) {
     handleAddDiscount,
     handleCompleteOrder,
   } = useTables();
-
-  // effects
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, []),
-  );
 
   useFocusEffect(
     useCallback(() => {
@@ -129,6 +132,9 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             completeOrderState={completeOrderState}
             tables={tables}
             foods={foods}
+            topBreakFast={topBreakFast}
+            topLunch={topLunch}
+            topDrinks={topDrinks}
             currentTable={currentTable}
             handleSearch={handleSearch}
             searchTerm={searchTerm}

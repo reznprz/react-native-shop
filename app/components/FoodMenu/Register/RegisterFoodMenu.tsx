@@ -10,6 +10,7 @@ import RegisterTableList from './RegisterTableList';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
 type ActiveView = 'categories' | 'food' | 'table';
+type ActiveSubFoodView = 'all' | 'breakfast' | 'lunch' | 'drinks';
 
 const TOPBAR_HEIGHT = 60;
 
@@ -17,6 +18,9 @@ export interface RegisterFoodMenuProps {
   isMobile: boolean;
   categories: string[];
   foods: Food[];
+  topBreakFast: Food[];
+  topLunch: Food[];
+  topDrinks: Food[];
   selectedSubTab: string;
   tableItems: TableItem;
   tables: RestaurantTable[];
@@ -35,6 +39,9 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   isMobile,
   categories,
   foods,
+  topBreakFast,
+  topDrinks,
+  topLunch,
   selectedSubTab,
   tableItems,
   tables,
@@ -51,20 +58,46 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   const { numColumnsRegisterScreen, width } = useIsDesktop();
 
   const [activeView, setActiveView] = useState<ActiveView>('categories');
+  const [activeSubFoodView, setActiveSubFoodView] = useState<ActiveSubFoodView>('all');
 
   const handleCategorySelect = (cat: string) => {
     setActiveView('food');
     handleCategoryClick(cat);
   };
 
+  // Pick which list of foods to render based on the sub-tab
+  const displayedFoods =
+    activeSubFoodView === 'breakfast'
+      ? topBreakFast
+      : activeSubFoodView === 'lunch'
+        ? topLunch
+        : activeSubFoodView === 'drinks'
+          ? topDrinks
+          : foods;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <TopBar
           showSwitchTable={tableItems.id > 0}
-          onFoodClick={() => setActiveView('food')}
+          onFoodClick={() => {
+            setActiveView('food');
+            setActiveSubFoodView('all');
+          }}
           onCategoryClick={() => setActiveView('categories')}
           onSwitchTableClick={() => onSwitchTableClick?.(tableItems.tableName)}
+          onTopBreakFastClick={() => {
+            setActiveSubFoodView('breakfast');
+            setActiveView('food');
+          }}
+          onTopLunchClick={() => {
+            setActiveSubFoodView('lunch');
+            setActiveView('food');
+          }}
+          onTopDrinkClick={() => {
+            setActiveSubFoodView('drinks');
+            setActiveView('food');
+          }}
           onTableClick={() => {
             setActiveView('table');
             refetchTables();
@@ -85,7 +118,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
           {activeView === 'food' && (
             <RegisterFoodList
               isMobile={isMobile}
-              foods={foods}
+              foods={displayedFoods}
               categories={categories}
               selectedSubTab={selectedSubTab}
               tableItems={tableItems}
