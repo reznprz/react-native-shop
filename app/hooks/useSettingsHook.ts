@@ -59,6 +59,9 @@ export const useSettingsHook = () => {
       case 'Edit Profile':
         console.log('Navigating to Edit Profile');
         break;
+      case 'Users':
+        push(ScreenNames.USER);
+        break;
       case 'Logout':
         Alert.alert('Logout', 'Are you sure you want to logout?', [
           { text: 'Cancel', style: 'cancel' },
@@ -149,6 +152,12 @@ export const useSettingsHook = () => {
           icon: 'user-edit',
           iconType: 'FontAwesome5',
           onPress: () => handlePress('Edit Profile'),
+        },
+        {
+          label: 'Users',
+          icon: 'star',
+          iconType: 'FontAwesome5',
+          onPress: () => handlePress('Users'),
         },
       ],
     },

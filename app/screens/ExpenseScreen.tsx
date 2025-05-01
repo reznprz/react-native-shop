@@ -15,7 +15,6 @@ import NotificationBar from 'app/components/common/NotificationBar';
 import CustomIcon from 'app/components/common/CustomIcon';
 import { IconType } from 'app/navigation/screenConfigs';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
-import { DateRangeSelection } from 'app/components/DateRangePickerModal';
 
 const ExpenseScreen = () => {
   const {
