@@ -1,24 +1,19 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
+import React, { useState, useCallback, useMemo } from 'react';
+import { View, Text, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import ScrollableBaseModal from '../common/modal/ScrollableBaseModal';
 import ErrorMessagePopUp from '../common/ErrorMessagePopUp';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
 import { User, AccessLevel } from 'app/api/services/userService';
+import ConditionalWrapper from '../common/ConditionalWrapper';
+import InputField from '../common/InputField';
 
 interface AddUserModalProps {
   visible: boolean;
   onRequestClose: () => void;
   onAddUser: (newUser: User) => void;
-  /** optionally pass restaurantId if it should be pre-filled */
-  restaurantId?: number;
 }
 
-const AddUserModal: React.FC<AddUserModalProps> = ({
-  visible,
-  onRequestClose,
-  onAddUser,
-  restaurantId = 0,
-}) => {
+const AddUserModal: React.FC<AddUserModalProps> = ({ visible, onRequestClose, onAddUser }) => {
   const [accessLevel, setAccessLevel] = useState<AccessLevel>(AccessLevel.USER);
   const [passcode, setPasscode] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -28,7 +23,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setAccessLevel(AccessLevel.USER);
     setPasscode('');
     setFirstName('');
@@ -36,23 +31,20 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     setUsername('');
     setPhoneNumber('');
     setEmail('');
-  };
+    setError('');
+  }, []);
 
-  const validate = (): boolean => {
+  const validate = useCallback((): boolean => {
     if (!firstName.trim() || !lastName.trim()) {
       setError('First & last name are required');
       return false;
     }
-    if (!username.trim()) {
-      setError('Username is required');
+    if (accessLevel === AccessLevel.ADMIN && !username.trim()) {
+      setError('Username is required for admins');
       return false;
     }
     if (!passcode.trim() || passcode.length < 4) {
       setError('Passcode must be at least 4 digits');
-      return false;
-    }
-    if (!/^\d+$/.test(passcode)) {
-      setError('Passcode can contain only numbers');
       return false;
     }
     if (!/^\+?\d{7,15}$/.test(phoneNumber)) {
@@ -65,124 +57,78 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       return false;
     }
     return true;
-  };
+  }, [firstName, lastName, username, passcode, phoneNumber, email, accessLevel]);
 
-  const handleAddUser = () => {
+  const handleAddUser = useCallback(() => {
     if (!validate()) return;
-    setError('');
 
-    const user: User = {
-      id: 0, // back-end will set real id
-      restaurantId,
+    const newUser: User = {
+      id: 0,
+      restaurantId: 0,
       accessLevel,
       passcode,
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       username: username.trim(),
-      password: passcode, // change if you collect a real password
+      password: passcode,
       phoneNumber: phoneNumber.trim(),
       email: email.trim(),
     };
 
-    onAddUser(user);
+    onAddUser(newUser);
     resetForm();
     onRequestClose();
-  };
+  }, [
+    validate,
+    accessLevel,
+    passcode,
+    firstName,
+    lastName,
+    username,
+    phoneNumber,
+    email,
+    onAddUser,
+    resetForm,
+    onRequestClose,
+  ]);
 
-  /* ───────────── UI sections ───────── */
-  const header = (
-    <View className="flex-row items-center justify-between">
-      <Text className="text-white text-lg font-semibold">Add New User</Text>
-      <Pressable onPress={onRequestClose} className="p-1">
-        <Text className="text-white text-xl">✕</Text>
-      </Pressable>
-    </View>
-  );
-
-  const accessPicker = (
-    <View className="mb-3">
-      <Text className="mb-1 text-lg text-gray-800">Access&nbsp;Level</Text>
-      <View className="flex-row bg-gray-100 rounded-lg overflow-hidden">
-        {[AccessLevel.ADMIN, AccessLevel.USER].map((lvl) => {
-          const active = lvl === accessLevel;
-          return (
-            <Pressable
-              key={lvl}
-              onPress={() => setAccessLevel(lvl)}
-              className={`flex-1 py-3 items-center
-                 ${active ? 'bg-blue-600' : ''}
-              `}
-            >
-              <Text className={`font-medium ${active ? 'text-white' : 'text-gray-700'}`}>
-                {lvl === AccessLevel.ADMIN ? 'Admin' : 'Staff'}
-              </Text>
-            </Pressable>
-          );
-        })}
+  const header = useMemo(
+    () => (
+      <View className="flex-row items-center justify-between">
+        <Text className="text-white text-lg font-semibold">Add New User</Text>
+        <Pressable onPress={onRequestClose} className="p-1">
+          <Text className="text-white text-xl">✕</Text>
+        </Pressable>
       </View>
-    </View>
+    ),
+    [onRequestClose],
   );
 
-  const renderInput = (
-    label: string,
-    value: string,
-    setter: (t: string) => void,
-    options?: {
-      placeholder?: string;
-      keyboardType?: 'default' | 'numeric' | 'email-address' | 'phone-pad';
-      secure?: boolean;
-      maxLength?: number;
-    },
-  ) => (
-    <View className="mb-3">
-      <Text className="mb-1 text-lg text-gray-800">{label}</Text>
-      <TextInput
-        className="bg-gray-100 rounded-md py-3 px-3 border border-gray-300"
-        value={value}
-        onChangeText={setter}
-        placeholder={options?.placeholder}
-        keyboardType={options?.keyboardType ?? 'default'}
-        secureTextEntry={options?.secure}
-        maxLength={options?.maxLength}
-        autoCapitalize="none"
-      />
-    </View>
-  );
-
-  const body = (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      className="flex-1"
-    >
-      {accessPicker}
-
-      {renderInput('Passcode', passcode, setPasscode, {
-        placeholder: '4-6 digit pin',
-        keyboardType: 'numeric',
-        maxLength: 6,
-        secure: true,
-      })}
-      {renderInput('First Name', firstName, setFirstName)}
-      {renderInput('Last Name', lastName, setLastName)}
-      {renderInput('Username', username, setUsername)}
-      {renderInput('Phone Number', phoneNumber, setPhoneNumber, {
-        placeholder: '+1 555 123 4567',
-        keyboardType: 'phone-pad',
-      })}
-      {renderInput('E-mail', email, setEmail, {
-        placeholder: 'me@example.com',
-        keyboardType: 'email-address',
-      })}
-
-      {error && <ErrorMessagePopUp errorMessage={error} onClose={() => setError('')} />}
-    </KeyboardAvoidingView>
-  );
-
-  const footer = (
-    <ModalActionsButton
-      cancelProps={{ title: 'Cancel', onPress: onRequestClose }}
-      actionProps={{ title: 'Save User', onPress: handleAddUser }}
-    />
+  const accessPicker = useMemo(
+    () => (
+      <View className="mb-3">
+        <Text className="mb-1 text-lg text-gray-800">Access&nbsp;Level</Text>
+        <View className="flex-row bg-gray-100 rounded-lg overflow-hidden">
+          {[AccessLevel.ADMIN, AccessLevel.USER].map((lvl) => {
+            const active = lvl === accessLevel;
+            return (
+              <Pressable
+                key={lvl}
+                onPress={() => setAccessLevel(lvl)}
+                className={`flex-1 py-3 items-center
+                 ${active ? 'bg-deepTeal' : ''}
+              `}
+              >
+                <Text className={`font-medium ${active ? 'text-white' : 'text-gray-700'}`}>
+                  {lvl === AccessLevel.ADMIN ? 'Admin' : 'Staff'}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    ),
+    [accessLevel],
   );
 
   return (
@@ -190,8 +136,55 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       visible={visible}
       onRequestClose={onRequestClose}
       header={header}
-      body={body}
-      footer={footer}
+      body={
+        <ConditionalWrapper>
+          <View className="flex-1">
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              className="flex-1"
+            >
+              {accessPicker}
+              <InputField label="First Name" value={firstName} onChange={setFirstName} />
+              <InputField label="Last Name" value={lastName} onChange={setLastName} />
+              {accessLevel === AccessLevel.ADMIN && (
+                <InputField label="Username" value={username} onChange={setUsername} />
+              )}
+              <InputField
+                label="Phone Number"
+                value={phoneNumber}
+                onChange={setPhoneNumber}
+                placeholder="+1 555 123 4567"
+                keyboardType="phone-pad"
+                maxLength={15}
+              />
+              <InputField
+                label="E-mail"
+                value={email}
+                onChange={setEmail}
+                placeholder="me@example.com"
+                keyboardType="email-address"
+              />
+              <InputField
+                label="Password"
+                value={passcode}
+                onChange={setPasscode}
+                secureTextEntry
+                maxLength={6}
+                keyboardType="numeric"
+              />
+              {error ? (
+                <ErrorMessagePopUp errorMessage={error} onClose={() => setError('')} />
+              ) : null}
+            </KeyboardAvoidingView>
+          </View>
+        </ConditionalWrapper>
+      }
+      footer={
+        <ModalActionsButton
+          cancelProps={{ title: 'Cancel', onPress: onRequestClose }}
+          actionProps={{ title: 'Save User', onPress: handleAddUser }}
+        />
+      }
     />
   );
 };

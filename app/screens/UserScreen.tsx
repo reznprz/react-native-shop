@@ -12,10 +12,17 @@ import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import UserDetailCard from 'app/components/user/UserDetailCard';
 import { useUsers } from 'app/hooks/useUser';
 import AddUserModal from 'app/components/modal/AddUserModal';
-import { User } from 'app/api/services/userService';
+import { User, UserRegisterRequest } from 'app/api/services/userService';
 
 const UserScreen = () => {
-  const { users, getUsersState, fetchUsers } = useUsers();
+  const {
+    users,
+    getUsersState,
+    fetchUsers,
+    createUserMutation,
+    deleteUserState,
+    handleDeleteUser,
+  } = useUsers();
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [errorNotification, setErrorNotificaton] = useState('');
@@ -24,20 +31,38 @@ const UserScreen = () => {
     null,
   );
 
+  const {
+    mutate: addUser,
+    status: addUserState,
+    reset: addUserReset,
+    error: addUserError,
+  } = createUserMutation;
+
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  //   useEffect(() => {
-  //     if (getUsersState.status === 'error') {
-  //       setErrorNotificaton(getUsersState.error?.message || 'Opps Something went wrong!.');
-  //       getUsersState.reset?.();
-  //     }
-  //     if (getUsersState.status === 'success') {
-  //       setSuccessNotificaton('New expense added!.');
-  //       getUsersState.reset?.();
-  //     }
-  //   }, [getUsersState]);
+  useEffect(() => {
+    if (addUserState === 'error') {
+      setErrorNotificaton(addUserError?.message || 'Opps Something went wrong!.');
+      addUserReset?.();
+    }
+    if (addUserState === 'success') {
+      setSuccessNotificaton('New user added!.');
+      addUserReset?.();
+    }
+  }, [getUsersState]);
+
+  useEffect(() => {
+    if (deleteUserState.status === 'error') {
+      setErrorNotificaton(deleteUserState.error?.message || 'Opps Something went wrong!.');
+      deleteUserState.reset?.();
+    }
+    if (deleteUserState.status === 'success') {
+      setSuccessNotificaton('User removed success!.');
+      deleteUserState.reset?.();
+    }
+  }, [deleteUserState]);
 
   return (
     <View className="flex-1 bg-gray-100 p-4">
@@ -52,7 +77,7 @@ const UserScreen = () => {
         />
       </View>
 
-      {getUsersState?.status === 'pending' ? (
+      {getUsersState?.status === 'pending' || addUserState === 'pending' ? (
         <FoodLoadingSpinner iconName="coffee" />
       ) : !users || users.length === 0 ? (
         <EmptyState
@@ -86,6 +111,7 @@ const UserScreen = () => {
               </View>
               {users.map((user) => (
                 <UserDetailCard
+                  key={user.id}
                   user={user}
                   iconBgColor={`blue-400`}
                   icon={
@@ -108,7 +134,22 @@ const UserScreen = () => {
       <AddUserModal
         visible={showAddUserModal}
         onRequestClose={() => setShowAddUserModal(false)}
-        onAddUser={() => {}}
+        onAddUser={(data) => {
+          // Validate the data before sending it to the API and mapped to request obj
+          const newUser: UserRegisterRequest = {
+            restaurantName: '',
+            accessLevel: data.accessLevel,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            username: data.username,
+            password: data.passcode,
+            phoneNumber: data.phoneNumber,
+            email: data.email,
+          };
+
+          // Call the API to create the user
+          addUser({ newUser: newUser });
+        }}
       />
 
       <NotificationBar
@@ -123,8 +164,9 @@ const UserScreen = () => {
         visible={showDeleteConfirmationModal !== null}
         onRequestClose={() => setShowDeleteConfirmationModal(null)}
         onConfirm={() => {
-          // showDeleteConfirmationModal carry the id
+          // showDeleteConfirmationModal carry the userId
           if (showDeleteConfirmationModal) {
+            handleDeleteUser(showDeleteConfirmationModal);
           }
           setShowDeleteConfirmationModal(null);
         }}

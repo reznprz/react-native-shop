@@ -56,6 +56,7 @@ export interface AuthResponse {
   userName: string;
   userFirstName: string;
   userLastName: string;
+  initials: string;
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
 }
 

@@ -34,14 +34,22 @@ export interface SuccessResponse {
   success: boolean;
 }
 
-export const createUser = async (
+export const createUserApi = async (
   restaurantId: number,
   newUser: UserRegisterRequest,
-): Promise<ApiResponse<SuccessResponse>> => {
-  return await apiMethods.post<SuccessResponse>(`/api/user/${restaurantId}`, newUser);
+): Promise<ApiResponse<User[]>> => {
+  return await apiMethods.post<User[]>(`/api/user/${restaurantId}`, newUser);
 };
 
-export const getUsers = async (restaurantId: number): Promise<ApiResponse<User[]>> => {
+export const getUsersApi = async (restaurantId: number): Promise<ApiResponse<User[]>> => {
   return await apiMethods.get<User[]>(`/api/user/byRestaurant/${restaurantId}`);
 };
+
+export const deleteUserApi = async (
+  restaurantId: number,
+  userId: number,
+): Promise<ApiResponse<User[]>> => {
+  return await apiMethods.delete<User[]>(`/api/user/${restaurantId}/${userId}`);
+};
+
 export { AccessLevel };
