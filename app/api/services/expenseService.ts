@@ -61,6 +61,12 @@ export const findExpenseByDateRangeApi = async (
   );
 };
 
+export const getExpenseDescriptionsApi = async (
+  restaurantId: number,
+): Promise<ApiResponse<string[]>> => {
+  return await apiMethods.get<string[]>(`/api/expenses/descriptions/${restaurantId}`);
+};
+
 export const deleteExpenseApi = async (id: number): Promise<ApiResponse<ExpenseDetailResponse>> => {
   return await apiMethods.delete<ExpenseDetailResponse>(`/api/expenses/${id}`);
 };
