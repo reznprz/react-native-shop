@@ -5,10 +5,11 @@ import { IconType } from 'app/navigation/screenConfigs';
 import { TopSellingProduct } from 'app/api/services/restaurantOverviewService';
 import EmptyState from '../common/EmptyState';
 import CustomButton from '../common/button/CustomButton';
+import { on } from 'events';
 
 interface Props {
   topSellingProducts: TopSellingProduct[];
-  onViewAllPress: () => void;
+  onViewAllPress?: () => void;
 }
 
 const TopSellingProductsCard: React.FC<Props> = ({ topSellingProducts, onViewAllPress }) => {
@@ -26,24 +27,26 @@ const TopSellingProductsCard: React.FC<Props> = ({ topSellingProducts, onViewAll
           {/* Header */}
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-lg font-bold">Top Selling Products</Text>
-            <CustomButton
-              title="View All"
-              onPress={() => {
-                onViewAllPress();
-              }}
-              buttonType="TouchableOpacity"
-              buttonStyle={{
-                backgroundColor: 'transparent',
-                paddingVertical: 0,
-                paddingHorizontal: 0,
-                elevation: 0,
-              }}
-              textStyle={{
-                color: '#3b82f6',
-                fontSize: 16,
-                fontWeight: '500',
-              }}
-            />
+            {onViewAllPress && (
+              <CustomButton
+                title="View All"
+                onPress={() => {
+                  onViewAllPress();
+                }}
+                buttonType="TouchableOpacity"
+                buttonStyle={{
+                  backgroundColor: 'transparent',
+                  paddingVertical: 0,
+                  paddingHorizontal: 0,
+                  elevation: 0,
+                }}
+                textStyle={{
+                  color: '#3b82f6',
+                  fontSize: 16,
+                  fontWeight: '500',
+                }}
+              />
+            )}
           </View>
           {topSellingProducts.map((product, index) => (
             <View key={index} className="flex-row justify-between items-start mb-5">

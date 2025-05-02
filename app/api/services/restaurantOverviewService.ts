@@ -60,6 +60,8 @@ export interface DailySalesDetails {
   totalOverallSales: number;
   thisMonth: number;
   paymentMethodDistribution: PaymentDistribution[];
+  expense: Expense[];
+  topSellingProducts: TopSellingProduct[];
 }
 
 export const initializeRestaurantOverview = (): RestaurantOverview => ({
@@ -103,6 +105,8 @@ export const initialDailySalesDetails: DailySalesDetails = {
   totalOverallSales: 0,
   thisMonth: 0,
   paymentMethodDistribution: [],
+  expense: [],
+  topSellingProducts: [],
 };
 
 export const getRestaurantOverviewApi = async (

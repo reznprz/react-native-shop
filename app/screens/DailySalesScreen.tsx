@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { View, ScrollView, RefreshControl } from 'react-native';
-
 import CustomButton from 'app/components/common/button/CustomButton';
 import DateHeader from 'app/components/common/DateHeader';
 import NotificationBar from 'app/components/common/NotificationBar';
@@ -14,6 +13,8 @@ import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribu
 import UpdateOpeningCashModal from 'app/components/modal/UpdateOpeningCashModal';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { useRestaurantOverview } from 'app/hooks/useRestaurantOverview';
+import ExpenseSummary from 'app/components/home/ExpensesSummary';
+import TopSellingProductsCard from 'app/components/home/TopSellingProductsCard';
 
 const tabs = ['Past', 'Todays'];
 type TabType = (typeof tabs)[number];
@@ -56,8 +57,14 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
   const [refreshing, setRefreshing] = useState(false);
 
   // Destructure from dailySalesDetails for clarity
-  const { paymentMethodDistribution, dailySalesTransaction, totalOverallSales, thisMonth } =
-    dailySalesDetails;
+  const {
+    paymentMethodDistribution,
+    dailySalesTransaction,
+    totalOverallSales,
+    thisMonth,
+    expense,
+    topSellingProducts,
+  } = dailySalesDetails;
 
   // Fetch sales for "Today" sub-tab
   const handleFetchTodaySales = useCallback(
@@ -212,6 +219,22 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
                     salesTransaction={dailySalesTransaction}
                     fontSize={18}
                   />
+                </View>
+              </View>
+
+              {/* Daily Sales and Top Selling Products - Equal Height Pair */}
+              <View className={`mb-4 ${isTablet ? 'flex-row justify-between gap-2' : 'flex-col'}`}>
+                <View
+                  style={{ width: isTablet ? '48%' : '100%' }}
+                  className="bg-white rounded-lg shadow-sm flex-1"
+                >
+                  <ExpenseSummary expenses={expense} />
+                </View>
+                <View
+                  style={{ width: isTablet ? '48%' : '100%' }}
+                  className="bg-white rounded-lg shadow-sm flex-1 mt-4 md:mt-0"
+                >
+                  <TopSellingProductsCard topSellingProducts={topSellingProducts} />
                 </View>
               </View>
             </ScrollView>
