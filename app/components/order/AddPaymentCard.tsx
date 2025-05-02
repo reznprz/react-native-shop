@@ -23,7 +23,10 @@ const AddPaymentCard: React.FC<AddPaymentCardProps> = ({
   addPaymentState,
   handleAddPayment,
 }) => {
-  const paidAmount = order.payments?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
+  const paidAmount =
+    order.payments
+      ?.filter((p) => p.paymentMethod !== 'CREDIT')
+      .reduce((sum, p) => sum + (p.amount ?? 0), 0) ?? 0;
   const unpaidAmount = order.totalAmount - paidAmount;
   const [selectedPayments, setSelectedPayments] = useState<PaymentInfo[]>([]);
   const [paymentWarnMessage, setPaymentWarnMessage] = useState('');
