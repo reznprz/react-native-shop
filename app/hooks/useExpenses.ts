@@ -5,6 +5,7 @@ import {
   Expense,
   ExpenseDetailResponse,
   findExpenseByDateRangeApi,
+  getExpenseDescriptionsApi,
   initialExpenseDetailResponse,
 } from 'app/api/services/expenseService';
 import { useCallback, useState } from 'react';
@@ -13,13 +14,15 @@ import type { RootState } from '../redux/store';
 import { useSelector } from 'react-redux';
 
 export const useExpenses = () => {
+  // Get the restaurantId and userId from the Redux store
+  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
+  const { restaurantId: storeRestaurantId = 0, userId: storedUserId = 0 } = storedAuthData || {};
+
+  // local state
   const [expenseDetails, setExpenseDetails] = useState<ExpenseDetailResponse>(
     initialExpenseDetailResponse,
   );
-
-  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
-
-  const { restaurantId: storeRestaurantId = 0, userId: storedUserId = 0 } = storedAuthData || {};
+  const [expenseDescription, setExpenseDescription] = useState<string[]>([]);
 
   const createExpenseMutation = useMutation<
     ApiResponse<ExpenseDetailResponse>,
@@ -68,6 +71,26 @@ export const useExpenses = () => {
     },
   });
 
+  const getExpenseDescriptionsMutation = useMutation<
+    ApiResponse<string[]>,
+    Error,
+    { restaurantId: number }
+  >({
+    mutationFn: async ({ restaurantId }) => {
+      const response: ApiResponse<string[]> = await getExpenseDescriptionsApi(restaurantId);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setExpenseDescription(response.data || []);
+    },
+    onError: (err) => {
+      setExpenseDescription([]);
+    },
+  });
+
   const deleteExpenseMutation = useMutation<
     ApiResponse<ExpenseDetailResponse>,
     Error,
@@ -109,11 +132,17 @@ export const useExpenses = () => {
     [deleteExpenseMutation],
   );
 
+  const getExpenseDescriptionsHandler = useCallback(() => {
+    getExpenseDescriptionsMutation.mutate({ restaurantId: storeRestaurantId });
+  }, [getExpenseDescriptionsMutation]);
+
   return {
     expenseDetails,
+    expenseDescription,
     expenseScreenState: findExpenseByDateRangeMutation,
     addExpenseState: createExpenseMutation,
     deleteExpenseState: deleteExpenseMutation,
+    getExpenseDescriptionsHandler,
 
     handleAddExpense,
     fetchExpense,

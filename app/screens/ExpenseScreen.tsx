@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, TextInput } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import ExpenseCard from 'app/components/expense/ExpenseCard';
@@ -15,17 +15,19 @@ import NotificationBar from 'app/components/common/NotificationBar';
 import CustomIcon from 'app/components/common/CustomIcon';
 import { IconType } from 'app/navigation/screenConfigs';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
-import { DateRangeSelection } from 'app/components/DateRangePickerModal';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ExpenseScreen = () => {
   const {
     expenseDetails,
+    expenseDescription,
     expenseScreenState,
     addExpenseState,
     deleteExpenseState,
     handleAddExpense,
     fetchExpense,
     handleDeleteExpense,
+    getExpenseDescriptionsHandler,
   } = useExpenses();
   const { isLargeScreen } = useIsDesktop();
 
@@ -38,6 +40,12 @@ const ExpenseScreen = () => {
   );
 
   const { totalExpenses, todayExpenses, thisMonthExpenses, expenses } = expenseDetails;
+
+  useFocusEffect(
+    useCallback(() => {
+      getExpenseDescriptionsHandler();
+    }, []),
+  );
 
   useEffect(() => {
     fetchExpense(selectedDate);
@@ -159,6 +167,7 @@ const ExpenseScreen = () => {
 
       <AddExpenseModal
         visible={showAddExpenseModal}
+        expenseOptions={expenseDescription}
         onRequestClose={() => {
           setShowAddExpenseModal(false);
         }}

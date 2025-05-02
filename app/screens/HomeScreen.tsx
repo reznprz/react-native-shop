@@ -116,7 +116,7 @@ const HomeScreen: React.FC = () => {
           >
             <TopSellingProductsCard
               topSellingProducts={topSellingProducts}
-              onViewAllPress={() => handleViewAllPress('Products')}
+              onViewAllPress={() => handleViewAllPress('DailySales')}
             />
           </View>
         </View>

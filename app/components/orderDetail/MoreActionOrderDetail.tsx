@@ -36,12 +36,17 @@ const MoreActionOrderDetail: React.FC<MoreActionOrderDetailProps> = ({
   const [showAddPaymentCollapsible, setShowAddPaymentCollapsible] = useState(true);
 
   useEffect(() => {
-    const paidAmount = order.payments?.reduce((sum, p) => sum + p.amount, 0) ?? 0;
+    const paidAmount =
+      order.payments
+        ?.filter((p) => p.paymentMethod !== 'CREDIT')
+        .reduce((sum, p) => sum + (p.amount ?? 0), 0) ?? 0;
     const unpaidAmount = order.totalAmount - paidAmount;
     if (unpaidAmount === 0 || order.orderStatus === 'CREATED') {
       setShowAddPaymentCollapsible(false);
     }
   }, [order, showAddPaymentCollapsible]);
+
+  const hasCreditPayment = order.payments?.some((p) => p.paymentMethod === 'CREDIT') ?? false;
 
   return (
     <>
@@ -81,7 +86,7 @@ const MoreActionOrderDetail: React.FC<MoreActionOrderDetailProps> = ({
           </View>
         )}
 
-        {order.orderStatus === 'COMPLETED' && (
+        {order.orderStatus === 'COMPLETED' && !hasCreditPayment && (
           <View className="p-2 m-1">
             <CollapsibleComponent
               title={'Switch Payment'}

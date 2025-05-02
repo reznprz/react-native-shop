@@ -26,6 +26,7 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const { deviceType } = useIsDesktop();
   const tableName = useSelector((state: RootState) => state.table.tableName);
   const prepTableItems = useSelector((state: RootState) => state.prepTableItems);
+  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
 
   const isDesktop = deviceType === 'Desktop';
   const isPad = deviceType === 'iPad';
@@ -83,7 +84,11 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
       >
         {/* Count Chip */}
         <CountChip count={itemsCount} style={styles.countChipPosition} />
-        <CircularInitialNameChip initials={'RP'} size={38} style={{ marginRight: 12 }} />
+        <CircularInitialNameChip
+          initials={storedAuthData?.initials || ''}
+          size={38}
+          style={{ marginRight: 12 }}
+        />
         <CustomIcon name="chair" type="FontAwesome5" size={18} color="#FFFFFF" />
         <Text style={styles.tableText}>{tableName}</Text>
         <Ionicons name="chevron-down-outline" size={25} color="#FFFFFF" />

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { config } from 'app/config/config';
+import { RegisterRequest, SuccessResponse } from './userService';
 
 export interface Credentials {
   username: string;
@@ -15,6 +16,24 @@ export enum PlanType {
 export enum AccessLevel {
   ADMIN = 'ADMIN',
   USER = 'STAFF',
+}
+
+export interface OtpRequest {
+  target: string;
+  channel: 'email' | 'sms';
+}
+
+export interface OtpValidate {
+  target: string;
+  code: string;
+}
+
+export interface OtpRequestResponse {
+  message: string;
+}
+
+export interface OtpValidateResponse {
+  verified: boolean;
 }
 
 export interface SubscriptionExpirationInfo {
@@ -37,6 +56,7 @@ export interface AuthResponse {
   userName: string;
   userFirstName: string;
   userLastName: string;
+  initials: string;
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
 }
 
@@ -68,4 +88,46 @@ export const refreshTokenApi = async (refreshToken: string): Promise<string> => 
     },
   );
   return response.data.accessToken;
+};
+
+export const registerRestaurant = async (
+  newRestaurantResgistration: RegisterRequest,
+): Promise<SuccessResponse> => {
+  const response = await axios.post<SuccessResponse>(
+    `${config.tokenBaseURL}/auth/register`,
+    newRestaurantResgistration,
+    {
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      timeout: 10000,
+    },
+  );
+  return response.data;
+};
+
+export const requesOtp = async (otpRequest: OtpRequest): Promise<OtpRequestResponse> => {
+  const response = await axios.post<OtpRequestResponse>(
+    `${config.tokenBaseURL}/otp/request`,
+    otpRequest,
+    {
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      timeout: 10000,
+    },
+  );
+  const authResponse = response.data;
+
+  return authResponse;
+};
+
+export const validateOtp = async (credentials: Credentials): Promise<OtpValidateResponse> => {
+  const response = await axios.post<OtpValidateResponse>(
+    `${config.tokenBaseURL}/otp/validate`,
+    credentials,
+    {
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      timeout: 10000,
+    },
+  );
+  const authResponse = response.data;
+
+  return authResponse;
 };

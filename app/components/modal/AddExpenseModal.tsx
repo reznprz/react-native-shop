@@ -16,26 +16,16 @@ import DateModal from '../common/modal/DateModal';
 import ConditionalWrapper from '../common/ConditionalWrapper';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
 
-const expenseOptions = [
-  'Groceries',
-  'Restaurant',
-  'Coffee',
-  'Travel',
-  'Utilities',
-  'Entertainment',
-  'Medical',
-  'Clothing',
-  'Education',
-];
-
 interface AddExpenseModalProps {
   visible: boolean;
+  expenseOptions: string[];
   onRequestClose: () => void;
   onAddExpense: (expense: Expense) => void;
 }
 
 const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   visible,
+  expenseOptions,
   onRequestClose,
   onAddExpense,
 }) => {
