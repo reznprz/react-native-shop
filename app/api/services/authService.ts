@@ -90,7 +90,7 @@ export const refreshTokenApi = async (refreshToken: string): Promise<string> => 
   return response.data.accessToken;
 };
 
-export const registerRestaurant = async (
+export const registerRestaurantApi = async (
   newRestaurantResgistration: RegisterRequest,
 ): Promise<SuccessResponse> => {
   const response = await axios.post<SuccessResponse>(
@@ -104,7 +104,7 @@ export const registerRestaurant = async (
   return response.data;
 };
 
-export const requesOtp = async (otpRequest: OtpRequest): Promise<OtpRequestResponse> => {
+export const requesOtpApi = async (otpRequest: OtpRequest): Promise<OtpRequestResponse> => {
   const response = await axios.post<OtpRequestResponse>(
     `${config.tokenBaseURL}/otp/request`,
     otpRequest,
@@ -118,7 +118,7 @@ export const requesOtp = async (otpRequest: OtpRequest): Promise<OtpRequestRespo
   return authResponse;
 };
 
-export const validateOtp = async (credentials: Credentials): Promise<OtpValidateResponse> => {
+export const validateOtpApi = async (credentials: Credentials): Promise<OtpValidateResponse> => {
   const response = await axios.post<OtpValidateResponse>(
     `${config.tokenBaseURL}/otp/validate`,
     credentials,

@@ -292,6 +292,7 @@ export function useTables() {
     (selectedTableName: string) => {
       fetchExistingOrderForTable(selectedTableName, storeRestaurantId);
 
+      // TODO: migrate this redux to the prepTableItemsSlice
       dispatch(setTableName(selectedTableName));
     },
     [dispatch, fetchExistingOrderForTable, tableName],
@@ -301,6 +302,7 @@ export function useTables() {
     (selectedTableName: string) => {
       fetchExistingOrderForTable(selectedTableName, storeRestaurantId);
 
+      // TODO: migrate this redux to the prepTableItemsSlice
       dispatch(setTableName(selectedTableName));
       navigate('MainTabs', {
         screen: 'Menu',
@@ -313,6 +315,7 @@ export function useTables() {
   const handleSelectTable = useCallback(
     (selectedTableName: string) => {
       fetchExistingOrderForTable(selectedTableName, storeRestaurantId);
+      // TODO: migrate this redux to the prepTableItemsSlice
       dispatch(setTableName(selectedTableName));
     },
     [dispatch, tableName],
@@ -321,6 +324,7 @@ export function useTables() {
   const refreshPrepTableItems = useCallback(
     (selectedTableName: string) => {
       fetchExistingOrderForTable(selectedTableName, storeRestaurantId);
+      // TODO: migrate this redux to the prepTableItemsSlice
       dispatch(setTableName(selectedTableName));
     },
     [dispatch, tableName],

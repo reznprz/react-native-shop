@@ -1,7 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import { logoutAll } from './actions';
 import authReducer from './authSlice';
-import foodReducer from './foodSlice';
 import tableReducer from './tableSlice';
 import foodMenuReducer from './foodMenuSlice';
 import prepTableItemReducer from './prepTableItemsSlice';
@@ -11,7 +10,6 @@ import prepTableItemReducer from './prepTableItemsSlice';
  */
 const appReducer = combineReducers({
   auth: authReducer,
-  foods: foodReducer,
   table: tableReducer,
   prepTableItems: prepTableItemReducer,
   foodMenu: foodMenuReducer,

@@ -7,7 +7,9 @@ import CustomButton from 'app/components/common/button/CustomButton';
 import { useSettingsHook } from 'app/hooks/useSettingsHook';
 
 export default function ProfileScreen() {
-  const { sections, handlePress, handleLogout } = useSettingsHook();
+  const { sections, restaurantInfo, handlePress, handleLogout } = useSettingsHook();
+
+  const { userFirstName = '', userLastName = '', restaurantName = '' } = restaurantInfo ?? {};
 
   return (
     <ScrollView
@@ -15,7 +17,7 @@ export default function ProfileScreen() {
       showsVerticalScrollIndicator={false}
     >
       {/* User Profile Card */}
-      <UserProfileCard name="John Doe" email="john.doe@example.com" />
+      <UserProfileCard name={`${userFirstName} ${userLastName}`} email={restaurantName} />
 
       {/* Sections */}
       {sections.map((section) => (

@@ -28,10 +28,16 @@ export const foodMenuSlice = createSlice({
       state.topDrinks = action.payload.topDrinks;
       state.categories = action.payload.categories;
     },
+    setFoods: (state, action: PayloadAction<FoodMenuResponse['foods']>) => {
+      state.foods = action.payload;
+    },
+    setCategories: (state, action: PayloadAction<FoodMenuResponse['categories']>) => {
+      state.categories = action.payload;
+    },
     resetFoodMenu: () => initialState,
   },
 });
 
-export const { setFoodMenu, resetFoodMenu } = foodMenuSlice.actions;
+export const { setFoodMenu, resetFoodMenu, setFoods, setCategories } = foodMenuSlice.actions;
 
 export default foodMenuSlice.reducer;

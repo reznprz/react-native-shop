@@ -7,12 +7,11 @@ import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';
 import NotificationBar from 'app/components/common/NotificationBar';
 import CustomIcon from 'app/components/common/CustomIcon';
-import { IconType } from 'app/navigation/screenConfigs';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import UserDetailCard from 'app/components/user/UserDetailCard';
 import { useUsers } from 'app/hooks/useUser';
 import AddUserModal from 'app/components/modal/AddUserModal';
-import { User, UserRegisterRequest } from 'app/api/services/userService';
+import { UserRegisterRequest } from 'app/api/services/userService';
 
 const UserScreen = () => {
   const {

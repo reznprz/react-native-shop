@@ -10,7 +10,7 @@ export enum ScreenNames {
   QR_MENU_ITEMS = 'QrMenuItemsScreen',
   ORDER_DETAILS = 'OrderDetails',
   TABLE = 'TableScreen',
-  FOOD = 'FoodScreen',
+  FOODMANAGER = 'FoodManagerScreen',
   EXPENSE = 'ExpenseScreen',
   DAILYSALES = 'DailySalesScreen',
   INVENTORY = 'InventoryScreen',
@@ -25,7 +25,7 @@ export enum ScreenDisplayNames {
   QR_MENU_ITEMS = 'Menu Items',
   ORDER_DETAILS = 'Order Details',
   TABLE = 'Table',
-  FOOD = 'Food',
+  FOODMANAGER = 'Food Manager',
   EXPENSE = 'Expense',
   DAILYSALES = 'DailySales',
   INVENTORY = 'Inventory',
@@ -56,9 +56,9 @@ export const Screens: Record<ScreenNames, ScreenDetail> = {
     screenName: ScreenNames.TABLE,
     screenDisplayName: ScreenDisplayNames.TABLE,
   },
-  [ScreenNames.FOOD]: {
-    screenName: ScreenNames.FOOD,
-    screenDisplayName: ScreenDisplayNames.FOOD,
+  [ScreenNames.FOODMANAGER]: {
+    screenName: ScreenNames.FOODMANAGER,
+    screenDisplayName: ScreenDisplayNames.FOODMANAGER,
   },
   [ScreenNames.EXPENSE]: {
     screenName: ScreenNames.EXPENSE,
