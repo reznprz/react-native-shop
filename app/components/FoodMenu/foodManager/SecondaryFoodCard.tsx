@@ -11,8 +11,8 @@ interface SecondaryFoodCardProps {
   onDelete?: () => void;
 }
 
-const ITEM_HEIGHT = 120;
-const SWIPE_WIDTH = 180;
+const ITEM_HEIGHT = 155;
+const SWIPE_WIDTH = 200;
 
 const SecondaryFoodCard: React.FC<SecondaryFoodCardProps> = ({
   food,
@@ -28,7 +28,7 @@ const SecondaryFoodCard: React.FC<SecondaryFoodCardProps> = ({
       {/* Hidden Swipe Buttons */}
       <View style={styles.rowBack}>
         <TouchableOpacity
-          style={[styles.backButton, { backgroundColor: '#2a4759' }]}
+          style={[styles.updateButton, { backgroundColor: '#2a4759' }]}
           onPress={onUpdate}
         >
           <MaterialIcons name="edit" size={24} color="#FFF" />
@@ -123,6 +123,16 @@ const styles = StyleSheet.create({
     height: ITEM_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+    marginTop: 2,
+  },
+  updateButton: {
+    width: SWIPE_WIDTH / 2,
+    height: ITEM_HEIGHT,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 2,
   },
   buttonText: {
     color: '#FFF',

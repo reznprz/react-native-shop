@@ -15,7 +15,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   containerStyle = '',
 }) => {
   return (
-    <View className={`bg-white rounded-xl ${containerStyle} flex-row items-center shadow p-4`}>
+    <View className={`bg-white rounded-xl ${containerStyle} flex-row items-center shadow-sm p-4`}>
       <Image source={{ uri: imageUri }} className="w-14 h-14 rounded-full mr-4" />
       <View>
         <Text className="text-base font-semibold text-[#2A4759]">{name}</Text>

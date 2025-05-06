@@ -16,7 +16,7 @@ const getStatusColor = (percentage: number) => {
 
 const InventoryStatusSummaryCard: React.FC<Props> = ({ inventoryStatus }) => {
   return (
-    <View className="bg-white rounded-lg p-5 mt-4 shadow-sm">
+    <View className="bg-white rounded-lg p-5 mt-4 ">
       <View className="flex-row justify-between items-center mb-5">
         <Text className="text-lg font-bold">Inventory Status</Text>
         <Text className="text-blue-600 font-medium">View Details</Text>

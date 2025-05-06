@@ -20,9 +20,9 @@ const TableFoodItemsSummary: React.FC<TableFoodItemsSummaryProps> = ({
   onSwitchTableClick,
 }) => {
   return (
-    <View className="bg-white p-4 rounded-lg shadow-md">
+    <View className="bg-white p-4 rounded-lg ">
       {/* Order Header Info */}
-      <View className="bg-white rounded-lg shadow-md flex-row items-center justify-between">
+      <View className="bg-white rounded-lg flex-row items-center justify-between">
         {/* Left Section: Order Info */}
         <View className="gap-1">
           <IconLabel iconName="clipboard-list" label={`Order #${tableItems.id}`} />

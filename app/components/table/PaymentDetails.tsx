@@ -8,6 +8,7 @@ import NotificationWithButtons from '../NotificationWithButtons';
 import NotificationBar from '../common/NotificationBar';
 import PaymentMethodsSelector from '../PaymentMethodsSelector';
 import PaymentDetailsFoodItemsSummary from './PaymentDetailsFoodItemsSummary';
+import BillingSummaryCard from './BillingSummaryCard';
 
 interface PaymentDetailsProps {
   tableItems: TableItem;
@@ -97,32 +98,11 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
       <View className="w-full h-px bg-gray-300 my-3" />
 
       {/* Subtotal, Discount, Total */}
-      <View className="bg-white rounded-lg p-4 shadow-md">
-        {/* Subtotal */}
-        <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 text-base">{'Subtotal'}</Text>
-          <Text className="text-gray-700 text-base">
-            {Number(tableItems?.subTotal || 0).toFixed(2)}
-          </Text>
-        </View>
-
-        {/* Discount */}
-        <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 text-base">{'Discount'}</Text>
-          {/* Red for negative amount */}
-          <Text className="text-red-500 text-base">
-            -{Number(tableItems?.discountAmount || 0).toFixed(2)}
-          </Text>
-        </View>
-
-        {/* Total */}
-        <View className="flex-row justify-between">
-          <Text className="font-bold text-lg text-gray-900">{'Total'}</Text>
-          <Text className="font-bold text-lg text-gray-900">
-            {Number(tableItems?.totalPrice || 0).toFixed(2)}
-          </Text>
-        </View>
-      </View>
+      <BillingSummaryCard
+        subTotal={tableItems.subTotal}
+        discountAmount={tableItems.discountAmount}
+        totalPrice={tableItems.totalPrice}
+      />
 
       {/* Complete Order Button */}
       <LoadingButton

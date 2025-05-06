@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TextInput } from 'react-native';
+import { View, Text, TextInput, FlatList } from 'react-native';
 import PrimaryHeader from 'app/components/common/PrimaryHeader';
 import { useFood } from 'app/hooks/useFood';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
@@ -27,7 +27,6 @@ const FoodManagerScreen: React.FC = () => {
     // handlers
     handleSearch,
     handleCategoryClick,
-    refetch,
   } = useFood();
 
   const { isMobile, isDesktop } = useIsDesktop();
@@ -86,32 +85,33 @@ const FoodManagerScreen: React.FC = () => {
         />
       ) : (
         <>
-          <ScrollView style={{ backgroundColor: '#f9fafb' }}>
-            {/* Expenses List */}
-            <View className="bg-white rounded-lg shadow-sm">
-              {/* Search Bar */}
-              <View className="flex-row items-between p-5 justify-between rounded-lg shadow-xl border-b border-gray-200">
+          <FlatList
+            data={foods}
+            keyExtractor={(item) => item.id.toString()}
+            style={{ backgroundColor: '#f9fafb' }}
+            contentContainerStyle={{ paddingVertical: 10 }}
+            ListHeaderComponent={() => (
+              <View className="flex-row items-between p-5 justify-between rounded-lg shadow-sm border-b border-gray-200">
                 <Text className="text-center text-black font-semibold text-xl mt-2">Foods</Text>
                 <View className="flex-row">
-                  <View className="flex-row shadow-sm rounded-md border border-gray-200 p-2">
+                  <View className="flex-row rounded-md border border-gray-300 p-2">
                     <Feather name="search" size={20} color="gray" />
                     <TextInput placeholder="Search foods..." className="ml-2 text-black-700" />
                   </View>
                   <IconLabel
-                    iconType={'Fontisto'}
-                    iconName={'filter'}
+                    iconType="Fontisto"
+                    iconName="filter"
                     iconSize={16}
-                    iconColor={'#2A4759'}
-                    bgColor={`bg-white`}
+                    iconColor="#2A4759"
+                    bgColor="bg-white"
                     containerStyle="border border-gray-200 rounded-md ml-2"
+                    rounded="rounded-sm"
                   />
                 </View>
               </View>
-              {foods.map((food) => (
-                <SecondaryFoodCard food={food} isMobile={isMobile} />
-              ))}
-            </View>
-          </ScrollView>
+            )}
+            renderItem={({ item }) => <SecondaryFoodCard food={item} isMobile={isMobile} />}
+          />
         </>
       )}
     </View>
