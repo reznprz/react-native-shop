@@ -20,6 +20,7 @@ export const useFood = () => {
     updateFoodMutation,
     deleteFoodMutation,
     addCategoryMutation,
+    updateCategoryMutation,
     deleteCategoryMutation,
   } = useFoodMenuActions();
 
@@ -68,7 +69,7 @@ export const useFood = () => {
     setSearchTerm(text);
   }, []);
 
-  const handleAddOrder = useCallback(
+  const handleAddFood = useCallback(
     (categoryId: number, newFood: Food) => {
       addFoodMutation.mutate({
         restaurantId: storedRestaurantId || 0,
@@ -79,7 +80,7 @@ export const useFood = () => {
     [addFoodMutation, storedRestaurantId],
   );
 
-  const handleUpdateOrder = useCallback(
+  const handleUpdateFood = useCallback(
     (foodId: number, updatedFood: Food) => {
       updateFoodMutation.mutate({
         foodId: foodId,
@@ -89,7 +90,7 @@ export const useFood = () => {
     [updateFoodMutation],
   );
 
-  const handleDeleteOrder = useCallback(
+  const handleDeleteFood = useCallback(
     (foodId: number) => {
       deleteFoodMutation.mutate({
         foodId: foodId,
@@ -106,6 +107,15 @@ export const useFood = () => {
       });
     },
     [addCategoryMutation, storedRestaurantId],
+  );
+
+  const handleUpdateCategory = useCallback(
+    (updatedCategory: Category) => {
+      updateCategoryMutation.mutate({
+        updatedCategory: updatedCategory,
+      });
+    },
+    [updateCategoryMutation],
   );
 
   const handleDeleteCategory = useCallback(
@@ -135,10 +145,11 @@ export const useFood = () => {
     handleCategoryClick,
 
     //food manager
-    handleAddOrder,
-    handleUpdateOrder,
-    handleDeleteOrder,
+    handleAddFood,
+    handleDeleteFood,
+    handleUpdateFood,
     handleAddCategory,
+    handleUpdateCategory,
     handleDeleteCategory,
 
     //mutations
@@ -146,6 +157,7 @@ export const useFood = () => {
     updateFoodMutation,
     deleteFoodMutation,
     addCategoryMutation,
+    updateCategoryMutation,
     deleteCategoryMutation,
   };
 };

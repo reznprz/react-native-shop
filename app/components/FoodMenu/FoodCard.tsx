@@ -63,7 +63,7 @@ export default function FoodCard({
 
       {/* Bottom Content: Price & Quantity Controller */}
       <View className="flex-row items-center justify-between mt-2 ml-2 mr-2 ">
-        <Text className="font-bold text-base text-gray-600">${price.toFixed(2)}</Text>
+        <Text className="font-bold text-base text-gray-600">रु{price.toFixed(2)}</Text>
 
         <View className="flex-row items-center px-2 py-1 rounded-full">
           {tempQuantity > 0 && (

@@ -4,12 +4,8 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import CustomIcon from './CustomIcon';
 import { FilterStatus } from '../filter/filter';
 import FilterHeader from '../filter/FilterHeader';
-import {
-  DateRangePickerModal,
-  DateRangeSelection,
-  DateRangeSelectionType,
-} from '../DateRangePickerModal';
-import { getDisplayDateRange } from '../date/utils';
+import { DateRangePickerModal } from '../DateRangePickerModal';
+import { DateRangeSelection, getDisplayDateRange } from '../date/utils';
 
 type OrderScreenHeaderProps = {
   orderStatuses: FilterStatus[];
@@ -34,25 +30,19 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
   onOverflowPress,
   handleApplyDate,
 }) => {
-  // For the date range picker
   const [isRangeModalVisible, setRangeModalVisible] = useState(false);
-  // We'll store the user-selected date range as a string, e.g. "2025-03-20 → 2025-03-22"
   const [displayDateRange, setDisplayDateRange] = useState('Last 7 Days');
+  const [isPressed, setIsPressed] = useState(false);
 
-  // Combine all filters into one array
   const combinedFilters = useMemo(() => {
-    const statuses = [...orderStatuses, ...paymentStatuses, ...orderTypes, ...paymentMethods];
-    return statuses.filter((f) => f.isSelected);
+    const all = [...orderStatuses, ...paymentStatuses, ...orderTypes, ...paymentMethods];
+    return all.filter((f) => f.isSelected);
   }, [orderStatuses, paymentStatuses, orderTypes, paymentMethods]);
 
   const handleDateRangeApply = (selection: DateRangeSelection) => {
     setRangeModalVisible(false);
-
     const label = getDisplayDateRange(selection);
-    // for display
     setDisplayDateRange(label);
-
-    // makes api call
     handleApplyDate(selection);
   };
 
@@ -61,42 +51,45 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
       <View
         style={{
           ...styles.headerRow,
-          ...(activeTab !== 'Past Orders' && { borderWidth: 0, backgroundColor: '#F3F4F6' }),
+          ...(activeTab !== 'Past Orders' && {
+            borderWidth: 0,
+            backgroundColor: '#F3F4F6',
+          }),
         }}
       >
-        {/* Only show date range button if tab = "Past Orders" (per your old logic) */}
         {activeTab === 'Past Orders' ? (
           <TouchableOpacity onPress={() => setRangeModalVisible(true)} style={styles.dateRangeBtn}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={styles.btnContent}>
               <FontAwesome5 name="calendar-alt" size={16} color="gray" />
               <Text style={styles.dateRangeBtnText}>{displayDateRange}</Text>
               <FontAwesome5 name="chevron-down" size={12} color="gray" />
             </View>
           </TouchableOpacity>
         ) : (
-          <View />
+          <View style={styles.dateRangeBtnPlaceholder} />
         )}
 
-        {/* Filter Button & FilterHeader */}
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          {combinedFilters.length > 0 ? (
-            <Pressable onPress={onFilterPress}>
-              <CustomIcon name="filter" size={20} color="#2A4759" type="Fontisto" />
-            </Pressable>
-          ) : (
-            <Pressable
-              onPress={onFilterPress}
-              style={({ pressed }) => [
-                styles.filterBtn,
-                pressed && { transform: [{ scale: 0.97 }] },
-              ]}
-            >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <CustomIcon name="filter" size={16} color="#fff" type="Fontisto" />
-                <Text style={styles.filterBtnText}>Filters</Text>
-              </View>
-            </Pressable>
-          )}
+        <View style={styles.filterContainer}>
+          <Pressable
+            onPress={onFilterPress}
+            onPressIn={() => setIsPressed(true)}
+            onPressOut={() => setIsPressed(false)}
+            style={[
+              combinedFilters.length > 0 ? styles.iconOnlyBtn : styles.filterBtn,
+              isPressed && styles.pressedBtn,
+            ]}
+          >
+            <View style={styles.btnContent}>
+              <CustomIcon
+                name="filter"
+                size={combinedFilters.length > 0 ? 20 : 16}
+                color={combinedFilters.length > 0 ? '#2A4759' : '#fff'}
+                type="Fontisto"
+              />
+              {combinedFilters.length === 0 && <Text style={styles.filterBtnText}>Filters</Text>}
+            </View>
+          </Pressable>
+
           <FilterHeader
             filters={combinedFilters}
             onRemoveFilter={onRemoveFilter}
@@ -105,13 +98,10 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
         </View>
       </View>
 
-      {/* The custom Date Range Modal */}
       <DateRangePickerModal
         visible={isRangeModalVisible}
         onClose={() => setRangeModalVisible(false)}
-        onApply={(selectedDateRange) => {
-          handleDateRangeApply(selectedDateRange);
-        }}
+        onApply={handleDateRangeApply}
       />
     </View>
   );
@@ -146,6 +136,17 @@ const styles = StyleSheet.create({
     color: '#666',
     fontWeight: '600',
   },
+  dateRangeBtnPlaceholder: {
+    width: 1, // keeps spacing consistent when the button is hidden
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconOnlyBtn: {
+    padding: 8,
+    borderRadius: 6,
+  },
   filterBtn: {
     backgroundColor: '#2A4759',
     paddingVertical: 8,
@@ -154,6 +155,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#2A4759',
     marginRight: 8,
+  },
+  pressedBtn: {
+    transform: [{ scale: 0.97 }],
+  },
+  btnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconSpacing: {
+    marginRight: 6,
   },
   filterBtnText: {
     color: '#fff',

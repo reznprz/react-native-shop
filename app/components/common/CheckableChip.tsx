@@ -1,38 +1,32 @@
-import React from 'react';
-import { Pressable, Text, View, StyleSheet, Platform, ViewStyle, StyleProp } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, Text, View, StyleSheet, Platform, StyleProp, ViewStyle } from 'react-native';
 import CustomIcon from './CustomIcon';
 
 interface CheckableChipProps {
-  containerStyle?: string;
+  style?: StyleProp<ViewStyle>;
   label: string;
   isChecked: boolean;
   onClick: (selectedLabel: string) => void;
 }
 
-const CheckableChip: React.FC<CheckableChipProps> = ({
-  containerStyle,
-  isChecked,
-  label,
-  onClick,
-}) => {
+const CheckableChip: React.FC<CheckableChipProps> = ({ style, isChecked, label, onClick }) => {
+  const [isPressed, setIsPressed] = useState(false);
+
   return (
     <Pressable
-      onPress={() => onClick(label)}
-      style={({ pressed }): StyleProp<ViewStyle> => {
-        const baseStyles: ViewStyle[] = [
-          styles.filterChip,
-          isChecked ? styles.checkedChip : styles.uncheckedChip,
-          pressed ? styles.pressedChip : {},
-        ];
-
-        const webStyle =
-          Platform.OS === 'web'
-            ? ({ transition: 'background-color 200ms, transform 150ms' } as any)
-            : {};
-
-        // Flatten the array of styles so that it meets the expected type
-        return StyleSheet.flatten([...baseStyles, webStyle]);
+      onPress={() => {
+        console.log('chip pressed!', label);
+        onClick(label);
       }}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
+      style={[
+        styles.filterChip,
+        isChecked ? styles.checkedChip : styles.uncheckedChip,
+        isPressed && styles.pressedChip,
+        style,
+        Platform.OS === 'web' && ({ transition: 'background-color 200ms, transform 150ms' } as any),
+      ]}
     >
       <View style={styles.contentContainer}>
         {isChecked && <CustomIcon type="MaterialIcons" name="check" size={18} color="#fff" />}
@@ -66,12 +60,14 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
   },
   pressedChip: {
-    transform: [{ scale: 0.97 }], // Press feedback
+    transform: [{ scale: 0.97 }],
   },
   contentContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+  },
+  iconSpacing: {
+    marginRight: 6,
   },
   filterText: {
     fontWeight: '500',

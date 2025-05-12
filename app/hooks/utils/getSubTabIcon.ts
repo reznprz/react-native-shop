@@ -24,6 +24,8 @@ export function getSubTabIcon(
       register: { icon: 'Register', iconType: 'Register', iconSize: 22 },
       todays: { icon: 'clock', iconType: 'FontAwesome5', iconSize: 22 },
       tourist: { icon: 'earth-outline', iconType: 'Ionicons', iconSize: 18 },
+      food: { icon: 'fast-food', iconType: 'Ionicons', iconSize: 18 },
+      category: { icon: 'pricetags', iconType: 'Ionicons', iconSize: 18 },
     };
 
     for (const key in subTabsIcons) {

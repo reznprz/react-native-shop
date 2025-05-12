@@ -51,7 +51,7 @@ const MoreActionOrderDetail: React.FC<MoreActionOrderDetailProps> = ({
   return (
     <>
       <View className="space-y-4">
-        <OrderSummaryCard order={order} containerStyle="p-4 rounded-xl bg-white shadow-md m-2" />
+        <OrderSummaryCard order={order} containerStyle="p-4 rounded-xl bg-white  m-2" />
         <View className="p-2 m-1">
           <CollapsibleComponent title="Order Items" iconName="utensils" iconType="FontAwesome5">
             <View className="flex-col justify-between items-center mb-2">

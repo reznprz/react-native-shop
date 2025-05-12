@@ -2,8 +2,8 @@ import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
 import { Expense, IconMetadata } from './expenseService';
 import { OrderDetails } from './orderService';
-import { DateRangeSelection } from 'app/components/DateRangePickerModal';
 import qs from 'qs';
+import { DateRangeSelection } from 'app/components/date/utils';
 
 export interface PaymentDistribution {
   method: string;

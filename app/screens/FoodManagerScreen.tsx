@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList } from 'react-native';
-import PrimaryHeader from 'app/components/common/PrimaryHeader';
+import { View } from 'react-native';
 import { useFood } from 'app/hooks/useFood';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import CustomButton from 'app/components/common/button/CustomButton';
-import { Feather } from '@expo/vector-icons';
-import IconLabel from 'app/components/common/IconLabel';
-import EmptyState from 'app/components/common/EmptyState';
-import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
-import SecondaryFoodCard from 'app/components/FoodMenu/foodManager/SecondaryFoodCard';
+
+import FoodListSection from 'app/components/FoodMenu/foodManager/FoodListSection';
+import AddUpdateFoodForm from 'app/components/FoodMenu/foodManager/AddUpdateFoodForm';
+import { AddUpdateCategoryForm } from 'app/components/FoodMenu/foodManager/AddUpdateCategoryForm';
+import SubTab from 'app/components/common/SubTab';
+import CategoryListSection from 'app/components/FoodMenu/foodManager/CategoryListSection';
+import ConfirmationModal from 'app/components/modal/ConfirmationModal';
+import { Category, Food } from 'app/api/services/foodService';
+
+const tabs = ['Food', 'Category'];
+
+type TabType = (typeof tabs)[number];
 
 const FoodManagerScreen: React.FC = () => {
   const {
@@ -22,98 +27,157 @@ const FoodManagerScreen: React.FC = () => {
     updateFoodMutation,
     deleteCategoryMutation,
     addCategoryMutation,
+    updateCategoryMutation,
     deleteFoodMutation,
 
     // handlers
     handleSearch,
     handleCategoryClick,
+    handleAddFood,
+    handleUpdateFood,
+    handleAddCategory,
+    handleDeleteFood,
+    handleUpdateCategory,
+    handleDeleteCategory,
   } = useFood();
 
   const { isMobile, isDesktop } = useIsDesktop();
 
+  const [activeTab, setActiveTab] = useState<TabType>('Food');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [mode, setMode] = useState<'' | 'addFood' | 'addUpdateCategory'>('');
+  const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<number | null>(
+    null,
+  );
+  const [updateCategory, setUpdateCategory] = useState<Category | null>(null);
+  const [updateFood, setUpdateFood] = useState<Food | null>(null);
+
+  const loading =
+    addFoodMutation?.status === 'pending' ||
+    updateFoodMutation?.status === 'pending' ||
+    deleteCategoryMutation?.status === 'pending' ||
+    addCategoryMutation?.status === 'pending' ||
+    updateCategoryMutation?.status === 'pending' ||
+    deleteFoodMutation?.status === 'pending';
+
+  if (mode === 'addFood' && activeTab === 'Food') {
+    return (
+      <AddUpdateFoodForm
+        food={updateFood}
+        categories={categories}
+        onSubmit={(food, catId) => {
+          if (updateFood) {
+            console.log('updateFood', food);
+            const updatedFood = food as Food;
+            handleUpdateFood(updateFood.id, updatedFood);
+          } else {
+            handleAddFood(catId, food as Food);
+          }
+          setActiveTab('Food');
+          setMode('');
+          setUpdateFood(null);
+        }}
+        onAddNewCategoryClick={() => {
+          setActiveTab('Category');
+          setMode('');
+        }}
+        onCancel={() => {
+          setMode('');
+          setUpdateFood(null);
+        }}
+      />
+    );
+  }
+
+  if (mode === 'addUpdateCategory' && activeTab === 'Category') {
+    return (
+      <AddUpdateCategoryForm
+        category={updateCategory}
+        onSubmit={(category) => {
+          if (updateCategory) {
+            handleUpdateCategory(category);
+          } else {
+            handleAddCategory(category);
+          }
+          setMode('');
+          setUpdateCategory(null);
+        }}
+        onCancel={() => {
+          setMode('');
+          setUpdateCategory(null);
+        }}
+      />
+    );
+  }
 
   return (
     <View className="flex-1 bg-gray-100 p-2">
-      <PrimaryHeader
-        title="Categories"
-        onBackPress={() => console.log('Go back')}
-        onSearch={handleSearch}
-        searchTerm={searchTerm}
-        onFilterPress={() => console.log('Filter pressed')}
-        filters={categories?.map((category) => category.name) || ['none']}
-        isDesktop={isDesktop}
-        handleFilterClick={(selectedCategory) => {
-          handleCategoryClick(selectedCategory);
-          setSelectedCategory(selectedCategory);
+      <SubTab
+        tabs={tabs}
+        activeTab={activeTab}
+        onTabChange={(selectedTab) => {
+          setActiveTab(selectedTab);
+
+          if (selectedTab === 'All Foods') {
+            handleCategoryClick('All');
+            setSelectedCategory('All');
+          }
         }}
-        selectedFilter={selectedCategory}
       />
 
-      {/* Add Expense Button */}
-      <View className="flex-row justify-between items-center p-2 pt-4 mb-6">
-        <CustomButton
-          title={'+ Add Food'}
-          onPress={() => {
-            {
-            }
+      {activeTab === 'Category' ? (
+        <CategoryListSection
+          loading={loading}
+          categories={categories}
+          searchTerm={''}
+          isDesktop={false}
+          isMobile={false}
+          onSearch={() => {}}
+          onAddCategory={() => setMode('addUpdateCategory')}
+          onDelete={(id) => setShowDeleteConfirmationModal(id)}
+          onUpdate={(selectedCat) => {
+            setUpdateCategory(selectedCat);
+            setMode('addUpdateCategory');
           }}
-          customButtonStyle="w-40 h-12 mr-2 flex items-center justify-center rounded-lg  bg-[#2a4759] shadow-md"
-        />
-        <CustomButton
-          title={'+ Add Category'}
-          onPress={() => {
-            {
-            }
-          }}
-          customButtonStyle="w-40 h-12 mr-2 flex items-center justify-center rounded-lg  bg-[#2a4759] shadow-md"
-        />
-      </View>
-
-      {addFoodMutation?.status === 'pending' ||
-      updateFoodMutation?.status === 'pending' ||
-      deleteCategoryMutation?.status === 'pending' ||
-      addCategoryMutation?.status === 'pending' ||
-      deleteFoodMutation?.status === 'pending' ? (
-        <FoodLoadingSpinner iconName="coffee" />
-      ) : !foods || foods.length === 0 ? (
-        <EmptyState
-          iconName="bank"
-          message="No Expenses available"
-          subMessage="Please select different Date ."
-          iconSize={100}
         />
       ) : (
-        <>
-          <FlatList
-            data={foods}
-            keyExtractor={(item) => item.id.toString()}
-            style={{ backgroundColor: '#f9fafb' }}
-            contentContainerStyle={{ paddingVertical: 10 }}
-            ListHeaderComponent={() => (
-              <View className="flex-row items-between p-5 justify-between rounded-lg shadow-sm border-b border-gray-200">
-                <Text className="text-center text-black font-semibold text-xl mt-2">Foods</Text>
-                <View className="flex-row">
-                  <View className="flex-row rounded-md border border-gray-300 p-2">
-                    <Feather name="search" size={20} color="gray" />
-                    <TextInput placeholder="Search foods..." className="ml-2 text-black-700" />
-                  </View>
-                  <IconLabel
-                    iconType="Fontisto"
-                    iconName="filter"
-                    iconSize={16}
-                    iconColor="#2A4759"
-                    bgColor="bg-white"
-                    containerStyle="border border-gray-200 rounded-md ml-2"
-                    rounded="rounded-sm"
-                  />
-                </View>
-              </View>
-            )}
-            renderItem={({ item }) => <SecondaryFoodCard food={item} isMobile={isMobile} />}
-          />
-        </>
+        <FoodListSection
+          loading={loading}
+          foods={foods}
+          categories={categories}
+          searchTerm={searchTerm}
+          selectedCategory={selectedCategory}
+          isDesktop={isDesktop}
+          isMobile={isMobile}
+          onSearch={handleSearch}
+          onCategoryClick={(selectedCat) => {
+            handleCategoryClick(selectedCat);
+            setSelectedCategory(selectedCat);
+          }}
+          onAddFood={() => setMode('addFood')}
+          onDelete={(id) => setShowDeleteConfirmationModal(id)}
+          onUpdate={(selectedFood) => {
+            setUpdateFood(selectedFood);
+            setMode('addFood');
+          }}
+        />
       )}
+      <ConfirmationModal
+        visible={showDeleteConfirmationModal !== null}
+        onRequestClose={() => setShowDeleteConfirmationModal(null)}
+        onConfirm={() => {
+          // showDeleteConfirmationModal carry the id
+          if (showDeleteConfirmationModal) {
+            if (activeTab === 'Food') {
+              handleDeleteFood(showDeleteConfirmationModal);
+            } else if (activeTab === 'Category') {
+              handleDeleteCategory(showDeleteConfirmationModal);
+            }
+          }
+          setShowDeleteConfirmationModal(null);
+        }}
+        confirmationText="Are you sure you want to delete this item? This action cannot be undone."
+      />
     </View>
   );
 };

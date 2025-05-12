@@ -1,4 +1,47 @@
-import { DateRangeSelection, DateRangeSelectionType } from '../DateRangePickerModal';
+export enum DateRangeSelectionType {
+  QUICK_RANGE = 'QUICK_RANGE',
+  TIME_RANGE_TODAY = 'TIME_RANGE_TODAY',
+  SINGLE_DATE = 'SINGLE_DATE',
+  DATE_RANGE = 'DATE_RANGE',
+}
+
+export interface QuickRangeItem {
+  label: string;
+  unit?: 'minutes' | 'days';
+  value?: number;
+}
+
+/**
+ * For Quick Ranges, we just send label + optional numeric value and unit
+ * (like minutes or days). The backend can interpret them.
+ */
+export interface QuickRangePayload {
+  label: string; // e.g. "Past 15 Mins" or "Last 7 Days"
+  unit?: 'minutes' | 'days';
+  value?: number; // e.g. 15, 7, etc.
+}
+
+export type DateRangeSelection =
+  | {
+      selectionType: DateRangeSelectionType.QUICK_RANGE;
+      quickRange: QuickRangePayload;
+    }
+  | {
+      selectionType: DateRangeSelectionType.TIME_RANGE_TODAY;
+      startHour: number;
+      startMin: number;
+      endHour: number;
+      endMin: number;
+    }
+  | {
+      selectionType: DateRangeSelectionType.SINGLE_DATE;
+      date: string;
+    }
+  | {
+      selectionType: DateRangeSelectionType.DATE_RANGE;
+      startDate: string;
+      endDate: string;
+    };
 
 export function atMidnight(d: Date) {
   const copy = new Date(d);

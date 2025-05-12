@@ -11,6 +11,7 @@ import {
   fetchFoodMenuApi,
   Food,
   FoodMenuResponse,
+  updateCategoriesApi,
   updateFoodApi,
 } from 'app/api/services/foodService';
 import { setFoodMenu, resetFoodMenu, setFoods, setCategories } from 'app/redux/foodMenuSlice';
@@ -85,7 +86,7 @@ export function useFoodMenuActions() {
       }
     },
     onError: (err) => {
-      console.warn('existing order fetch failed:', err);
+      console.warn('add food failed:', err);
     },
   });
 
@@ -110,7 +111,7 @@ export function useFoodMenuActions() {
       }
     },
     onError: (err) => {
-      console.warn('existing order fetch failed:', err);
+      console.warn('update food failed:', err);
     },
   });
 
@@ -131,7 +132,7 @@ export function useFoodMenuActions() {
       }
     },
     onError: (err) => {
-      console.warn('existing order fetch failed:', err);
+      console.warn('delete food failed:', err);
     },
   });
 
@@ -156,7 +157,32 @@ export function useFoodMenuActions() {
       }
     },
     onError: (err) => {
-      console.warn('existing order fetch failed:', err);
+      console.warn('add category failed:', err);
+    },
+  });
+
+  const updateCategoryMutation = useMutation<
+    ApiResponse<Category[]>,
+    Error,
+    { updatedCategory: Category }
+  >({
+    mutationFn: async ({ updatedCategory }) => {
+      if (!updatedCategory.id || updatedCategory.id === 0) {
+        throw new Error('Missing categoryId');
+      }
+      const response: ApiResponse<Category[]> = await updateCategoriesApi(updatedCategory);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      if (response.status === 'success' && response.data) {
+        dispatch(setCategories(response.data));
+      }
+    },
+    onError: (err) => {
+      console.warn('update food failed:', err);
     },
   });
 
@@ -181,7 +207,7 @@ export function useFoodMenuActions() {
       }
     },
     onError: (err) => {
-      console.warn('existing order fetch failed:', err);
+      console.warn('delete category failed:', err);
     },
   });
 
@@ -198,6 +224,7 @@ export function useFoodMenuActions() {
     updateFoodMutation,
     deleteFoodMutation,
     addCategoryMutation,
+    updateCategoryMutation,
     deleteCategoryMutation,
   };
 }

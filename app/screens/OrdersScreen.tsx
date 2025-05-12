@@ -19,9 +19,9 @@ import { ScreenNames } from 'app/types/navigation';
 
 import { removedFilter } from 'app/components/filter/filter';
 import { OrderDetails } from 'app/api/services/orderService';
-import { DateRangeSelection, DateRangeSelectionType } from 'app/components/DateRangePickerModal';
 import { FiltersBottomSheetModal } from 'app/components/filter/FiltersBottomSheetModal';
 import NotificationBar from 'app/components/common/NotificationBar';
+import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/utils';
 
 const tabs = ['Past Orders', 'Todays Order'];
 type TabType = (typeof tabs)[number];

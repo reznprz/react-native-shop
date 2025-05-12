@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput } from 'react-native';
+import { View, Text, ScrollView, TextInput, FlatList } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import ExpenseCard from 'app/components/expense/ExpenseCard';
 import { useExpenses } from 'app/hooks/useExpenses';
@@ -16,6 +16,7 @@ import CustomIcon from 'app/components/common/CustomIcon';
 import { IconType } from 'app/navigation/screenConfigs';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import { useFocusEffect } from '@react-navigation/native';
+import ListHeader from 'app/components/common/ListHeader';
 
 const ExpenseScreen = () => {
   const {
@@ -114,55 +115,46 @@ const ExpenseScreen = () => {
           iconSize={100}
         />
       ) : (
-        <>
-          <ScrollView style={{ backgroundColor: '#f9fafb' }}>
-            {/* Expenses List */}
-            <View className="bg-white rounded-lg shadow-sm">
-              {/* Search Bar */}
-              <View className="flex-row items-between p-5 justify-between rounded-lg shadow-xl border-b border-gray-200">
-                <Text className="text-center text-black font-semibold text-xl mt-2">
-                  Recent Expenses
-                </Text>
-                <View className="flex-row">
-                  <View className="flex-row shadow-sm rounded-md border border-gray-200 p-2">
-                    <Feather name="search" size={20} color="gray" />
-                    <TextInput placeholder="Search expenses..." className="ml-2 text-black-700" />
-                  </View>
-                  <IconLabel
-                    iconType={'Fontisto'}
-                    iconName={'filter'}
-                    iconSize={16}
-                    iconColor={'#2A4759'}
-                    bgColor={`bg-white`}
-                    containerStyle="border border-gray-200 rounded-md ml-2"
+        <FlatList
+          data={expenses}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={1}
+          key={'h'}
+          ListHeaderComponent={() => (
+            <ListHeader
+              title="Recent Expenses"
+              searchTerm={''}
+              searchPlaceholder={'Search expenses...'}
+              onSearch={() => {}}
+            />
+          )}
+          stickyHeaderIndices={[0]}
+          renderItem={({ item }) => (
+            <View className="px-4">
+              <ExpenseCard
+                key={item.id}
+                title={item.description}
+                date={item.expensesDate}
+                amount={item.amount}
+                quantity={item.quantity}
+                iconBgColor={`${item.iconMetadataDetails?.bgColor}`}
+                icon={
+                  <CustomIcon
+                    name={item.iconMetadataDetails?.iconName || ''}
+                    type={(item.iconMetadataDetails?.iconType as IconType) || 'Feather'}
+                    size={20}
+                    color={item.iconMetadataDetails?.filledColor}
+                    validate={true}
                   />
-                </View>
-              </View>
-              {expenses.map((item) => (
-                <ExpenseCard
-                  key={item.id}
-                  title={item.description}
-                  date={item.expensesDate}
-                  amount={item.amount}
-                  quantity={item.quantity}
-                  iconBgColor={`${item.iconMetadataDetails?.bgColor}`}
-                  icon={
-                    <CustomIcon
-                      name={item.iconMetadataDetails?.iconName || ''}
-                      type={(item.iconMetadataDetails?.iconType as IconType) || 'Feather'}
-                      size={20}
-                      color={item.iconMetadataDetails?.filledColor}
-                      validate={true}
-                    />
-                  }
-                  onDelete={() => {
-                    setShowDeleteConfirmationModal(item.id);
-                  }}
-                />
-              ))}
+                }
+                onDelete={() => {
+                  setShowDeleteConfirmationModal(item.id);
+                }}
+              />
             </View>
-          </ScrollView>
-        </>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
       )}
 
       <AddExpenseModal

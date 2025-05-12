@@ -62,7 +62,6 @@ export default function FoodsMenu({
         onBackPress={() => console.log('Go back')}
         onSearch={handleSearch}
         searchTerm={searchTerm}
-        onFilterPress={() => console.log('Filter pressed')}
         filters={categories?.map((category) => category.name) || ['none']}
         isDesktop={isDesktop}
         handleFilterClick={(selectedCategory) => {
@@ -85,7 +84,7 @@ export default function FoodsMenu({
         <EmptyState
           iconName="food-off"
           message="No food items available"
-          subMessage="Please check back later or add items to the menu."
+          subMessage="Please refresh  or add items to the menu."
         />
       ) : isFoodsMenuLoading ? (
         <FoodLoadingSpinner iconName="hamburger" />
