@@ -11,8 +11,8 @@ interface SecondaryFoodCardProps {
   onDelete: (foodId: number) => void;
 }
 
-const ITEM_HEIGHT = 140;
-const SWIPE_WIDTH = 200;
+const ITEM_HEIGHT = 150;
+const SWIPE_WIDTH = 220;
 
 const SecondaryFoodCard: React.FC<SecondaryFoodCardProps> = ({
   food,
@@ -46,7 +46,7 @@ const SecondaryFoodCard: React.FC<SecondaryFoodCardProps> = ({
       </View>
 
       {/* Front Card View */}
-      <View className="flex-row px-2 py-2 bg-white rounded-2xl shadow-sm border border-gray-200 mb-4">
+      <View className="flex-row  px-4  mx-2 mt-1 py-4  bg-white rounded-2xl shadow-sm border border-gray-200 mb-4">
         {/* Image */}
         <Image
           source={{ uri: img }}
@@ -118,6 +118,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     height: ITEM_HEIGHT,
+    marginRight: 14,
+    marginTop: 8,
   },
   backButton: {
     width: SWIPE_WIDTH / 2,

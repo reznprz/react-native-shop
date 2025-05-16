@@ -1,9 +1,10 @@
-import { on } from 'events';
-import React, { useState } from 'react';
+import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View, StyleSheet, Platform } from 'react-native';
 
 interface TopBarProps {
+  activeTopBar: string;
   showSwitchTable: boolean;
+  onTopBarClick: (selected: string) => void;
   onFoodClick: () => void;
   onCategoryClick: () => void;
   onTopBreakFastClick: () => void;
@@ -14,6 +15,7 @@ interface TopBarProps {
 }
 
 const TopBar: React.FC<TopBarProps> = ({
+  activeTopBar,
   showSwitchTable,
   onFoodClick,
   onCategoryClick,
@@ -22,9 +24,8 @@ const TopBar: React.FC<TopBarProps> = ({
   onTopLunchClick,
   onTopDrinkClick,
   onTableClick,
+  onTopBarClick,
 }) => {
-  const [selected, setSelected] = useState<string>('Category');
-
   // Define common buttons
   const buttons = [
     { label: 'Table', action: onTableClick },
@@ -43,7 +44,7 @@ const TopBar: React.FC<TopBarProps> = ({
 
   // Handle button press
   const handlePress = (label: string, action: () => void) => {
-    setSelected(label);
+    onTopBarClick(label);
     action();
   };
 
@@ -55,7 +56,7 @@ const TopBar: React.FC<TopBarProps> = ({
         contentContainerStyle={styles.buttonContainer}
       >
         {buttons.map((btn) => {
-          const isSelected = selected === btn.label;
+          const isSelected = activeTopBar === btn.label;
           return (
             <TouchableOpacity
               key={btn.label}

@@ -1,5 +1,5 @@
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons';
-import { Category, Food } from 'app/api/services/foodService';
+import { Category } from 'app/api/services/foodService';
 import CustomIcon from 'app/components/common/CustomIcon';
 import { getFilterIcon } from 'app/hooks/utils/getFilterIcon';
 import React from 'react';
@@ -13,7 +13,7 @@ interface SecondaryCategoryCardProps {
   onDelete: (id: number) => void;
 }
 
-const ITEM_HEIGHT = 70;
+const ITEM_HEIGHT = 80;
 const SWIPE_WIDTH = 200;
 
 const SecondaryCategoryCard: React.FC<SecondaryCategoryCardProps> = ({

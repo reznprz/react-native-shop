@@ -202,6 +202,14 @@ export function useTables() {
       return [total, available, occupied, capacity, active, names];
     }, [tables]);
 
+  // Expose a function that accepts tableId and restaurantId to trigger the API call.
+  const fetchExistingOrderForTable = async (tableNameParam: string, restaurantIdParam: number) => {
+    await exstingOrderForTable.mutateAsync({
+      tableName: tableNameParam,
+      restaurantId: restaurantIdParam,
+    });
+  };
+
   /**
    * Update state for a Food item, then call api for update with mutation on success we update the orderId.
    */
@@ -215,20 +223,28 @@ export function useTables() {
     onSuccess: (response) => {
       if (response.data) {
         if (response.data) {
-          if (response.data.orderItems && response.data.orderItems.length > 0) {
-            const updatedOrder = response.data;
-            const updatedTableItem = toTableItem(updatedOrder);
-            dispatch(setPrepTableItems(updatedTableItem));
+          if (response.data) {
+            const { id: orderId = 0, totalPrice: orderTotalAmount = 0 } = response.data || {};
+
+            dispatch(
+              setPrepTableItems({
+                id: orderId,
+                totalPrice: orderTotalAmount - prepTableItems.discountAmount,
+                subTotal: orderTotalAmount,
+              }),
+            );
           } else {
             refetchTables();
-            dispatch(resetPrepTableItems());
+            // fetch existing orders in background
+            fetchExistingOrderForTable(tableName, storeRestaurantId);
           }
         }
       }
     },
     onError: (err) => {
       console.warn('Add/Update Order failed:', err);
-      dispatch(resetPrepTableItems());
+      // fetch existing orders in background
+      fetchExistingOrderForTable(tableName, storeRestaurantId);
     },
   });
 
@@ -279,14 +295,6 @@ export function useTables() {
       dispatch(resetPrepTableItems());
     },
   );
-
-  // Expose a function that accepts tableId and restaurantId to trigger the API call.
-  const fetchExistingOrderForTable = async (tableNameParam: string, restaurantIdParam: number) => {
-    await exstingOrderForTable.mutateAsync({
-      tableName: tableNameParam,
-      restaurantId: restaurantIdParam,
-    });
-  };
 
   const handleTableClick = useCallback(
     (selectedTableName: string) => {

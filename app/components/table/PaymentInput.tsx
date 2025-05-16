@@ -14,7 +14,7 @@ const PaymentInput: React.FC<PaymentInputProps> = ({ paymentType, onInput, amoun
   const stringValue = amount === 0 ? '' : amount.toString();
 
   return (
-    <View className="flex-row items-center justify-between px-4 py-3 bg-gray-100 rounded-lg shadow-md mt-2">
+    <View className="flex-row items-center justify-between px-4 py-3 bg-gray-100 rounded-lg shadow-sm mt-2">
       {/* Left section: icon + label */}
       <View className="flex-row items-center gap-3">
         <Ionicons name={getPaymentTypeIconforIcons(paymentType)} size={28} color={'#374151'} />

@@ -55,7 +55,7 @@ const CategoryListSection: React.FC<CategoryListSectionProps> = ({
         <FlatList
           data={categories}
           keyExtractor={(item) => item.id.toString()}
-          numColumns={isDesktop ? 3 : 2}
+          numColumns={isDesktop ? 2 : 1}
           key={isDesktop ? 'h' : 'v'}
           columnWrapperStyle={
             isDesktop ? { paddingHorizontal: 8 } : undefined /* gap between two columns */
@@ -70,7 +70,7 @@ const CategoryListSection: React.FC<CategoryListSectionProps> = ({
           )}
           stickyHeaderIndices={[0]}
           renderItem={({ item }) => (
-            <View className={`${isDesktop ? 'w-1/3' : 'w-1/2'} `}>
+            <View className={`${isDesktop ? 'w-1/2 p-2' : 'w-full p-1'} `}>
               <SecondaryCategoryCard
                 category={item}
                 isMobile={isMobile}

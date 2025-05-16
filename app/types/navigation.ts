@@ -17,6 +17,8 @@ export enum ScreenNames {
   SALESANALYTICS = 'SalesAnalyticsScreen',
   LOGIN = 'LoginScreen',
   USER = 'UserScreen',
+  TABLEMANAGER = 'TableManagerScreen',
+  PROFILE = 'ProfileScreen',
 }
 
 export enum ScreenDisplayNames {
@@ -32,6 +34,8 @@ export enum ScreenDisplayNames {
   SALESANALYTICS = 'SalesAnalytics',
   LOGIN = 'Login',
   USER = 'User',
+  TABLEMANAGER = 'Table Manager',
+  PROFILE = 'Profile',
 }
 
 // Create a constant object for screen details
@@ -83,5 +87,13 @@ export const Screens: Record<ScreenNames, ScreenDetail> = {
   [ScreenNames.USER]: {
     screenName: ScreenNames.USER,
     screenDisplayName: ScreenDisplayNames.USER,
+  },
+  [ScreenNames.TABLEMANAGER]: {
+    screenName: ScreenNames.TABLEMANAGER,
+    screenDisplayName: ScreenDisplayNames.TABLEMANAGER,
+  },
+  [ScreenNames.PROFILE]: {
+    screenName: ScreenNames.PROFILE,
+    screenDisplayName: ScreenDisplayNames.PROFILE,
   },
 };

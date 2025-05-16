@@ -7,6 +7,7 @@ import { TableItem as TableItems } from 'app/hooks/useTables';
 import { OrderItem } from 'app/api/services/orderService';
 import { StatusChip } from '../common/StatusChip';
 import TableFoodItemCard from './TableFoodItemCard';
+import CustomIcon from '../common/CustomIcon';
 
 interface TableFoodItemsSummaryProps {
   tableItems: TableItems;
@@ -57,7 +58,13 @@ const TableFoodItemsSummary: React.FC<TableFoodItemsSummaryProps> = ({
           )}
 
           {tableItems.orderMenuType && tableItems.orderMenuType === 'TOURIST' && (
-            <StatusChip status={tableItems.orderMenuType} />
+            <CustomIcon
+              type="Ionicons"
+              name="earth-outline"
+              size={20}
+              iconStyle="text-black-200 pr-1 pl-4"
+              color="#2a4759"
+            />
           )}
 
           {/* <Text className="text-gray-700 font-medium pb-4">{'📅 15 Jan 2025'}</Text> */}

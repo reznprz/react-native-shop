@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput, FlatList } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import IconLabel from 'app/components/common/IconLabel';
+import { View, FlatList } from 'react-native';
 import CustomButton from 'app/components/common/button/CustomButton';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';

@@ -56,11 +56,14 @@ export const useSettingsHook = () => {
       case 'Sales Analytics':
         push(ScreenNames.SALESANALYTICS);
         break;
+      case 'Table Manager':
+        push(ScreenNames.TABLEMANAGER);
+        break;
       case 'Subscription':
         console.log('Navigating to Subscription');
         break;
-      case 'Edit Profile':
-        console.log('Navigating to Edit Profile');
+      case 'Profile':
+        push(ScreenNames.PROFILE);
         break;
       case 'Users':
         push(ScreenNames.USER);
@@ -84,7 +87,7 @@ export const useSettingsHook = () => {
   // Define sections with onPress handlers
   const sections: Section[] = [
     {
-      title: 'Account',
+      title: 'Settings',
       data: [
         {
           label: 'Subscription',
@@ -93,7 +96,7 @@ export const useSettingsHook = () => {
           onPress: () => handlePress('Subscription'),
         },
         {
-          label: 'Edit Profile',
+          label: 'Profile',
           icon: 'user-edit',
           iconType: 'FontAwesome5',
           onPress: () => handlePress('Edit Profile'),
@@ -120,6 +123,12 @@ export const useSettingsHook = () => {
           icon: 'restaurant-menu',
           iconType: 'MaterialIcons',
           onPress: () => handlePress('Food Manager'),
+        },
+        {
+          label: 'Table Manager',
+          icon: 'table',
+          iconType: 'TableIcon',
+          onPress: () => handlePress('Table Manager'),
         },
         {
           label: 'Inventory',

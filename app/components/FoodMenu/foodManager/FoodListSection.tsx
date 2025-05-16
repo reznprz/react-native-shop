@@ -88,7 +88,7 @@ const FoodListSection: React.FC<FoodListSectionProps> = ({
           )}
           stickyHeaderIndices={[0]}
           renderItem={({ item }) => (
-            <View className={`${isDesktop ? 'w-1/2 p-2' : 'w-full'} `}>
+            <View className={`${isDesktop ? 'w-1/2 p-2' : 'w-full p-1'} `}>
               <SecondaryFoodCard
                 food={item}
                 isMobile={isMobile}

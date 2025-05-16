@@ -5,7 +5,7 @@ const LazyHomeScreen = createLazyScreen(() => import('app/screens/HomeScreen'));
 const LazyMenuScreen = createLazyScreen(() => import('app/screens/MenuScreen'));
 const LazyTableScreen = createLazyScreen(() => import('app/screens/TableScreen'));
 const LazyOrdersScreen = createLazyScreen(() => import('app/screens/OrdersScreen'));
-const LazyProfileScreen = createLazyScreen(() => import('app/screens/ProfileScreen'));
+const LazyAccountScreen = createLazyScreen(() => import('app/screens/AccountScreen'));
 
 export type IconType = keyof typeof ICON_TYPES;
 
@@ -52,9 +52,9 @@ export const tabScreenConfigs: TabScreenConfig[] = [
     iconType: 'MaterialIcons',
   },
   {
-    name: 'Profile',
-    label: 'PROFILE',
-    component: LazyProfileScreen,
+    name: 'Account',
+    label: 'ACCOUNT',
+    component: LazyAccountScreen,
     icon: 'account-tie-outline',
     filledIcon: 'account-tie',
     iconType: 'MaterialCommunityIcons',

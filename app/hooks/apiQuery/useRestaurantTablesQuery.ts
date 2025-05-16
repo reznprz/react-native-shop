@@ -1,5 +1,5 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { fetchAllTablesApi, RestaurantTable } from 'app/api/services/tableService';
+import { fetchAllTablesWithStatusApi, RestaurantTable } from 'app/api/services/tableService';
 import { ApiResponse } from 'app/api/handlers';
 
 /**
@@ -14,7 +14,7 @@ export const useRestaurantTablesQuery = (
     // keep the query function pure and parameterised only by the queryKey
     queryFn: () => {
       if (!restaurantId) throw new Error('Restaurant is not valid');
-      return fetchAllTablesApi(restaurantId);
+      return fetchAllTablesWithStatusApi(restaurantId);
     },
     enabled: !!restaurantId, // don’t run until we have a valid id
     refetchOnWindowFocus: false,

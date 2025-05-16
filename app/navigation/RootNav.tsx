@@ -13,6 +13,8 @@ const LazyDailySalesScreen = createLazyScreen(() => import('app/screens/DailySal
 const LazyInventoryScreen = createLazyScreen(() => import('app/screens/InventoryScreen'));
 const LazySalesAnalytics = createLazyScreen(() => import('app/screens/SalesAnalyticsScreen'));
 const LazyUserScreen = createLazyScreen(() => import('app/screens/UserScreen'));
+const LazyTableMangerScreen = createLazyScreen(() => import('app/screens/TableManagerScreen'));
+const LazyProfileScreen = createLazyScreen(() => import('app/screens/ProfileScreen'));
 
 // function LazyQrMenuItemsScreen(props: any) {
 //   return (
@@ -149,6 +151,42 @@ export default function RootNav() {
         component={LazyUserScreen}
         options={{
           title: ScreenDisplayNames.USER,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.TABLEMANAGER}
+        component={LazyTableMangerScreen}
+        options={{
+          title: ScreenDisplayNames.TABLEMANAGER,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.PROFILE}
+        component={LazyProfileScreen}
+        options={{
+          title: ScreenDisplayNames.PROFILE,
           headerShown: true,
           headerStyle: {
             backgroundColor: '#2a4759',

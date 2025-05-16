@@ -11,6 +11,13 @@ export enum PlanType {
   STARTER = 'STARTER',
   STANDARD = 'STANDARD',
   PREMIUM = 'PREMIUM',
+  NONE = 'NONE',
+}
+
+export enum ContactStatus {
+  PRIMARY = 'PRIMARY',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
 }
 
 export enum AccessLevel {
@@ -45,6 +52,17 @@ export interface SubscriptionExpirationInfo {
   expirationBannerMessage: string;
   subscriptionExpired: boolean;
 }
+export interface RestaurantEmail {
+  id: number;
+  email: string;
+  status: ContactStatus;
+}
+
+export interface RestaurantPhone {
+  id: number;
+  phoneNumber: string;
+  status: ContactStatus;
+}
 
 export interface AuthResponse {
   accessToken: string;
@@ -57,6 +75,8 @@ export interface AuthResponse {
   userFirstName: string;
   userLastName: string;
   initials: string;
+  emails: RestaurantEmail[];
+  phoneNumbers: RestaurantPhone[];
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
 }
 

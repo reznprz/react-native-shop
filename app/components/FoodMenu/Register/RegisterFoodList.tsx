@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Text,
-  useWindowDimensions,
-} from 'react-native';
+import { View, FlatList, StyleSheet, TouchableOpacity, Animated, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 // Internal Components & Types
@@ -17,6 +9,12 @@ import MobileSidebar from 'app/components/common/MobileSidebar';
 import SearchBar from 'app/components/common/SearchBar';
 import { Food } from 'app/api/services/foodService';
 import { TableItem } from 'app/hooks/useTables';
+import SubTab from 'app/components/common/SubTab';
+import { OrderMenuType } from 'app/redux/prepTableItemsSlice';
+
+const subtabs: string[] = Object.values(OrderMenuType);
+
+export type SubTabType = (typeof subtabs)[number];
 
 interface Props {
   isMobile: boolean;
@@ -26,9 +24,11 @@ interface Props {
   tableItems: TableItem;
   numColumnsRegisterScreen: number;
   searchTerm: string;
+  activatedSubTab: SubTabType;
   handleSearch: (text: string) => void;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
   handleCategoryClick: (categoryName: string) => void;
+  onPricingSubTabClick: (selectedTab: SubTabType) => void;
 }
 
 const RegisterFoodList: React.FC<Props> = ({
@@ -39,9 +39,11 @@ const RegisterFoodList: React.FC<Props> = ({
   tableItems,
   numColumnsRegisterScreen,
   searchTerm,
+  activatedSubTab,
   handleSearch,
   updateCartItemForFood,
   handleCategoryClick,
+  onPricingSubTabClick,
 }) => {
   // State for mobile sidebar visibility and search text
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -70,6 +72,14 @@ const RegisterFoodList: React.FC<Props> = ({
 
   return (
     <View style={styles.container}>
+      <SubTab
+        tabs={subtabs}
+        activeTab={activatedSubTab}
+        onTabChange={(selectedTab) => {
+          onPricingSubTabClick(selectedTab);
+        }}
+        tabStyle="py-2"
+      />
       {/* Mobile Top Bar with Category Toggle and Search */}
       {isMobile && (
         <View style={styles.topBar}>

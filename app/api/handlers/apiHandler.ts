@@ -1,6 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ApiResponse, ApiStatus, ErrorStatus } from './index';
 import { config } from 'app/config/config';
+import { setupApiInterceptors } from './interceptors';
 
 /**
  * A concurrency guard to avoid multiple simultaneous refresh calls.
@@ -216,4 +217,5 @@ export const errorHandler = <T>(error: any): ApiResponse<T> => {
   };
 };
 
+setupApiInterceptors(axiosInstance);
 export default axiosInstance;
