@@ -14,6 +14,7 @@ import { store, persistor } from './app/redux/store';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { InactivityProvider } from './app/contexts/InactivityProvider'; 
 
+
 // Initialize react-native-screens for performance
 enableScreens();
 

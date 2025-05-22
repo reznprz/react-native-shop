@@ -42,7 +42,7 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
 
   // Replace with your actual restaurant/logo image
   const FALLBACK_IMAGE_URI = {
-    uri: 'https://scontent-iad3-2.xx.fbcdn.net/v/t39.30808-6/305317844_585693433122077_344970095824068810_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=6ee11a&_nc_ohc=r7kD9QA1mlQQ7kNvgHJbbOV&_nc_oc=AdiZct-jZiANu80Jsq8Lp6AAY-GHuVQ4rAt_VSj3-_8I8mzCUr97ZBiC-4ZXvnlT-OajiAHDHAhpvHXmntfji7sC&_nc_zt=23&_nc_ht=scontent-iad3-2.xx&_nc_gid=A8UMXgVaEr0Z7-01RqrXv2_&oh=00_AYHT5NrdlXnUfQVHpa4U3Zk0Tv1Uhdg3dutxkUiMljFelQ&oe=67D7D84B',
+    uri: 'https://storage.googleapis.com/image-box-sp/shajhya.jpg',
   };
 
   const itemsCount = useMemo(() => {

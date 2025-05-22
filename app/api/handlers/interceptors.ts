@@ -10,6 +10,7 @@ import { store } from 'app/redux/store';
 import { updateAccessToken, clearAuthData } from 'app/redux/authSlice';
 import { refreshTokenApi } from '../services/authService';
 import { isTokenExpired } from './decodeJWT';
+import { AppConfig } from 'app/config/config';
 
 // Extend Axios config to track retry state
 interface CustomAxiosRequestConfig extends InternalAxiosRequestConfig {
@@ -31,24 +32,30 @@ function processQueue(error: any, token: string | null = null) {
  * - Retries on 401/403 with token refresh fallback.
  * - Alerts on failures and forces logout.
  */
-export function setupApiInterceptors(api: AxiosInstance) {
+export function setupApiInterceptors(api: AxiosInstance, appConfig: AppConfig) {
   // REQUEST interceptor
   api.interceptors.request.use(
     async (config: InternalAxiosRequestConfig) => {
       const reqConfig = config;
       const method = reqConfig.method?.toUpperCase() ?? 'GET';
       const url = reqConfig.url ?? '';
-      console.log(`📤 [Request] ${method} ${url}`);
-      console.log('🔍 [Request Payload]', reqConfig.data ?? {});
+      if (appConfig.debug) {
+        console.log(`📤 [Request] ${method} ${url}`);
+        console.log('🔍 [Request Payload]', reqConfig.data ?? {});
+      }
 
       const { accessToken, refreshToken, restaurantName, restaurantId, userId } =
         store.getState().auth.authData ?? {};
       let tokenToUse = accessToken;
 
       if (accessToken && isTokenExpired(accessToken)) {
-        console.warn('⚠️ [Auth] Access token expired, refreshing...');
+        if (appConfig.debug) {
+          console.warn('⚠️ [Auth] Access token expired, refreshing...');
+        }
         if (!refreshToken) {
-          console.error('❌ [Auth] No refresh token available');
+          if (appConfig.debug) {
+            console.error('❌ [Auth] No refresh token available');
+          }
           Alert.alert('Session Expired', 'Please log in again.');
           store.dispatch(clearAuthData());
           return Promise.reject(new Error('No refresh token'));
@@ -59,7 +66,9 @@ export function setupApiInterceptors(api: AxiosInstance) {
               queue.push({ resolve, reject }),
             );
           } catch (e) {
-            console.error('❌ [Auth] Token refresh in queue failed', e);
+            if (appConfig.debug) {
+              console.error('❌ [Auth] Token refresh in queue failed', e);
+            }
             Alert.alert('Session Error', 'Could not refresh session.');
             store.dispatch(clearAuthData());
             return Promise.reject(e);
@@ -67,14 +76,20 @@ export function setupApiInterceptors(api: AxiosInstance) {
         } else {
           isRefreshing = true;
           try {
-            console.log('🔄 [Auth] Requesting new access token via refresh token');
+            if (appConfig.debug) {
+              console.log('🔄 [Auth] Requesting new access token via refresh token');
+            }
             const newToken = await refreshTokenApi(refreshToken);
             store.dispatch(updateAccessToken(newToken));
-            console.log('✅ [Auth] Token refreshed');
+            if (appConfig.debug) {
+              console.log('✅ [Auth] Token refreshed');
+            }
             processQueue(null, newToken);
             tokenToUse = newToken;
           } catch (err) {
-            console.error('❌ [Auth] Token refresh failed', err);
+            if (appConfig.debug) {
+              console.error('❌ [Auth] Token refresh failed', err);
+            }
             processQueue(err, null);
             Alert.alert('Session Error', 'Failed to refresh session.');
             store.dispatch(clearAuthData());
@@ -95,7 +110,9 @@ export function setupApiInterceptors(api: AxiosInstance) {
       return reqConfig;
     },
     (error: any) => {
-      console.error('❌ [Request Error]', error);
+      if (appConfig.debug) {
+        console.error('❌ [Request Error]', error);
+      }
       Alert.alert('Network Error', 'Failed to send request.');
       return Promise.reject(error);
     },
@@ -106,25 +123,32 @@ export function setupApiInterceptors(api: AxiosInstance) {
     (response: AxiosResponse) => {
       const method = response.config.method?.toUpperCase() ?? 'GET';
       const url = response.config.url ?? '';
-      console.log(`📥 [Response] ${method} ${url} → ${response.status}`);
-      console.log('📦 [Response Payload]', response.data);
+      if (appConfig.debug) {
+        console.log(`📥 [Response] ${method} ${url} → ${response.status}`);
+        console.log('📦 [Response Payload]', response.data);
+      }
+
       return response;
     },
     async (error: AxiosError & { config?: CustomAxiosRequestConfig }) => {
       const originalConfig = error.config as CustomAxiosRequestConfig;
       const method = originalConfig.method?.toUpperCase() ?? 'GET';
       const url = originalConfig.url ?? '';
-      console.error(
-        `❌ [Error] ${method} ${url} → ${error.response?.status}`,
-        error.response?.data,
-      );
+      if (appConfig.debug) {
+        console.error(
+          `❌ [Error] ${method} ${url} → ${error.response?.status}`,
+          error.response?.data,
+        );
+      }
 
       const status = error.response?.status;
       if ((status === 401 || status === 403) && !originalConfig._retry) {
         originalConfig._retry = true;
         const { refreshToken } = store.getState().auth.authData ?? {};
         if (!refreshToken) {
-          console.error('❌ [Auth] No refresh token for retry');
+          if (appConfig.debug) {
+            console.error('❌ [Auth] No refresh token for retry');
+          }
           Alert.alert('Unauthorized', 'Please log in again.');
           store.dispatch(clearAuthData());
           return Promise.reject(error);
@@ -140,13 +164,17 @@ export function setupApiInterceptors(api: AxiosInstance) {
             });
             return api(originalConfig);
           } catch (e) {
-            console.error('❌ [Auth] Queue retry failed', e);
+            if (appConfig.debug) {
+              console.error('❌ [Auth] Queue retry failed', e);
+            }
             return Promise.reject(e);
           }
         }
         isRefreshing = true;
         try {
-          console.log('🔄 [Auth] Refreshing token on 401/403');
+          if (appConfig.debug) {
+            console.log('🔄 [Auth] Refreshing token on 401/403');
+          }
           const newToken = await refreshTokenApi(refreshToken);
           store.dispatch(updateAccessToken(newToken));
           processQueue(null, newToken);
@@ -156,7 +184,9 @@ export function setupApiInterceptors(api: AxiosInstance) {
           });
           return api(originalConfig);
         } catch (err) {
-          console.error('❌ [Auth] Refresh on error failed', err);
+          if (appConfig.debug) {
+            console.error('❌ [Auth] Refresh on error failed', err);
+          }
           processQueue(err, null);
           Alert.alert('Session Error', 'Failed to refresh session.');
           store.dispatch(clearAuthData());
