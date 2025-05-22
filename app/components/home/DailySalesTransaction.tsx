@@ -21,7 +21,7 @@ const DailySalesTransactionCard: React.FC<Props> = ({
   const { openingCash, expenses, totalSales, closingCash, cash, qr } = salesTransaction;
 
   return (
-    <View className="bg-white rounded-lg p-6 mt-4 shadow-sm">
+    <View className="bg-white rounded-lg p-6 mt-4 ">
       {/* Header */}
       <View className="flex-row justify-between items-center mb-6">
         <Text className="font-bold" style={{ fontSize: fontSize + 2 }}>

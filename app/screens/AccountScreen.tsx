@@ -6,8 +6,10 @@ import { IconType } from 'app/navigation/screenConfigs';
 import CustomButton from 'app/components/common/button/CustomButton';
 import { useSettingsHook } from 'app/hooks/useSettingsHook';
 
-export default function SettingsScreen() {
-  const { sections, handlePress } = useSettingsHook();
+export default function AccountScreen() {
+  const { sections, restaurantInfo, handlePress, handleLogout } = useSettingsHook();
+
+  const { userFirstName = '', userLastName = '', restaurantName = '' } = restaurantInfo ?? {};
 
   return (
     <ScrollView
@@ -15,7 +17,7 @@ export default function SettingsScreen() {
       showsVerticalScrollIndicator={false}
     >
       {/* User Profile Card */}
-      <UserProfileCard name="John Doe" email="john.doe@example.com" />
+      <UserProfileCard name={`${userFirstName} ${userLastName}`} email={restaurantName} />
 
       {/* Sections */}
       {sections.map((section) => (
@@ -48,7 +50,9 @@ export default function SettingsScreen() {
       <View className="p-4">
         <CustomButton
           title={'Logout'}
-          onPress={() => {}}
+          onPress={() => {
+            handleLogout();
+          }}
           width="full"
           height="l"
           bgColor="bg-gray-300"

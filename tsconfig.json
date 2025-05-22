@@ -10,14 +10,28 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["nativewind/types","expo", "node"],
+    "types": [
+      "nativewind/types",
+      "expo",
+      "node"
+    ],
     "baseUrl": ".", // This sets the root directory for absolute imports
     "paths": {
-      "app/*": ["app/*"], // Maps "app/" to your "app" directory
-      "*": ["node_modules/*"] // Default node_modules resolution
+      "app/*": [
+        "app/*"
+      ], // Maps "app/" to your "app" directory
+      "*": [
+        "node_modules/*"
+      ] // Default node_modules resolution
     }
   },
-  "include": ["app", "env.d.ts", "shajhya.jpg", "svg.d.ts"], // Ensures TypeScript includes the "app" directory
+  "include": [
+    "app",
+    "env.d.ts",
+    "shajhya.jpg",
+    "svg.d.ts",
+    "nativewind-env.d.ts"
+  ], // Ensures TypeScript includes the "app" directory
   "exclude": [
     "node_modules",
     "babel.config.js",

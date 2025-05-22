@@ -36,8 +36,7 @@ const HomeScreen: React.FC = () => {
     recentTransactions,
   } = restaurantOverView;
 
-  const { isLargeScreen, width } = useIsDesktop();
-  const isTablet = width >= 768;
+  const { isLargeScreen, isTablet } = useIsDesktop();
 
   useFocusEffect(
     useCallback(() => {

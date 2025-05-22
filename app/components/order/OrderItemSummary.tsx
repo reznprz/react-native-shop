@@ -27,7 +27,7 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
   };
 
   return (
-    <View className={`bg-white p-4 rounded-lg shadow-sm border border-gray-200 ${containerStyle}`}>
+    <View className={`bg-white p-4 rounded-lg  border border-gray-200 ${containerStyle}`}>
       <View className="flex-row justify-between items-center mb-2">
         <IconLabel iconName="utensils" label={'Order Items'} containerStyle="justify-between" />
       </View>

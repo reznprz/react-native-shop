@@ -1,13 +1,10 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { setFilteredFoods } from 'app/redux/foodSlice';
-import { RootState, AppDispatch } from 'app/redux/store';
-import { usePageState } from './reducers/usePageState';
-import { SubCategory } from './utils/groupFoodBySubCategory';
+import { useSelector } from 'react-redux';
+import { RootState } from 'app/redux/store';
 import { useFoodMenuActions } from './apiQuery/useFoodMenuAction';
+import { Category, Food } from 'app/api/services/foodService';
 
 export const useFood = () => {
-  const dispatch = useDispatch<AppDispatch>();
   const tableName = useSelector((state: RootState) => state.table.tableName);
   const storedRestaurantId = useSelector((state: RootState) => state.auth.authData?.restaurantId);
   const foodMenu = useSelector((state: RootState) => state.foodMenu);
@@ -16,11 +13,16 @@ export const useFood = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Get food data from Redux store
-  const { groupedFoods } = useSelector((state: RootState) => state.foods);
-
   // Food mutation actions api
-  const { loadFoodMenu } = useFoodMenuActions();
+  const {
+    loadFoodMenu,
+    addFoodMutation,
+    updateFoodMutation,
+    deleteFoodMutation,
+    addCategoryMutation,
+    updateCategoryMutation,
+    deleteCategoryMutation,
+  } = useFoodMenuActions();
 
   // Function to fetch foods and Categories
   const refetch = useCallback(() => {
@@ -28,41 +30,6 @@ export const useFood = () => {
       loadFoodMenu(storedRestaurantId);
     }
   }, [storedRestaurantId]);
-
-  // Function to filter foods by category
-  const filterGroupedFoodsByCategory = useCallback(
-    (selectedSubCategory: SubCategory) => {
-      if (!foodMenu.foods) {
-        return;
-      }
-
-      // Normalize strings for comparison
-      const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '').trim();
-
-      const selectedCategory = normalizeString(selectedSubCategory);
-
-      const filteredFoods = foodMenu.foods.filter((foodItem) => {
-        const categoryNameTwo = normalizeString(foodItem.categoryName || '');
-        const isMatch = categoryNameTwo === selectedCategory;
-
-        return isMatch;
-      });
-
-      dispatch(
-        setFilteredFoods({
-          category: selectedSubCategory,
-          foods: filteredFoods,
-        }),
-      );
-    },
-    [foodMenu.foods, dispatch, usePageState],
-  );
-
-  // Function to reset state
-  const reset = useCallback(() => {
-    setSearchTerm('');
-    setSelectedCategory(null);
-  }, [dispatch]);
 
   // Filtered food list based on selected category and search term
   const filteredFoods = useMemo(() => {
@@ -102,12 +69,69 @@ export const useFood = () => {
     setSearchTerm(text);
   }, []);
 
+  const handleAddFood = useCallback(
+    (categoryId: number, newFood: Food) => {
+      addFoodMutation.mutate({
+        restaurantId: storedRestaurantId || 0,
+        categoryId: categoryId,
+        newFood: newFood,
+      });
+    },
+    [addFoodMutation, storedRestaurantId],
+  );
+
+  const handleUpdateFood = useCallback(
+    (foodId: number, updatedFood: Food) => {
+      updateFoodMutation.mutate({
+        foodId: foodId,
+        updatedFood: updatedFood,
+      });
+    },
+    [updateFoodMutation],
+  );
+
+  const handleDeleteFood = useCallback(
+    (foodId: number) => {
+      deleteFoodMutation.mutate({
+        foodId: foodId,
+      });
+    },
+    [deleteFoodMutation],
+  );
+
+  const handleAddCategory = useCallback(
+    (newCategory: Category) => {
+      addCategoryMutation.mutate({
+        restaurantId: storedRestaurantId || 0,
+        newCategory: newCategory,
+      });
+    },
+    [addCategoryMutation, storedRestaurantId],
+  );
+
+  const handleUpdateCategory = useCallback(
+    (updatedCategory: Category) => {
+      updateCategoryMutation.mutate({
+        updatedCategory: updatedCategory,
+      });
+    },
+    [updateCategoryMutation],
+  );
+
+  const handleDeleteCategory = useCallback(
+    (categoryId: number) => {
+      deleteCategoryMutation.mutate({
+        restaurantId: storedRestaurantId || 0,
+        categoryId: categoryId,
+      });
+    },
+    [deleteCategoryMutation],
+  );
+
   return {
     //foods
     foods: filteredFoods,
-    allGroupedFoods: groupedFoods,
     refetch,
-    reset,
     foodMenu,
 
     searchTerm,
@@ -117,9 +141,23 @@ export const useFood = () => {
     selectedCategory,
 
     tableName,
-
-    filterGroupedFoodsByCategory,
     handleSearch,
     handleCategoryClick,
+
+    //food manager
+    handleAddFood,
+    handleDeleteFood,
+    handleUpdateFood,
+    handleAddCategory,
+    handleUpdateCategory,
+    handleDeleteCategory,
+
+    //mutations
+    addFoodMutation,
+    updateFoodMutation,
+    deleteFoodMutation,
+    addCategoryMutation,
+    updateCategoryMutation,
+    deleteCategoryMutation,
   };
 };

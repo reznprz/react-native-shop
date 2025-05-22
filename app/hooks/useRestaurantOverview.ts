@@ -14,9 +14,9 @@ import {
 } from 'app/api/services/restaurantOverviewService';
 import { ScreenNames } from 'app/types/navigation';
 import { CommonActions } from '@react-navigation/native';
-import { DateRangeSelection } from 'app/components/DateRangePickerModal';
 import type { RootState } from '../redux/store';
 import { useSelector } from 'react-redux';
+import { DateRangeSelection } from 'app/components/date/utils';
 
 export const useRestaurantOverview = () => {
   const [restaurantOverView, setRestaurantOverView] = useState<RestaurantOverview>(
@@ -27,7 +27,7 @@ export const useRestaurantOverview = () => {
 
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
 
-  const { restaurantId: storeRestaurantId = 0, userId: storedUserId = 0 } = storedAuthData || {};
+  const { restaurantId: storeRestaurantId = 0 } = storedAuthData || {};
 
   const getRestaurantOverviewMutation = useMutation<
     ApiResponse<RestaurantOverview>,
@@ -38,6 +38,7 @@ export const useRestaurantOverview = () => {
       if (!restaurantId || restaurantId === 0) {
         throw new Error('RestaurantId is not valid');
       }
+      console.log('Fetching restaurant overview for ID:', restaurantId);
       const response: ApiResponse<RestaurantOverview> =
         await getRestaurantOverviewApi(restaurantId);
       if (response.status !== 'success') {
@@ -49,7 +50,7 @@ export const useRestaurantOverview = () => {
       setRestaurantOverView(response.data || initializeRestaurantOverview);
     },
     onError: (err) => {
-      console.warn('find expense fetch failed:', err);
+      console.warn('RestaurantOverview failed:', err);
       setRestaurantOverView(initializeRestaurantOverview);
     },
   });
@@ -94,7 +95,7 @@ export const useRestaurantOverview = () => {
       setDailysales(response.data || initialDailySalesDetails);
     },
     onError: (err) => {
-      console.warn('find expense fetch failed:', err);
+      console.warn('update daily sales fetch failed:', err);
       setDailysales(initialDailySalesDetails);
     },
   });

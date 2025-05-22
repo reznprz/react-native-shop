@@ -11,14 +11,14 @@ export type MainTabsParamList = {
 export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabsParamList>;
   Cart: undefined;
-  QrMenuItemsScreen: { category: string };
   OrderDetails: { orderId: string; actionType?: string };
-  Food: undefined;
+  FoodManager: undefined;
   Expense: undefined;
   DailySales: undefined;
   Inventory: undefined;
   SalesAnalytics: undefined;
   Login: undefined;
+  TableManager: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
@@ -43,6 +43,7 @@ export function goBack() {
 }
 
 export function push(name: string, params?: object) {
+  console.log('Pushing to navigation stack:', name, params);
   if (navigationRef.isReady()) {
     navigationRef.dispatch(StackActions.push(name, params));
   }

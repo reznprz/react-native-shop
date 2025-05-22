@@ -12,6 +12,8 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './app/redux/store';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { InactivityProvider } from './app/contexts/InactivityProvider'; 
+
 
 // Initialize react-native-screens for performance
 enableScreens();
@@ -36,17 +38,22 @@ const queryClient = new QueryClient({
 });
 
 const App: React.FC = () => {
+
   return (
     <ErrorBoundary>
       <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <PersistGate loading={<FoodLoadingSpinner />} persistor={persistor}>
           <SafeAreaProvider>
+          <InactivityProvider>
+
             <NavigationContainer ref={navigationRef} theme={MyTheme}>
               <React.Suspense fallback={<FoodLoadingSpinner />}>
               <AppContent />
               </React.Suspense>
             </NavigationContainer>
+            </InactivityProvider>
+
           </SafeAreaProvider>
         </PersistGate>
         </QueryClientProvider>

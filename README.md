@@ -92,7 +92,7 @@ presets: ['babel-preset-expo'],
 
 ### 3. Entry Point Update it in package.json
 
-"main": "node_modules/expo/AppEntry.js"
+"main": "index.js"
 
 ### 4. remove the yarn.lock and install again
 

@@ -26,7 +26,7 @@ const SettingOption: React.FC<SettingOptionProps> = ({
   return (
     <Pressable
       onPress={onPress}
-      className={`bg-white rounded-2xl p-4 shadow-md items-start ${className}`}
+      className={`bg-white rounded-2xl p-4 shadow-sm items-start ${className}`}
     >
       <View className={`w-10 h-10 bg-paleSkyBlue rounded-full flex items-center justify-center`}>
         <CustomIcon type={iconType} name={icon} size={20} color={iconColor} />

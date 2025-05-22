@@ -3,25 +3,26 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import MainTabs from './MainTabs';
 import CustomHeader from '../components/headers/CustomHeader';
 import { ScreenDisplayNames, ScreenNames } from 'app/types/navigation';
-import SpinnerLoading from 'app/components/SpinnerLoading';
 import { createLazyScreen } from 'app/utils/lazyScreen';
 
-const QrMenuItemsScreen = React.lazy(() => import('app/screens/QrMenuItemsScreen'));
+// const QrMenuItemsScreen = React.lazy(() => import('app/screens/QrMenuItemsScreen'));
 const LazyOrderDetailsScreen = createLazyScreen(() => import('app/screens/OrderDetailsScreen'));
-const LazyFoodScreen = createLazyScreen(() => import('app/screens/FoodScreen'));
+const LazyFoodMangerScreen = createLazyScreen(() => import('app/screens/FoodManagerScreen'));
 const LazyExpenseScreen = createLazyScreen(() => import('app/screens/ExpenseScreen'));
 const LazyDailySalesScreen = createLazyScreen(() => import('app/screens/DailySalesScreen'));
 const LazyInventoryScreen = createLazyScreen(() => import('app/screens/InventoryScreen'));
 const LazySalesAnalytics = createLazyScreen(() => import('app/screens/SalesAnalyticsScreen'));
 const LazyUserScreen = createLazyScreen(() => import('app/screens/UserScreen'));
+const LazyTableMangerScreen = createLazyScreen(() => import('app/screens/TableManagerScreen'));
+const LazyProfileScreen = createLazyScreen(() => import('app/screens/ProfileScreen'));
 
-function LazyQrMenuItemsScreen(props: any) {
-  return (
-    <React.Suspense fallback={<SpinnerLoading />}>
-      <QrMenuItemsScreen {...props} />
-    </React.Suspense>
-  );
-}
+// function LazyQrMenuItemsScreen(props: any) {
+//   return (
+//     <React.Suspense fallback={<SpinnerLoading />}>
+//       <QrMenuItemsScreen {...props} />
+//     </React.Suspense>
+//   );
+// }
 
 const Stack = createNativeStackNavigator();
 
@@ -35,15 +36,6 @@ export default function RootNav() {
         options={(props) => ({
           header: () => <CustomHeader {...props} />,
         })}
-      />
-
-      <Stack.Screen
-        name={ScreenNames.QR_MENU_ITEMS}
-        component={LazyQrMenuItemsScreen}
-        options={{
-          title: ScreenDisplayNames.QR_MENU_ITEMS,
-          headerShown: false,
-        }}
       />
 
       <Stack.Screen
@@ -65,10 +57,10 @@ export default function RootNav() {
       />
 
       <Stack.Screen
-        name={ScreenNames.FOOD}
-        component={LazyFoodScreen}
+        name={ScreenNames.FOODMANAGER}
+        component={LazyFoodMangerScreen}
         options={{
-          title: ScreenDisplayNames.FOOD,
+          title: ScreenDisplayNames.FOODMANAGER,
           headerShown: true,
           headerStyle: {
             backgroundColor: '#2a4759',
@@ -159,6 +151,42 @@ export default function RootNav() {
         component={LazyUserScreen}
         options={{
           title: ScreenDisplayNames.USER,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.TABLEMANAGER}
+        component={LazyTableMangerScreen}
+        options={{
+          title: ScreenDisplayNames.TABLEMANAGER,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.PROFILE}
+        component={LazyProfileScreen}
+        options={{
+          title: ScreenDisplayNames.PROFILE,
           headerShown: true,
           headerStyle: {
             backgroundColor: '#2a4759',

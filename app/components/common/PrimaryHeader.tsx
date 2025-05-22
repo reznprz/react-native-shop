@@ -9,7 +9,6 @@ interface PrimaryHeaderProps {
   onBackPress?: () => void;
   onSearch?: (text: string) => void;
   handleFilterClick: (filterName: string) => void;
-  onFilterPress?: () => void;
   searchTerm: string;
   showBackPress?: boolean;
   filters?: string[];
@@ -22,7 +21,6 @@ export default function PrimaryHeader({
   title,
   onBackPress,
   onSearch,
-  onFilterPress,
   searchTerm,
   showBackPress = false,
   isDesktop = false,
@@ -49,7 +47,7 @@ export default function PrimaryHeader({
           <View className="flex-row items-center">
             {isDesktop ? (
               // Desktop: full search input with larger padding and shadow
-              <View className="flex-row items-center bg-white rounded-md shadow-md border border-gray-300 max-w-[400px] px-4 py-2">
+              <View className="flex-row items-center bg-white rounded-md border border-gray-300 max-w-[400px] px-4 py-2">
                 <Ionicons name="search" size={20} color="gray" />
 
                 <TextInput
@@ -67,7 +65,7 @@ export default function PrimaryHeader({
               </View>
             ) : (
               // Mobile: full search input with slightly leaner styling
-              <View className="flex-row items-center bg-white rounded-full shadow-sm border border-gray-200 px-3 py-1 max-w-[200px] w-auto">
+              <View className="flex-row items-center bg-white rounded-full  border border-gray-200 px-3 py-1 max-w-[200px] w-auto">
                 <Ionicons name="search" size={20} color="gray" />
 
                 <TextInput

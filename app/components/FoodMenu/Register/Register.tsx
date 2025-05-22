@@ -11,10 +11,7 @@ import { Food } from 'app/api/services/foodService';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
 import SubTab from 'app/components/common/SubTab';
 import RegisterPaymentDetails from './RegisterPaymentDetails';
-
-const subtabs: string[] = Object.values(OrderMenuType);
-
-export type SubTabType = (typeof subtabs)[number];
+import { SubTabType } from './RegisterFoodList';
 
 interface RegisterProps {
   tableItems: TableItem;
@@ -83,14 +80,6 @@ export default function Register({
       <View style={styles.desktopContent}>
         {/* Left Panel - Order Summary */}
         <View style={styles.leftPanel}>
-          <SubTab
-            tabs={subtabs}
-            activeTab={activatedSubTab}
-            onTabChange={(selectedTab) => {
-              handleSubTabChange(selectedTab);
-            }}
-            tabStyle="py-2"
-          />
           <RegisterFoodMenu
             isMobile={isMobile}
             updateCartItemForFood={updateCartItemForFood}
@@ -103,10 +92,12 @@ export default function Register({
             tableItems={tableItems}
             tables={tables}
             currentTable={currentTable}
+            activatedSubTab={activatedSubTab}
             handleSearch={handleSearch}
             searchTerm={searchTerm}
             onSwitchTableClick={onSwitchTableClick}
             handleCategoryClick={handleCategoryClick}
+            onPricingSubTabClick={handleSubTabChange}
             onSelectTable={onSelectTable}
             refetchTables={refetchTables}
             refetchFoods={refetchFoods}
@@ -135,14 +126,6 @@ export default function Register({
   // Render function for Mobile layout
   const renderMobileLayout = () => (
     <>
-      <SubTab
-        tabs={subtabs}
-        activeTab={activatedSubTab}
-        onTabChange={(selectedTab) => {
-          handleSubTabChange(selectedTab);
-        }}
-        tabStyle="py-2"
-      />
       <RegisterFoodMenu
         isMobile={isMobile}
         updateCartItemForFood={updateCartItemForFood}
@@ -155,10 +138,12 @@ export default function Register({
         tableItems={tableItems}
         tables={tables}
         currentTable={currentTable}
+        activatedSubTab={activatedSubTab}
         handleSearch={handleSearch}
         searchTerm={searchTerm}
         onSwitchTableClick={onSwitchTableClick}
         handleCategoryClick={handleCategoryClick}
+        onPricingSubTabClick={handleSubTabChange}
         onSelectTable={onSelectTable}
         refetchTables={refetchTables}
         refetchFoods={refetchFoods}

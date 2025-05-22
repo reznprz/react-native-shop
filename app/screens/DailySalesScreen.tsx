@@ -6,7 +6,6 @@ import DateHeader from 'app/components/common/DateHeader';
 import NotificationBar from 'app/components/common/NotificationBar';
 import SubTab from 'app/components/common/SubTab';
 import { DailySalesMetrics } from 'app/components/dailySales/DailySalesMetrics';
-import { DateRangeSelection, DateRangeSelectionType } from 'app/components/DateRangePickerModal';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import DailySalesTransactionCard from 'app/components/home/DailySalesTransaction';
 import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribution';
@@ -15,6 +14,7 @@ import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { useRestaurantOverview } from 'app/hooks/useRestaurantOverview';
 import ExpenseSummary from 'app/components/home/ExpensesSummary';
 import TopSellingProductsCard from 'app/components/home/TopSellingProductsCard';
+import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/utils';
 
 const tabs = ['Past', 'Todays'];
 type TabType = (typeof tabs)[number];

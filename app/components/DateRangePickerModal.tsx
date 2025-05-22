@@ -1,55 +1,16 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, Modal, Pressable, StyleSheet, Platform, Dimensions } from 'react-native';
+import { View, Text, Modal, Pressable, StyleSheet, Platform } from 'react-native';
 import { QuickRangePanel } from './date/QuickRangePanel';
 import { TimeRangeTodayPanel } from './date/TimeRangeTodayPanel';
 import { SingleDatePanel } from './date/SingleDatePanel';
 import { DateRangePanel } from './date/DateRangePanel';
-import { atMidnight } from './date/utils';
-
-export enum DateRangeSelectionType {
-  QUICK_RANGE = 'QUICK_RANGE',
-  TIME_RANGE_TODAY = 'TIME_RANGE_TODAY',
-  SINGLE_DATE = 'SINGLE_DATE',
-  DATE_RANGE = 'DATE_RANGE',
-}
-
-export interface QuickRangeItem {
-  label: string;
-  unit?: 'minutes' | 'days';
-  value?: number;
-}
-
-/**
- * For Quick Ranges, we just send label + optional numeric value and unit
- * (like minutes or days). The backend can interpret them.
- */
-export interface QuickRangePayload {
-  label: string; // e.g. "Past 15 Mins" or "Last 7 Days"
-  unit?: 'minutes' | 'days';
-  value?: number; // e.g. 15, 7, etc.
-}
-
-export type DateRangeSelection =
-  | {
-      selectionType: DateRangeSelectionType.QUICK_RANGE;
-      quickRange: QuickRangePayload;
-    }
-  | {
-      selectionType: DateRangeSelectionType.TIME_RANGE_TODAY;
-      startHour: number;
-      startMin: number;
-      endHour: number;
-      endMin: number;
-    }
-  | {
-      selectionType: DateRangeSelectionType.SINGLE_DATE;
-      date: string;
-    }
-  | {
-      selectionType: DateRangeSelectionType.DATE_RANGE;
-      startDate: string;
-      endDate: string;
-    };
+import {
+  atMidnight,
+  DateRangeSelection,
+  DateRangeSelectionType,
+  QuickRangeItem,
+  QuickRangePayload,
+} from './date/utils';
 
 // --------------------------------------------------
 // Custom Hook: useDateRangePickerLogic

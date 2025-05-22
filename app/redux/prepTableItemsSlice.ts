@@ -1,6 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { OrderMenuType, OrderType } from 'app/api/services/orderService';
 import { TableItem } from 'app/hooks/useTables';
+
+export enum OrderType {
+  ONLINE = 'ONLINE',
+  STORE = 'STORE',
+  TAKEOUT = 'TAKEOUT',
+  FOODMANDU = 'FOODMANDU',
+}
+
+export enum OrderMenuType {
+  NORMAL = 'NORMAL',
+  TOURIST = 'TOURIST',
+}
 
 const initialTableItem: TableItem = {
   id: 0,

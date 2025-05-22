@@ -119,10 +119,10 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
 
   const renderOrderDetails = () => (
     <View className="space-y-4">
-      <OrderSummaryCard order={order} containerStyle="p-4 rounded-xl bg-white shadow-md m-2" />
-      <OrderItemSummary order={order} containerStyle="p-4 rounded-xl bg-white shadow-md m-2" />
+      <OrderSummaryCard order={order} containerStyle="p-4 rounded-xl bg-white  m-2" />
+      <OrderItemSummary order={order} containerStyle="p-4 rounded-xl bg-white  m-2" />
       {order.groupedPaymentByNotesAndDate && (
-        <View className="p-4 rounded-xl bg-white shadow-md m-2 border border-gray-200">
+        <View className="p-4 rounded-xl bg-white  m-2 border border-gray-200">
           <CollapsibleComponent
             title="Payment Notes"
             containerStyle={{}}

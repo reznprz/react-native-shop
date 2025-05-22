@@ -73,7 +73,7 @@ const TableFoodItemCard: React.FC<TableFoodItemCardProps> = ({
             {item.productName}
           </Text>
           <Text style={[styles.unitPrice, smallText && { fontSize: 11 }]}>
-            ${item.unitPrice.toFixed(2)}
+            रु {item.unitPrice.toFixed(2)}
           </Text>
         </View>
 

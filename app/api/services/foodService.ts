@@ -1,5 +1,6 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
+import { IconMetadata } from './expenseService';
 
 export interface GetAllFoodsResponse {
   requestId: string | null;
@@ -38,24 +39,63 @@ export interface Category {
   categoryIcon: string;
 }
 
-// Fetch all foods
-export const fetchAllFoods = async (restaurantId: number): Promise<ApiResponse<Food[]>> => {
+export const fetchAllFoodsApi = async (restaurantId: number): Promise<ApiResponse<Food[]>> => {
   const params: { searchType?: string; searchValue?: string } = {};
   params.searchType = 'ALL';
   params.searchValue = undefined;
   return await apiMethods.get<Food[]>(`/api/food/${restaurantId}`, { params: params });
 };
 
-export const fetchFoodMenu = async (
+export const fetchFoodMenuApi = async (
   restaurantId: number,
 ): Promise<ApiResponse<FoodMenuResponse>> => {
-  console.log('Fetching food menu for restaurant ID:', restaurantId);
   return await apiMethods.get<FoodMenuResponse>(`/api/food/menu/${restaurantId}`);
 };
 
-// Fetch all Categories
-export const fetchAllCategories = async (
+export const fetchAllCategoriesApi = async (
   restaurantId: number,
 ): Promise<ApiResponse<Category[]>> => {
   return await apiMethods.get<Category[]>(`/api/food/categories/${restaurantId}`);
+};
+
+export const addFoodApi = async (
+  restaurantId: number,
+  categoryId: number,
+  newFood: Food,
+): Promise<ApiResponse<Food[]>> => {
+  return await apiMethods.post<Food[]>(
+    `/api/food/${restaurantId}?categoryId=${categoryId}`,
+    newFood,
+  );
+};
+
+export const updateFoodApi = async (
+  foodId: number,
+  updatedFood: Food,
+): Promise<ApiResponse<Food[]>> => {
+  return await apiMethods.put<Food[]>(`/api/food/${foodId}`, updatedFood);
+};
+
+export const deleteFoodApi = async (foodId: number): Promise<ApiResponse<Food[]>> => {
+  return await apiMethods.delete<Food[]>(`/api/food/${foodId}`);
+};
+
+export const addCategoriesApi = async (
+  restaurantId: number,
+  newCategory: Category,
+): Promise<ApiResponse<Category[]>> => {
+  return await apiMethods.post<Category[]>(`/api/food/categories/${restaurantId}`, newCategory);
+};
+
+export const updateCategoriesApi = async (
+  updatedCategory: Category,
+): Promise<ApiResponse<Category[]>> => {
+  return await apiMethods.put<Category[]>(`/api/food/categories`, updatedCategory);
+};
+
+export const deleteCategoryApi = async (
+  restaurantId: number,
+  categoryId: number,
+): Promise<ApiResponse<Category[]>> => {
+  return await apiMethods.delete<Category[]>(`/api/food/categories/${restaurantId}/${categoryId}`);
 };

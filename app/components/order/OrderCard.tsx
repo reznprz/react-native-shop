@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 
 import React from 'react';
 import OrderSummaryCard from './OrderSummaryCard';
@@ -12,7 +12,7 @@ type OrderCardProps = {
 
 const OrderCard: React.FC<OrderCardProps> = ({ order, onMoreActionPress }) => {
   return (
-    <View className="bg-white p-4 rounded-lg shadow-md mb-2">
+    <View className="bg-white p-4 rounded-lg mb-2">
       <OrderSummaryCard order={order} />
       <OrderItemSummary order={order} onMoreActionPress={onMoreActionPress} />
     </View>

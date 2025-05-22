@@ -76,7 +76,7 @@ const NotificationWithButtons: React.FC<NotificationProps> = ({
     shadowRadius: 4,
     elevation: 5,
     position: 'absolute',
-    top: 90,
+    top: 140,
     right: 10,
     zIndex: 9999,
   };

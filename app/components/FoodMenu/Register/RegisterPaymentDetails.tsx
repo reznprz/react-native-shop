@@ -1,15 +1,18 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput } from 'react-native';
 import { PaymentInfo, TableItem } from 'app/hooks/useTables';
 import { PAYMENT_WARN_MESSAGES } from 'app/constants/constants';
+import { OrderItem } from 'app/api/services/orderService';
 import LoadingButton, { ButtonState } from 'app/components/common/button/LoadingButton';
 import IconLabel from 'app/components/common/IconLabel';
 import PaymentMethodsSelector from 'app/components/PaymentMethodsSelector';
 import NotificationBar from 'app/components/common/NotificationBar';
 import NotificationWithButtons from 'app/components/NotificationWithButtons';
 import RegisterOrderItemsSummary from './RegisterOrderItemsSummary';
-import { OrderItem } from 'app/api/services/orderService';
 import CollapsibleInfo from 'app/components/common/CollapsibleInfo';
+import BillingSummaryCard from 'app/components/table/BillingSummaryCard';
+import { StatusChip } from 'app/components/common/StatusChip';
+import CustomIcon from 'app/components/common/CustomIcon';
 
 interface RegisterPaymentDetailsProps {
   tableItems: TableItem;
@@ -84,9 +87,20 @@ const RegisterPaymentDetails: React.FC<RegisterPaymentDetailsProps> = ({
   return (
     <View className="flex-1 justify-between">
       <View className="flex-row justify-between items-center bg-slate-50 border-b-2 border-gray-200 py-3 p-4 mb-2">
-        <Text style={{ fontSize: 20 }} className="text-lg font-semibold text-deepTeal">
-          Selected Table
-        </Text>
+        <View className="flex-row items-center">
+          <Text style={{ fontSize: 20 }} className="text-lg font-semibold text-deepTeal">
+            Selected Table
+          </Text>
+          {tableItems.orderMenuType && tableItems.orderMenuType === 'TOURIST' && (
+            <CustomIcon
+              type="Ionicons"
+              name="earth-outline"
+              size={20}
+              iconStyle="text-black-200 pr-1 pl-4"
+              color="#2a4759"
+            />
+          )}
+        </View>
         <Text style={{ fontSize: 20 }} className="text-lg font-semibold text-slate-500">
           {currentTable}
         </Text>
@@ -141,32 +155,11 @@ const RegisterPaymentDetails: React.FC<RegisterPaymentDetailsProps> = ({
       <View className="w-full h-px bg-gray-300 my-3" />
 
       {/* Subtotal, Discount, Total */}
-      <View className="bg-white rounded-lg p-4 shadow-md">
-        {/* Subtotal */}
-        <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 text-base">{'Subtotal'}</Text>
-          <Text className="text-gray-700 text-base">
-            {Number(tableItems?.subTotal || 0).toFixed(2)}
-          </Text>
-        </View>
-
-        {/* Discount */}
-        <View className="flex-row justify-between mb-2">
-          <Text className="text-gray-700 text-base">{'Discount'}</Text>
-          {/* Red for negative amount */}
-          <Text className="text-red-500 text-base">
-            -{Number(tableItems?.discountAmount || 0).toFixed(2)}
-          </Text>
-        </View>
-
-        {/* Total */}
-        <View className="flex-row justify-between">
-          <Text className="font-bold text-lg text-gray-900">{'Total'}</Text>
-          <Text className="font-bold text-lg text-gray-900">
-            {Number(tableItems?.totalPrice || 0).toFixed(2)}
-          </Text>
-        </View>
-      </View>
+      <BillingSummaryCard
+        subTotal={tableItems.subTotal}
+        discountAmount={tableItems.discountAmount}
+        totalPrice={tableItems.totalPrice}
+      />
 
       {/* Complete Order Button */}
       <LoadingButton

@@ -18,7 +18,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
 }) => {
   return (
     <View
-      className={`flex-row bg-white p-4 rounded-lg shadow-lg border border-gray-200 ${width} justify-between`}
+      className={`flex-row bg-white p-4 rounded-lg shadow-sm border border-gray-200 ${width} justify-between`}
     >
       <View className="flex-col ">
         <Text className="text-lg text-gray-500">{title}</Text>

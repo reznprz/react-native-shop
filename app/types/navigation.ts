@@ -10,13 +10,15 @@ export enum ScreenNames {
   QR_MENU_ITEMS = 'QrMenuItemsScreen',
   ORDER_DETAILS = 'OrderDetails',
   TABLE = 'TableScreen',
-  FOOD = 'FoodScreen',
+  FOODMANAGER = 'FoodManagerScreen',
   EXPENSE = 'ExpenseScreen',
   DAILYSALES = 'DailySalesScreen',
   INVENTORY = 'InventoryScreen',
   SALESANALYTICS = 'SalesAnalyticsScreen',
   LOGIN = 'LoginScreen',
   USER = 'UserScreen',
+  TABLEMANAGER = 'TableManagerScreen',
+  PROFILE = 'ProfileScreen',
 }
 
 export enum ScreenDisplayNames {
@@ -25,13 +27,15 @@ export enum ScreenDisplayNames {
   QR_MENU_ITEMS = 'Menu Items',
   ORDER_DETAILS = 'Order Details',
   TABLE = 'Table',
-  FOOD = 'Food',
+  FOODMANAGER = 'Food Manager',
   EXPENSE = 'Expense',
   DAILYSALES = 'DailySales',
   INVENTORY = 'Inventory',
   SALESANALYTICS = 'SalesAnalytics',
   LOGIN = 'Login',
   USER = 'User',
+  TABLEMANAGER = 'Table Manager',
+  PROFILE = 'Profile',
 }
 
 // Create a constant object for screen details
@@ -56,9 +60,9 @@ export const Screens: Record<ScreenNames, ScreenDetail> = {
     screenName: ScreenNames.TABLE,
     screenDisplayName: ScreenDisplayNames.TABLE,
   },
-  [ScreenNames.FOOD]: {
-    screenName: ScreenNames.FOOD,
-    screenDisplayName: ScreenDisplayNames.FOOD,
+  [ScreenNames.FOODMANAGER]: {
+    screenName: ScreenNames.FOODMANAGER,
+    screenDisplayName: ScreenDisplayNames.FOODMANAGER,
   },
   [ScreenNames.EXPENSE]: {
     screenName: ScreenNames.EXPENSE,
@@ -83,5 +87,13 @@ export const Screens: Record<ScreenNames, ScreenDetail> = {
   [ScreenNames.USER]: {
     screenName: ScreenNames.USER,
     screenDisplayName: ScreenDisplayNames.USER,
+  },
+  [ScreenNames.TABLEMANAGER]: {
+    screenName: ScreenNames.TABLEMANAGER,
+    screenDisplayName: ScreenDisplayNames.TABLEMANAGER,
+  },
+  [ScreenNames.PROFILE]: {
+    screenName: ScreenNames.PROFILE,
+    screenDisplayName: ScreenDisplayNames.PROFILE,
   },
 };

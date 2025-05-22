@@ -49,6 +49,7 @@ export function useIsDesktop() {
   const deviceType = determineDeviceType(width, height);
   const isDesktop = width >= 1024;
   const isLargeScreen = width > 768;
+  const isTablet = width >= 768;
 
   // Calculate numColumns based on the current width.
   let numColumns = 2;
@@ -73,6 +74,7 @@ export function useIsDesktop() {
   return {
     deviceType,
     isDesktop,
+    isTablet,
     width,
     height,
     isLargeScreen,

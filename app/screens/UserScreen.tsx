@@ -1,18 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import IconLabel from 'app/components/common/IconLabel';
+import { View, FlatList } from 'react-native';
 import CustomButton from 'app/components/common/button/CustomButton';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';
 import NotificationBar from 'app/components/common/NotificationBar';
 import CustomIcon from 'app/components/common/CustomIcon';
-import { IconType } from 'app/navigation/screenConfigs';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import UserDetailCard from 'app/components/user/UserDetailCard';
 import { useUsers } from 'app/hooks/useUser';
 import AddUserModal from 'app/components/modal/AddUserModal';
-import { User, UserRegisterRequest } from 'app/api/services/userService';
+import { UserRegisterRequest } from 'app/api/services/userService';
+import ListHeader from 'app/components/common/ListHeader';
 
 const UserScreen = () => {
   const {
@@ -87,48 +85,41 @@ const UserScreen = () => {
           iconSize={100}
         />
       ) : (
-        <>
-          <ScrollView style={{ backgroundColor: '#f9fafb' }}>
-            {/* Expenses List */}
-            <View className="bg-white rounded-lg shadow-sm">
-              {/* Search Bar */}
-              <View className="flex-row items-between p-5 justify-between rounded-lg shadow-xl border-b border-gray-200">
-                <Text className="text-center text-black font-semibold text-xl mt-2">All Users</Text>
-                <View className="flex-row">
-                  <View className="flex-row shadow-sm rounded-md border border-gray-200 p-2">
-                    <Feather name="search" size={20} color="gray" />
-                    <TextInput placeholder="Search users..." className="ml-2 text-black-700" />
-                  </View>
-                  <IconLabel
-                    iconType={'Fontisto'}
-                    iconName={'filter'}
-                    iconSize={16}
-                    iconColor={'#2A4759'}
-                    bgColor={`bg-white`}
-                    containerStyle="border border-gray-200 rounded-md ml-2"
+        <FlatList
+          data={users}
+          keyExtractor={(item) => item.id.toString()}
+          numColumns={1}
+          key={'h'}
+          ListHeaderComponent={() => (
+            <ListHeader
+              title="All Users"
+              searchTerm={''}
+              searchPlaceholder={'Search users...'}
+              onSearch={() => {}}
+            />
+          )}
+          stickyHeaderIndices={[0]}
+          renderItem={({ item }) => (
+            <View className="px-4">
+              <UserDetailCard
+                key={item.id}
+                user={item}
+                iconBgColor={`blue-400`}
+                icon={
+                  <CustomIcon
+                    name={'account-tie-outline'}
+                    type={'MaterialCommunityIcons'}
+                    size={30}
                   />
-                </View>
-              </View>
-              {users.map((user) => (
-                <UserDetailCard
-                  key={user.id}
-                  user={user}
-                  iconBgColor={`blue-400`}
-                  icon={
-                    <CustomIcon
-                      name={'account-tie-outline'}
-                      type={'MaterialCommunityIcons'}
-                      size={30}
-                    />
-                  }
-                  onDelete={() => {
-                    setShowDeleteConfirmationModal(user.id);
-                  }}
-                />
-              ))}
+                }
+                onDelete={() => {
+                  setShowDeleteConfirmationModal(item.id);
+                }}
+              />
             </View>
-          </ScrollView>
-        </>
+          )}
+          showsVerticalScrollIndicator={false}
+        />
       )}
 
       <AddUserModal

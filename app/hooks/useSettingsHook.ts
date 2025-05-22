@@ -4,7 +4,8 @@ import { IconType } from 'app/navigation/screenConfigs';
 import { push, navigate } from 'app/navigation/navigationService';
 import { ScreenNames } from 'app/types/navigation';
 import { logoutAll } from 'app/redux/actions';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from 'app/redux/store';
 
 interface SettingOption {
   label: string;
@@ -19,6 +20,8 @@ interface Section {
 }
 
 export const useSettingsHook = () => {
+  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
+
   const dispatch = useDispatch();
 
   // Define onPress handlers for each setting option
@@ -29,8 +32,8 @@ export const useSettingsHook = () => {
           screen: 'Home',
         });
         break;
-      case 'Food Menu':
-        push(ScreenNames.FOOD);
+      case 'Food Manager':
+        push(ScreenNames.FOODMANAGER);
         break;
       case 'Inventory':
         push(ScreenNames.INVENTORY);
@@ -53,11 +56,14 @@ export const useSettingsHook = () => {
       case 'Sales Analytics':
         push(ScreenNames.SALESANALYTICS);
         break;
+      case 'Table Manager':
+        push(ScreenNames.TABLEMANAGER);
+        break;
       case 'Subscription':
         console.log('Navigating to Subscription');
         break;
-      case 'Edit Profile':
-        console.log('Navigating to Edit Profile');
+      case 'Profile':
+        push(ScreenNames.PROFILE);
         break;
       case 'Users':
         push(ScreenNames.USER);
@@ -81,6 +87,29 @@ export const useSettingsHook = () => {
   // Define sections with onPress handlers
   const sections: Section[] = [
     {
+      title: 'Settings',
+      data: [
+        {
+          label: 'Subscription',
+          icon: 'star',
+          iconType: 'FontAwesome5',
+          onPress: () => handlePress('Subscription'),
+        },
+        {
+          label: 'Profile',
+          icon: 'user-edit',
+          iconType: 'FontAwesome5',
+          onPress: () => handlePress('Edit Profile'),
+        },
+        {
+          label: 'Users',
+          icon: 'account-tie',
+          iconType: 'MaterialCommunityIcons',
+          onPress: () => handlePress('Users'),
+        },
+      ],
+    },
+    {
       title: 'Business',
       data: [
         {
@@ -90,10 +119,16 @@ export const useSettingsHook = () => {
           onPress: () => handlePress('Dashboard'),
         },
         {
-          label: 'Food Menu',
+          label: 'Food Manager',
           icon: 'restaurant-menu',
           iconType: 'MaterialIcons',
-          onPress: () => handlePress('Food Menu'),
+          onPress: () => handlePress('Food Manager'),
+        },
+        {
+          label: 'Table Manager',
+          icon: 'table',
+          iconType: 'TableIcon',
+          onPress: () => handlePress('Table Manager'),
         },
         {
           label: 'Inventory',
@@ -138,30 +173,7 @@ export const useSettingsHook = () => {
         },
       ],
     },
-    {
-      title: 'Account',
-      data: [
-        {
-          label: 'Subscription',
-          icon: 'star',
-          iconType: 'FontAwesome5',
-          onPress: () => handlePress('Subscription'),
-        },
-        {
-          label: 'Edit Profile',
-          icon: 'user-edit',
-          iconType: 'FontAwesome5',
-          onPress: () => handlePress('Edit Profile'),
-        },
-        {
-          label: 'Users',
-          icon: 'star',
-          iconType: 'FontAwesome5',
-          onPress: () => handlePress('Users'),
-        },
-      ],
-    },
   ];
 
-  return { sections, handlePress, handleLogout };
+  return { sections, restaurantInfo: storedAuthData, handlePress, handleLogout };
 };

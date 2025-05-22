@@ -19,8 +19,8 @@ import {
 } from 'app/components/filter/filter';
 import { PaymentInfo } from './useTables';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
-import { DateRangeSelection, DateRangeSelectionType } from 'app/components/DateRangePickerModal';
 import { RootState } from 'app/redux/rootReducer';
+import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/utils';
 
 export const useOrder = () => {
   const [orders, setOrders] = useState<OrderDetails[]>([]);

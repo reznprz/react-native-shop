@@ -24,6 +24,17 @@ const PaymentChip: React.FC<PaymentChipProps> = ({
 }) => {
   const iconDetails = getIconDetail(paymentType, 'Payment');
 
+  // assume `existingText` is whatever you’d shown before, or undefined/null if none
+  const existingText: string | undefined = paymentText;
+
+  // build the new text
+  const newPaymentText =
+    paymentType === 'CREDIT'
+      ? `Credit amount: रु ${amount}`
+      : existingText
+        ? existingText
+        : `Paid with ${paymentType} : रु ${amount}`;
+
   if (onSelect) {
     return (
       <Pressable
@@ -46,7 +57,7 @@ const PaymentChip: React.FC<PaymentChipProps> = ({
 
   return (
     <IconLabel
-      label={paymentText ? `${paymentText}` : `Paid with ${paymentType} : रु ${amount}`}
+      label={newPaymentText}
       iconName={iconDetails.iconName}
       iconSize={iconDetails.iconSize}
       iconType={iconDetails.iconType}

@@ -11,6 +11,13 @@ export enum PlanType {
   STARTER = 'STARTER',
   STANDARD = 'STANDARD',
   PREMIUM = 'PREMIUM',
+  NONE = 'NONE',
+}
+
+export enum ContactStatus {
+  PRIMARY = 'PRIMARY',
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
 }
 
 export enum AccessLevel {
@@ -45,6 +52,17 @@ export interface SubscriptionExpirationInfo {
   expirationBannerMessage: string;
   subscriptionExpired: boolean;
 }
+export interface RestaurantEmail {
+  id: number;
+  email: string;
+  status: ContactStatus;
+}
+
+export interface RestaurantPhone {
+  id: number;
+  phoneNumber: string;
+  status: ContactStatus;
+}
 
 export interface AuthResponse {
   accessToken: string;
@@ -57,6 +75,8 @@ export interface AuthResponse {
   userFirstName: string;
   userLastName: string;
   initials: string;
+  emails: RestaurantEmail[];
+  phoneNumbers: RestaurantPhone[];
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
 }
 
@@ -90,7 +110,7 @@ export const refreshTokenApi = async (refreshToken: string): Promise<string> => 
   return response.data.accessToken;
 };
 
-export const registerRestaurant = async (
+export const registerRestaurantApi = async (
   newRestaurantResgistration: RegisterRequest,
 ): Promise<SuccessResponse> => {
   const response = await axios.post<SuccessResponse>(
@@ -104,7 +124,7 @@ export const registerRestaurant = async (
   return response.data;
 };
 
-export const requesOtp = async (otpRequest: OtpRequest): Promise<OtpRequestResponse> => {
+export const requesOtpApi = async (otpRequest: OtpRequest): Promise<OtpRequestResponse> => {
   const response = await axios.post<OtpRequestResponse>(
     `${config.tokenBaseURL}/otp/request`,
     otpRequest,
@@ -118,7 +138,7 @@ export const requesOtp = async (otpRequest: OtpRequest): Promise<OtpRequestRespo
   return authResponse;
 };
 
-export const validateOtp = async (credentials: Credentials): Promise<OtpValidateResponse> => {
+export const validateOtpApi = async (credentials: Credentials): Promise<OtpValidateResponse> => {
   const response = await axios.post<OtpValidateResponse>(
     `${config.tokenBaseURL}/otp/validate`,
     credentials,

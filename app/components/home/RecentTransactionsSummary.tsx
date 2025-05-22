@@ -20,7 +20,7 @@ const RecentTransactionsSummary: React.FC<Props> = ({
     <View className="bg-white rounded-lg p-5 mt-4 shadow-sm">
       {!recentTransactions || recentTransactions.length === 0 ? (
         <EmptyState
-          iconName="bag-personal-outlinenk"
+          iconName="bag-personal"
           message="No Orders available"
           subMessage="Complete order or refresh the screen!."
           iconSize={60}

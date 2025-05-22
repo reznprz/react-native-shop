@@ -2,8 +2,8 @@ import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
 import { CompleteOrderRequest, PaymentInfo } from 'app/hooks/useTables';
 import qs from 'qs';
-import { DateRangeSelectionType } from 'app/components/DateRangePickerModal';
 import { IconMetadata } from './expenseService';
+import { DateRangeSelectionType } from 'app/components/date/utils';
 
 export interface OrderItem {
   id: number;

@@ -20,9 +20,7 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({
 }) => {
   const orderTypeIconDetail = getIconDetail(order.orderType);
   return (
-    <View
-      className={`flex bg-white p-3 rounded-lg shadow-sm border border-gray-200 mb-2 ${containerStyle}`}
-    >
+    <View className={`flex bg-white p-3 rounded-lg  border border-gray-200 mb-2 ${containerStyle}`}>
       {/* Order ID & Status Row */}
       <View className="flex-row justify-between items-center">
         <IconLabel
