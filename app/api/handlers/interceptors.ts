@@ -39,9 +39,11 @@ export function setupApiInterceptors(api: AxiosInstance, appConfig: AppConfig) {
       const reqConfig = config;
       const method = reqConfig.method?.toUpperCase() ?? 'GET';
       const url = reqConfig.url ?? '';
+      const reqParms = reqConfig.params ?? '';
       if (appConfig.debug) {
         console.log(`📤 [Request] ${method} ${url}`);
         console.log('🔍 [Request Payload]', reqConfig.data ?? {});
+        console.log('🔗 [Request Params]', reqParms ?? {});
       }
 
       const { accessToken, refreshToken, restaurantName, restaurantId, userId } =

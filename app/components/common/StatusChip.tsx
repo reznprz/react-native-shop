@@ -95,6 +95,30 @@ export function StatusChip({
       iconType: 'Ionicons',
       size: 'px-3 py-2 text-sm mb-6',
     },
+    primary: {
+      bg: 'bg-green-100',
+      text: 'text-green-600 text-center',
+      icon: 'checkmark-circle-outline',
+      iconColor: '#10B981', // Emerald 500
+      iconType: 'Ionicons',
+      size: 'mt-1 px-1 py-0.5 text-sm',
+    },
+    active: {
+      bg: 'bg-blue-100',
+      text: 'text-blue-600 text-center',
+      icon: 'flash-outline',
+      iconColor: '#3B82F6', // Blue 500
+      iconType: 'Ionicons',
+      size: 'mt-1 px-1 py-0.5 text-sm',
+    },
+    inactive: {
+      bg: 'bg-gray-100',
+      text: 'text-gray-500 text-center',
+      icon: 'pause-circle-outline',
+      iconColor: '#9CA3AF', // Gray 400
+      iconType: 'Ionicons',
+      size: 'mt-1 px-1 py-0.5 text-sm',
+    },
     default: {
       bg: 'bg-gray-200',
       text: 'text-gray-600',

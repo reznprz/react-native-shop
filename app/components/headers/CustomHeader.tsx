@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from 'app/redux/store';
 import CustomIcon from '../common/CustomIcon';
@@ -41,8 +41,10 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const tableChipMarginTop = isDesktop || isPad ? 30 : 40;
 
   // Replace with your actual restaurant/logo image
-  const FALLBACK_IMAGE_URI = {
-    uri: 'https://storage.googleapis.com/image-box-sp/shajhya.jpg',
+  const IMAGE_URI = {
+    uri: storedAuthData?.restaurantImgUrl
+      ? storedAuthData.restaurantImgUrl
+      : 'https://storage.googleapis.com/image-box-sp/reslogo.jpg',
   };
 
   const itemsCount = useMemo(() => {
@@ -55,7 +57,7 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
       <CircularImage
         title={title}
         paddingTop={leftSectionPaddingTop}
-        fallbackImageUri={FALLBACK_IMAGE_URI}
+        fallbackImageUri={IMAGE_URI}
       />
 
       {/* Center Section (only for desktop/iPad) */}
