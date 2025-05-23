@@ -126,11 +126,29 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
   /** Pull-to-refresh logic. */
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
+
     if (selectedRange) {
-      await handleDateSelect(selectedRange);
+      if (activeTab === 'Todays Order') {
+        console.log('Todays Order', selectedRange);
+
+        await handleDateSelect({
+          selectionType: DateRangeSelectionType.SINGLE_DATE,
+          date: 'Today',
+        });
+      } else {
+        console.log('selectedRange', selectedRange);
+        await handleDateSelect(selectedRange);
+      }
+    } else {
+      if (activeTab === 'Todays Order') {
+        await handleDateSelect({
+          selectionType: DateRangeSelectionType.SINGLE_DATE,
+          date: 'Today',
+        });
+      }
     }
     setRefreshing(false);
-  }, [selectedRange]);
+  }, [selectedRange, activeTab]);
 
   /**
    * Render the list of orders. We show different layouts if isLargeScreen
@@ -225,6 +243,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={(newTab) => {
+          setActiveTab(newTab);
           if (newTab === 'Todays Order') {
             handleTodaysSubtabSelect();
           } else {
@@ -234,7 +253,6 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
               setSelectedRange(initialSelectedDateRange);
             }
           }
-          setActiveTab(newTab);
         }}
       />
 

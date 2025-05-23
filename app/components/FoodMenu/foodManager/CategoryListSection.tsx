@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, FlatList } from 'react-native';
-import PrimaryHeader from 'app/components/common/PrimaryHeader';
 import CustomButton from 'app/components/common/button/CustomButton';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';

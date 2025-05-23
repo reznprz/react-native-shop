@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import {
   Text,
   Pressable,
@@ -8,7 +8,6 @@ import {
   TextStyle,
   Animated,
   TouchableOpacity,
-  TouchableOpacityProps,
   StyleSheet,
 } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
@@ -34,6 +33,7 @@ export interface CustomButtonProps {
   iconType?: IconType;
   buttonStyle?: StyleProp<ViewStyle>;
   textStyle?: StyleProp<TextStyle>;
+  backgroundColor?: string;
   buttonType?: 'TouchableOpacity' | 'Normal';
 }
 
@@ -55,6 +55,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   iconType = 'Ionicons',
   buttonStyle,
   textStyle,
+  backgroundColor,
   buttonType = 'TouchableOpacity',
   ...props
 }) => {
@@ -136,7 +137,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
               onPress={disabled ? undefined : onPress}
               onPressIn={disabled ? undefined : handlePressIn}
               onPressOut={disabled ? undefined : handlePressOut}
-              style={[styles.button, buttonStyle, disabled && styles.disabledButton]}
+              style={[
+                styles.button,
+                { backgroundColor: disabled ? '#D1D5DB' : backgroundColor || '#2a4759' },
+                buttonStyle,
+              ]}
               {...props}
             >
               <Text style={[styles.text, textStyle]}>{title}</Text>

@@ -3,6 +3,7 @@ import { RestaurantTableInfo } from 'app/api/services/tableService';
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SwipeRow } from 'react-native-swipe-list-view';
+import CustomIcon from '../common/CustomIcon';
 
 interface TableDetailCardProps {
   table: RestaurantTableInfo;
@@ -48,8 +49,11 @@ const TableDetailCard: React.FC<TableDetailCardProps> = ({ table, onUpdate, onDe
       </View>
 
       <View className="p-2">
-        <View className="flex flex-row items-center justify-between p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
-          <View className="flex flex-row items-center space-x-4">
+        <View className="flex flex-row items-start justify-start p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
+          <View className="p-2">
+            <CustomIcon type={'TableIcon'} name={'table'} size={30} color={'#2a4759'} />
+          </View>
+          <View className="flex flex-row items-center space-x-4 ml-4">
             {/* Optional: Add an icon or avatar here if needed */}
             <View>
               <Text className="text-lg font-semibold text-gray-900">{table.tableName}</Text>

@@ -133,6 +133,9 @@ const NotificationBar: FC<NotificationBarProps> = ({
       style={[
         styles.container,
         {
+          left: (windowWidth - 420) / 1.02,
+          right: 16,
+          width: 420,
           transform: [{ translateX: slideAnim }],
           backgroundColor,
           top: topPosition,
@@ -161,8 +164,6 @@ export default NotificationBar;
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    left: 16,
-    right: 16,
     borderRadius: 8,
     paddingHorizontal: 16,
     paddingVertical: 12,

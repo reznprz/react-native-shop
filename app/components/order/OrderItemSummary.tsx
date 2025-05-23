@@ -53,22 +53,22 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
             />
             <View className="flex-cols">
               <StatusChip status={paymentStatus} margin="ml-10" />
-              {!hideCollabsibleInfo && paymentStatus === 'UNPAID' && onMoreActionPress && (
-                <CollapsibleInfo
-                  label={'Add Payment ?'}
-                  iconType={'FontAwesome'}
-                  iconName={'question-circle'}
-                  iconSize={14}
-                  iconColor={'#2a4759'}
-                  containerStyle={'items-end mb-1 mt-1'}
-                  textColor={'text-black font-bold text-sm underline'}
-                  collapsibleContent={'Click more actions button!'}
-                  collapsibleContentStyle="w-28"
-                  onPress={toggleMoreAction}
-                />
-              )}
             </View>
           </View>
+
+          {!hideCollabsibleInfo && paymentStatus === 'UNPAID' && onMoreActionPress && (
+            <CollapsibleInfo
+              label={'Add Payment ?'}
+              iconType={'FontAwesome'}
+              iconName={'question-circle'}
+              iconSize={14}
+              iconColor={'#2a4759'}
+              containerStyle={'items-start mb-2 mt-1'}
+              textColor={'text-black font-bold text-sm underline'}
+              collapsibleContent={'Click more actions button!'}
+              onPress={toggleMoreAction}
+            />
+          )}
 
           {order.payments.map((payment, index) => (
             <PaymentChip key={index} paymentType={payment.paymentMethod} amount={payment.amount} />
@@ -125,7 +125,7 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
           collapsibleContent={
             'Click the "More Actions" button to add food, switch tables, print receipts and cancel Order!'
           }
-          collapsibleContentStyle="w-36"
+          collapsibleContentStyle="w-[260px]"
           onPress={toggleMoreAction}
         />
       )}

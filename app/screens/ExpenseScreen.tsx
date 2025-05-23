@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, TextInput, FlatList } from 'react-native';
-import { Feather } from '@expo/vector-icons';
+import { View, FlatList } from 'react-native';
 import ExpenseCard from 'app/components/expense/ExpenseCard';
 import { useExpenses } from 'app/hooks/useExpenses';
 import { ExpenseMetrics } from 'app/components/expense/ExpenseMetrics';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import IconLabel from 'app/components/common/IconLabel';
 import CustomButton from 'app/components/common/button/CustomButton';
 import AddExpenseModal from 'app/components/modal/AddExpenseModal';
 import DateHeader from 'app/components/common/DateHeader';

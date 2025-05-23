@@ -75,6 +75,7 @@ export interface AuthResponse {
   userFirstName: string;
   userLastName: string;
   initials: string;
+  restaurantImgUrl: string;
   emails: RestaurantEmail[];
   phoneNumbers: RestaurantPhone[];
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
