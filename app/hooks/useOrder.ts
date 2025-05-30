@@ -25,7 +25,13 @@ import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/
 export const useOrder = () => {
   const [orders, setOrders] = useState<OrderDetails[]>([]);
   const [order, setOrder] = useState<OrderDetails | null>(null);
-  const storedRestaurantId = useSelector((state: RootState) => state.auth.authData?.restaurantId);
+  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
+
+  const {
+    restaurantId: storedRestaurantId = 0,
+    features: restaurantFeatures = [],
+    accessLevel,
+  } = storedAuthData || {};
 
   // Initial filter setup
   const initialFilters = {
@@ -91,12 +97,16 @@ export const useOrder = () => {
     },
   );
 
-  const canceledOrderMutation = useMutation<ApiResponse<OrderDetails>, Error, { orderId: number }>({
-    mutationFn: async ({ orderId }) => {
+  const canceledOrderMutation = useMutation<
+    ApiResponse<OrderDetails>,
+    Error,
+    { orderId: number; reason: string }
+  >({
+    mutationFn: async ({ orderId, reason }) => {
       if (!orderId || orderId === 0) {
         throw new Error('Missing order Id');
       }
-      const response: ApiResponse<OrderDetails> = await canceledOrderApi(orderId);
+      const response: ApiResponse<OrderDetails> = await canceledOrderApi(orderId, reason);
       if (response.status !== 'success') {
         throw new Error(response.message);
       }
@@ -373,8 +383,8 @@ export const useOrder = () => {
   );
 
   const handleCancelOrder = useCallback(
-    (orderId: number) => {
-      canceledOrderMutation.mutate({ orderId: orderId });
+    (orderId: number, reason: string) => {
+      canceledOrderMutation.mutate({ orderId: orderId, reason: reason });
     },
     [canceledOrderMutation],
   );
@@ -466,6 +476,10 @@ export const useOrder = () => {
   }, [switchPaymentMutation]);
 
   return {
+    //config
+    restaurantFeatures,
+    accessLevel,
+
     orders,
     totalAmount,
     paidAmount,

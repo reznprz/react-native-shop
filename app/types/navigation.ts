@@ -19,6 +19,7 @@ export enum ScreenNames {
   USER = 'UserScreen',
   TABLEMANAGER = 'TableManagerScreen',
   PROFILE = 'ProfileScreen',
+  SUBSCRIPTIONPLANS = 'SubscriptionPlansScreen',
 }
 
 export enum ScreenDisplayNames {
@@ -36,6 +37,7 @@ export enum ScreenDisplayNames {
   USER = 'User',
   TABLEMANAGER = 'Table Manager',
   PROFILE = 'Profile',
+  SUBSCRIPTIONPLANS = 'Subscription Plans',
 }
 
 // Create a constant object for screen details
@@ -95,5 +97,9 @@ export const Screens: Record<ScreenNames, ScreenDetail> = {
   [ScreenNames.PROFILE]: {
     screenName: ScreenNames.PROFILE,
     screenDisplayName: ScreenDisplayNames.PROFILE,
+  },
+  [ScreenNames.SUBSCRIPTIONPLANS]: {
+    screenName: ScreenNames.SUBSCRIPTIONPLANS,
+    screenDisplayName: ScreenDisplayNames.SUBSCRIPTIONPLANS,
   },
 };

@@ -43,6 +43,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   // external state & actions
   const {
+    restaurantFeatures,
     foods,
     foodMenu,
     refetch,
@@ -56,6 +57,8 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   const { handleSwitchTable } = useOrder();
 
   const { topBreakFast, topDrinks, topLunch } = foodMenu;
+
+  console.log('restaurantFeatures', restaurantFeatures);
 
   const {
     tables,

@@ -25,6 +25,10 @@ export enum AccessLevel {
   USER = 'STAFF',
 }
 
+export enum FeatureKey {
+  ENABLE_TOURIST_MENU = 'ENABLE_TOURIST_MENU',
+}
+
 export interface OtpRequest {
   target: string;
   channel: 'email' | 'sms';
@@ -64,6 +68,12 @@ export interface RestaurantPhone {
   status: ContactStatus;
 }
 
+export interface RestaurantFeature {
+  id: number;
+  key: FeatureKey;
+  enabled: boolean;
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -76,8 +86,8 @@ export interface AuthResponse {
   userLastName: string;
   initials: string;
   restaurantImgUrl: string;
-  emails: RestaurantEmail[];
-  phoneNumbers: RestaurantPhone[];
+  userAvatarUrl: string;
+  features: RestaurantFeature[];
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
 }
 

@@ -9,6 +9,7 @@ import { RestaurantTable } from 'app/api/services/tableService';
 import RegisterTableList from './RegisterTableList';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { SubTabType } from '../FoodsMenu';
+import { ButtonState } from 'app/components/common/button/LoadingButton';
 
 type ActiveView = 'categories' | 'food' | 'table';
 type ActiveSubFoodView = 'all' | 'breakfast' | 'lunch' | 'drinks';
@@ -28,6 +29,7 @@ export interface RegisterFoodMenuProps {
   currentTable: string;
   searchTerm: string;
   activatedSubTab: SubTabType;
+  completeOrderState: ButtonState;
   handleSearch: (text: string) => void;
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
   onSwitchTableClick?: (seatName: string) => void;
@@ -51,6 +53,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   currentTable,
   searchTerm,
   activatedSubTab,
+  completeOrderState,
   handleSearch,
   updateCartItemForFood,
   onSwitchTableClick,
@@ -77,6 +80,14 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
       setActiveTopBar('Table');
     }
   }, [currentTable]);
+
+  useEffect(() => {
+    if (completeOrderState.status === 'success') {
+      setActiveView('table');
+      setActiveTopBar('Table');
+      completeOrderState.reset?.();
+    }
+  }, [completeOrderState]);
 
   // Pick which list of foods to render based on the sub-tab
   const displayedFoods =

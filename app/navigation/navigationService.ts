@@ -14,11 +14,12 @@ export type RootStackParamList = {
   OrderDetails: { orderId: string; actionType?: string };
   FoodManager: undefined;
   Expense: undefined;
-  DailySales: undefined;
+  DailySalesScreen: { selectedTab?: string };
   Inventory: undefined;
   SalesAnalytics: undefined;
   Login: undefined;
   TableManager: undefined;
+  SubscriptionPlans: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

@@ -10,18 +10,47 @@ import { on } from 'events';
 interface ExpenseSummaryProps {
   expenses: Expense[];
   onViewAllPress?: () => void;
+  onAddExpensesPress?: () => void;
 }
 
-const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({ expenses, onViewAllPress }) => {
+const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
+  expenses,
+  onViewAllPress,
+  onAddExpensesPress,
+}) => {
   return (
-    <View className="bg-white rounded-lg shadow-sm">
+    <View className="flex-1 item-center bg-white rounded-lg shadow-sm">
       {!expenses || expenses.length === 0 ? (
-        <EmptyState
-          iconName="bank"
-          message="No Expenses available"
-          subMessage="Add expense or refresh the screen!."
-          iconSize={60}
-        />
+        <>
+          <View className="flex-row justify-end items-end m-6 mb-1">
+            {onAddExpensesPress && (
+              <CustomButton
+                title=" + Add Expenses"
+                onPress={() => {
+                  onAddExpensesPress();
+                }}
+                buttonType="TouchableOpacity"
+                buttonStyle={{
+                  backgroundColor: 'transparent',
+                  paddingVertical: 0,
+                  paddingHorizontal: 0,
+                  elevation: 0,
+                }}
+                textStyle={{
+                  color: '#3b82f6',
+                  fontSize: 16,
+                  fontWeight: '500',
+                }}
+              />
+            )}
+          </View>
+          <EmptyState
+            iconName="bank"
+            message="No Expenses available"
+            subMessage="Add expense or refresh the screen!."
+            iconSize={60}
+          />
+        </>
       ) : (
         <>
           {/* Header */}

@@ -5,6 +5,14 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { useOrder } from 'app/hooks/useOrder';
 
+import { navigate } from 'app/navigation/navigationService';
+import { ScreenNames } from 'app/types/navigation';
+
+import { removedFilter } from 'app/components/filter/filter';
+import { OrderDetails } from 'app/api/services/orderService';
+import { FiltersBottomSheetModal } from 'app/components/filter/FiltersBottomSheetModal';
+import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/utils';
+
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';
 import OrderScreenHeader from 'app/components/common/OrderScreenHeader';
@@ -13,15 +21,7 @@ import SubTab from 'app/components/common/SubTab';
 import OrderCard from 'app/components/order/OrderCard';
 import OrderMetrics from 'app/components/OrderMetrics';
 import OrderSummaryCard from 'app/components/order/OrderSummaryCard';
-
-import { navigate } from 'app/navigation/navigationService';
-import { ScreenNames } from 'app/types/navigation';
-
-import { removedFilter } from 'app/components/filter/filter';
-import { OrderDetails } from 'app/api/services/orderService';
-import { FiltersBottomSheetModal } from 'app/components/filter/FiltersBottomSheetModal';
 import NotificationBar from 'app/components/common/NotificationBar';
-import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/utils';
 
 const tabs = ['Past Orders', 'Todays Order'];
 type TabType = (typeof tabs)[number];
@@ -99,9 +99,13 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
     useCallback(() => {
       if (selectedTab === 'Past Orders') {
         setActiveTab('Past Orders');
-        setSelectedRange(selectedRange);
+        setSelectedRange(initialSelectedDateRange);
       } else {
         setActiveTab('Todays Order');
+        setSelectedRange({
+          selectionType: DateRangeSelectionType.SINGLE_DATE,
+          date: 'Today',
+        });
         handleTodaysSubtabSelect();
       }
     }, [selectedTab]),
@@ -129,14 +133,11 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
 
     if (selectedRange) {
       if (activeTab === 'Todays Order') {
-        console.log('Todays Order', selectedRange);
-
         await handleDateSelect({
           selectionType: DateRangeSelectionType.SINGLE_DATE,
           date: 'Today',
         });
       } else {
-        console.log('selectedRange', selectedRange);
         await handleDateSelect(selectedRange);
       }
     } else {
@@ -232,7 +233,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
         selectedRange ? selectedRange : initialSelectedDateRange,
       );
     },
-    [orderStatuses, paymentStatuses, orderTypes, paymentMethods, selectedRange],
+    [orderStatuses, paymentStatuses, orderTypes, paymentMethods, selectedRange, selectedTab],
   );
 
   /** Render the main screen */
@@ -247,11 +248,12 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
           if (newTab === 'Todays Order') {
             handleTodaysSubtabSelect();
           } else {
-            if (selectedRange) {
-              setSelectedRange(selectedRange);
-            } else {
-              setSelectedRange(initialSelectedDateRange);
-            }
+            // if (selectedRange) {
+            //   setSelectedRange(selectedRange);
+            // } else {
+            //   setSelectedRange(initialSelectedDateRange);
+            // }
+            setSelectedRange(initialSelectedDateRange);
           }
         }}
       />
@@ -266,6 +268,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
           orderTypes={orderTypes}
           paymentStatuses={paymentStatuses}
           activeTab={activeTab}
+          selectedDate={selectedRange}
           onRemoveFilter={handleRemoveFilter}
           onOverflowPress={() => setShowFilters(true)}
         />

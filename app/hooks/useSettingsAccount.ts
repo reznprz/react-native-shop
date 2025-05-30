@@ -19,7 +19,7 @@ interface Section {
   data: SettingOption[];
 }
 
-export const useSettingsHook = () => {
+export const useSettingsAccount = () => {
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
 
   const dispatch = useDispatch();
@@ -60,7 +60,7 @@ export const useSettingsHook = () => {
         push(ScreenNames.TABLEMANAGER);
         break;
       case 'Subscription':
-        console.log('Navigating to Subscription');
+        push(ScreenNames.SUBSCRIPTIONPLANS);
         break;
       case 'Profile':
         push(ScreenNames.PROFILE);

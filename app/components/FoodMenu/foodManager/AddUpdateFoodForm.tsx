@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, Platform } from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 import { Category, Food } from 'app/api/services/foodService';
 import ModalActionsButton from 'app/components/common/modal/ModalActionsButton';
-import { Picker } from '@react-native-picker/picker';
+import * as ImagePicker from 'expo-image-picker';
 import { CategoryDropdown } from './CategoryDropdown';
 import CollapsibleInfo from 'app/components/common/CollapsibleInfo';
 
 interface AddUpdateFoodFormProps {
   food: Food | null;
   categories: Category[];
-  onSubmit: (payload: Omit<Food, 'id'>, categoryId: number) => void;
+  onSubmit: (payload: Omit<Food, 'id'>, categoryId: number, filePart: any) => void;
   onAddNewCategoryClick: () => void;
   onCancel: () => void;
 }
@@ -33,17 +33,21 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
     categoryName: food?.categoryName || '',
     isKitchenFood: food?.isKitchenFood || false,
   });
+  const [imageUri, setImageUri] = useState<string | undefined>(food?.img);
 
   const pickImage = async () => {
-    // const res = await ImagePicker.launchImageLibraryAsync({
-    //   mediaTypes: ImagePicker.MediaTypeOptions.Images,
-    //   allowsEditing: true,
-    //   aspect: [4, 3],
-    //   quality: 0.8,
-    // });
-    // if (!res.canceled) {
-    //   setForm((p) => ({ ...p, img: res.assets[0].uri }));
-    // }
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Denied', 'Please enable photo library access to upload an image.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets.length > 0) {
+      setImageUri(result.assets[0].uri);
+    }
   };
 
   const setField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
@@ -68,12 +72,17 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
           onPress={pickImage}
           className="border-dashed border-2 border-gray-300 rounded-2xl mb-6 md:mb-0 md:w-1/3 h-56 items-center justify-center bg-gray-50"
         >
-          {form.img ? (
-            <Image
-              source={{ uri: form.img }}
-              resizeMode="cover"
-              className="w-full h-full rounded-2xl"
-            />
+          {imageUri ? (
+            <>
+              <Image
+                source={{ uri: imageUri }}
+                resizeMode="cover"
+                className="w-full h-full rounded-2xl"
+              />
+              <View className="absolute bottom-2 right-2 bg-black/60 p-1.5 rounded-full">
+                <Feather name="edit-2" size={16} color="#fff" />
+              </View>
+            </>
           ) : (
             <View className="items-center">
               <MaterialIcons name="cloud-upload" size={38} color="#94a3b8" />
@@ -235,7 +244,17 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
               alert('Please select a valid category');
               return;
             }
-            onSubmit(form, matchCategory.id);
+
+            let filePart;
+            if (imageUri && imageUri !== food?.img) {
+              const [, ext = 'jpg'] = /\.(\w+)$/.exec(imageUri) ?? [];
+              filePart = {
+                uri: imageUri,
+                name: `restaurant.${ext}`,
+                type: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+              };
+            }
+            onSubmit(form, matchCategory.id, filePart);
           },
         }}
         containerStyle={{

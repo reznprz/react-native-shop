@@ -68,13 +68,18 @@ export function useFoodMenuActions() {
   const addFoodMutation = useMutation<
     ApiResponse<Food[]>,
     Error,
-    { restaurantId: number; categoryId: number; newFood: Food }
+    { restaurantId: number; categoryId: number; newFood: Food; file?: File }
   >({
-    mutationFn: async ({ restaurantId, categoryId, newFood }) => {
+    mutationFn: async ({ restaurantId, categoryId, newFood, file }) => {
       if (!restaurantId || categoryId === 0) {
         throw new Error('Missing restaurantId/category Id');
       }
-      const response: ApiResponse<Food[]> = await addFoodApi(restaurantId, categoryId, newFood);
+      const response: ApiResponse<Food[]> = await addFoodApi(
+        restaurantId,
+        categoryId,
+        newFood,
+        file,
+      );
       if (response.status !== 'success') {
         throw new Error(response.message);
       }
@@ -93,13 +98,13 @@ export function useFoodMenuActions() {
   const updateFoodMutation = useMutation<
     ApiResponse<Food[]>,
     Error,
-    { foodId: number; updatedFood: Food }
+    { foodId: number; updatedFood: Food; file?: File }
   >({
-    mutationFn: async ({ foodId, updatedFood }) => {
+    mutationFn: async ({ foodId, updatedFood, file }) => {
       if (!foodId || foodId === 0) {
         throw new Error('Missing foodId');
       }
-      const response: ApiResponse<Food[]> = await updateFoodApi(foodId, updatedFood);
+      const response: ApiResponse<Food[]> = await updateFoodApi(foodId, updatedFood, file);
       if (response.status !== 'success') {
         throw new Error(response.message);
       }

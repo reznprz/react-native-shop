@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, Pressable, StyleSheet } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import CustomIcon from './CustomIcon';
 import { FilterStatus } from '../filter/filter';
-import FilterHeader from '../filter/FilterHeader';
 import { DateRangePickerModal } from '../DateRangePickerModal';
 import { DateRangeSelection, getDisplayDateRange } from '../date/utils';
+
+import CustomIcon from './CustomIcon';
+import FilterHeader from '../filter/FilterHeader';
 
 type OrderScreenHeaderProps = {
   orderStatuses: FilterStatus[];
@@ -13,6 +14,7 @@ type OrderScreenHeaderProps = {
   orderTypes: FilterStatus[];
   paymentMethods: FilterStatus[];
   activeTab: string;
+  selectedDate?: DateRangeSelection | null;
   onFilterPress?: () => void;
   onRemoveFilter: (label: string) => void;
   onOverflowPress: () => void;
@@ -25,6 +27,7 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
   orderTypes = [],
   paymentMethods = [],
   activeTab,
+  selectedDate,
   onFilterPress,
   onRemoveFilter,
   onOverflowPress,
@@ -45,6 +48,14 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
     setDisplayDateRange(label);
     handleApplyDate(selection);
   };
+
+  useEffect(() => {
+    if (selectedDate) {
+      const label = getDisplayDateRange(selectedDate);
+
+      setDisplayDateRange(label);
+    }
+  }, [selectedDate]);
 
   return (
     <View>

@@ -38,7 +38,6 @@ export const useRestaurantOverview = () => {
       if (!restaurantId || restaurantId === 0) {
         throw new Error('RestaurantId is not valid');
       }
-      console.log('Fetching restaurant overview for ID:', restaurantId);
       const response: ApiResponse<RestaurantOverview> =
         await getRestaurantOverviewApi(restaurantId);
       if (response.status !== 'success') {
@@ -135,7 +134,39 @@ export const useRestaurantOverview = () => {
   const handleViewAllPress = (label: string) => {
     switch (label) {
       case 'DailySales':
-        push(ScreenNames.DAILYSALES);
+        navigate(ScreenNames.DAILYSALES, {
+          selectedTab: 'Todays',
+        });
+        break;
+      case 'Expenses':
+        push(ScreenNames.EXPENSE);
+        break;
+      case 'TopProducts':
+        console.log('Navigating to TopProducts');
+        break;
+      case 'Inventory':
+        console.log('Navigating to Inventory');
+        break;
+      case 'RecentTrans':
+        if (navigationRef.isReady()) {
+          navigationRef.dispatch(
+            CommonActions.navigate({
+              name: 'MainTabs',
+              params: { screen: 'Orders' },
+            }),
+          );
+        }
+        break;
+      default:
+        console.warn('Unknown option selected');
+        break;
+    }
+  };
+
+  const handleAddPress = (label: string) => {
+    switch (label) {
+      case 'DailySales':
+        push(ScreenNames.DAILYSALES, { selectedTab: 'Todays' });
         break;
       case 'Expenses':
         push(ScreenNames.EXPENSE);
@@ -172,6 +203,7 @@ export const useRestaurantOverview = () => {
     fetchDailySales,
     fetchRestaurantOverView,
     handleViewAllPress,
+    handleAddPress,
     handleUpdateOpeningCash,
   };
 };

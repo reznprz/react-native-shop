@@ -73,6 +73,12 @@ export const getRestaurantApi = async (
   return await apiMethods.get<RestaurantData>(`/api/restaurants/${restaurantId}`);
 };
 
+export const getSubscriptionPlansApi = async (): Promise<
+  ApiResponse<Record<string, PlanSummary>>
+> => {
+  return await apiMethods.get<Record<string, PlanSummary>>(`/api/restaurants/subscriptionPlans`);
+};
+
 // Add or update a single contact
 export const upsertContactApi = (
   restaurantId: number,
@@ -102,7 +108,7 @@ export const updateRestaurantApi = async (
   const url = `/api/restaurants/${restaurantId}`;
   const fd = new FormData();
 
-  /* ---------- Part “data” ------------------------------------------------- */
+  /* Part “data”  */
   const json = JSON.stringify(updatedRestaurant);
 
   if (Platform.OS === 'web') {
@@ -117,10 +123,9 @@ export const updateRestaurantApi = async (
     } as any);
   }
 
-  /* ---------- Part “file” (only if a new image was picked) --------------- */
+  /*Part “file” (only if a new image was picked) */
   if (file) fd.append('file', file as any);
 
-  /* ---------- Send ------------------------------------------------------- */
   return apiMethods.put<RestaurantData>(url, fd, {
     headers: { 'Content-Type': 'multipart/form-data' }, // **keep it**
   });

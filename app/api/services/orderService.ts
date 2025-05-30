@@ -212,8 +212,14 @@ export const findOrdersByIdApi = async (orderId: number): Promise<ApiResponse<Or
   return await apiMethods.get<OrderDetails>(`/public/api/orders/${orderId}`);
 };
 
-export const canceledOrderApi = async (orderId: number): Promise<ApiResponse<OrderDetails>> => {
-  return await apiMethods.put<OrderDetails>(`/public/api/orders/canceled/${orderId}`, {});
+export const canceledOrderApi = async (
+  orderId: number,
+  reason: string,
+): Promise<ApiResponse<OrderDetails>> => {
+  return await apiMethods.put<OrderDetails>(
+    `/public/api/orders/canceled/${orderId}?reason=${reason}`,
+    {},
+  );
 };
 
 export const switchTableApi = async (

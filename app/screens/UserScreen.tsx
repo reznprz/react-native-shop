@@ -9,8 +9,10 @@ import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import UserDetailCard from 'app/components/user/UserDetailCard';
 import { useUsers } from 'app/hooks/useUser';
 import AddUserModal from 'app/components/modal/AddUserModal';
-import { UserRegisterRequest } from 'app/api/services/userService';
+import { User, UserRegisterRequest } from 'app/api/services/userService';
 import ListHeader from 'app/components/common/ListHeader';
+import AvatarPickerModal from 'app/components/modal/AvatarPickerModal';
+import UpdateUserModal from 'app/components/modal/UpdateUserModal';
 
 const UserScreen = () => {
   const {
@@ -18,11 +20,13 @@ const UserScreen = () => {
     getUsersState,
     fetchUsers,
     createUserMutation,
+    updateUserMutation,
     deleteUserState,
     handleDeleteUser,
   } = useUsers();
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState<User | null>(null);
   const [errorNotification, setErrorNotificaton] = useState('');
   const [successNotification, setSuccessNotificaton] = useState('');
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<number | null>(
@@ -62,6 +66,17 @@ const UserScreen = () => {
     }
   }, [deleteUserState]);
 
+  useEffect(() => {
+    if (updateUserMutation.status === 'error') {
+      setErrorNotificaton(deleteUserState.error?.message || 'Opps Something went wrong!.');
+      updateUserMutation.reset?.();
+    }
+    if (updateUserMutation.status === 'success') {
+      setSuccessNotificaton('User updated success!.');
+      updateUserMutation.reset?.();
+    }
+  }, [updateUserMutation]);
+
   return (
     <View className="flex-1 bg-gray-100 p-4">
       {/* Add User Button */}
@@ -75,7 +90,9 @@ const UserScreen = () => {
         />
       </View>
 
-      {getUsersState?.status === 'pending' || addUserState === 'pending' ? (
+      {getUsersState?.status === 'pending' ||
+      addUserState === 'pending' ||
+      updateUserMutation?.status === 'pending' ? (
         <FoodLoadingSpinner iconName="coffee" />
       ) : !users || users.length === 0 ? (
         <EmptyState
@@ -115,6 +132,9 @@ const UserScreen = () => {
                 onDelete={() => {
                   setShowDeleteConfirmationModal(item.id);
                 }}
+                onUpdate={() => {
+                  setShowEditUserModal(item);
+                }}
               />
             </View>
           )}
@@ -142,6 +162,18 @@ const UserScreen = () => {
           addUser({ newUser: newUser });
         }}
       />
+
+      {showEditUserModal && (
+        <UpdateUserModal
+          visible={showEditUserModal !== null}
+          user={showEditUserModal!!}
+          onConfirm={(data) => {
+            setShowEditUserModal(null);
+            updateUserMutation.mutate({ userId: 1, updatedUser: data });
+          }}
+          onRequestClose={() => setShowEditUserModal(null)}
+        />
+      )}
 
       <NotificationBar
         message={errorNotification}

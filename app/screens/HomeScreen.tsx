@@ -1,17 +1,18 @@
 import React, { useCallback, useState } from 'react';
 import { View, ScrollView, RefreshControl } from 'react-native';
 import { useRestaurantOverview } from 'app/hooks/useRestaurantOverview';
-import ExpenseSummary from 'app/components/home/ExpensesSummary';
-import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribution';
-import DailySalesTransactionCard from 'app/components/home/DailySalesTransaction';
+import { useFocusEffect } from '@react-navigation/native';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { RestaurantOverviewMetrics } from 'app/components/home/RestaurantOverviewMetrics';
+
 import EmptyState from 'app/components/common/EmptyState';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import InventoryStatusSummaryCard from 'app/components/home/InventoryStatusSummaryCard';
 import TopSellingProductsCard from 'app/components/home/TopSellingProductsCard';
 import RecentTransactionsSummary from 'app/components/home/RecentTransactionsSummary';
-import { useFocusEffect } from '@react-navigation/native';
+import ExpenseSummary from 'app/components/home/ExpensesSummary';
+import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribution';
+import DailySalesTransactionCard from 'app/components/home/DailySalesTransaction';
 
 const HomeScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
@@ -21,6 +22,7 @@ const HomeScreen: React.FC = () => {
     restaurantOverViewState,
     fetchRestaurantOverView,
     handleViewAllPress,
+    handleAddPress,
   } = useRestaurantOverview();
 
   const {
@@ -107,6 +109,7 @@ const HomeScreen: React.FC = () => {
             <ExpenseSummary
               expenses={expense}
               onViewAllPress={() => handleViewAllPress('Expenses')}
+              onAddExpensesPress={() => handleAddPress('Expenses')}
             />
           </View>
           <View

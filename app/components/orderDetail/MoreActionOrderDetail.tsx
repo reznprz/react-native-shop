@@ -18,7 +18,7 @@ type MoreActionOrderDetailProps = {
   handleAddPayment: (orderId: number, payments: PaymentInfo[]) => void;
   handleSiwtchTablePress: () => void;
   handleAddFoodItemsPress: (selectedTableName: string) => void;
-  handleCancelOrderPress: () => void;
+  onCancelOrderPress: () => void;
   handleSwitchPayment: (orderId: number, paymentId: number, selectedPaymentType: string) => void;
 };
 
@@ -30,7 +30,7 @@ const MoreActionOrderDetail: React.FC<MoreActionOrderDetailProps> = ({
   handleAddPayment,
   handleSiwtchTablePress,
   handleAddFoodItemsPress,
-  handleCancelOrderPress,
+  onCancelOrderPress,
   handleSwitchPayment,
 }) => {
   const [showAddPaymentCollapsible, setShowAddPaymentCollapsible] = useState(true);
@@ -121,7 +121,7 @@ const MoreActionOrderDetail: React.FC<MoreActionOrderDetailProps> = ({
           onAddFoodItems={() => {
             handleAddFoodItemsPress(order.tableName);
           }}
-          onCancelOrder={handleCancelOrderPress}
+          onCancelOrder={onCancelOrderPress}
         />
       </View>
     </>

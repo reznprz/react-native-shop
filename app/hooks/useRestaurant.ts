@@ -1,18 +1,26 @@
-import type { RootState } from '../redux/store';
-import { useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../redux/store';
+import { useSelector, useDispatch } from 'react-redux';
 import { useMutation } from '@tanstack/react-query';
 import { ApiResponse } from 'app/api/handlers';
 import {
   getRestaurantApi,
+  getSubscriptionPlansApi,
+  PlanSummary,
   RestaurantData,
   updateRestaurantApi,
 } from 'app/api/services/restaurantService';
+import { setRestaurantImgUrl } from 'app/redux/authSlice';
 import { useState } from 'react';
 import { useDeleteContactMutation, useUpsertContactMutation } from './apiQuery/useContactMutations';
 
 export const useRestaurant = () => {
+  const dispatch: AppDispatch = useDispatch();
+
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
   const [restaurantData, setRestaurantData] = useState<RestaurantData | null>(null);
+  const [subscriptionPlans, setSubscriptionPlans] = useState<Record<string, PlanSummary> | null>(
+    null,
+  );
   const upsertContactMutation = useUpsertContactMutation((response) =>
     setRestaurantData(response.data!),
   );
@@ -45,6 +53,26 @@ export const useRestaurant = () => {
     },
   });
 
+  const getSubscriptionPlansMutation = useMutation<ApiResponse<Record<string, PlanSummary>>, Error>(
+    {
+      mutationFn: async () => {
+        const response: ApiResponse<Record<string, PlanSummary>> = await getSubscriptionPlansApi();
+        if (response.status !== 'success') {
+          throw new Error(response.message);
+        }
+        return response;
+      },
+      onSuccess: (response) => {
+        if (response.status === 'success' && response.data) {
+          setSubscriptionPlans(response.data);
+        }
+      },
+      onError: (err) => {
+        console.warn('fetch table failed:', err);
+      },
+    },
+  );
+
   const updateRestaurantMutation = useMutation<
     ApiResponse<RestaurantData>,
     Error,
@@ -67,6 +95,9 @@ export const useRestaurant = () => {
     onSuccess: (response) => {
       if (response.status === 'success' && response.data) {
         setRestaurantData(response.data);
+        if (response.data.imageUrl) {
+          dispatch(setRestaurantImgUrl(response.data.imageUrl));
+        }
       }
     },
     onError: (err) => {
@@ -84,5 +115,9 @@ export const useRestaurant = () => {
     // contact operations
     upsertContactMutation,
     deleteContactMutation,
+
+    //subscriptions plans
+    subscriptionPlans,
+    getSubscriptionPlansMutation,
   };
 };

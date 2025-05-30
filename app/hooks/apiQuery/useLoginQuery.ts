@@ -10,7 +10,6 @@ export function useLoginMutation(
       if (!credentials.username || !credentials.password)
         throw new Error('Username or password is not valid');
       const response: AuthResponse = await login(credentials);
-      console.log('Login response from useLoginQuery:', response);
       return response;
     },
     onSuccess: (response) => {

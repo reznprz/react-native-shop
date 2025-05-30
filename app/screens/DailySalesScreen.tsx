@@ -1,20 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { View, ScrollView, RefreshControl } from 'react-native';
+import { DailySalesMetrics } from 'app/components/dailySales/DailySalesMetrics';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { useRestaurantOverview } from 'app/hooks/useRestaurantOverview';
+import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/utils';
+
 import CustomButton from 'app/components/common/button/CustomButton';
 import DateHeader from 'app/components/common/DateHeader';
 import NotificationBar from 'app/components/common/NotificationBar';
 import SubTab from 'app/components/common/SubTab';
-import { DailySalesMetrics } from 'app/components/dailySales/DailySalesMetrics';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import DailySalesTransactionCard from 'app/components/home/DailySalesTransaction';
 import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribution';
 import UpdateOpeningCashModal from 'app/components/modal/UpdateOpeningCashModal';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
-import { useRestaurantOverview } from 'app/hooks/useRestaurantOverview';
 import ExpenseSummary from 'app/components/home/ExpensesSummary';
 import TopSellingProductsCard from 'app/components/home/TopSellingProductsCard';
-import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/utils';
 
 const tabs = ['Past', 'Todays'];
 type TabType = (typeof tabs)[number];
@@ -35,7 +36,7 @@ const initialSelectedDateRange: DateRangeSelection = {
 };
 
 const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
-  const { selectedTab } = route.params || {};
+  const { selectedTab = 'Todays' } = route.params || {};
   const {
     dailySalesDetails,
     dailySalesState,
@@ -94,11 +95,15 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
   );
 
   // Handler for applying date range in Past sub-tab
-  const handleApplyDate = useCallback(() => {
-    if (activeTab === 'Past') {
-      handleFetchPastSales(selectedRange);
-    }
-  }, [activeTab, handleFetchPastSales, selectedRange]);
+  const handleApplyDate = useCallback(
+    (selectedDateRange: DateRangeSelection) => {
+      if (activeTab === 'Past') {
+        handleFetchPastSales(selectedDateRange);
+        setSelectedRange(selectedDateRange);
+      }
+    },
+    [activeTab, handleFetchPastSales, selectedRange],
+  );
 
   // SubTab switch
   const handleTabChange = useCallback(
@@ -142,7 +147,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
       if (selectedTab === 'Past') {
         setActiveTab('Past');
         handleFetchPastSales(selectedRange);
-      } else {
+      } else if (selectedTab === 'Todays') {
         setActiveTab('Todays');
         handleFetchTodaySales(selectedDate);
       }

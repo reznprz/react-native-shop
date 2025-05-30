@@ -14,6 +14,7 @@ import CollapsibleComponent from 'app/components/common/CollapsibleComponent';
 import NotificationBar from 'app/components/common/NotificationBar';
 import { useFocusEffect } from '@react-navigation/native';
 import SubTab from 'app/components/common/SubTab';
+import CancelReasonModal from 'app/components/modal/CancelReasonModal';
 
 const tabs = ['Details', 'More Actions'];
 type TabType = (typeof tabs)[number];
@@ -50,6 +51,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
   const [activeTab, setActiveTab] = useState<TabType>(actionType ?? 'Details');
   const [showSwitchTableModal, setShowSwitchTableModal] = useState(false);
   const [successNotification, setSuccessNotificaton] = useState('');
+  const [showCancelReasonModal, setShowCancelReasonModal] = useState(false);
 
   useEffect(() => {
     if (orderId) {
@@ -146,7 +148,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
       handleSiwtchTablePress={() => {
         setShowSwitchTableModal(true);
       }}
-      handleCancelOrderPress={() => handleCancelOrder(order.orderId)}
+      onCancelOrderPress={() => setShowCancelReasonModal(true)}
       handleSwitchPayment={handleSwitchPayment}
     />
   );
@@ -188,6 +190,15 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
 
       {/* Success notification */}
       <NotificationBar message={successNotification} onClose={() => setSuccessNotificaton('')} />
+
+      <CancelReasonModal
+        visible={showCancelReasonModal}
+        onRequestClose={() => setShowCancelReasonModal(false)}
+        onConfirm={(reason) => {
+          setShowCancelReasonModal(false);
+          handleCancelOrder(order.orderId, reason);
+        }}
+      />
     </View>
   );
 }

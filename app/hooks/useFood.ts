@@ -6,12 +6,18 @@ import { Category, Food } from 'app/api/services/foodService';
 
 export const useFood = () => {
   const tableName = useSelector((state: RootState) => state.table.tableName);
-  const storedRestaurantId = useSelector((state: RootState) => state.auth.authData?.restaurantId);
+  const storedAuthData = useSelector((state: RootState) => state.auth.authData);
   const foodMenu = useSelector((state: RootState) => state.foodMenu);
 
   // Local state for search and category
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  const {
+    restaurantId: storedRestaurantId = 0,
+    features: restaurantFeatures = [],
+    accessLevel,
+  } = storedAuthData || {};
 
   // Food mutation actions api
   const {
@@ -70,21 +76,23 @@ export const useFood = () => {
   }, []);
 
   const handleAddFood = useCallback(
-    (categoryId: number, newFood: Food) => {
+    (categoryId: number, newFood: Food, filePart?: any) => {
       addFoodMutation.mutate({
         restaurantId: storedRestaurantId || 0,
         categoryId: categoryId,
         newFood: newFood,
+        file: filePart,
       });
     },
     [addFoodMutation, storedRestaurantId],
   );
 
   const handleUpdateFood = useCallback(
-    (foodId: number, updatedFood: Food) => {
+    (foodId: number, updatedFood: Food, filePart?: any) => {
       updateFoodMutation.mutate({
         foodId: foodId,
         updatedFood: updatedFood,
+        file: filePart,
       });
     },
     [updateFoodMutation],
@@ -129,6 +137,10 @@ export const useFood = () => {
   );
 
   return {
+    //config
+    restaurantFeatures,
+    accessLevel,
+
     //foods
     foods: filteredFoods,
     refetch,

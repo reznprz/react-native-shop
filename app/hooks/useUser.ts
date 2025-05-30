@@ -3,15 +3,19 @@ import {
   createUserApi,
   deleteUserApi,
   getUsersApi,
+  updateUserApi,
   User,
   UserRegisterRequest,
 } from 'app/api/services/userService';
 import { useMutation } from '@tanstack/react-query';
+import { setUserAvatarUrl } from 'app/redux/authSlice';
 import { useCallback, useState } from 'react';
-import type { RootState } from '../redux/store';
-import { useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../redux/store';
+import { useSelector, useDispatch } from 'react-redux';
 
 export const useUsers = () => {
+  const dispatch: AppDispatch = useDispatch();
+
   const [users, setUsers] = useState<User[]>([]);
 
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
@@ -42,6 +46,36 @@ export const useUsers = () => {
       const response: ApiResponse<User[]> = await createUserApi(storeRestaurantId, newUser);
       if (response.status !== 'success') {
         throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      setUsers(response.data || []);
+    },
+    onError: (err) => {
+      setUsers([]);
+    },
+  });
+
+  const updateUserMutation = useMutation<
+    ApiResponse<User[]>,
+    Error,
+    { userId: number; updatedUser: User; updateImageOnly?: boolean }
+  >({
+    mutationFn: async ({ userId, updatedUser, updateImageOnly = false }) => {
+      if (userId === 0) {
+        throw new Error('User Id Invalid');
+      }
+      const response: ApiResponse<User[]> = await updateUserApi(
+        userId,
+        updatedUser,
+        updateImageOnly,
+      );
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      if (response && updatedUser.avatarUrl) {
+        dispatch(setUserAvatarUrl(updatedUser.avatarUrl));
       }
       return response;
     },
@@ -96,5 +130,8 @@ export const useUsers = () => {
 
     // createUser
     createUserMutation,
+
+    //updateUser
+    updateUserMutation,
   };
 };

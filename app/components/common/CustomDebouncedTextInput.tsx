@@ -37,7 +37,6 @@ const CustomDebouncedTextInput: React.FC<CustomDebouncedTextInputProps> = ({
     // Set a new debounce timer
     debounceTimeout.current = setTimeout(() => {
       onDebouncedChange(text);
-      console.log('Debounced input:', text);
     }, debounceDelay) as unknown as number;
   };
 
