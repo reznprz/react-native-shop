@@ -31,7 +31,6 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
   onRequestClose,
   onSave,
 }) => {
-  console.log('restaurantData img', restaurantData.imageUrl);
   const [form, setForm] = useState<RestaurantData>({ ...restaurantData });
   const [imageUri, setImageUri] = useState<string | undefined>(restaurantData.imageUrl);
 

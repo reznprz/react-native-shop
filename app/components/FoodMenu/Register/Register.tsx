@@ -93,6 +93,7 @@ export default function Register({
             tables={tables}
             currentTable={currentTable}
             activatedSubTab={activatedSubTab}
+            completeOrderState={completeOrderState}
             handleSearch={handleSearch}
             searchTerm={searchTerm}
             onSwitchTableClick={onSwitchTableClick}
@@ -139,6 +140,7 @@ export default function Register({
         tables={tables}
         currentTable={currentTable}
         activatedSubTab={activatedSubTab}
+        completeOrderState={completeOrderState}
         handleSearch={handleSearch}
         searchTerm={searchTerm}
         onSwitchTableClick={onSwitchTableClick}

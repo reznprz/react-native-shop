@@ -1,15 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import UserProfileCard from 'app/components/common/UserProfileCard';
 import SettingOption from 'app/components/settings/SettingOption';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomButton from 'app/components/common/button/CustomButton';
-import { useSettingsHook } from 'app/hooks/useSettingsHook';
+import AvatarPickerModal from 'app/components/modal/AvatarPickerModal';
+import { useSettingsAccount } from 'app/hooks/useSettingsAccount';
+import { useUsers } from 'app/hooks/useUser';
+import { emptyUser } from 'app/api/services/userService';
 
 export default function AccountScreen() {
-  const { sections, restaurantInfo, handlePress, handleLogout } = useSettingsHook();
-
-  const { userFirstName = '', userLastName = '', restaurantName = '' } = restaurantInfo ?? {};
+  const { sections, restaurantInfo, handlePress, handleLogout } = useSettingsAccount();
+  const { updateUserMutation } = useUsers();
+  const {
+    userFirstName = '',
+    userLastName = '',
+    restaurantName = '',
+    userAvatarUrl = '',
+    userId,
+    initials,
+  } = restaurantInfo ?? {};
+  const [avatarsModalVisible, setAvatarsModalVisible] = useState(false);
 
   return (
     <ScrollView
@@ -17,7 +28,13 @@ export default function AccountScreen() {
       showsVerticalScrollIndicator={false}
     >
       {/* User Profile Card */}
-      <UserProfileCard name={`${userFirstName} ${userLastName}`} email={restaurantName} />
+      <UserProfileCard
+        name={`${userFirstName} ${userLastName}`}
+        email={restaurantName}
+        imageUri={userAvatarUrl}
+        initials={initials}
+        onEditClick={() => setAvatarsModalVisible(true)}
+      />
 
       {/* Sections */}
       {sections.map((section) => (
@@ -62,6 +79,24 @@ export default function AccountScreen() {
           iconColor="black"
         />
       </View>
+      {/* Avatar selection modal */}
+      <AvatarPickerModal
+        visible={avatarsModalVisible}
+        onRequestClose={() => setAvatarsModalVisible(false)}
+        onSelect={(avatarUrl) => {
+          setAvatarsModalVisible(false);
+          const updatedUser = {
+            ...emptyUser,
+            avatarUrl: avatarUrl,
+          };
+
+          updateUserMutation.mutate({
+            userId: userId || 0,
+            updatedUser: updatedUser,
+            updateImageOnly: true,
+          });
+        }}
+      />
     </ScrollView>
   );
 }

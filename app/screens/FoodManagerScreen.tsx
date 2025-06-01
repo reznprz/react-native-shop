@@ -65,13 +65,12 @@ const FoodManagerScreen: React.FC = () => {
       <AddUpdateFoodForm
         food={updateFood}
         categories={categories}
-        onSubmit={(food, catId) => {
+        onSubmit={(food, catId, filePart) => {
           if (updateFood) {
-            console.log('updateFood', food);
             const updatedFood = food as Food;
-            handleUpdateFood(updateFood.id, updatedFood);
+            handleUpdateFood(updateFood.id, updatedFood, filePart);
           } else {
-            handleAddFood(catId, food as Food);
+            handleAddFood(catId, food as Food, filePart);
           }
           setActiveTab('Food');
           setMode('');

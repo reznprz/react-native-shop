@@ -1,6 +1,7 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
 import { IconMetadata } from './expenseService';
+import { Platform } from 'react-native';
 
 export interface GetAllFoodsResponse {
   requestId: string | null;
@@ -62,18 +63,53 @@ export const addFoodApi = async (
   restaurantId: number,
   categoryId: number,
   newFood: Food,
+  file?: { uri: string; name: string; type: string } | File,
 ): Promise<ApiResponse<Food[]>> => {
-  return await apiMethods.post<Food[]>(
-    `/api/food/${restaurantId}?categoryId=${categoryId}`,
-    newFood,
-  );
+  const url = `/api/food/${restaurantId}?categoryId=${categoryId}`;
+  const fd = new FormData();
+  const json = JSON.stringify(newFood);
+
+  if (Platform.OS === 'web') {
+    fd.append('data', new Blob([json], { type: 'application/json' }));
+  } else {
+    fd.append('data', {
+      string: json, // RN key name is literally "string"
+      name: 'data', // any filename; Spring ignores it
+      type: 'application/json',
+    } as any);
+  }
+
+  if (file) fd.append('file', file as any);
+
+  return await apiMethods.post<Food[]>(url, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 };
 
 export const updateFoodApi = async (
   foodId: number,
   updatedFood: Food,
+  file?: { uri: string; name: string; type: string } | File,
 ): Promise<ApiResponse<Food[]>> => {
-  return await apiMethods.put<Food[]>(`/api/food/${foodId}`, updatedFood);
+  const url = `/api/food/${foodId}`;
+  const fd = new FormData();
+  const json = JSON.stringify(updatedFood);
+
+  if (Platform.OS === 'web') {
+    fd.append('data', new Blob([json], { type: 'application/json' }));
+  } else {
+    fd.append('data', {
+      string: json, // RN key name is literally "string"
+      name: 'data', // any filename; Spring ignores it
+      type: 'application/json',
+    } as any);
+  }
+
+  if (file) fd.append('file', file as any);
+
+  return await apiMethods.put<Food[]>(url, fd, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 };
 
 export const deleteFoodApi = async (foodId: number): Promise<ApiResponse<Food[]>> => {

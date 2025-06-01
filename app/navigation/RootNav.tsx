@@ -15,6 +15,9 @@ const LazySalesAnalytics = createLazyScreen(() => import('app/screens/SalesAnaly
 const LazyUserScreen = createLazyScreen(() => import('app/screens/UserScreen'));
 const LazyTableMangerScreen = createLazyScreen(() => import('app/screens/TableManagerScreen'));
 const LazyProfileScreen = createLazyScreen(() => import('app/screens/ProfileScreen'));
+const LazySubscriptionPlansScreen = createLazyScreen(
+  () => import('app/screens/SubscriptionPlansScreen'),
+);
 
 // function LazyQrMenuItemsScreen(props: any) {
 //   return (
@@ -187,6 +190,24 @@ export default function RootNav() {
         component={LazyProfileScreen}
         options={{
           title: ScreenDisplayNames.PROFILE,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.SUBSCRIPTIONPLANS}
+        component={LazySubscriptionPlansScreen}
+        options={{
+          title: ScreenDisplayNames.SUBSCRIPTIONPLANS,
           headerShown: true,
           headerStyle: {
             backgroundColor: '#2a4759',

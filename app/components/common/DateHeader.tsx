@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, Pressable, StyleSheet } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';

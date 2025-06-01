@@ -25,9 +25,18 @@ export enum AccessLevel {
   USER = 'STAFF',
 }
 
+export enum FeatureKey {
+  ENABLE_TOURIST_MENU = 'ENABLE_TOURIST_MENU',
+}
+
 export interface OtpRequest {
   target: string;
   channel: 'email' | 'sms';
+}
+
+export interface OtpValidateRequest {
+  target: string;
+  code: string;
 }
 
 export interface OtpValidate {
@@ -64,6 +73,12 @@ export interface RestaurantPhone {
   status: ContactStatus;
 }
 
+export interface RestaurantFeature {
+  id: number;
+  key: FeatureKey;
+  enabled: boolean;
+}
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -76,8 +91,8 @@ export interface AuthResponse {
   userLastName: string;
   initials: string;
   restaurantImgUrl: string;
-  emails: RestaurantEmail[];
-  phoneNumbers: RestaurantPhone[];
+  userAvatarUrl: string;
+  features: RestaurantFeature[];
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
 }
 
@@ -139,10 +154,10 @@ export const requesOtpApi = async (otpRequest: OtpRequest): Promise<OtpRequestRe
   return authResponse;
 };
 
-export const validateOtpApi = async (credentials: Credentials): Promise<OtpValidateResponse> => {
+export const validateOtpApi = async (request: OtpValidateRequest): Promise<OtpValidateResponse> => {
   const response = await axios.post<OtpValidateResponse>(
     `${config.tokenBaseURL}/otp/validate`,
-    credentials,
+    request,
     {
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       timeout: 10000,

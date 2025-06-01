@@ -55,7 +55,6 @@ export function useLogin(): UseLoginResult {
   const handleLoginSuccess = useCallback(async () => {
     if (loginRes && loginRes?.restaurantId) {
       dispatch(setAuthData(loginRes));
-      console.log('Fetching food menu for restaurant ID:', loginRes?.restaurantId);
 
       await loadFoodMenu(loginRes.restaurantId);
     }

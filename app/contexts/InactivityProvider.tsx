@@ -20,7 +20,7 @@ export function InactivityProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     console.log('Logging out due to inactivity');
-    dispatch(clearAuthData());
+    // dispatch(clearAuthData());
   }, [dispatch]);
 
   const resetTimer = useCallback(() => {

@@ -7,6 +7,7 @@ interface BaseModalProps {
   headerTitle?: string;
   body: React.ReactNode;
   footer?: React.ReactNode;
+  style?: ViewStyle;
   bodyStyle?: ViewStyle;
 }
 
@@ -14,6 +15,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
   visible,
   onRequestClose,
   headerTitle,
+  style,
   body,
   footer,
   bodyStyle = { width: '100%', marginVertical: 15 },
@@ -21,7 +23,7 @@ const BaseModal: React.FC<BaseModalProps> = ({
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onRequestClose}>
       <View style={styles.modalBackdrop}>
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, style]}>
           {/* Header */}
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{headerTitle}</Text>

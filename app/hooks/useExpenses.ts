@@ -8,7 +8,7 @@ import {
   getExpenseDescriptionsApi,
   initialExpenseDetailResponse,
 } from 'app/api/services/expenseService';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import type { RootState } from '../redux/store';
 import { useSelector } from 'react-redux';
@@ -23,6 +23,7 @@ export const useExpenses = () => {
     initialExpenseDetailResponse,
   );
   const [expenseDescription, setExpenseDescription] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const createExpenseMutation = useMutation<
     ApiResponse<ExpenseDetailResponse>,
@@ -136,8 +137,28 @@ export const useExpenses = () => {
     getExpenseDescriptionsMutation.mutate({ restaurantId: storeRestaurantId });
   }, [getExpenseDescriptionsMutation]);
 
+  const filteredExpenseDetails = useMemo<ExpenseDetailResponse>(() => {
+    // If searchTerm is empty/whitespace, return the original response
+    if (!searchTerm.trim()) {
+      return expenseDetails;
+    }
+
+    const lower = searchTerm.toLowerCase();
+    const filteredExpenses: Expense[] = expenseDetails.expenses.filter((e) => {
+      const description = e.description?.toLowerCase() || '';
+      // You can add more fields here (e.g. e.userName) if you want to match on other props
+      return description.includes(lower);
+    });
+
+    // Return a new ExpenseDetailResponse with only the `expenses` array replaced
+    return {
+      ...expenseDetails,
+      expenses: filteredExpenses,
+    };
+  }, [expenseDetails, searchTerm]);
+
   return {
-    expenseDetails,
+    expenseDetails: filteredExpenseDetails,
     expenseDescription,
     expenseScreenState: findExpenseByDateRangeMutation,
     addExpenseState: createExpenseMutation,
@@ -147,5 +168,9 @@ export const useExpenses = () => {
     handleAddExpense,
     fetchExpense,
     handleDeleteExpense,
+
+    //search
+    searchTerm,
+    setSearchTerm,
   };
 };

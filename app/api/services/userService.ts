@@ -22,8 +22,23 @@ export interface User {
   password: string;
   phoneNumber: string;
   email: string;
+  avatarUrl?: string;
   restaurantId: number;
 }
+
+export const emptyUser: User = {
+  avatarUrl: '',
+  id: 0,
+  accessLevel: AccessLevel.USER,
+  passcode: '',
+  firstName: '',
+  lastName: '',
+  username: '',
+  password: '',
+  phoneNumber: '',
+  email: '',
+  restaurantId: 0,
+};
 
 export interface UserRegisterRequest extends RegisterRequest {
   accessLevel: AccessLevel;
@@ -43,6 +58,17 @@ export const createUserApi = async (
 
 export const getUsersApi = async (restaurantId: number): Promise<ApiResponse<User[]>> => {
   return await apiMethods.get<User[]>(`/api/user/byRestaurant/${restaurantId}`);
+};
+
+export const updateUserApi = async (
+  userId: number,
+  updated: User,
+  updateImageOnly: boolean,
+): Promise<ApiResponse<User[]>> => {
+  return await apiMethods.put<User[]>(
+    `/api/user/${userId}?updateImageOnly=${updateImageOnly}`,
+    updated,
+  );
 };
 
 export const deleteUserApi = async (

@@ -15,7 +15,6 @@ const CheckableChip: React.FC<CheckableChipProps> = ({ style, isChecked, label, 
   return (
     <Pressable
       onPress={() => {
-        console.log('chip pressed!', label);
         onClick(label);
       }}
       onPressIn={() => setIsPressed(true)}

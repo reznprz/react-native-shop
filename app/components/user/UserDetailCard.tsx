@@ -1,18 +1,18 @@
 import MaterialIcons from '@expo/vector-icons/build/MaterialIcons';
 import { User } from 'app/api/services/userService';
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { SwipeRow } from 'react-native-swipe-list-view';
 
 interface UserDetailCardProps {
   user: User;
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   iconBgColor?: string;
   onUpdate?: () => void;
   onDelete?: () => void;
 }
 
-const ITEM_HEIGHT = 80; // fixed height for each card
+const ITEM_HEIGHT = 110; // fixed height for each card
 const SWIPE_WIDTH = 180; // total width for 2 buttons @ 70px each
 
 const UserDetailCard: React.FC<UserDetailCardProps> = ({
@@ -58,8 +58,12 @@ const UserDetailCard: React.FC<UserDetailCardProps> = ({
         className={`flex-row justify-between items-center p-5 bg-white border-b border-gray-200 `}
       >
         <View className="flex-row items-center">
-          <View className={`p-3  rounded-md mr-3`} style={{ backgroundColor: iconBgColor }}>
-            {icon}
+          <View className={`p-3 rounded-md mr-3`} style={{ backgroundColor: iconBgColor }}>
+            {user.avatarUrl ? (
+              <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
+            ) : (
+              <>{icon}</>
+            )}
           </View>
           <View>
             <Text className="text-gray-800 font-semibold">
@@ -99,5 +103,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
     marginTop: 4,
+  },
+  avatar: {
+    width: 56, // ~14 * 4
+    height: 56, // ~14 * 4
+    borderRadius: 28, // half of width/height
   },
 });

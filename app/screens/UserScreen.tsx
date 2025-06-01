@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import CustomButton from 'app/components/common/button/CustomButton';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
@@ -9,20 +9,34 @@ import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import UserDetailCard from 'app/components/user/UserDetailCard';
 import { useUsers } from 'app/hooks/useUser';
 import AddUserModal from 'app/components/modal/AddUserModal';
-import { UserRegisterRequest } from 'app/api/services/userService';
+import { User, UserRegisterRequest } from 'app/api/services/userService';
 import ListHeader from 'app/components/common/ListHeader';
+import UpdateUserModal from 'app/components/modal/UpdateUserModal';
+import { useRestaurant } from 'app/hooks/useRestaurant';
+import { ContactStatus } from 'app/api/services/restaurantService';
 
 const UserScreen = () => {
   const {
+    storeRestaurantId,
     users,
     getUsersState,
     fetchUsers,
     createUserMutation,
+    updateUserMutation,
     deleteUserState,
     handleDeleteUser,
+    sendOtpState,
+    verifyOtpState,
+    searchTerm,
+    setSearchTerm,
   } = useUsers();
 
+  const { getRestaurantMutation, restaurantData } = useRestaurant();
+
+  const { emails = [], phones = [] } = restaurantData || {};
+
   const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState<User | null>(null);
   const [errorNotification, setErrorNotificaton] = useState('');
   const [successNotification, setSuccessNotificaton] = useState('');
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<number | null>(
@@ -62,6 +76,29 @@ const UserScreen = () => {
     }
   }, [deleteUserState]);
 
+  useEffect(() => {
+    if (updateUserMutation.status === 'error') {
+      setErrorNotificaton(deleteUserState.error?.message || 'Opps Something went wrong!.');
+      updateUserMutation.reset?.();
+    }
+    if (updateUserMutation.status === 'success') {
+      setSuccessNotificaton('User updated success!.');
+      updateUserMutation.reset?.();
+    }
+  }, [updateUserMutation]);
+
+  const headerElement = useMemo(
+    () => (
+      <ListHeader
+        title="All Users"
+        searchTerm={searchTerm}
+        onSearch={(text) => setSearchTerm(text)}
+        searchPlaceholder="Search users..."
+      />
+    ),
+    [searchTerm], // only recreate when `searchTerm` changes
+  );
+
   return (
     <View className="flex-1 bg-gray-100 p-4">
       {/* Add User Button */}
@@ -69,15 +106,18 @@ const UserScreen = () => {
         <CustomButton
           title={'+ Add User'}
           onPress={() => {
+            getRestaurantMutation.mutate({ restaurantId: storeRestaurantId });
             setShowAddUserModal(true);
           }}
           customButtonStyle="w-40 h-12 mr-2 flex items-center justify-center rounded-lg  bg-[#2a4759] shadow-md"
         />
       </View>
 
-      {getUsersState?.status === 'pending' || addUserState === 'pending' ? (
+      {getUsersState?.status === 'pending' ||
+      addUserState === 'pending' ||
+      updateUserMutation?.status === 'pending' ? (
         <FoodLoadingSpinner iconName="coffee" />
-      ) : !users || users.length === 0 ? (
+      ) : !users || (users.length === 0 && searchTerm.length === 0) ? (
         <EmptyState
           iconName="user"
           message="No User available"
@@ -90,14 +130,7 @@ const UserScreen = () => {
           keyExtractor={(item) => item.id.toString()}
           numColumns={1}
           key={'h'}
-          ListHeaderComponent={() => (
-            <ListHeader
-              title="All Users"
-              searchTerm={''}
-              searchPlaceholder={'Search users...'}
-              onSearch={() => {}}
-            />
-          )}
+          ListHeaderComponent={headerElement}
           stickyHeaderIndices={[0]}
           renderItem={({ item }) => (
             <View className="px-4">
@@ -115,15 +148,22 @@ const UserScreen = () => {
                 onDelete={() => {
                   setShowDeleteConfirmationModal(item.id);
                 }}
+                onUpdate={() => {
+                  setShowEditUserModal(item);
+                }}
               />
             </View>
           )}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="none"
         />
       )}
 
       <AddUserModal
         visible={showAddUserModal}
+        primaryEmail={emails.find((e) => e.status === ContactStatus.PRIMARY)?.email || ''}
+        primaryPhone={phones.find((p) => p.status === ContactStatus.PRIMARY)?.phoneNumber || ''}
         onRequestClose={() => setShowAddUserModal(false)}
         onAddUser={(data) => {
           // Validate the data before sending it to the API and mapped to request obj
@@ -141,7 +181,22 @@ const UserScreen = () => {
           // Call the API to create the user
           addUser({ newUser: newUser });
         }}
+        //otp
+        sendOtpState={sendOtpState}
+        verifyOtpState={verifyOtpState}
       />
+
+      {showEditUserModal && (
+        <UpdateUserModal
+          visible={showEditUserModal !== null}
+          user={showEditUserModal!!}
+          onConfirm={(data) => {
+            setShowEditUserModal(null);
+            updateUserMutation.mutate({ userId: data.id, updatedUser: data });
+          }}
+          onRequestClose={() => setShowEditUserModal(null)}
+        />
+      )}
 
       <NotificationBar
         message={errorNotification}
