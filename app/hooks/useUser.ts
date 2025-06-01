@@ -9,14 +9,17 @@ import {
 } from 'app/api/services/userService';
 import { useMutation } from '@tanstack/react-query';
 import { setUserAvatarUrl } from 'app/redux/authSlice';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { RootState, AppDispatch } from '../redux/store';
 import { useSelector, useDispatch } from 'react-redux';
+import { useOtpMutations } from './apiQuery/useOtpMutations';
 
 export const useUsers = () => {
   const dispatch: AppDispatch = useDispatch();
+  const { requestOtpMutation, validateOtpMutation } = useOtpMutations();
 
   const [users, setUsers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
   const { restaurantId: storeRestaurantId = 0 } = storedAuthData || {};
@@ -74,8 +77,8 @@ export const useUsers = () => {
       if (response.status !== 'success') {
         throw new Error(response.message);
       }
-      if (response && updatedUser.avatarUrl) {
-        dispatch(setUserAvatarUrl(updatedUser.avatarUrl));
+      if (response) {
+        dispatch(setUserAvatarUrl(updatedUser.avatarUrl || ''));
       }
       return response;
     },
@@ -118,9 +121,26 @@ export const useUsers = () => {
     [deleteUserMutation],
   );
 
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm.trim()) {
+      // If searchTerm is empty (or whitespace), return all
+      return users;
+    }
+
+    const lower = searchTerm.toLowerCase();
+    return users.filter((u) => {
+      const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
+      const username = u.username?.toLowerCase() || '';
+      const email = u.email?.toLowerCase() || '';
+      return fullName.includes(lower) || username.includes(lower) || email.includes(lower);
+    });
+  }, [users, searchTerm]);
+
   return {
+    storeRestaurantId,
+
     // getUsers
-    users,
+    users: filteredUsers,
     getUsersState: getAllUsersMutation,
     fetchUsers,
 
@@ -133,5 +153,13 @@ export const useUsers = () => {
 
     //updateUser
     updateUserMutation,
+
+    //otp
+    sendOtpState: requestOtpMutation,
+    verifyOtpState: validateOtpMutation,
+
+    //search
+    searchTerm,
+    setSearchTerm,
   };
 };

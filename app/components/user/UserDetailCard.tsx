@@ -12,7 +12,7 @@ interface UserDetailCardProps {
   onDelete?: () => void;
 }
 
-const ITEM_HEIGHT = 80; // fixed height for each card
+const ITEM_HEIGHT = 110; // fixed height for each card
 const SWIPE_WIDTH = 180; // total width for 2 buttons @ 70px each
 
 const UserDetailCard: React.FC<UserDetailCardProps> = ({

@@ -34,6 +34,11 @@ export interface OtpRequest {
   channel: 'email' | 'sms';
 }
 
+export interface OtpValidateRequest {
+  target: string;
+  code: string;
+}
+
 export interface OtpValidate {
   target: string;
   code: string;
@@ -149,10 +154,10 @@ export const requesOtpApi = async (otpRequest: OtpRequest): Promise<OtpRequestRe
   return authResponse;
 };
 
-export const validateOtpApi = async (credentials: Credentials): Promise<OtpValidateResponse> => {
+export const validateOtpApi = async (request: OtpValidateRequest): Promise<OtpValidateResponse> => {
   const response = await axios.post<OtpValidateResponse>(
     `${config.tokenBaseURL}/otp/validate`,
-    credentials,
+    request,
     {
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       timeout: 10000,

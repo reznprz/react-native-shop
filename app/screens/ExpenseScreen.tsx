@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import ExpenseCard from 'app/components/expense/ExpenseCard';
 import { useExpenses } from 'app/hooks/useExpenses';
@@ -27,6 +27,8 @@ const ExpenseScreen = () => {
     fetchExpense,
     handleDeleteExpense,
     getExpenseDescriptionsHandler,
+    searchTerm,
+    setSearchTerm,
   } = useExpenses();
   const { isLargeScreen } = useIsDesktop();
 
@@ -71,6 +73,18 @@ const ExpenseScreen = () => {
       deleteExpenseState.reset?.();
     }
   }, [deleteExpenseState]);
+
+  const headerElement = useMemo(
+    () => (
+      <ListHeader
+        title="Recent Expenses"
+        searchTerm={searchTerm}
+        onSearch={(text) => setSearchTerm(text)}
+        searchPlaceholder="Search expenses..."
+      />
+    ),
+    [searchTerm], // only recreate when `searchTerm` changes
+  );
 
   return (
     <View className="flex-1 bg-gray-100 p-4">
@@ -118,14 +132,7 @@ const ExpenseScreen = () => {
           keyExtractor={(item) => item.id.toString()}
           numColumns={1}
           key={'h'}
-          ListHeaderComponent={() => (
-            <ListHeader
-              title="Recent Expenses"
-              searchTerm={''}
-              searchPlaceholder={'Search expenses...'}
-              onSearch={() => {}}
-            />
-          )}
+          ListHeaderComponent={headerElement}
           stickyHeaderIndices={[0]}
           renderItem={({ item }) => (
             <View className="px-4">
@@ -152,6 +159,8 @@ const ExpenseScreen = () => {
             </View>
           )}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="none"
         />
       )}
 

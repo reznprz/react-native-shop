@@ -26,6 +26,20 @@ export interface User {
   restaurantId: number;
 }
 
+export const emptyUser: User = {
+  avatarUrl: '',
+  id: 0,
+  accessLevel: AccessLevel.USER,
+  passcode: '',
+  firstName: '',
+  lastName: '',
+  username: '',
+  password: '',
+  phoneNumber: '',
+  email: '',
+  restaurantId: 0,
+};
+
 export interface UserRegisterRequest extends RegisterRequest {
   accessLevel: AccessLevel;
 }

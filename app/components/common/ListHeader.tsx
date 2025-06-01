@@ -24,11 +24,11 @@ const ListHeader: React.FC<ListHeaderProps> = ({
     <Text className="text-black font-semibold text-xl">{title}</Text>
 
     <View className="flex-row">
-      <View className="flex-row rounded-md border border-gray-300 p-2">
+      <View className="flex-row rounded-md border border-gray-300 p-2 w-64">
         <Feather name="search" size={20} color="gray" />
         <TextInput
           placeholder={searchPlaceholder}
-          className="ml-2 text-black-700"
+          className="ml-2 text-black-700 flex-1"
           onChangeText={onSearch}
           value={searchTerm}
         />

@@ -131,7 +131,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     <>
       {buttonType === 'TouchableOpacity' ? (
         <>
-          <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+          <Animated.View
+            style={[
+              { transform: [{ scale: scaleAnim }] },
+              // If disabled, reduce opacity
+              disabled && { opacity: 0.5 },
+            ]}
+          >
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={disabled ? undefined : onPress}

@@ -7,7 +7,7 @@ import CustomButton from 'app/components/common/button/CustomButton';
 import AvatarPickerModal from 'app/components/modal/AvatarPickerModal';
 import { useSettingsAccount } from 'app/hooks/useSettingsAccount';
 import { useUsers } from 'app/hooks/useUser';
-import { AccessLevel, User } from 'app/api/services/userService';
+import { emptyUser } from 'app/api/services/userService';
 
 export default function AccountScreen() {
   const { sections, restaurantInfo, handlePress, handleLogout } = useSettingsAccount();
@@ -85,18 +85,9 @@ export default function AccountScreen() {
         onRequestClose={() => setAvatarsModalVisible(false)}
         onSelect={(avatarUrl) => {
           setAvatarsModalVisible(false);
-          const updatedUser: User = {
+          const updatedUser = {
+            ...emptyUser,
             avatarUrl: avatarUrl,
-            id: 0,
-            accessLevel: AccessLevel.ADMIN,
-            passcode: '',
-            firstName: '',
-            lastName: '',
-            username: '',
-            password: '',
-            phoneNumber: '',
-            email: '',
-            restaurantId: 0,
           };
 
           updateUserMutation.mutate({

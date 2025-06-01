@@ -5,7 +5,6 @@ import {
   Text,
   Pressable,
   Animated,
-  useWindowDimensions,
   StyleSheet,
   ActivityIndicator,
   TextInput,
@@ -14,10 +13,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
 import { User } from 'app/api/services/userService';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
-// -----------------------------------------------------------------------------
-// Static avatars (extend as needed)
-// -----------------------------------------------------------------------------
 const DEFAULT_AVATARS = [
   '',
   'https://storage.googleapis.com/image-box-sp/Boy1.jpg',
@@ -40,9 +37,7 @@ interface UpdateUserModalProps {
 
 const GAP = 8; // spacing between tiles
 
-// -----------------------------------------------------------------------------
 // AvatarTile component
-// -----------------------------------------------------------------------------
 const AvatarTile: React.FC<{ uri: string; size: number; selected: boolean }> = React.memo(
   ({ uri, size, selected }) => {
     const [loaded, setLoaded] = useState(false);
@@ -54,7 +49,7 @@ const AvatarTile: React.FC<{ uri: string; size: number; selected: boolean }> = R
       Animated.timing(fade, { toValue: 1, duration: 250, useNativeDriver: true }).start();
     };
 
-    const inner = size * 0.82; // inner image ratio
+    const inner = size * 0.88; // inner image ratio
 
     return (
       <View
@@ -93,19 +88,13 @@ const AvatarTile: React.FC<{ uri: string; size: number; selected: boolean }> = R
 );
 AvatarTile.displayName = 'AvatarTile';
 
-// -----------------------------------------------------------------------------
 // Helpers for layout
-// -----------------------------------------------------------------------------
 const MOBILE_BREAKPOINT = 640; // px
-const TABLET_BREAKPOINT = 768; // px
 
 const calcTileSize = (containerWidth: number, cols: number) => {
   return (containerWidth - 40 - GAP * (cols - 1)) / cols; // 40 = 20px horizontal paddings
 };
 
-// -----------------------------------------------------------------------------
-// Main Modal Component
-// -----------------------------------------------------------------------------
 const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   visible,
   onRequestClose,
@@ -113,7 +102,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   avatars = DEFAULT_AVATARS,
   user,
 }) => {
-  const { width: screenW, height: screenH } = useWindowDimensions();
+  const { width: screenW, height: screenH } = useIsDesktop();
 
   // container width (modal)
   const containerWidth = Math.min(screenW - 40, Math.min(screenW * 0.9, 720));
@@ -126,15 +115,14 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const cols = isTabletOrDesktop ? 6 : 3; // 6 columns for tablet/desktop grid, 3 for mobile row (unused)
   const tileSize = calcTileSize(containerWidth, isTabletOrDesktop ? cols : 4); // if mobile row, give smaller calc
 
-  // --------------------------------------------------------------------------------
   // State
-  const [avatar, setAvatar] = useState(user.avatarUrl || avatars[0]);
+  const [avatar, setAvatar] = useState(user.avatarUrl);
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(user.phoneNumber);
-  const [password, setPassword] = useState('');
-  const [showPassInput, setShowPassInput] = useState(false);
+  // const [password, setPassword] = useState('');
+  // const [showPassInput, setShowPassInput] = useState(false);
 
   const handleSave = () => {
     const updated: User = {
@@ -144,14 +132,11 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
       email,
       phoneNumber: phone,
       avatarUrl: avatar,
-      ...(password ? { password } : {}),
     } as User;
     onConfirm(updated);
   };
 
-  // --------------------------------------------------------------------------------
   // UI Parts
-  // --------------------------------------------------------------------------------
   const renderAvatarRowMobile = () => (
     <ScrollView
       horizontal
@@ -161,7 +146,10 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
       {avatars.map((uri, idx) => (
         <Pressable
           key={uri}
-          onPress={() => setAvatar(uri)}
+          onPress={() => {
+            console.log('avatarUrl 111', uri);
+            setAvatar(uri);
+          }}
           style={{ marginRight: idx === avatars.length - 1 ? 0 : GAP }}
         >
           <AvatarTile uri={uri} size={tileSize} selected={avatar === uri} />
@@ -176,7 +164,10 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
         // Only show up to 2 rows of 6 = 12 avatars
         <Pressable
           key={uri}
-          onPress={() => setAvatar(uri)}
+          onPress={() => {
+            console.log('avatarUrl 111', uri);
+            setAvatar(uri);
+          }}
           style={{
             marginRight: idx % cols === cols - 1 ? 0 : GAP,
             marginBottom: GAP,
@@ -235,7 +226,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
                 keyboardType="phone-pad"
               />
 
-              <Text style={styles.label}>Password</Text>
+              {/* <Text style={styles.label}>Password</Text>
               {showPassInput ? (
                 <TextInput
                   style={styles.input}
@@ -252,7 +243,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
                   <Text style={{ color: '#6b7280', flex: 1 }}>••••••••</Text>
                   <Ionicons name="pencil" size={18} color="#6b7280" />
                 </Pressable>
-              )}
+              )} */}
             </View>
           </ScrollView>
 

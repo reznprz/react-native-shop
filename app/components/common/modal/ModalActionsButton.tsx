@@ -10,6 +10,7 @@ interface ButtonProps {
   fontWeight?: 'normal' | 'bold' | '500' | '600';
   buttonStyle?: ViewStyle;
   textStyle?: ViewStyle;
+  disable?: boolean;
 }
 
 interface ModalActionsButtonProps {
@@ -64,6 +65,7 @@ const ModalActionsButton: React.FC<ModalActionsButtonProps> = ({
             fontWeight: actionProps.fontWeight || '600',
             ...actionProps.textStyle,
           }}
+          disabled={actionProps.disable}
         />
       </View>
     </View>
