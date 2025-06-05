@@ -1,5 +1,5 @@
 import 'react-native-gesture-handler';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { enableScreens } from 'react-native-screens';
 import './global.css'; // Typically not needed in pure React Native projects
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -12,54 +12,57 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './app/redux/store';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { InactivityProvider } from './app/contexts/InactivityProvider'; 
-
+import UserInactivity from 'react-native-user-inactivity';
+import { useDispatch } from 'react-redux';
+import { clearAuthData } from './app/redux/authSlice';
 
 // Initialize react-native-screens for performance
 enableScreens();
 
+const AUTO_LOGOUT_MS = 1 * 60 * 1000; // 1 minute
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { refetchOnWindowFocus: false } },
+});
 const MyTheme: Theme = {
   ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    background: '#ffffff', // Customize as needed
-    primary: '#8b5e3c', // Primary color
-    // Add other color customizations here
-  },
+  colors: { ...DefaultTheme.colors, background: '#ffffff', primary: '#8b5e3c' },
 };
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false, 
-      // or other global defaults
-    },
-  },
-});
+const InnerApp: React.FC = () => {
+  const dispatch = useDispatch();
 
-const App: React.FC = () => {
+  const signOut = useCallback(() => {
+    dispatch(clearAuthData());
+    queryClient.clear();
+  }, [dispatch]);
 
   return (
-    <ErrorBoundary>
-      <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <PersistGate loading={<FoodLoadingSpinner />} persistor={persistor}>
-          <SafeAreaProvider>
-          <InactivityProvider>
-
-            <NavigationContainer ref={navigationRef} theme={MyTheme}>
-              <React.Suspense fallback={<FoodLoadingSpinner />}>
-              <AppContent />
-              </React.Suspense>
-            </NavigationContainer>
-            </InactivityProvider>
-
-          </SafeAreaProvider>
-        </PersistGate>
-        </QueryClientProvider>
-      </Provider>
-    </ErrorBoundary>
+    <SafeAreaProvider>
+      <UserInactivity
+        timeForInactivity={AUTO_LOGOUT_MS}
+        onAction={isActive => !isActive && signOut()}
+        skipKeyboard
+      >
+        <NavigationContainer ref={navigationRef} theme={MyTheme}>
+          <React.Suspense fallback={<FoodLoadingSpinner />}>
+            <AppContent />
+          </React.Suspense>
+        </NavigationContainer>
+      </UserInactivity>
+    </SafeAreaProvider>
   );
 };
+
+const App: React.FC = () => (
+  <ErrorBoundary>
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        <PersistGate loading={<FoodLoadingSpinner />} persistor={persistor}>
+          <InnerApp />
+        </PersistGate>
+      </QueryClientProvider>
+    </Provider>
+  </ErrorBoundary>
+);
 
 export default React.memo(App);
