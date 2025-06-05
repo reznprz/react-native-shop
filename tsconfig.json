@@ -30,7 +30,8 @@
     "env.d.ts",
     "shajhya.jpg",
     "svg.d.ts",
-    "nativewind-env.d.ts"
+    "nativewind-env.d.ts",
+    "react-native.d.ts"
   ], // Ensures TypeScript includes the "app" directory
   "exclude": [
     "node_modules",
