@@ -41,14 +41,19 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
 
   const onCompletePress = useCallback(() => {
     const totalPaymentsAmount = selectedPayments.reduce((sum, p) => sum + p.amount, 0);
+    console.log('Total Payments Amount:', totalPaymentsAmount);
     if (selectedPayments.length > 1) {
+      console.log('Multiple payments selected:', selectedPayments);
       if (totalPaymentsAmount > tableItems.totalPrice) {
+        console.log(PAYMENT_WARN_MESSAGES.PAYMENTS_TOTAL_INCORRECT, selectedPayments);
         setPaymentWarnMessage(
           `${PAYMENT_WARN_MESSAGES.PAYMENTS_TOTAL_INCORRECT} : TotalPaymentAmount: ${totalPaymentsAmount}`,
         );
         return;
       }
       if (totalPaymentsAmount < tableItems.totalPrice) {
+        console.log(PAYMENT_WARN_MESSAGES.PAYMENTS_CONFORMATION, selectedPayments);
+
         setPaymentConfirmationMessage(
           `${PAYMENT_WARN_MESSAGES.PAYMENTS_CONFORMATION} : TotalPaymentAmount: ${totalPaymentsAmount}`,
         );
@@ -107,7 +112,10 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
       {/* Complete Order Button */}
       <LoadingButton
         title="Complete Order"
-        onPress={onCompletePress}
+        onPress={() => {
+          console.log('Complete Order Pressed with selected payments:', selectedPayments);
+          onCompletePress();
+        }}
         buttonState={completeOrderState}
         disabled={selectedPayments.length === 0}
         buttonStyle={{ paddingVertical: 14 }}
@@ -118,7 +126,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
         message={paymentWarnMessage}
         onClose={() => setPaymentWarnMessage('')}
         variant="warn"
-        topPosition={140}
+        topPosition={items.length > 3 ? 580 + (items.length * 50 || 1) : 480}
       />
 
       <NotificationWithButtons
@@ -126,6 +134,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
         onClose={() => setPaymentConfirmationMessage('')}
         type="info"
         width={380}
+        topPosition={items.length > 3 ? 680 + items.length * 15 : 480}
         onConfirm={(note) => {
           const selectedPaymentsWithNote = selectedPayments.map((p) => (p ? { ...p, note } : p));
           handleCompleteOrder(selectedPaymentsWithNote);

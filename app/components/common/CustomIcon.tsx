@@ -22,6 +22,13 @@ import WingsAdapter from './svg/WingsAdapter';
 import CigaretteAdapter from './svg/CigaretteAdapter';
 import RiceAdapter from './svg/RiceAdapter';
 import NoodlesAdapter from './svg/NoodlesAdapter';
+import CoffeeIconAdapter from './svg/CoffeeAdapter';
+import BubbleTeaIconAdapter from './svg/BubbleTeaAdapter';
+import IcedCoffeeIconAdapter from './svg/IcedCoffeeAdapter';
+import BreakFastIconAdapter from './svg/BreakFastAdapter';
+import NoodlesPastaIconAdapter from './svg/NoodlesPastaAdapter';
+import FrappeIconAdapter from './svg/FrappeAdapter';
+import HookahIconAdapter from './svg/HookahAdapter';
 
 export const ICON_TYPES = {
   Ionicons,
@@ -42,6 +49,13 @@ export const ICON_TYPES = {
   Cigarette: CigaretteAdapter,
   Rice: RiceAdapter,
   Noodles: NoodlesAdapter,
+  Coffee: CoffeeIconAdapter,
+  BubbleTea: BubbleTeaIconAdapter,
+  IcedCoffee: IcedCoffeeIconAdapter,
+  BreakFast: BreakFastIconAdapter,
+  NoodlePasta: NoodlesPastaIconAdapter,
+  Frappe: FrappeIconAdapter,
+  Hookah: HookahIconAdapter,
   Image: RNImage,
 };
 

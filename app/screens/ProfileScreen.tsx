@@ -230,7 +230,7 @@ const ProfileScreen = () => {
               iconColor={'#2a4759'}
               containerStyle={'items-start mb-2'}
               textColor={'text-black font-bold text-sm underline'}
-              collapsibleContent={'Primary Status would eligible to received otp!'}
+              collapsibleContent={'Primary Status would eligible to received otp code!'}
             />
             <View className="mb-5">
               <Text className="text-sm text-gray-500 mb-1">Phone Numbers</Text>

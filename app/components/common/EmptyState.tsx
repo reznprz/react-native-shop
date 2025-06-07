@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 interface EmptyStateProps {
@@ -10,6 +10,8 @@ interface EmptyStateProps {
   containerPadding?: number;
   messageFontSize?: number;
   subMessageFontSize?: number;
+  onAddPress?: () => void;
+  addButtonLabel?: string;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
@@ -20,6 +22,8 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   containerPadding = 20,
   messageFontSize = 18,
   subMessageFontSize = 14,
+  onAddPress,
+  addButtonLabel = 'Add Item',
 }) => {
   return (
     <View style={[styles.container, { padding: containerPadding }]}>
@@ -27,6 +31,12 @@ const EmptyState: React.FC<EmptyStateProps> = ({
       <Text style={[styles.message, { fontSize: messageFontSize }]}>{message}</Text>
       {subMessage && (
         <Text style={[styles.subMessage, { fontSize: subMessageFontSize }]}>{subMessage}</Text>
+      )}
+      {onAddPress && (
+        <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
+          <MaterialCommunityIcons name="plus-circle" size={20} color="#ffffff" />
+          <Text style={styles.addButtonText}>{addButtonLabel}</Text>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -47,6 +57,21 @@ const styles = StyleSheet.create({
     color: '#666',
     textAlign: 'center',
     marginTop: 5,
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2a4759',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginTop: 20,
+  },
+  addButtonText: {
+    color: '#ffffff',
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

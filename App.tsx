@@ -19,7 +19,7 @@ import { clearAuthData } from './app/redux/authSlice';
 // Initialize react-native-screens for performance
 enableScreens();
 
-const AUTO_LOGOUT_MS = 1 * 60 * 1000; // 1 minute
+const AUTO_LOGOUT_MS = 10 * 60 * 1000; // 10 minute
 const queryClient = new QueryClient({
   defaultOptions: { queries: { refetchOnWindowFocus: false } },
 });

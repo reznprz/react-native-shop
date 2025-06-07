@@ -11,7 +11,6 @@ import NotificationWithButtons from 'app/components/NotificationWithButtons';
 import RegisterOrderItemsSummary from './RegisterOrderItemsSummary';
 import CollapsibleInfo from 'app/components/common/CollapsibleInfo';
 import BillingSummaryCard from 'app/components/table/BillingSummaryCard';
-import { StatusChip } from 'app/components/common/StatusChip';
 import CustomIcon from 'app/components/common/CustomIcon';
 
 interface RegisterPaymentDetailsProps {
@@ -175,7 +174,7 @@ const RegisterPaymentDetails: React.FC<RegisterPaymentDetailsProps> = ({
         message={paymentWarnMessage}
         onClose={() => setPaymentWarnMessage('')}
         variant="warn"
-        topPosition={140}
+        topPosition={items.length > 3 ? 580 + (items.length * 50 || 1) : 480}
       />
 
       <NotificationWithButtons
@@ -183,6 +182,7 @@ const RegisterPaymentDetails: React.FC<RegisterPaymentDetailsProps> = ({
         onClose={() => setPaymentConfirmationMessage('')}
         type="info"
         width={380}
+        topPosition={items.length > 3 ? 680 + items.length * 15 : 480}
         onConfirm={(note) => {
           const selectedPaymentsWithNote = selectedPayments.map((p) => (p ? { ...p, note } : p));
           handleCompleteOrder(selectedPaymentsWithNote);

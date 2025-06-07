@@ -51,6 +51,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
     categories,
     handleSearch,
     handleCategoryClick,
+    handleAddFoodClick,
     tableName,
   } = useFood();
 
@@ -114,7 +115,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   return (
     <View className="h-full w-full bg-gray-100">
-      <SubTab
+      {/* <SubTab
         tabs={tabs}
         activeTab={activeTab}
         onTabChange={(selectedTab) => {
@@ -125,10 +126,10 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             setSelectedCategory('All');
           }
         }}
-      />
+      /> */}
 
       <View className="flex-1 bg-gray-100">
-        {activeTab === 'Register' ? (
+        {activeTab === 'Register' || activeTab === 'All Foods' ? (
           <Register
             tableItems={prepTableItems}
             activatedSubTab={activeSubTab}
@@ -160,6 +161,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             handleCategoryClick={handleCategoryClick}
             refetchTables={refetchTables}
             refetchFoods={refetch}
+            onAddFoodClick={handleAddFoodClick}
           />
         ) : (
           <FoodsMenu

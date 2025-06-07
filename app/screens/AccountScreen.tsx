@@ -16,7 +16,7 @@ export default function AccountScreen() {
     userFirstName = '',
     userLastName = '',
     restaurantName = '',
-    userAvatarUrl = '',
+    userAvatarUrl = 'https://randomuser.me/api/portraits/men/1.jpg',
     userId,
     initials,
   } = restaurantInfo ?? {};

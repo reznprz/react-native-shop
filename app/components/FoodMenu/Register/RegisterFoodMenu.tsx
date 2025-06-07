@@ -37,6 +37,7 @@ export interface RegisterFoodMenuProps {
   onSelectTable: (selectedTable: string) => void;
   onPricingSubTabClick: (selectedTab: SubTabType) => void;
   refetchTables: () => void;
+  onAddFoodClick: () => void;
   refetchFoods: () => void;
 }
 
@@ -60,6 +61,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   handleCategoryClick,
   onPricingSubTabClick,
   onSelectTable,
+  onAddFoodClick,
   refetchTables,
   refetchFoods,
 }) => {
@@ -68,11 +70,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   const [activeView, setActiveView] = useState<ActiveView>('categories');
   const [activeSubFoodView, setActiveSubFoodView] = useState<ActiveSubFoodView>('all');
   const [activeTopBar, setActiveTopBar] = useState<string>('Table');
-
-  const handleCategorySelect = (cat: string) => {
-    setActiveView('food');
-    handleCategoryClick(cat);
-  };
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
   useEffect(() => {
     if (currentTable.trim().length === 0) {
@@ -148,14 +146,20 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
             setActiveView('table');
             refetchTables();
           }}
+          onAddFoodClick={onAddFoodClick}
         />
         {/* Adjust content container to account for fixed TopBar */}
         <View style={[styles.content, { marginTop: TOPBAR_HEIGHT }]}>
           {activeView === 'categories' && (
             <RegisterCategoryList
               categories={categories}
-              selectedCategory="All"
-              onSelectCategory={handleCategorySelect}
+              selectedCategory={selectedCategory}
+              onSelectCategory={(selectedCat) => {
+                handleCategoryClick(selectedCat);
+                setActiveView('food');
+                setActiveTopBar('Food');
+                setSelectedCategory(selectedCat);
+              }}
               refetchFoods={refetchFoods}
               numColumnsRegisterScreen={numColumnsRegisterScreen}
             />
@@ -166,6 +170,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
               isMobile={isMobile}
               foods={displayedFoods}
               categories={categories}
+              selectedCategory={selectedCategory}
               selectedSubTab={selectedSubTab}
               tableItems={tableItems}
               activatedSubTab={activatedSubTab}
@@ -173,7 +178,10 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
               handleSearch={handleSearch}
               searchTerm={searchTerm}
               updateCartItemForFood={updateCartItemForFood}
-              handleCategoryClick={handleCategoryClick}
+              handleCategoryClick={(selectedCat) => {
+                handleCategoryClick(selectedCat);
+                setSelectedCategory(selectedCat);
+              }}
               onPricingSubTabClick={onPricingSubTabClick}
             />
           )}

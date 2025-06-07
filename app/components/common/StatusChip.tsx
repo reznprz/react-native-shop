@@ -103,6 +103,14 @@ export function StatusChip({
       iconType: 'Ionicons',
       size: 'mt-1 px-1 py-0.5 text-sm',
     },
+    secondary: {
+      bg: 'bg-blue-100',
+      text: 'text-blue-600 text-center',
+      icon: 'flash-outline',
+      iconColor: '#3B82F6', // Blue 500
+      iconType: 'Ionicons',
+      size: 'mt-1 px-1 py-0.5 text-sm',
+    },
     active: {
       bg: 'bg-blue-100',
       text: 'text-blue-600 text-center',

@@ -8,6 +8,7 @@ interface Props {
   slideAnim: Animated.Value;
   visible: boolean;
   categories: string[];
+  selectedCategory: string;
   onClose: () => void;
   handleCategoryClick: (cat: string) => void;
 }
@@ -16,6 +17,7 @@ const MobileSidebar: React.FC<Props> = ({
   slideAnim,
   visible,
   categories,
+  selectedCategory,
   onClose,
   handleCategoryClick,
 }) => {
@@ -27,6 +29,7 @@ const MobileSidebar: React.FC<Props> = ({
       <Animated.View style={[styles.sidebar, { left: slideAnim }]}>
         <RegisterCategoryBar
           categories={categories}
+          selectedCategory={selectedCategory}
           onCategoryClick={(cat) => {
             handleCategoryClick(cat);
             onClose();

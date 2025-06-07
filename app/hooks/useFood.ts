@@ -3,6 +3,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from 'app/redux/store';
 import { useFoodMenuActions } from './apiQuery/useFoodMenuAction';
 import { Category, Food } from 'app/api/services/foodService';
+import { push } from 'app/navigation/navigationService';
+import { ScreenNames } from 'app/types/navigation';
 
 export const useFood = () => {
   const tableName = useSelector((state: RootState) => state.table.tableName);
@@ -136,6 +138,10 @@ export const useFood = () => {
     [deleteCategoryMutation],
   );
 
+  const handleAddFoodClick = useCallback(() => {
+    push(ScreenNames.FOODMANAGER);
+  }, [push]);
+
   return {
     //config
     restaurantFeatures,
@@ -161,6 +167,7 @@ export const useFood = () => {
     handleDeleteFood,
     handleUpdateFood,
     handleAddCategory,
+    handleAddFoodClick,
     handleUpdateCategory,
     handleDeleteCategory,
 

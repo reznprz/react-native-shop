@@ -52,7 +52,7 @@ const RegisterCategoryList: React.FC<Props> = ({
         return (
           <TouchableOpacity
             onPress={() => onSelectCategory(item)}
-            style={[styles.box, boxDynamicStyle, isSelected && { backgroundColor: '#2a4759' }]}
+            style={[styles.box, boxDynamicStyle, isSelected && { backgroundColor: '#a0c4dc' }]}
           >
             <View>
               <CustomIcon

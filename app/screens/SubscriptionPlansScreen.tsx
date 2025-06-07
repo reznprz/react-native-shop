@@ -112,7 +112,7 @@ const SubscriptionPlansScreen: React.FC = () => {
 
               {/* Pricing */}
               <Text className="text-4xl font-extrabold text-center text-gray-900 mt-4">
-                {price || 'N/A'}
+                {price || 'Free'}
                 <Text className="text-base font-medium text-gray-500">
                   /{billingPeriod === 'monthly' ? 'mo' : 'yr'}
                 </Text>

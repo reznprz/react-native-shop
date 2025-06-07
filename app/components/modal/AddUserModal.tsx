@@ -49,6 +49,10 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   const [localOtpVerified, setLocalOtpVerified] = useState(false);
   const [verifyApiError, setVerifyApiError] = useState('');
 
+  // DESCTRUCTURE only the `reset` functions from each mutation:
+  const { reset: sendOtpReset } = sendOtpState;
+  const { reset: verifyOtpReset } = verifyOtpState;
+
   //  helpers
   const resetForm = () => {
     setAccessLevel(AccessLevel.USER);
@@ -65,11 +69,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   };
 
   useEffect(() => {
+    console.log('AddUserModal → localOtpVerified changed:', localOtpVerified);
     if (localOtpVerified) {
-      verifyOtpState.reset();
-      sendOtpState.reset();
+      verifyOtpReset();
+      sendOtpReset();
     }
-  }, [localOtpVerified, sendOtpState, verifyOtpState]);
+  }, [localOtpVerified, verifyOtpReset, sendOtpReset]);
 
   // const validate = (): boolean => {
   //   if (!firstName.trim() || !lastName.trim())

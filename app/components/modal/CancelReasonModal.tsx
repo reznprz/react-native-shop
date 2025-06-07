@@ -97,7 +97,7 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
               {Object.entries(CancelReason).map(([key, value]) => (
                 <View className="p-2">
                   <ReasonOption
-                    key={key}
+                    key={key + value}
                     label={value}
                     value={value}
                     icon={reasonIconMap[key as CancelReasonKeys]}

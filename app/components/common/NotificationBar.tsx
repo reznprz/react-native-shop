@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 
 const windowWidth = Dimensions.get('window').width;
+const MAX_BAR_WIDTH = 420;
+const HORIZONTAL_MARGIN = 16;
 
 type NotificationBarProps = {
   variant?: 'success' | 'info' | 'warn' | 'error';
@@ -26,22 +28,10 @@ type VariantConfig = {
 };
 
 const variants: Record<NonNullable<NotificationBarProps['variant']>, VariantConfig> = {
-  success: {
-    backgroundColor: '#2a4759',
-    icon: '✓',
-  },
-  info: {
-    backgroundColor: '#3b82f6',
-    icon: 'ℹ️',
-  },
-  warn: {
-    backgroundColor: '#3b82f6',
-    icon: '⚠️',
-  },
-  error: {
-    backgroundColor: '#ef4444',
-    icon: '✖️',
-  },
+  success: { backgroundColor: '#2a4759', icon: '✓' },
+  info: { backgroundColor: '#3b82f6', icon: 'ℹ️' },
+  warn: { backgroundColor: '#f59e0b', icon: '⚠️' },
+  error: { backgroundColor: '#ef4444', icon: '✖️' },
 };
 
 const NotificationBar: FC<NotificationBarProps> = ({
@@ -52,35 +42,29 @@ const NotificationBar: FC<NotificationBarProps> = ({
   topPosition = 50,
   onClose,
 }) => {
-  // If message is null, undefined, or empty, skip rendering altogether
-  const hasMessage = message && message.trim().length > 0;
+  const hasMessage = !!message?.trim();
+  const [visible, setVisible] = useState(false);
 
-  const [visible, setVisible] = useState<boolean>(false);
+  // barWidth = screen minus margins, capped at MAX_BAR_WIDTH
+  const barWidth = Math.min(MAX_BAR_WIDTH, windowWidth - HORIZONTAL_MARGIN * 2);
 
-  // Slide in/out animation
-  const slideAnim = useRef<Animated.Value>(new Animated.Value(windowWidth)).current;
+  // Animated values
+  const slideAnim = useRef(new Animated.Value(barWidth + HORIZONTAL_MARGIN)).current;
+  const progressAnim = useRef(new Animated.Value(0)).current;
 
-  // Progress bar animation
-  const progressAnim = useRef<Animated.Value>(new Animated.Value(0)).current;
-
-  // Whenever the message changes:
-  //  - If we have a valid message, reset the animations and slide in again
-  //  - If not, hide immediately
   useEffect(() => {
     if (!hasMessage) {
-      // If there's no message, hide the bar
       setVisible(false);
       return;
     }
 
-    // We have a new message:
     setVisible(true);
 
-    // Reset the slide & progress
-    slideAnim.setValue(windowWidth);
+    // reset positions
+    slideAnim.setValue(barWidth + HORIZONTAL_MARGIN);
     progressAnim.setValue(0);
 
-    // Slide in from right to left
+    // slide in
     Animated.timing(slideAnim, {
       toValue: 0,
       duration: 300,
@@ -88,25 +72,24 @@ const NotificationBar: FC<NotificationBarProps> = ({
       useNativeDriver: true,
     }).start();
 
-    // Animate progress bar from 0% to 100% over `duration` ms
+    // progress fill
     Animated.timing(progressAnim, {
       toValue: 1,
       duration,
       easing: Easing.linear,
-      useNativeDriver: false, // we need layout updates for the width
+      useNativeDriver: false,
     }).start();
 
-    // Set up auto-close timer if enabled
+    // auto-close
     if (autoClose) {
       const timer = setTimeout(() => handleClose(), duration);
       return () => clearTimeout(timer);
     }
-  }, [message, hasMessage, autoClose, duration, slideAnim, progressAnim]);
+  }, [message, hasMessage, autoClose, duration, slideAnim, progressAnim, barWidth]);
 
   const handleClose = () => {
-    // Slide out to the right
     Animated.timing(slideAnim, {
-      toValue: windowWidth,
+      toValue: barWidth + HORIZONTAL_MARGIN,
       duration: 300,
       easing: Easing.in(Easing.ease),
       useNativeDriver: true,
@@ -116,13 +99,9 @@ const NotificationBar: FC<NotificationBarProps> = ({
     });
   };
 
-  // Return null if not visible or if there's no valid message
   if (!visible || !hasMessage) return null;
 
-  // Grab variant styling
   const { backgroundColor, icon } = variants[variant];
-
-  // Interpolate the progress width from 0% -> 100%
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ['0%', '100%'],
@@ -133,12 +112,11 @@ const NotificationBar: FC<NotificationBarProps> = ({
       style={[
         styles.container,
         {
-          left: (windowWidth - 420) / 1.02,
-          right: 16,
-          width: 420,
-          transform: [{ translateX: slideAnim }],
-          backgroundColor,
+          width: barWidth,
+          right: HORIZONTAL_MARGIN,
           top: topPosition,
+          backgroundColor,
+          transform: [{ translateX: slideAnim }],
         },
       ]}
     >
@@ -151,7 +129,6 @@ const NotificationBar: FC<NotificationBarProps> = ({
         <Text style={styles.closeText}>×</Text>
       </TouchableOpacity>
 
-      {/* Progress bar at the bottom */}
       <View style={styles.progressContainer}>
         <Animated.View style={[styles.progressFill, { width: progressWidth }]} />
       </View>
@@ -170,13 +147,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     zIndex: 999,
-
-    // Subtle shadow for an elegant look
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: 2, // Android shadow
+    elevation: 2,
   },
   content: {
     flex: 1,
@@ -211,10 +186,10 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 8,
     borderBottomRightRadius: 8,
     overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   progressFill: {
     height: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    backgroundColor: 'rgba(255,255,255,0.8)',
   },
 });
