@@ -17,6 +17,7 @@ interface NotificationProps {
   message: string;
   type?: 'info' | 'error' | 'warning';
   width?: number;
+  topPosition?: number;
   onClose: () => void;
   onConfirm: (note: string) => void;
 }
@@ -29,6 +30,7 @@ const NotificationWithButtons: React.FC<NotificationProps> = ({
   message,
   type = 'info',
   width,
+  topPosition,
   onClose,
   onConfirm,
 }) => {
@@ -76,7 +78,6 @@ const NotificationWithButtons: React.FC<NotificationProps> = ({
     shadowRadius: 4,
     elevation: 5,
     position: 'absolute',
-    top: 140,
     right: 10,
     zIndex: 9999,
   };
@@ -153,7 +154,9 @@ const NotificationWithButtons: React.FC<NotificationProps> = ({
   }
 
   return (
-    <Animated.View style={[mobileContainerStyle, { transform: [{ translateX: slideAnim }] }]}>
+    <Animated.View
+      style={[mobileContainerStyle, { transform: [{ translateX: slideAnim }], top: topPosition }]}
+    >
       <View className="flex-row justify-between items-center">
         <CustomIcon type="Ionicons" name={icon} size={24} color="#fff" iconStyle="mr-3" />
         <Text style={styles.messageText}>{message}</Text>

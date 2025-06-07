@@ -1,18 +1,19 @@
 import CustomIcon from 'app/components/common/CustomIcon';
 import { getFilterIcon } from 'app/hooks/utils/getFilterIcon';
-import React, { useState } from 'react';
+import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View, StyleSheet, Platform } from 'react-native';
 
 interface RegisterCategoryBarProps {
   categories: string[];
+  selectedCategory: string;
   onCategoryClick: (selectedCategory: string) => void;
 }
 
 const RegisterCategoryBar: React.FC<RegisterCategoryBarProps> = ({
   categories,
+  selectedCategory,
   onCategoryClick,
 }) => {
-  const [selected, setSelected] = useState<string>('Category');
   return (
     <View style={styles.container}>
       <ScrollView
@@ -20,7 +21,7 @@ const RegisterCategoryBar: React.FC<RegisterCategoryBarProps> = ({
         contentContainerStyle={styles.buttonContainer}
       >
         {categories.map((cat) => {
-          const isSelected = selected === cat;
+          const isSelected = selectedCategory === cat;
           const { iconName, iconType } = getFilterIcon('Categories', cat);
 
           return (
@@ -33,7 +34,6 @@ const RegisterCategoryBar: React.FC<RegisterCategoryBarProps> = ({
               ]}
               onPress={() => {
                 onCategoryClick(cat);
-                setSelected(cat);
               }}
               activeOpacity={0.8}
             >

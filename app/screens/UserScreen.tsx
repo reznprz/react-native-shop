@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, FlatList } from 'react-native';
 import CustomButton from 'app/components/common/button/CustomButton';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
@@ -33,6 +33,13 @@ const UserScreen = () => {
 
   const { getRestaurantMutation, restaurantData } = useRestaurant();
 
+  const {
+    mutate: addUser,
+    status: addUserState,
+    reset: addUserReset,
+    error: addUserError,
+  } = createUserMutation;
+
   const { emails = [], phones = [] } = restaurantData || {};
 
   const [showAddUserModal, setShowAddUserModal] = useState(false);
@@ -42,13 +49,6 @@ const UserScreen = () => {
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<number | null>(
     null,
   );
-
-  const {
-    mutate: addUser,
-    status: addUserState,
-    reset: addUserReset,
-    error: addUserError,
-  } = createUserMutation;
 
   useEffect(() => {
     fetchUsers();
@@ -63,7 +63,7 @@ const UserScreen = () => {
       setSuccessNotificaton('New user added!.');
       addUserReset?.();
     }
-  }, [getUsersState]);
+  }, [addUserState, addUserError, addUserReset]);
 
   useEffect(() => {
     if (deleteUserState.status === 'error') {
@@ -91,8 +91,8 @@ const UserScreen = () => {
     () => (
       <ListHeader
         title="All Users"
-        searchTerm={searchTerm}
-        onSearch={(text) => setSearchTerm(text)}
+        searchTerm={''}
+        onSearch={() => {}}
         searchPlaceholder="Search users..."
       />
     ),

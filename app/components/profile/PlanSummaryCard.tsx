@@ -19,20 +19,22 @@ const PlanSummaryCard: React.FC<PlanSummaryCardProps> = ({ summary }) => {
         <Text className="text-base text-gray-900 font-semibold mt-1">{plan.planName || '—'}</Text>
       </View>
 
-      <View className="flex-row justify-between">
-        <View>
-          <Text className="text-sm text-gray-500">Monthly Cost</Text>
-          <Text className="text-base text-gray-900 font-medium mt-1">
-            रु{plan.monthlyCost.toFixed(2)}
-          </Text>
+      {plan.planName !== 'STARTER' && (
+        <View className="flex-row justify-between">
+          <View>
+            <Text className="text-sm text-gray-500">Monthly Cost</Text>
+            <Text className="text-base text-gray-900 font-medium mt-1">
+              रु{plan.monthlyCost.toFixed(2)}
+            </Text>
+          </View>
+          <View>
+            <Text className="text-sm text-gray-500">Yearly Cost</Text>
+            <Text className="text-base text-gray-900 font-medium mt-1">
+              रु{plan.yearlyCost.toFixed(2)}
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text className="text-sm text-gray-500">Yearly Cost</Text>
-          <Text className="text-base text-gray-900 font-medium mt-1">
-            रु{plan.yearlyCost.toFixed(2)}
-          </Text>
-        </View>
-      </View>
+      )}
 
       <View className="mt-4">
         <Text className="text-sm text-gray-500 mb-2">Features</Text>

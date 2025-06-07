@@ -12,6 +12,7 @@ interface TopBarProps {
   onTopDrinkClick: () => void;
   onSwitchTableClick?: () => void;
   onTableClick: () => void;
+  onAddFoodClick: () => void;
 }
 
 const TopBar: React.FC<TopBarProps> = ({
@@ -25,6 +26,7 @@ const TopBar: React.FC<TopBarProps> = ({
   onTopDrinkClick,
   onTableClick,
   onTopBarClick,
+  onAddFoodClick,
 }) => {
   // Define common buttons
   const buttons = [
@@ -34,7 +36,7 @@ const TopBar: React.FC<TopBarProps> = ({
     { label: 'Top Breakfast', action: onTopBreakFastClick },
     { label: 'Top Lunch', action: onTopLunchClick },
     { label: 'Top Drink', action: onTopDrinkClick },
-    { label: 'Add Food', action: () => {} },
+    { label: 'Add Food', action: onAddFoodClick },
   ];
 
   // Conditionally add 'Switch Table' button

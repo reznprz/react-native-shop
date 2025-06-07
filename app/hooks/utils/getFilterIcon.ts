@@ -54,6 +54,13 @@ export function getFilterIcon(
     if (cat.includes('noodle')) return { iconName: 'Noodles', iconType: 'Noodles' };
     if (cat.includes('chowmein')) return { iconName: 'Noodles', iconType: 'Noodles' };
     if (cat.includes('fried rice')) return { iconName: 'Rice', iconType: 'Rice' };
+    if (cat.includes('coffee')) return { iconName: 'Coffee', iconType: 'Coffee' };
+    if (cat.includes('bubble tea')) return { iconName: 'BubbleTea', iconType: 'BubbleTea' };
+    if (cat.includes('iced')) return { iconName: 'IcedCoffee', iconType: 'IcedCoffee' };
+    if (cat.includes('breakfast')) return { iconName: 'BreakFast', iconType: 'BreakFast' };
+    if (cat.includes('chopsuey')) return { iconName: 'NoodlePasta', iconType: 'NoodlePasta' };
+    if (cat.includes('frappe')) return { iconName: 'Frappe', iconType: 'Frappe' };
+    if (cat.includes('hookah')) return { iconName: 'Hookah', iconType: 'Hookah' };
 
     // Find matching key in categoryIcons
     for (const key in categoryIcons) {

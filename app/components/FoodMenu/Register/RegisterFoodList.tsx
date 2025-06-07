@@ -20,6 +20,7 @@ interface Props {
   isMobile: boolean;
   foods: Food[];
   categories: string[];
+  selectedCategory: string;
   selectedSubTab: string;
   tableItems: TableItem;
   numColumnsRegisterScreen: number;
@@ -35,6 +36,7 @@ const RegisterFoodList: React.FC<Props> = ({
   isMobile,
   foods,
   categories,
+  selectedCategory,
   selectedSubTab,
   tableItems,
   numColumnsRegisterScreen,
@@ -97,7 +99,11 @@ const RegisterFoodList: React.FC<Props> = ({
         {/* Tablet/Desktop Sidebar */}
         {!isMobile && (
           <View style={styles.sidebar}>
-            <RegisterCategoryBar categories={categories} onCategoryClick={handleCategoryClick} />
+            <RegisterCategoryBar
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryClick={handleCategoryClick}
+            />
           </View>
         )}
 
@@ -138,6 +144,7 @@ const RegisterFoodList: React.FC<Props> = ({
         slideAnim={slideAnim}
         visible={sidebarVisible}
         categories={categories}
+        selectedCategory={selectedCategory}
         onClose={toggleSidebar}
         handleCategoryClick={handleCategoryClick}
       />

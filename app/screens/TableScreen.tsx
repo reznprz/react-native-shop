@@ -88,7 +88,6 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
       <PrimaryHeader
         title="Tables"
         onBackPress={() => console.log('Go back')}
-        onFilterPress={() => console.log('Filter pressed')}
         filters={tableNames}
         isDesktop={isDesktop}
         searchTerm=""
@@ -103,12 +102,18 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
       {exstingOrderForTableMutation.isPending ? (
         <FoodLoadingSpinner iconName="hamburger" />
       ) : prepTableItems.orderItems.length === 0 && prepTableItems.id === 0 ? (
-        <EmptyState
-          iconName="food-off"
-          message="No food items available"
-          subMessage="Please add items to the Customer table."
-          iconSize={90}
-        />
+        <View className="flex-1 justify-center items-center">
+          <EmptyState
+            iconName="food-off"
+            message="No food items available"
+            subMessage="Please add items to the Customer table."
+            iconSize={90}
+            onAddPress={() => {
+              handleGoToMenuPress(selectedTable);
+            }}
+            addButtonLabel="Add New food Items"
+          />
+        </View>
       ) : (
         <TableItemAndPayment
           tableItems={prepTableItems}

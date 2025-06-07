@@ -21,6 +21,7 @@ import { StatusChip } from 'app/components/common/StatusChip';
 import CustomButton from 'app/components/common/button/CustomButton';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import PlanSummaryCard from 'app/components/profile/PlanSummaryCard';
+import CollapsibleInfo from 'app/components/common/CollapsibleInfo';
 
 const defaultSubscriptionInfo: SubscriptionExpirationInfo = {
   planType: PlanType.NONE,
@@ -219,9 +220,18 @@ const ProfileScreen = () => {
           </View>
 
           {/* Contact Info Card */}
-          <View className="bg-white rounded-2xl p-5 mb-6 border border-gray-100 shadow-sm">
+          <View className="bg-white rounded-2xl p-5 mb-4 border border-gray-100 shadow-sm">
             <Text className="text-lg font-bold text-gray-900 mb-4">Contact Information</Text>
-
+            <CollapsibleInfo
+              label={'Primary Status ?'}
+              iconType={'FontAwesome'}
+              iconName={'question-circle'}
+              iconSize={14}
+              iconColor={'#2a4759'}
+              containerStyle={'items-start mb-2'}
+              textColor={'text-black font-bold text-sm underline'}
+              collapsibleContent={'Primary Status would eligible to received otp code!'}
+            />
             <View className="mb-5">
               <Text className="text-sm text-gray-500 mb-1">Phone Numbers</Text>
               {phones.map((p) => (

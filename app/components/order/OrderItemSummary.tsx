@@ -53,6 +53,9 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
             />
             <View className="flex-cols">
               <StatusChip status={paymentStatus} margin="ml-10" />
+              {paymentStatus === 'UNPAID' && (
+                <Text className="text-red-500 text-sm font-semibold">{}</Text>
+              )}
             </View>
           </View>
 

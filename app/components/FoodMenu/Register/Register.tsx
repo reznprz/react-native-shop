@@ -3,13 +3,12 @@ import { View, ScrollView, StyleSheet } from 'react-native';
 import CustomButton from 'app/components/common/button/CustomButton';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { PaymentInfo, TableItem } from 'app/hooks/useTables';
-import { OrderItem, OrderMenuType } from 'app/api/services/orderService';
+import { OrderItem } from 'app/api/services/orderService';
 import { ButtonState } from '../../common/button/LoadingButton';
 import { RestaurantTable } from 'app/api/services/tableService';
 import RegisterFoodMenu from './RegisterFoodMenu';
 import { Food } from 'app/api/services/foodService';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
-import SubTab from 'app/components/common/SubTab';
 import RegisterPaymentDetails from './RegisterPaymentDetails';
 import { SubTabType } from './RegisterFoodList';
 
@@ -35,6 +34,7 @@ interface RegisterProps {
   handleCategoryClick: (categoryName: string) => void;
   onSelectTable: (selectedTable: string) => void;
   refetchTables: () => void;
+  onAddFoodClick: () => void;
   refetchFoods: () => void;
 }
 
@@ -56,6 +56,7 @@ export default function Register({
   onSwitchTableClick,
   handleCompleteOrder,
   onSelectTable,
+  onAddFoodClick,
   handleSubTabChange,
   handleCategoryClick,
   refetchTables,
@@ -100,6 +101,7 @@ export default function Register({
             handleCategoryClick={handleCategoryClick}
             onPricingSubTabClick={handleSubTabChange}
             onSelectTable={onSelectTable}
+            onAddFoodClick={onAddFoodClick}
             refetchTables={refetchTables}
             refetchFoods={refetchFoods}
           />
@@ -146,6 +148,7 @@ export default function Register({
         onSwitchTableClick={onSwitchTableClick}
         handleCategoryClick={handleCategoryClick}
         onPricingSubTabClick={handleSubTabChange}
+        onAddFoodClick={onAddFoodClick}
         onSelectTable={onSelectTable}
         refetchTables={refetchTables}
         refetchFoods={refetchFoods}
