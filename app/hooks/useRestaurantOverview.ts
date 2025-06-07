@@ -171,6 +171,16 @@ export const useRestaurantOverview = () => {
       case 'Expenses':
         push(ScreenNames.EXPENSE);
         break;
+      case 'Menu':
+        if (navigationRef.isReady()) {
+          navigationRef.dispatch(
+            CommonActions.navigate({
+              name: 'MainTabs',
+              params: { screen: 'MENU' },
+            }),
+          );
+        }
+        break;
       case 'TopProducts':
         console.log('Navigating to TopProducts');
         break;

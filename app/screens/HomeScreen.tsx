@@ -63,6 +63,8 @@ const HomeScreen: React.FC = () => {
         message="No Data Available"
         subMessage="Please Refresh the Screen."
         iconSize={80}
+        addButtonLabel="Add Food Items"
+        onAddPress={() => handleAddPress('Menu')}
       />
     );
   }
