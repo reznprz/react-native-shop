@@ -1,4 +1,4 @@
-import { AccessLevel } from './authService';
+import { Role } from 'app/security/role';
 import { ApiResponse } from '../handlers';
 import apiMethods from '../handlers/apiMethod';
 
@@ -14,7 +14,7 @@ export interface RegisterRequest {
 
 export interface User {
   id: number;
-  accessLevel: AccessLevel;
+  accessLevel: Role;
   passcode: string;
   firstName: string;
   lastName: string;
@@ -29,7 +29,7 @@ export interface User {
 export const emptyUser: User = {
   avatarUrl: '',
   id: 0,
-  accessLevel: AccessLevel.USER,
+  accessLevel: Role.STAFF,
   passcode: '',
   firstName: '',
   lastName: '',
@@ -41,7 +41,7 @@ export const emptyUser: User = {
 };
 
 export interface UserRegisterRequest extends RegisterRequest {
-  accessLevel: AccessLevel;
+  accessLevel: Role;
 }
 
 export interface SuccessResponse {
@@ -78,4 +78,4 @@ export const deleteUserApi = async (
   return await apiMethods.delete<User[]>(`/api/user/${restaurantId}/${userId}`);
 };
 
-export { AccessLevel };
+export { Role };

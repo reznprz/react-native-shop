@@ -4,7 +4,7 @@ import type { RootState, AppDispatch } from '../redux/store';
 import { Food } from 'app/api/services/foodService';
 import { RestaurantTable, TableStatus } from 'app/api/services/tableService';
 import { setTableName } from 'app/redux/tableSlice';
-import { navigate, navigationRef } from 'app/navigation/navigationService';
+import { navigate, navigationRef, push } from 'app/navigation/navigationService';
 import { Order, OrderItem, OrderMenuType, OrderType } from 'app/api/services/orderService';
 import { useAddUpdateOrderMutation } from './apiQuery/useAddUpdateOrderMutation';
 import {
@@ -18,6 +18,7 @@ import { ButtonState } from 'app/components/common/button/LoadingButton';
 import { useRestaurantTablesQuery } from './apiQuery/useRestaurantTablesQuery';
 import { useExistingOrderMutation } from './apiQuery/useExistingOrderMutation';
 import { useCompleteOrderMutation } from './apiQuery/useCompleteOrderMutation';
+import { ScreenNames } from 'app/types/navigation';
 
 // Types
 export interface TableItem {
@@ -397,6 +398,10 @@ export function useTables() {
     }
   }, [completeOrderMutation, dispatch]);
 
+  const handleAddNewTableClick = useCallback(() => {
+    push(ScreenNames.TABLEMANAGER);
+  }, [push]);
+
   return {
     // TABLES QUERY
     tables,
@@ -437,5 +442,6 @@ export function useTables() {
     handleCompleteOrder,
     navigateToOrdersScreen,
     handleSelectTable,
+    handleAddNewTableClick,
   };
 }

@@ -16,6 +16,8 @@ import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribu
 import UpdateOpeningCashModal from 'app/components/modal/UpdateOpeningCashModal';
 import ExpenseSummary from 'app/components/home/ExpensesSummary';
 import TopSellingProductsCard from 'app/components/home/TopSellingProductsCard';
+import { Permission } from 'app/security/permission';
+import { usePermissionMap } from 'app/security/usePermissionMap';
 
 const tabs = ['Past', 'Todays'];
 type TabType = (typeof tabs)[number];
@@ -66,6 +68,12 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
     expense,
     topSellingProducts,
   } = dailySalesDetails;
+
+  const { canViewMetrics, canViewSubTab, canViewDateHeader } = usePermissionMap({
+    canViewMetrics: Permission.VIEW_DAILYSALES_SCREEN_METRICS,
+    canViewSubTab: Permission.VIEW_DAILYSALES_SCREEN_SUBTAB,
+    canViewDateHeader: Permission.VIEW_DAILYSALES_SCREEN_DATE_HEADER,
+  });
 
   // Fetch sales for "Today" sub-tab
   const handleFetchTodaySales = useCallback(
@@ -158,16 +166,18 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
   return (
     <View className="h-full w-full bg-gray-100">
       {/* SubTab */}
-      <SubTab tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />
+      {canViewSubTab && <SubTab tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />}
 
       <View className="flex-1 p-4 pb-0">
         {/* Date Header */}
-        <DateHeader
-          activeTab={activeTab || ''}
-          selectedDate={selectedDate}
-          onDateChange={handleDateChange}
-          handleApplyDate={handleApplyDate}
-        />
+        {canViewDateHeader && (
+          <DateHeader
+            activeTab={activeTab || ''}
+            selectedDate={selectedDate}
+            onDateChange={handleDateChange}
+            handleApplyDate={handleApplyDate}
+          />
+        )}
 
         {/* Loading */}
         {dailySalesState?.status === 'pending' || updateDailySalesState?.status === 'pending' ? (
@@ -175,16 +185,18 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
         ) : (
           <>
             {/* Daily Sales Metrics */}
-            <DailySalesMetrics
-              totalOverallSales={totalOverallSales}
-              thisMonth={thisMonth}
-              today={dailySalesTransaction.totalSales}
-              unpaid={dailySalesTransaction.unPaid}
-              expensesAmount={
-                activeTab === 'Past' ? dailySalesDetails.dailySalesTransaction.expenses : 0
-              }
-              isLargeScreen={isLargeScreen}
-            />
+            {canViewMetrics && (
+              <DailySalesMetrics
+                totalOverallSales={totalOverallSales}
+                thisMonth={thisMonth}
+                today={dailySalesTransaction.totalSales}
+                unpaid={dailySalesTransaction.unPaid}
+                expensesAmount={
+                  activeTab === 'Past' ? dailySalesDetails.dailySalesTransaction.expenses : 0
+                }
+                isLargeScreen={isLargeScreen}
+              />
+            )}
 
             {activeTab === 'Todays' && (
               <View className="flex-row justify-end items-end ml-2 mt-1 mb-6">

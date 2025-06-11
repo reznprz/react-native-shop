@@ -4,15 +4,16 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { StatusChip } from '../common/StatusChip';
 import { ActionsMenu } from '../common/ActionsMenu';
 import IconLabel from '../common/IconLabel';
+import { on } from 'events';
 
 type TableCardProps = {
   name: string;
   status: string;
   seats: number;
   items: number;
-  onGoToMenu: () => void;
-  onGoToCart: () => void;
-  onSwitchTable: () => void;
+  onGoToMenu?: () => void;
+  onGoToCart?: () => void;
+  onSwitchTable?: () => void;
 };
 
 export function TableCard({
@@ -30,6 +31,9 @@ export function TableCard({
   const handlePressOutside = () => {
     if (showActions) {
       setShowActions(false);
+    }
+    if (onGoToMenu) {
+      onGoToMenu();
     }
   };
 
@@ -78,7 +82,7 @@ export function TableCard({
           </Pressable>
         </View>
         {/* Conditional Actions Menu */}
-        {showActions && (
+        {showActions && onGoToMenu && onGoToCart && onSwitchTable && (
           <ActionsMenu
             onGoToMenu={() => {
               onGoToMenu();

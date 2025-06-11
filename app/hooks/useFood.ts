@@ -41,27 +41,28 @@ export const useFood = () => {
 
   // Filtered food list based on selected category and search term
   const filteredFoods = useMemo(() => {
-    let filtered = foodMenu.foods;
+    const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '').trim();
 
-    // Filter by category if one is selected
+    const originalFoods = foodMenu.foods;
+
+    // If there is a search term, search from the full list (ignore category)
+    if (searchTerm.trim() !== '') {
+      const term = searchTerm.toLowerCase();
+      return originalFoods.filter((foodItem) => foodItem.name.toLowerCase().includes(term));
+    }
+
+    // If no search, filter by selected category (if any)
     if (selectedCategory) {
-      const normalizeString = (str: string) => str.toLowerCase().replace(/\s+/g, '').trim();
-
       const selectedCategoryNormalized = normalizeString(selectedCategory);
 
-      filtered = filtered.filter((foodItem) => {
-        const categoryNameTwo = normalizeString(foodItem.categoryName || '');
-        return categoryNameTwo === selectedCategoryNormalized;
+      return originalFoods.filter((foodItem) => {
+        const categoryNameNormalized = normalizeString(foodItem.categoryName || '');
+        return categoryNameNormalized === selectedCategoryNormalized;
       });
     }
 
-    // Filter by search term if present
-    if (searchTerm.trim() !== '') {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter((foodItem) => foodItem.name.toLowerCase().includes(term));
-    }
-
-    return filtered;
+    // Default: return all foods
+    return originalFoods;
   }, [foodMenu.foods, selectedCategory, searchTerm]);
 
   const handleCategoryClick = (categoryName: string) => {

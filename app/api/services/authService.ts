@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { config } from 'app/config/config';
 import { RegisterRequest, SuccessResponse } from './userService';
+import { Role } from 'app/security/role';
 
 export interface Credentials {
   username: string;
@@ -18,11 +19,6 @@ export enum ContactStatus {
   PRIMARY = 'PRIMARY',
   ACTIVE = 'ACTIVE',
   INACTIVE = 'INACTIVE',
-}
-
-export enum AccessLevel {
-  ADMIN = 'ADMIN',
-  USER = 'STAFF',
 }
 
 export enum FeatureKey {
@@ -84,7 +80,7 @@ export interface AuthResponse {
   refreshToken: string;
   restaurantName: string;
   restaurantId: number;
-  accessLevel: AccessLevel;
+  accessLevel: Role;
   userId: number;
   userName: string;
   userFirstName: string;

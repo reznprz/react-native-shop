@@ -5,7 +5,8 @@ import { IconType } from 'app/navigation/screenConfigs';
 import { TopSellingProduct } from 'app/api/services/restaurantOverviewService';
 import EmptyState from '../common/EmptyState';
 import CustomButton from '../common/button/CustomButton';
-import { on } from 'events';
+import { RequirePermission } from 'app/security/RequirePermission';
+import { Permission } from 'app/security/permission';
 
 interface Props {
   topSellingProducts: TopSellingProduct[];
@@ -70,8 +71,10 @@ const TopSellingProductsCard: React.FC<Props> = ({ topSellingProducts, onViewAll
                 </View>
               </View>
 
-              {/* Right: Total Sales */}
-              <Text className="text-black font-semibold">रु {product.totalSales.toFixed(2)}</Text>
+              <RequirePermission permission={Permission.VIEW_HOME_SCREEN_TOPSOLDITEM_AMOUNT}>
+                {/* Right: Total Sales */}
+                <Text className="text-black font-semibold">रु {product.totalSales.toFixed(2)}</Text>
+              </RequirePermission>
             </View>
           ))}
         </>

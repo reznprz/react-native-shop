@@ -22,6 +22,9 @@ import OrderCard from 'app/components/order/OrderCard';
 import OrderMetrics from 'app/components/OrderMetrics';
 import OrderSummaryCard from 'app/components/order/OrderSummaryCard';
 import NotificationBar from 'app/components/common/NotificationBar';
+import { useHasPermission } from 'app/security/useHasPermission';
+import { Permission } from 'app/security/permission';
+import { usePermissionMap } from 'app/security/usePermissionMap';
 
 const tabs = ['Past Orders', 'Todays Order'];
 type TabType = (typeof tabs)[number];
@@ -65,6 +68,11 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
     handleApplyFilters,
     handleClearFilter,
   } = useOrder();
+
+  const { canViewMetrics, canViewSubTab } = usePermissionMap({
+    canViewMetrics: Permission.VIEW_ORDER_SCREEN_METRICS,
+    canViewSubTab: Permission.VIEW_ORDERS_SCREEN_SUBTAB,
+  });
 
   /**
    * For date/time selection, we store a union type from the DateRange modal.
@@ -169,13 +177,15 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
 
     return (
       <>
-        <OrderMetrics
-          totalAmount={totalAmount}
-          paidAmount={paidAmount}
-          unpaidAmount={unpaidAmount}
-          totalOrders={totalOrders}
-          isLargeScreen={isLargeScreen}
-        />
+        {canViewMetrics && (
+          <OrderMetrics
+            totalAmount={totalAmount}
+            paidAmount={paidAmount}
+            unpaidAmount={unpaidAmount}
+            totalOrders={totalOrders}
+            isLargeScreen={isLargeScreen}
+          />
+        )}
 
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -240,23 +250,20 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
   return (
     <View className="h-full w-full bg-gray-100">
       {/* Tab selection at top */}
-      <SubTab
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabChange={(newTab) => {
-          setActiveTab(newTab);
-          if (newTab === 'Todays Order') {
-            handleTodaysSubtabSelect();
-          } else {
-            // if (selectedRange) {
-            //   setSelectedRange(selectedRange);
-            // } else {
-            //   setSelectedRange(initialSelectedDateRange);
-            // }
-            setSelectedRange(initialSelectedDateRange);
-          }
-        }}
-      />
+      {canViewSubTab && (
+        <SubTab
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={(newTab) => {
+            setActiveTab(newTab);
+            if (newTab === 'Todays Order') {
+              handleTodaysSubtabSelect();
+            } else {
+              setSelectedRange(initialSelectedDateRange);
+            }
+          }}
+        />
+      )}
 
       {/* Content area */}
       <View className="flex-1 p-4 pb-0">
