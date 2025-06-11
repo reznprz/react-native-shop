@@ -23,80 +23,84 @@ export default function AccountScreen() {
   const [avatarsModalVisible, setAvatarsModalVisible] = useState(false);
 
   return (
-    <ScrollView
-      contentContainerStyle={{ padding: 18, paddingTop: 18, backgroundColor: '#F3F4F6' }}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* User Profile Card */}
-      <UserProfileCard
-        name={`${userFirstName} ${userLastName}`}
-        email={restaurantName}
-        imageUri={userAvatarUrl}
-        initials={initials}
-        onEditClick={() => setAvatarsModalVisible(true)}
-      />
-
-      {/* Sections */}
-      {sections.map((section) => (
-        <View key={section.title} className="p-2 pb-0 pt-4 gap-1">
-          <Text className="text-xl font-bold text-gray-800 mb-1">{section.title}</Text>
-          <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}>
-            {section.data.map((option) => (
-              <View
-                key={option.label}
-                style={{
-                  width: '49.5%',
-                  marginBottom: 10,
-                }}
-              >
-                <SettingOption
-                  label={option.label}
-                  icon={option.icon}
-                  iconType={option.iconType as IconType}
-                  onPress={() => {
-                    handlePress(option.label);
-                  }}
-                />
-              </View>
-            ))}
-          </View>
-        </View>
-      ))}
-
-      {/* Logout Button */}
-      <View className="p-4">
-        <CustomButton
-          title={'Logout'}
-          onPress={() => {
-            handleLogout();
-          }}
-          width="full"
-          height="l"
-          bgColor="bg-gray-300"
-          textColor="black"
-          iconType="FontAwesome5"
-          iconName="sign-out-alt"
-          iconColor="black"
+    <View className="h-full w-full bg-gray-100">
+      <ScrollView
+        contentContainerStyle={{ padding: 18, paddingTop: 18, backgroundColor: '#F3F4F6' }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* User Profile Card */}
+        <UserProfileCard
+          name={`${userFirstName} ${userLastName}`}
+          email={restaurantName}
+          imageUri={userAvatarUrl}
+          initials={initials}
+          onEditClick={() => setAvatarsModalVisible(true)}
         />
-      </View>
-      {/* Avatar selection modal */}
-      <AvatarPickerModal
-        visible={avatarsModalVisible}
-        onRequestClose={() => setAvatarsModalVisible(false)}
-        onSelect={(avatarUrl) => {
-          setAvatarsModalVisible(false);
-          const updatedUser = {
-            ...emptyUser,
-            avatarUrl: avatarUrl,
-          };
 
-          updateUserMutation.mutate({
-            userId: userId || 0,
-            updatedUser: updatedUser,
-            updateImageOnly: true,
-          });
-        }}
-      />
-    </ScrollView>
+        {/* Sections */}
+        {sections.map((section) => (
+          <View key={section.title} className="p-2 pb-0 pt-4 gap-1">
+            <Text className="text-xl font-bold text-gray-800 mb-1">{section.title}</Text>
+            <View
+              style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' }}
+            >
+              {section.data.map((option) => (
+                <View
+                  key={option.label}
+                  style={{
+                    width: '49.5%',
+                    marginBottom: 10,
+                  }}
+                >
+                  <SettingOption
+                    label={option.label}
+                    icon={option.icon}
+                    iconType={option.iconType as IconType}
+                    onPress={() => {
+                      handlePress(option.label);
+                    }}
+                  />
+                </View>
+              ))}
+            </View>
+          </View>
+        ))}
+
+        {/* Logout Button */}
+        <View className="p-4">
+          <CustomButton
+            title={'Logout'}
+            onPress={() => {
+              handleLogout();
+            }}
+            width="full"
+            height="l"
+            bgColor="bg-gray-300"
+            textColor="black"
+            iconType="FontAwesome5"
+            iconName="sign-out-alt"
+            iconColor="black"
+          />
+        </View>
+        {/* Avatar selection modal */}
+        <AvatarPickerModal
+          visible={avatarsModalVisible}
+          onRequestClose={() => setAvatarsModalVisible(false)}
+          onSelect={(avatarUrl) => {
+            setAvatarsModalVisible(false);
+            const updatedUser = {
+              ...emptyUser,
+              avatarUrl: avatarUrl,
+            };
+
+            updateUserMutation.mutate({
+              userId: userId || 0,
+              updatedUser: updatedUser,
+              updateImageOnly: true,
+            });
+          }}
+        />
+      </ScrollView>
+    </View>
   );
 }

@@ -13,6 +13,8 @@ import RecentTransactionsSummary from 'app/components/home/RecentTransactionsSum
 import ExpenseSummary from 'app/components/home/ExpensesSummary';
 import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribution';
 import DailySalesTransactionCard from 'app/components/home/DailySalesTransaction';
+import { useHasPermission } from 'app/security/useHasPermission';
+import { Permission } from 'app/security/permission';
 
 const HomeScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
@@ -39,6 +41,8 @@ const HomeScreen: React.FC = () => {
   } = restaurantOverView;
 
   const { isLargeScreen, isTablet } = useIsDesktop();
+
+  const canViewMetrics = useHasPermission(Permission.VIEW_HOME_SCREEN_METRICS);
 
   useFocusEffect(
     useCallback(() => {
@@ -71,13 +75,15 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View className="flex-1 bg-gray-100 p-4">
-      <RestaurantOverviewMetrics
-        totalSales={totalSales}
-        totalOrders={totalNoOrders}
-        totalExpenses={totalExpenses}
-        activeTables={activeTables}
-        isLargeScreen={isLargeScreen}
-      />
+      {canViewMetrics && (
+        <RestaurantOverviewMetrics
+          totalSales={totalSales}
+          totalOrders={totalNoOrders}
+          totalExpenses={totalExpenses}
+          activeTables={activeTables}
+          isLargeScreen={isLargeScreen}
+        />
+      )}
 
       <ScrollView
         showsVerticalScrollIndicator={false}

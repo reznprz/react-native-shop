@@ -7,22 +7,30 @@ import { logoutAll } from 'app/redux/actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from 'app/redux/store';
 
+// import our RBAC helpers:
+import { useHasPermission } from 'app/security/useHasPermission';
+import { Permission } from 'app/security/permission';
+
 interface SettingOption {
   label: string;
   icon: string;
   iconType: IconType;
   onPress: () => void;
+  permission?: Permission;
 }
 
 interface Section {
   title: string;
   data: SettingOption[];
+  permission?: Permission;
 }
 
 export const useSettingsAccount = () => {
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
-
   const dispatch = useDispatch();
+  const has = useHasPermission;
+
+  console.log('storedAuthData', storedAuthData);
 
   // Define onPress handlers for each setting option
   const handlePress = useCallback((label: string) => {
@@ -84,10 +92,11 @@ export const useSettingsAccount = () => {
     dispatch(logoutAll());
   };
 
-  // Define sections with onPress handlers
-  const sections: Section[] = [
+  // Define sections with onPress handlers, centralized list, with permissions attached
+  const rawSections: Section[] = [
     {
       title: 'Settings',
+      permission: Permission.VIEW_SETTINGS_SECTION,
       data: [
         {
           label: 'Subscription',
@@ -99,7 +108,7 @@ export const useSettingsAccount = () => {
           label: 'Profile',
           icon: 'user-edit',
           iconType: 'FontAwesome5',
-          onPress: () => handlePress('Edit Profile'),
+          onPress: () => handlePress('Profile'),
         },
         {
           label: 'Users',
@@ -170,10 +179,26 @@ export const useSettingsAccount = () => {
           icon: 'chart-pie',
           iconType: 'FontAwesome5',
           onPress: () => handlePress('Sales Analytics'),
+          permission: Permission.VIEW_SALES_ANALYTICS, // option-level gate
         },
       ],
     },
   ];
+
+  // **filtering logic**: apply section- and option-level gates, drop empty sections
+  const sections = rawSections
+    .map((sec) => {
+      // section‐gate
+      if (sec.permission && !has(sec.permission)) return null;
+
+      // option‐gate
+      const data = sec.data.filter((opt) => !opt.permission || has(opt.permission));
+
+      return data.length > 0 ? { ...sec, data } : null; // drop if no options remain
+    })
+    .filter((s): s is Section => s !== null);
+
+  console.log('sections', sections);
 
   return { sections, restaurantInfo: storedAuthData, handlePress, handleLogout };
 };

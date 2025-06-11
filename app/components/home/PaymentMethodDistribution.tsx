@@ -3,6 +3,8 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import EmptyState from '../common/EmptyState';
 import LabeledProgressItem from '../common/LabeledProgressItem';
+import { useHasPermission } from 'app/security/useHasPermission';
+import { Permission } from 'app/security/permission';
 
 interface Props {
   paymentMethods: PaymentDistribution[];
@@ -21,6 +23,8 @@ const PaymentMethodDistribution: React.FC<Props> = ({ paymentMethods, fontSize =
             ? '#93C5FD' // blue-500
             : '#EF4444'; // red-500
   };
+
+  const showAmount = useHasPermission(Permission.VIEW_HOME_SCREEN_PAYMENTDISTRIBUTION_AMOUNT);
 
   const totalAmount = paymentMethods.reduce((sum, pm) => sum + pm.amount, 0);
 
@@ -43,7 +47,7 @@ const PaymentMethodDistribution: React.FC<Props> = ({ paymentMethods, fontSize =
             <View key={`payment-${index}`} className="mb-2">
               {/* Parent Method */}
               <LabeledProgressItem
-                label={`${method.method} ( रु ${method.amount})`}
+                label={showAmount ? `${method.method} ( रु ${method.amount})` : `${method.method}`}
                 valueText={`${method.percentage.toFixed(2)}%`}
                 percentage={method.percentage}
                 fillColor={getFillColor(method.method)}
@@ -55,7 +59,11 @@ const PaymentMethodDistribution: React.FC<Props> = ({ paymentMethods, fontSize =
                   {method.qrPaymentsDetails.map((qrMethod, qrIndex) => (
                     <LabeledProgressItem
                       key={`qr-${index}-${qrIndex}`}
-                      label={`• ${qrMethod.method} ( रु ${qrMethod.amount})`}
+                      label={
+                        showAmount
+                          ? `• ${qrMethod.method} ( रु ${qrMethod.amount})`
+                          : `• ${qrMethod.method}`
+                      }
                       valueText={`${qrMethod.percentage.toFixed(2)}%`}
                       percentage={qrMethod.percentage}
                       fillColor={getFillColor(qrMethod.method)}

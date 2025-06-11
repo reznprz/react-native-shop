@@ -2,6 +2,8 @@ import { DailySalesTransaction } from 'app/api/services/restaurantOverviewServic
 import React from 'react';
 import { View, Text } from 'react-native';
 import CustomButton from '../common/button/CustomButton';
+import { RequirePermission } from 'app/security/RequirePermission';
+import { Permission } from 'app/security/permission';
 
 interface Props {
   title?: string;
@@ -87,35 +89,39 @@ const DailySalesTransactionCard: React.FC<Props> = ({
             {'-रु'} {Math.abs(expenses).toFixed(2)}
           </Text>
         </View>
-        <View>
-          <Text className="text-gray-600 " style={{ fontSize }}>
-            Total Sales
-          </Text>
-          <Text className="text-green-600 font-semibold mt-2" style={{ fontSize }}>
-            रु {totalSales.toFixed(2)}
-          </Text>
-        </View>
+        <RequirePermission permission={Permission.VIEW_HOME_SCREEN_DAILYSALES_TOTALSALES_AMOUNT}>
+          <View>
+            <Text className="text-gray-600 " style={{ fontSize }}>
+              Total Sales
+            </Text>
+            <Text className="text-green-600 font-semibold mt-2" style={{ fontSize }}>
+              रु {totalSales.toFixed(2)}
+            </Text>
+          </View>
+        </RequirePermission>
       </View>
 
-      {/* Row: Cash and QR */}
-      <View className="flex-row justify-between mr-4">
-        <View>
-          <Text className="text-gray-600" style={{ fontSize }}>
-            Cash
-          </Text>
-          <Text className="text-green-600 font-semibold mt-2" style={{ fontSize }}>
-            रु {cash.toFixed(2)}
-          </Text>
+      <RequirePermission permission={Permission.VIEW_HOME_SCREEN_DAILYSALES_CASH_AND_QR_AMOUNT}>
+        {/* Row: Cash and QR */}
+        <View className="flex-row justify-between mr-4">
+          <View>
+            <Text className="text-gray-600" style={{ fontSize }}>
+              Cash
+            </Text>
+            <Text className="text-green-600 font-semibold mt-2" style={{ fontSize }}>
+              रु {cash.toFixed(2)}
+            </Text>
+          </View>
+          <View>
+            <Text className="text-gray-600" style={{ fontSize }}>
+              Qr Amount
+            </Text>
+            <Text className="text-black font-semibold mt-2" style={{ fontSize }}>
+              रु {qr.toFixed(2)}
+            </Text>
+          </View>
         </View>
-        <View>
-          <Text className="text-gray-600" style={{ fontSize }}>
-            Qr Amount
-          </Text>
-          <Text className="text-black font-semibold mt-2" style={{ fontSize }}>
-            रु {qr.toFixed(2)}
-          </Text>
-        </View>
-      </View>
+      </RequirePermission>
     </View>
   );
 };

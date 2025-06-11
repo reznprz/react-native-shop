@@ -59,6 +59,7 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
     refetchTables,
     handleCompleteOrder,
     navigateToOrdersScreen,
+    handleAddNewTableClick,
   } = useTables();
 
   const { isDesktop, isLargeScreen, isMobile } = useIsDesktop();
@@ -131,6 +132,19 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
   const renderTableList = () =>
     isTablesLoading ? (
       <FoodLoadingSpinner iconName="hamburger" />
+    ) : tables.length === 0 ? (
+      <View className="flex-1 justify-center items-center">
+        <EmptyState
+          iconName="food-off"
+          message="No Tables available"
+          subMessage="Please add table."
+          iconSize={90}
+          onAddPress={() => {
+            handleAddNewTableClick();
+          }}
+          addButtonLabel="Add New tables"
+        />
+      </View>
     ) : (
       <TableList
         tables={tables}

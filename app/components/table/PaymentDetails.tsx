@@ -9,6 +9,7 @@ import NotificationBar from '../common/NotificationBar';
 import PaymentMethodsSelector from '../PaymentMethodsSelector';
 import PaymentDetailsFoodItemsSummary from './PaymentDetailsFoodItemsSummary';
 import BillingSummaryCard from './BillingSummaryCard';
+import CollapsibleInfo from '../common/CollapsibleInfo';
 
 interface PaymentDetailsProps {
   tableItems: TableItem;
@@ -27,6 +28,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   const [selectedPayments, setSelectedPayments] = useState<PaymentInfo[]>([]);
   const [paymentWarnMessage, setPaymentWarnMessage] = useState('');
   const [paymentConfirmationMessage, setPaymentConfirmationMessage] = useState('');
+  const [discountAmt, setDiscountAmt] = useState('');
 
   const applyDiscount = useCallback(
     (amount: number) => {
@@ -35,9 +37,16 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
         setPaymentWarnMessage(PAYMENT_WARN_MESSAGES.REST_PAYMENTS);
       }
       setDiscount(amount);
+      setDiscountAmt(amount.toString());
     },
     [selectedPayments],
   );
+
+  const reset = () => {
+    setDiscountAmt('');
+    setSelectedPayments([]);
+    setPaymentWarnMessage('');
+  };
 
   const onCompletePress = useCallback(() => {
     const totalPaymentsAmount = selectedPayments.reduce((sum, p) => sum + p.amount, 0);
@@ -94,10 +103,19 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
         <TextInput
           placeholder="Enter discount amount"
           keyboardType="numeric"
+          value={discountAmt.toString()}
           className="bg-gray-100 text-gray-800 border border-gray-300 rounded-lg p-3 focus:border-deepTeal focus:ring focus:ring-deepTeal/30"
           onChangeText={(text) => applyDiscount(parseFloat(text) || 0)}
         />
       </View>
+
+      <CollapsibleInfo
+        label="Reset Payments?"
+        containerStyle="ml-8"
+        textColor="text-black font-bold underline"
+        showIcon={false}
+        onPress={reset}
+      />
 
       {/* Divider */}
       <View className="w-full h-px bg-gray-300 my-3" />

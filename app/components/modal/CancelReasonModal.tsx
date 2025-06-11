@@ -95,7 +95,7 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
               <Text className="text-lg font-semibold text-gray-900">Choose a reason</Text>
 
               {Object.entries(CancelReason).map(([key, value]) => (
-                <View className="p-2">
+                <View key={key} className="p-2">
                   <ReasonOption
                     key={key + value}
                     label={value}
@@ -104,7 +104,7 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
                   />
                 </View>
               ))}
-              <View className="p-2">
+              <View key="CUSTOM" className="p-2">
                 <ReasonOption
                   label="Other Reason"
                   value="CUSTOM"

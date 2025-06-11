@@ -3,7 +3,7 @@ import { View, Text, KeyboardAvoidingView, Platform, Pressable } from 'react-nat
 import ScrollableBaseModal from '../common/modal/ScrollableBaseModal';
 import ErrorMessagePopUp from '../common/ErrorMessagePopUp';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
-import { User, AccessLevel } from 'app/api/services/userService';
+import { Role, User } from 'app/api/services/userService';
 import ConditionalWrapper from '../common/ConditionalWrapper';
 import InputField from '../common/InputField';
 import OtpVerification from '../OtpVerification';
@@ -37,7 +37,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   verifyOtpState,
 }) => {
   // form state
-  const [accessLevel, setAccessLevel] = useState<AccessLevel>(AccessLevel.USER);
+  const [accessLevel, setAccessLevel] = useState<Role>(Role.STAFF);
   const [passcode, setPasscode] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -55,7 +55,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
 
   //  helpers
   const resetForm = () => {
-    setAccessLevel(AccessLevel.USER);
+    setAccessLevel(Role.STAFF);
     setPasscode('');
     setFirstName('');
     setLastName('');
@@ -90,7 +90,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
 
   const validate = useMemo(() => {
     if (!firstName.trim() || !lastName.trim()) return false;
-    if (accessLevel === AccessLevel.ADMIN && !username.trim()) return false;
+    if (accessLevel === Role.ADMIN && !username.trim()) return false;
     if (!passcode.trim() || passcode.length < 4) return false;
     if (!/^\+?\d{7,15}$/.test(phoneNumber)) return false;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
@@ -228,7 +228,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                 <View className="mb-3">
                   <Text className="mb-1 text-lg text-gray-800">Access&nbsp;Level</Text>
                   <View className="flex-row bg-gray-100 rounded-lg overflow-hidden">
-                    {[AccessLevel.ADMIN, AccessLevel.USER].map((lvl) => {
+                    {[Role.ADMIN, Role.STAFF].map((lvl) => {
                       const active = lvl === accessLevel;
                       return (
                         <Pressable
@@ -239,7 +239,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                           <Text
                             className={`font-medium ${active ? 'text-white' : 'text-gray-700'}`}
                           >
-                            {lvl === AccessLevel.ADMIN ? 'Admin' : 'Staff'}
+                            {lvl === Role.ADMIN ? 'Admin' : 'Staff'}
                           </Text>
                         </Pressable>
                       );
@@ -250,7 +250,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                 {/* form fields */}
                 <InputField label="First Name" value={firstName} onChange={setFirstName} />
                 <InputField label="Last Name" value={lastName} onChange={setLastName} />
-                {accessLevel === AccessLevel.ADMIN && (
+                {accessLevel === Role.ADMIN && (
                   <InputField label="Username" value={username} onChange={setUsername} />
                 )}
                 <InputField

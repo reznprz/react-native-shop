@@ -3,6 +3,7 @@ import { View, ScrollView, RefreshControl } from 'react-native';
 import TableMetrics from 'app/components/table/TableMetrics';
 import { RestaurantTable } from 'app/api/services/tableService';
 import { SwipeTableCard } from './SwipeTableCard';
+import { TableCard } from './TableCard';
 
 interface TableListProps {
   tables: RestaurantTable[];
@@ -64,15 +65,13 @@ export default function TableList({
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {tables.map((table, index) => (
-          <SwipeTableCard
+          <TableCard
             key={index}
             name={table.tableName}
             status={table.status}
             seats={table.capacity}
             items={table.orderItemsCount}
             onGoToMenu={() => onGoToMenu(table.tableName)}
-            onGoToCart={() => onGoToCart(table.tableName)}
-            onSwitchTable={() => onSwitchTable(table.tableName)}
           />
         ))}
       </ScrollView>
