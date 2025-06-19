@@ -25,7 +25,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       className={`bg-white rounded-xl ${containerStyle} flex-row items-center justify-between shadow-sm p-4`}
     >
       <View className="flex-row items-center">
-        {imageUri.length > 0 ? (
+        {imageUri && imageUri.length > 0 ? (
           <Image source={{ uri: imageUri }} className="w-14 h-14 rounded-full mr-4" />
         ) : (
           <CircularInitialNameChip initials={initials} size={38} style={{ marginRight: 12 }} />
