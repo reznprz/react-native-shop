@@ -22,6 +22,8 @@ import CustomButton from 'app/components/common/button/CustomButton';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import PlanSummaryCard from 'app/components/profile/PlanSummaryCard';
 import CollapsibleInfo from 'app/components/common/CollapsibleInfo';
+import CustomIcon from 'app/components/common/CustomIcon';
+import BannerCard from 'app/components/common/BannerCard';
 
 const defaultSubscriptionInfo: SubscriptionExpirationInfo = {
   planType: PlanType.NONE,
@@ -61,6 +63,7 @@ const ProfileScreen = () => {
     upsertContactMutation,
     deleteContactMutation,
   } = useRestaurant();
+
   const {
     restaurantName = '',
     emails = [],
@@ -180,44 +183,30 @@ const ProfileScreen = () => {
             onEditClick={() => setRestaurantEditModalVisible(true)}
           />
 
-          <View
-            className={`flex-row items-start gap-3 p-4 rounded-xl mb-6 shadow-sm border mt-4 ${
+          <BannerCard
+            primaryTitle={subscriptionExpirationInfo.expirationBannerMessage}
+            secondaryTitle={
+              !subscriptionExpirationInfo.subscriptionExpired
+                ? `Time remaining: ${subscriptionExpirationInfo.remainingDays}d ${subscriptionExpirationInfo.remainingHours}h ${subscriptionExpirationInfo.remainingMinutes}m ${subscriptionExpirationInfo.remainingSeconds}s`
+                : undefined
+            }
+            iconDetails={{
+              iconType: 'Feather',
+              iconName: subscriptionExpirationInfo.subscriptionExpired
+                ? 'alert-triangle'
+                : 'check-circle',
+              filledColor: subscriptionExpirationInfo.subscriptionExpired ? '#DC2626' : '#10B981',
+              bgColor: '',
+            }}
+            primaryTitleTextColor={
+              subscriptionExpirationInfo.subscriptionExpired ? 'text-red-700' : 'text-emerald-700'
+            }
+            cardBackgroundColor={
               subscriptionExpirationInfo.subscriptionExpired
                 ? 'bg-red-50 border-red-200'
                 : 'bg-emerald-50 border-emerald-200'
-            }`}
-          >
-            <Feather
-              name={
-                subscriptionExpirationInfo.subscriptionExpired ? 'alert-triangle' : 'check-circle'
-              }
-              size={20}
-              color={subscriptionExpirationInfo.subscriptionExpired ? '#DC2626' : '#10B981'}
-              style={{ marginTop: 2 }}
-            />
-            <View className="flex-1">
-              <Text
-                className={`text-sm font-medium ${
-                  subscriptionExpirationInfo.subscriptionExpired
-                    ? 'text-red-700'
-                    : 'text-emerald-700'
-                }`}
-              >
-                {subscriptionExpirationInfo.expirationBannerMessage}
-              </Text>
-              {!subscriptionExpirationInfo.subscriptionExpired && (
-                <Text className="text-xs text-gray-600 mt-1">
-                  Time remaining:{' '}
-                  <Text className="font-medium text-gray-800">
-                    {subscriptionExpirationInfo.remainingDays}d{' '}
-                    {subscriptionExpirationInfo.remainingHours}h{' '}
-                    {subscriptionExpirationInfo.remainingMinutes}m{' '}
-                    {subscriptionExpirationInfo.remainingSeconds}s
-                  </Text>
-                </Text>
-              )}
-            </View>
-          </View>
+            }
+          />
 
           {/* Contact Info Card */}
           <View className="bg-white rounded-2xl p-5 mb-4 border border-gray-100 shadow-sm">

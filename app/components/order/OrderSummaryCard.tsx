@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, Image, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { StatusChip } from '../common/StatusChip';
 import IconLabel from '../common/IconLabel';
 import { OrderDetails } from 'app/api/services/orderService';
 import CustomIcon from '../common/CustomIcon';
 import { getIconDetail } from 'app/utils/getIconDetail';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import BannerCard from '../common/BannerCard';
 
 type OrderSummaryProps = {
   order: OrderDetails;
@@ -21,6 +22,22 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({
   const orderTypeIconDetail = getIconDetail(order.orderType);
   return (
     <View className={`flex bg-white p-3 rounded-lg  border border-gray-200 mb-2 ${containerStyle}`}>
+      {order.cancelReason && order.cancelReason.length > 0 && (
+        <BannerCard
+          primaryTitle={order.cancelReason}
+          primaryTitleTextColor="text-red-700"
+          cardBackgroundColor="bg-red-50 border-red-200"
+          secondaryTitle="Order Canceled Reason"
+          iconDetails={{
+            iconType: 'Feather',
+            iconName: 'x-circle',
+            filledColor: '#DC2626', // Tailwind red-600
+            bgColor: '',
+          }}
+          cardStyle="p-2 mb-4"
+        />
+      )}
+
       {/* Order ID & Status Row */}
       <View className="flex-row justify-between items-center">
         <IconLabel

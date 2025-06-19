@@ -30,8 +30,6 @@ export const useSettingsAccount = () => {
   const dispatch = useDispatch();
   const has = useHasPermission;
 
-  console.log('storedAuthData', storedAuthData);
-
   // Define onPress handlers for each setting option
   const handlePress = useCallback((label: string) => {
     switch (label) {
@@ -197,8 +195,6 @@ export const useSettingsAccount = () => {
       return data.length > 0 ? { ...sec, data } : null; // drop if no options remain
     })
     .filter((s): s is Section => s !== null);
-
-  console.log('sections', sections);
 
   return { sections, restaurantInfo: storedAuthData, handlePress, handleLogout };
 };

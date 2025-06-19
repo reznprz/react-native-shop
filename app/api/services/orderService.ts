@@ -81,6 +81,11 @@ export interface OrderDetails {
   subTotalAmount: number;
   discountAmount: number;
   orderMenuType: string;
+  cancelReason?: string;
+  userLastName: string;
+  userInitial: string;
+  userName: string;
+  userAvatarUrl: string;
   payments: PaymentDetails[];
   groupedPaymentByNotesAndDate?: Record<string, PaymentDetails[]>;
   timeStamp: TimeStamp;

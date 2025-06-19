@@ -50,19 +50,14 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
 
   const onCompletePress = useCallback(() => {
     const totalPaymentsAmount = selectedPayments.reduce((sum, p) => sum + p.amount, 0);
-    console.log('Total Payments Amount:', totalPaymentsAmount);
     if (selectedPayments.length > 1) {
-      console.log('Multiple payments selected:', selectedPayments);
       if (totalPaymentsAmount > tableItems.totalPrice) {
-        console.log(PAYMENT_WARN_MESSAGES.PAYMENTS_TOTAL_INCORRECT, selectedPayments);
         setPaymentWarnMessage(
           `${PAYMENT_WARN_MESSAGES.PAYMENTS_TOTAL_INCORRECT} : TotalPaymentAmount: ${totalPaymentsAmount}`,
         );
         return;
       }
       if (totalPaymentsAmount < tableItems.totalPrice) {
-        console.log(PAYMENT_WARN_MESSAGES.PAYMENTS_CONFORMATION, selectedPayments);
-
         setPaymentConfirmationMessage(
           `${PAYMENT_WARN_MESSAGES.PAYMENTS_CONFORMATION} : TotalPaymentAmount: ${totalPaymentsAmount}`,
         );
@@ -131,7 +126,6 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
       <LoadingButton
         title="Complete Order"
         onPress={() => {
-          console.log('Complete Order Pressed with selected payments:', selectedPayments);
           onCompletePress();
         }}
         buttonState={completeOrderState}

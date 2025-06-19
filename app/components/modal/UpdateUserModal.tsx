@@ -147,7 +147,6 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
         <Pressable
           key={uri}
           onPress={() => {
-            console.log('avatarUrl 111', uri);
             setAvatar(uri);
           }}
           style={{ marginRight: idx === avatars.length - 1 ? 0 : GAP }}
@@ -165,7 +164,6 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
         <Pressable
           key={uri}
           onPress={() => {
-            console.log('avatarUrl 111', uri);
             setAvatar(uri);
           }}
           style={{

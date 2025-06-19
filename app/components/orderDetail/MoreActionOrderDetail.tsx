@@ -9,6 +9,7 @@ import { PaymentInfo } from 'app/hooks/useTables';
 import CollapsibleComponent from '../common/CollapsibleComponent';
 import PaymentNotesInfo from './PaymentNotesInfo';
 import SwitchPaymentMethodSelector from './SwitchPaymentMethodSelector';
+import UserProfileCard from '../common/UserProfileCard';
 
 type MoreActionOrderDetailProps = {
   order: OrderDetails;

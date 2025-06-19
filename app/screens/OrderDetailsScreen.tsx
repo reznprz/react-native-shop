@@ -15,6 +15,8 @@ import NotificationBar from 'app/components/common/NotificationBar';
 import { useFocusEffect } from '@react-navigation/native';
 import SubTab from 'app/components/common/SubTab';
 import CancelReasonModal from 'app/components/modal/CancelReasonModal';
+import UserProfileCard from 'app/components/common/UserProfileCard';
+import BannerCard from 'app/components/common/BannerCard';
 
 const tabs = ['Details', 'More Actions'];
 type TabType = (typeof tabs)[number];
@@ -157,6 +159,29 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
     <View className="h-full w-full bg-gray-100">
       {/* Tab selection */}
       <SubTab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+
+      {order.cancelReason && order.cancelReason.length > 0 && (
+        <BannerCard
+          primaryTitle={order.cancelReason}
+          primaryTitleTextColor="text-red-700"
+          cardBackgroundColor="bg-red-50 border-red-200 m-2"
+          secondaryTitle="Order Canceled Reason"
+          iconDetails={{
+            iconType: 'Feather',
+            iconName: 'x-circle',
+            filledColor: '#DC2626', // Tailwind red-600
+            bgColor: '',
+          }}
+        />
+      )}
+
+      <UserProfileCard
+        name={order.userName}
+        imageUri={order.userAvatarUrl}
+        initials={order.userInitial}
+        email={order.userLastName}
+        containerStyle="p-4 rounded-xl bg-white  m-2"
+      />
 
       {/* Main content area */}
       {orderDetailScreen?.status === 'pending' ||
