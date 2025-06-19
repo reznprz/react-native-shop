@@ -222,20 +222,19 @@ export const useOrder = () => {
     [orders],
   );
 
-  const paidAmount = useMemo(
-    () =>
-      orders
-        .filter((order) => order.paymentStatus === 'PAID')
-        .reduce((sum, order) => sum + order.totalAmount, 0),
-    [orders],
-  );
-  const unpaidAmount = useMemo(
-    () =>
-      orders
-        .filter((order) => order.paymentStatus === 'UNPAID')
-        .reduce((sum, order) => sum + order.totalAmount, 0),
-    [orders],
-  );
+  const paidAmount = useMemo(() => {
+    return orders.reduce((sum, order) => {
+      const nonCreditPaymentsTotal =
+        order.payments
+          ?.filter((p) => p.paymentMethod !== 'CREDIT')
+          .reduce((acc, p) => acc + (p.amount ?? 0), 0) ?? 0;
+
+      return sum + nonCreditPaymentsTotal;
+    }, 0);
+  }, [orders]);
+
+  const unpaidAmount = useMemo(() => totalAmount - paidAmount, [totalAmount, paidAmount]);
+
   const totalOrders = useMemo(() => orders.length, [orders]);
 
   // Helper function to build the orders payload from filters and date.

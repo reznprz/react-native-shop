@@ -59,8 +59,6 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   const { topBreakFast, topDrinks, topLunch } = foodMenu;
 
-  console.log('restaurantFeatures', restaurantFeatures);
-
   const {
     tables,
     currentTable,

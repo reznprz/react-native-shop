@@ -69,7 +69,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   };
 
   useEffect(() => {
-    console.log('AddUserModal → localOtpVerified changed:', localOtpVerified);
     if (localOtpVerified) {
       verifyOtpReset();
       sendOtpReset();

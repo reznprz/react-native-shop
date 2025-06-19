@@ -19,12 +19,7 @@ interface StatusModalProps {
   onRequestClose: () => void;
 }
 
-const ALL_STATUSES: ContactStatus[] = [
-  ContactStatus.PRIMARY,
-  ContactStatus.SECONDARY,
-  ContactStatus.ACTIVE,
-  ContactStatus.INACTIVE,
-];
+const ALL_STATUSES: ContactStatus[] = [ContactStatus.PRIMARY, ContactStatus.SECONDARY];
 
 const StatusModal: React.FC<StatusModalProps> = ({
   visible,

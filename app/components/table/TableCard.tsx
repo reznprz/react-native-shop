@@ -77,9 +77,9 @@ export function TableCard({
             containerStyle="justify-between"
             labelTextSize="text-base pl-2 text-gray-500"
           />
-          <Pressable onPress={() => setShowActions(!showActions)} className="mt-auto">
+          {/* <Pressable onPress={() => setShowActions(!showActions)} className="mt-auto">
             <Ionicons name="chevron-forward-outline" size={25} color="#9CA3AF" />
-          </Pressable>
+          </Pressable> */}
         </View>
         {/* Conditional Actions Menu */}
         {showActions && onGoToMenu && onGoToCart && onSwitchTable && (
