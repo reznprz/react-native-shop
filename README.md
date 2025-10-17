@@ -120,11 +120,22 @@ yarn add @reduxjs/toolkit react-redux redux-persist @react-native-async-storage/
 npx expo install react-native-reanimated
 ```
 
+
 - *** app doesn't start on ios/andriod**: install local expo
 ### 6. local CLI (npx expo)
 
 ```bash
 yarn add postcss
+```
+
+- *** install for expo 54
+### 8. 
+
+```bash
+npx expo install react-native-worklets
+'react-native-reanimated/plugin', // Replace this line with
+      'react-native-worklets/plugin', // Use this line instead
+
 ```
 
 ### Note. To run the app in andriod/Ios dowload the Expo Go App
@@ -135,3 +146,22 @@ yarn add postcss
 icon would be similar to - https://expo.dev/go
 
 ### After starting the app `npx expo start -c` would would see qr code scan that from your mobile camera and it would direct to the expo go app in your phone and run the react-native application. Your phone and laptop should be on same network.
+
+
+note: got error:  ERROR  Uncaught error: [Error: Exception in HostFunction: TypeError: expected dynamic type 'boolean', but had type 'string'] 
+and ran 
+
+npx expo install --check 
+
+which fixed the error. 
+
+and also added follow this, 
+
+Cannot automatically write to dynamic config at: app.config.ts
+Add the following to your Expo config
+
+{
+  "plugins": [
+    "expo-asset"
+  ]
+}

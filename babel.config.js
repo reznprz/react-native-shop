@@ -8,7 +8,7 @@ module.exports = function (api) {
       "nativewind/babel", // NativeWind transformations
     ],
     plugins: [
-      "react-native-reanimated/plugin", // Required for react-native-reanimated
+      "react-native-worklets/plugin", // Required for react-native-reanimated
       [
         "module:react-native-dotenv",
         {

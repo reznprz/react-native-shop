@@ -25,4 +25,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     env: process.env.EXPO_PUBLIC_ENV,
   },
+  plugins: [
+    "expo-asset"
+  ]
 });
