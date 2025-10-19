@@ -165,3 +165,14 @@ Add the following to your Expo config
     "expo-asset"
   ]
 }
+
+
+### steps to buld the app in expo 
+
+1. Install EAS CLI
+
+yarn global add eas-cli
+
+2. Login to EAS 
+
+eas login

@@ -26,7 +26,7 @@
     "build:uat:ios": "eas build --profile uat        --platform ios",
     "build:prod:ios": "eas build --profile production --platform ios",
     "update:local": "eas update --branch local",
-    "update:uat": "cross-env DOTENV_FILE=.env.uat eas update",
+    "update:uat": "cross-env DOTENV_FILE=.env.uat eas update --branch develop",
     "update:shajhya": "cross-env DOTENV_FILE=.env.uat eas update --branch shajhya",
     "update:prod": "cross-env EXPO_NO_DOTENV=1 dotenv -e .env.prod -o -- eas update --branch master",
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
