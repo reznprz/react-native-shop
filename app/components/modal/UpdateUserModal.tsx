@@ -17,14 +17,14 @@ import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
 const DEFAULT_AVATARS = [
   '',
-  'https://storage.googleapis.com/image-box-sp/Boy1.jpg',
-  'https://storage.googleapis.com/image-box-sp/boy2.jpg',
-  'https://storage.googleapis.com/image-box-sp/boy3.jpeg',
-  'https://storage.googleapis.com/image-box-sp/boy4.jpeg',
-  'https://storage.googleapis.com/image-box-sp/girl1.png',
-  'https://storage.googleapis.com/image-box-sp/girl2.jpeg',
-  'https://storage.googleapis.com/image-box-sp/girl3.jpeg',
-  'https://storage.googleapis.com/image-box-sp/girl4.jpeg',
+  'https://storage.googleapis.com/image-box-shk/Boy1.jpg',
+  'https://storage.googleapis.com/image-box-shk/boy2.jpg',
+  'https://storage.googleapis.com/image-box-shk/boy3.jpeg',
+  'https://storage.googleapis.com/image-box-shk/boy4.jpeg',
+  'https://storage.googleapis.com/image-box-shk/girl1.png',
+  'https://storage.googleapis.com/image-box-shk/girl2.jpeg',
+  'https://storage.googleapis.com/image-box-shk/girl3.jpeg',
+  'https://storage.googleapis.com/image-box-shk/girl4.jpeg',
 ] as const;
 
 interface UpdateUserModalProps {
