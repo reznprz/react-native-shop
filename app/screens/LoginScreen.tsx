@@ -5,7 +5,7 @@ import { useLogin } from 'app/hooks/useLogin';
 import LoginCard from 'app/components/login/LoginCard';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
-const logoSource = { uri: 'https://storage.googleapis.com/image-box-sp/res.png' };
+const logoSource = { uri: 'https://storage.googleapis.com/image-box-shk/73eada7f0f2242701b4aebffb1da4db852caf51266d8fd4ef916e82456ffb7e8.jpg' };
 
 const LoginScreen: React.FC = () => {
   const {

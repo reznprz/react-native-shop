@@ -2,6 +2,8 @@ import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
 import { Platform } from 'react-native';
 
+export type CrossFile = File | { uri: string; name: string; type: string };
+
 export interface RestaurantData {
   id: number;
   restaurantName: string;
@@ -96,37 +98,61 @@ export const deleteContactApi = (
     `/api/restaurants/${restaurantId}/contacts/${type}/${contactId}`,
   );
 
+
 /**
  * PUT /api/restaurants/{id}
  * Sends the JSON dto in part “data” and (optionally) the image in part “file”.
  */
+
 export const updateRestaurantApi = async (
   restaurantId: number,
   updatedRestaurant: RestaurantData,
-  file?: { uri: string; name: string; type: string } | File, // RN | Web
-) => {
+  file?: CrossFile,
+): Promise<ApiResponse<RestaurantData>> => {
   const url = `/api/restaurants/${restaurantId}`;
   const fd = new FormData();
 
-  /* Part “data”  */
-  const json = JSON.stringify(updatedRestaurant);
+  // Part "data" (as string; backend parses with ObjectMapper)
+  fd.append('data', JSON.stringify(updatedRestaurant));
 
-  if (Platform.OS === 'web') {
-    // Browser: a Blob automatically carries type=application/json
-    fd.append('data', new Blob([json], { type: 'application/json' }));
-  } else {
-    // React-Native: add an object literal so the part has the right MIME type
-    fd.append('data', {
-      string: json, // RN key name is literally "string"
-      name: 'data', // any filename; Spring ignores it
-      type: 'application/json',
-    } as any);
+  // Part "file"
+  if (file) {
+    if (Platform.OS === 'web') {
+      const maybeUri = (file as any).uri as string | undefined;
+
+      if (maybeUri?.startsWith?.('blob:')) {
+        // Convert blob: URL → real File
+        const res = await fetch(maybeUri);
+        const blob = await res.blob();
+        const webFile = new File(
+          [blob],
+          (file as any).name || 'upload.jpg',
+          { type: (file as any).type || blob.type || 'application/octet-stream' },
+        );
+        fd.append('file', webFile);
+      } else if (file instanceof File) {
+        fd.append('file', file);
+      } else {
+        // Fallback: a plain {uri,name,type} object on web
+        const res = await fetch((file as any).uri);
+        const blob = await res.blob();
+        const webFile = new File(
+          [blob],
+          (file as any).name || 'upload.jpg',
+          { type: (file as any).type || blob.type || 'application/octet-stream' },
+        );
+        fd.append('file', webFile);
+      }
+    } else {
+      // React-Native (iOS/Android)
+      fd.append('file', {
+        uri: (file as any).uri,                                 // content:// or file://
+        name: (file as any).name || 'upload.jpg',
+        type: (file as any).type || 'application/octet-stream',
+      } as any);
+    }
   }
 
-  /*Part “file” (only if a new image was picked) */
-  if (file) fd.append('file', file as any);
-
-  return apiMethods.put<RestaurantData>(url, fd, {
-    headers: { 'Content-Type': 'multipart/form-data' }, // **keep it**
-  });
+  // Do NOT set Content-Type; axios will add multipart boundary
+  return apiMethods.put<RestaurantData>(url, fd);
 };
