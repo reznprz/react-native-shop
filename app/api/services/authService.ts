@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { config } from 'app/config/config';
-import { RegisterRequest, SuccessResponse } from './userService';
 import { Role } from 'app/security/role';
+import { RegisterRequest } from './userService';
 
 export interface Credentials {
   username: string;
@@ -92,6 +92,21 @@ export interface AuthResponse {
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
 }
 
+export interface CreateRestaurantRequest {
+  restaurantName: string;
+  email: string;
+  phoneNumber: string;
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface SuccessResponse {
+  success: boolean;
+  message: string;
+}
+
 /**
  * Log in and store the JWT tokens in AsyncStorage (if you want).
  * Then you also dispatch setAuthData(...) in Redux to keep them in store.
@@ -100,6 +115,20 @@ export const login = async (credentials: Credentials): Promise<AuthResponse> => 
   const response = await axios.post<AuthResponse>(
     `${config.tokenBaseURL}/auth/login`,
     credentials,
+    {
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      timeout: 10000,
+    },
+  );
+  const authResponse = response.data;
+
+  return authResponse;
+};
+
+export const createNewRestaurantApi = async (payload: CreateRestaurantRequest): Promise<SuccessResponse> => {
+  const response = await axios.post<SuccessResponse>(
+    `${config.tokenBaseURL}/auth/register`,
+    payload,
     {
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       timeout: 10000,

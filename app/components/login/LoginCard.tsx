@@ -34,7 +34,7 @@ const LoginCard: React.FC<LoginCardProps> = ({
   handleLogin,
 }) => {
   return (
-    <View className="bg-white w-full rounded-xl shadow-md ">
+    <View className="bg-white w-full rounded-xl shadow-sm p-8">
       <View className="pb-3 px-8 pt-3">
         {/* Icon */}
         <View className="items-center mb-4">
