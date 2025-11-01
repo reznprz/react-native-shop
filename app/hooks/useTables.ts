@@ -402,6 +402,18 @@ export function useTables() {
     push(ScreenNames.TABLEMANAGER);
   }, [push]);
 
+  const handleAddNewCategoryClick = useCallback(() => {
+    push(ScreenNames.FOODMANAGER, {
+          selectedTab: "Category",
+        });
+      }, [push]);
+
+  const handleAddNewFoodClick = useCallback(() => {
+    push(ScreenNames.FOODMANAGER, {
+          selectedTab: "Food",
+        });
+      }, [push]);
+
   return {
     // TABLES QUERY
     tables,
@@ -443,5 +455,7 @@ export function useTables() {
     navigateToOrdersScreen,
     handleSelectTable,
     handleAddNewTableClick,
+    handleAddNewCategoryClick,
+    handleAddNewFoodClick
   };
 }

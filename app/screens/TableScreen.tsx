@@ -135,7 +135,7 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
     ) : tables.length === 0 ? (
       <View className="flex-1 justify-center items-center">
         <EmptyState
-          iconName="food-off"
+          iconName="table-off"
           message="No Tables available"
           subMessage="Please add table."
           iconSize={90}

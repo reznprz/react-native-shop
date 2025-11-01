@@ -92,10 +92,11 @@ const TableManagerScreen = () => {
         <FoodLoadingSpinner iconName="coffee" />
       ) : !tables || tables.length === 0 ? (
         <EmptyState
-          iconName="user"
+          iconName="table-off"
           message="No Table available"
           subMessage="Please refresh or add new Table ."
-          iconSize={100}
+          iconSize={90}
+          onAddPress={() => setShowAddUpdateTableModal(true)}
         />
       ) : (
         <FlatList

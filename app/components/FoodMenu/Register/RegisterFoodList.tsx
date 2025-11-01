@@ -11,6 +11,7 @@ import { Food } from 'app/api/services/foodService';
 import { TableItem } from 'app/hooks/useTables';
 import SubTab from 'app/components/common/SubTab';
 import { OrderMenuType } from 'app/redux/prepTableItemsSlice';
+import EmptyState from 'app/components/common/EmptyState';
 
 const subtabs: string[] = Object.values(OrderMenuType);
 
@@ -30,6 +31,7 @@ interface Props {
   updateCartItemForFood: (food: Food, newQuantity: number) => void;
   handleCategoryClick: (categoryName: string) => void;
   onPricingSubTabClick: (selectedTab: SubTabType) => void;
+  handleAddNewFoodClick: () => void;
 }
 
 const RegisterFoodList: React.FC<Props> = ({
@@ -46,6 +48,7 @@ const RegisterFoodList: React.FC<Props> = ({
   updateCartItemForFood,
   handleCategoryClick,
   onPricingSubTabClick,
+  handleAddNewFoodClick,
 }) => {
   // State for mobile sidebar visibility and search text
   const [sidebarVisible, setSidebarVisible] = useState(false);
@@ -71,6 +74,21 @@ const RegisterFoodList: React.FC<Props> = ({
       }).start();
     }
   };
+
+  if (!foods || foods.length === 0) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <EmptyState
+          iconName="food-off"
+          message="No foods available"
+          subMessage="Please add new food to start taking orders."
+          iconSize={90}
+          onAddPress={() => handleAddNewFoodClick()}
+          addButtonLabel="Add New Table"
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
