@@ -9,6 +9,7 @@ import {
   Animated,
   TouchableOpacity,
   StyleSheet,
+  View,
 } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomIcon from '../CustomIcon';
@@ -19,14 +20,14 @@ export interface CustomButtonProps {
   title: string;
   disabled?: boolean;
   onPress: (event: GestureResponderEvent) => void;
-  width?: SizeOption; // Button width options
-  height?: SizeOption; // Options: s, m, l, xl, full
-  textSize?: string; // Tailwind text size class, e.g., "text-base", "text-lg"
-  bgColor?: string; // Background color class. Default is deepTeal (#2a4759)
-  textColor?: string; // Text color class. Default is "text-white"
-  fontWeight?: string; // Font weight class, e.g., "font-semibold"
-  customButtonStyle?: string; // Additional custom style for button container
-  customTextStyle?: string; // Additional custom style for text
+  width?: SizeOption;
+  height?: SizeOption;
+  textSize?: string;
+  bgColor?: string;
+  textColor?: string;
+  fontWeight?: string;
+  customButtonStyle?: string;
+  customTextStyle?: string;
   iconName?: string;
   iconColor?: string;
   iconSize?: number;
@@ -44,7 +45,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   width = 'm',
   height = 's',
   textSize = 'text-lg',
-  bgColor = 'bg-[#2a4759]', // deepTeal default color
+  bgColor = 'bg-[#2a4759]',
   textColor = 'text-white',
   fontWeight = 'font-semibold',
   customButtonStyle,
@@ -59,63 +60,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   buttonType = 'TouchableOpacity',
   ...props
 }) => {
-  // Map the width prop to a Tailwind width class
-  let widthClass = '';
-  switch (width) {
-    case 's':
-      widthClass = 'w-20';
-      break;
-    case 'm':
-      widthClass = 'w-32';
-      break;
-    case 'l':
-      widthClass = 'w-40';
-      break;
-    case 'xl':
-      widthClass = 'w-56';
-      break;
-    case '2xl':
-      widthClass = 'w-56';
-      break;
-    case 'full':
-      widthClass = 'w-full';
-      break;
-    default:
-      widthClass = 'w-32';
-  }
-
-  // Map the height prop to Tailwind height classes
-  let heightClass = '';
-  switch (height) {
-    case 's':
-      heightClass = 'h-8';
-      break;
-    case 'm':
-      heightClass = 'h-10';
-      break;
-    case 'l':
-      heightClass = 'h-12';
-      break;
-    case '2l':
-      heightClass = 'h-14';
-      break;
-    case 'xl':
-      heightClass = 'h-16';
-      break;
-    case 'full':
-      heightClass = 'h-full';
-      break;
-    default:
-      heightClass = 'h-10';
-  }
-
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.95,
-      useNativeDriver: true,
-    }).start();
+    Animated.spring(scaleAnim, { toValue: 0.95, useNativeDriver: true }).start();
   };
 
   const handlePressOut = () => {
@@ -127,67 +75,93 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     }).start();
   };
 
+  // map width + height classes
+  const widthMap: Record<SizeOption, string> = {
+    s: 'w-20',
+    m: 'w-32',
+    l: 'w-40',
+    '2l': 'w-48',
+    xl: 'w-56',
+    '2xl': 'w-64',
+    full: 'w-full',
+  };
+  const heightMap: Record<SizeOption, string> = {
+    s: 'h-8',
+    m: 'h-10',
+    l: 'h-12',
+    '2l': 'h-14',
+    xl: 'h-16',
+    '2xl': 'h-20',
+    full: 'h-full',
+  };
+
   return (
     <>
       {buttonType === 'TouchableOpacity' ? (
-        <>
-          <Animated.View
+        <Animated.View
+          style={[{ transform: [{ scale: scaleAnim }] }, disabled && { opacity: 0.5 }]}
+        >
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={disabled ? undefined : onPress}
+            onPressIn={disabled ? undefined : handlePressIn}
+            onPressOut={disabled ? undefined : handlePressOut}
             style={[
-              { transform: [{ scale: scaleAnim }] },
-              // If disabled, reduce opacity
-              disabled && { opacity: 0.5 },
+              styles.button,
+              {
+                backgroundColor: disabled ? '#D1D5DB' : backgroundColor || '#2a4759',
+              },
+              buttonStyle,
             ]}
+            {...props}
           >
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={disabled ? undefined : onPress}
-              onPressIn={disabled ? undefined : handlePressIn}
-              onPressOut={disabled ? undefined : handlePressOut}
-              style={[
-                styles.button,
-                { backgroundColor: disabled ? '#D1D5DB' : backgroundColor || '#2a4759' },
-                buttonStyle,
-              ]}
-              {...props}
-            >
+            <View style={styles.rowCenter}>
+              {iconName && (
+                <CustomIcon
+                  type={iconType}
+                  name={iconName}
+                  size={iconSize}
+                  color={iconColor}
+                  iconStyle="mr-2"
+                />
+              )}
               <Text style={[styles.text, textStyle]}>{title}</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </>
+            </View>
+          </TouchableOpacity>
+        </Animated.View>
       ) : (
-        <>
-          <Pressable
-            onPress={onPress}
-            disabled={disabled}
+        <Pressable
+          onPress={onPress}
+          disabled={disabled}
+          className={
+            customButtonStyle
+              ? `${customButtonStyle} ${bgColor} ${
+                  disabled ? 'bg-gray-400' : bgColor
+                } flex flex-row items-center justify-center rounded px-2 py-1`
+              : `${widthMap[width]} ${heightMap[height]} ${bgColor} ${
+                  disabled ? 'bg-gray-400' : bgColor
+                } flex flex-row items-center justify-center rounded px-2 py-1`
+          }
+        >
+          {iconName && (
+            <CustomIcon
+              type={iconType}
+              name={iconName}
+              size={iconSize}
+              color={iconColor}
+              iconStyle="mr-2"
+            />
+          )}
+          <Text
             className={
-              customButtonStyle
-                ? `${customButtonStyle} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
-                  ${!disabled && 'pressed:bg-[#24415A]'} `
-                : `${widthClass} ${heightClass} ${bgColor} ${disabled ? 'bg-gray-400' : bgColor} 
-                  ${!disabled && 'pressed:bg-[#24415A]'} 
-            flex flex-row items-center justify-center rounded px-2 py-1`
+              customTextStyle
+                ? customTextStyle
+                : `${textSize} ${textColor} ${fontWeight} text-center`
             }
           >
-            {iconName && (
-              <CustomIcon
-                type={iconType}
-                name={iconName}
-                size={iconSize}
-                color={iconColor}
-                iconStyle="mr-2"
-              />
-            )}
-            <Text
-              className={
-                customTextStyle
-                  ? customTextStyle
-                  : `${textSize} ${textColor} ${fontWeight} text-center`
-              }
-            >
-              {title}
-            </Text>
-          </Pressable>
-        </>
+            {title}
+          </Text>
+        </Pressable>
       )}
     </>
   );
@@ -207,13 +181,15 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  rowCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   text: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  disabledButton: {
-    backgroundColor: '#D1D5DB',
   },
 });
 

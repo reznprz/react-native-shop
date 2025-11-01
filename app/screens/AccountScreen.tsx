@@ -79,7 +79,7 @@ export default function AccountScreen() {
             textColor="black"
             iconType="FontAwesome5"
             iconName="sign-out-alt"
-            iconColor="black"
+            iconColor="white"
           />
         </View>
         {/* Avatar selection modal */}

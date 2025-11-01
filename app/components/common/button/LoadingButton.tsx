@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, GestureResponderEvent } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, GestureResponderEvent } from 'react-native';
 import CustomButton, { CustomButtonProps } from './CustomButton';
 import ErrorMessagePopUp from '../ErrorMessagePopUp';
 
@@ -20,11 +20,10 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({ buttonState, onPress, tit
   const isDisabled = buttonState.status === 'loading' || buttonState.status === 'success';
 
   return (
-    <>
+    <View style={styles.buttonWrapper}>
       <View style={styles.buttonContainer}>
         <CustomButton
           onPress={onPress}
-          // When loading, show an empty title so our spinner is visible.
           title={buttonState.status === 'loading' ? '' : title}
           disabled={isDisabled}
           {...rest}
@@ -35,37 +34,35 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({ buttonState, onPress, tit
           </View>
         )}
       </View>
+
+      {/* Move inside wrapper so it's stacked below */}
       {buttonState.status === 'error' && (
-        <ErrorMessagePopUp
-          errorMessage={buttonState.message}
-          onClose={() => {
-            if (buttonState.reset) {
-              buttonState.reset();
-            }
-          }}
-        />
+        <View style={styles.errorWrapper}>
+          <ErrorMessagePopUp
+            errorMessage={buttonState.message}
+            onClose={() => buttonState.reset?.()}
+          />
+        </View>
       )}
-    </>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  buttonWrapper: {
+    flex: 1,
+  },
   buttonContainer: {
     position: 'relative',
+    flex: 1,
   },
   loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
+    ...StyleSheet.absoluteFillObject,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  errorText: {
-    color: 'red',
-    marginTop: 4,
-    textAlign: 'center',
+  errorWrapper: {
+    marginTop: 8, // space between button and popup
   },
 });
 
