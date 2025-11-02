@@ -269,7 +269,7 @@ export function useTables() {
         orderMenuType: orderMenuType,
         totalPrice: item.unitPrice * newQuantity,
         restaurantId: storeRestaurantId,
-        userId: storeRestaurantId,
+        userId: storedUserId,
         orderItems: {
           id: 0,
           orderId: updatedTableItems.id,

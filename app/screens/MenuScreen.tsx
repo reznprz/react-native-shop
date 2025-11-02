@@ -165,7 +165,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             onAddFoodClick={handleAddFoodClick}
             handleAddNewTableClick={handleAddNewTableClick}
             handleAddNewCategoryClick={handleAddNewCategoryClick}
-            handleAddNewFoodClick={handleAddFoodClick}
+            handleAddNewFoodClick={handleAddNewFoodClick}
           />
         ) : (
           <FoodsMenu
