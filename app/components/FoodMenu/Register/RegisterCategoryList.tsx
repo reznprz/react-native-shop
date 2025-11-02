@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { FlatList, Text, TouchableOpacity, StyleSheet, ViewStyle, View } from 'react-native';
 import CustomIcon from 'app/components/common/CustomIcon';
 import { getFilterIcon } from 'app/hooks/utils/getFilterIcon';
+import EmptyState from 'app/components/common/EmptyState';
 
 interface Props {
   categories: string[];
@@ -9,6 +10,7 @@ interface Props {
   selectedCategory: string;
   numColumnsRegisterScreen: number;
   refetchFoods: () => void;
+  handleAddNewCategoryClick: () => void;
 }
 
 /** helper: 100 % minus a 4 % gap, divided by the column count */
@@ -20,6 +22,7 @@ const RegisterCategoryList: React.FC<Props> = ({
   numColumnsRegisterScreen,
   onSelectCategory,
   refetchFoods,
+  handleAddNewCategoryClick,
 }) => {
   const [refreshing, setRefreshing] = useState(false);
 
@@ -33,6 +36,21 @@ const RegisterCategoryList: React.FC<Props> = ({
     await refetchFoods();
     setRefreshing(false);
   };
+
+  if (!categories || categories.length === 0) {
+    return (
+      <View className="flex-1 justify-center items-center">
+        <EmptyState
+          iconName="food-off"
+          message="No Categories available"
+          subMessage="Please add categories to start taking orders."
+          iconSize={90}
+          onAddPress={() => handleAddNewCategoryClick()}
+          addButtonLabel="Add New Table"
+        />
+      </View>
+    );
+  }
 
   return (
     <FlatList

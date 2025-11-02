@@ -36,6 +36,9 @@ interface RegisterProps {
   refetchTables: () => void;
   onAddFoodClick: () => void;
   refetchFoods: () => void;
+  handleAddNewTableClick: () => void;
+  handleAddNewCategoryClick: () => void;
+  handleAddNewFoodClick: () => void;
 }
 
 export default function Register({
@@ -61,6 +64,9 @@ export default function Register({
   handleCategoryClick,
   refetchTables,
   refetchFoods,
+  handleAddNewTableClick,
+  handleAddNewCategoryClick,
+  handleAddNewFoodClick,
   completeOrderState,
 }: RegisterProps) {
   const { isDesktop, isMobile } = useIsDesktop();
@@ -104,6 +110,9 @@ export default function Register({
             onAddFoodClick={onAddFoodClick}
             refetchTables={refetchTables}
             refetchFoods={refetchFoods}
+            handleAddNewTableClick={handleAddNewTableClick}
+            handleAddNewCategoryClick={handleAddNewCategoryClick}
+            handleAddNewFoodClick={handleAddNewFoodClick}
           />
         </View>
 
@@ -152,6 +161,9 @@ export default function Register({
         onSelectTable={onSelectTable}
         refetchTables={refetchTables}
         refetchFoods={refetchFoods}
+        handleAddNewTableClick={handleAddNewTableClick}
+        handleAddNewCategoryClick={handleAddNewCategoryClick}
+        handleAddNewFoodClick={handleAddNewFoodClick}
       />
 
       {tableItems?.id > 0 && (

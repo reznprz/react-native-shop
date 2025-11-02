@@ -15,7 +15,17 @@ const tabs = ['Food', 'Category'];
 
 type TabType = (typeof tabs)[number];
 
-const FoodManagerScreen: React.FC = () => {
+interface FoodManagerScreenRouteParams {
+  selectedTab?: TabType;
+}
+
+interface FoodManagerScreenProps {
+  route: {
+    params: FoodManagerScreenRouteParams;
+  };
+}
+
+export default function FoodManagerScreen({ route }: FoodManagerScreenProps) {
   const {
     foods,
 
@@ -42,8 +52,9 @@ const FoodManagerScreen: React.FC = () => {
   } = useFood();
 
   const { isMobile, isDesktop } = useIsDesktop();
+  const { selectedTab } = route.params || {};
 
-  const [activeTab, setActiveTab] = useState<TabType>('Food');
+  const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Food');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [mode, setMode] = useState<'' | 'addFood' | 'addUpdateCategory'>('');
   const [showDeleteConfirmationModal, setShowDeleteConfirmationModal] = useState<number | null>(
@@ -179,6 +190,4 @@ const FoodManagerScreen: React.FC = () => {
       />
     </View>
   );
-};
-
-export default FoodManagerScreen;
+}

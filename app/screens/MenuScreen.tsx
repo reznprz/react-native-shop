@@ -73,6 +73,9 @@ export default function MenuScreen({ route }: MenuScreenProps) {
     handleTableClick,
     handleAddDiscount,
     handleCompleteOrder,
+    handleAddNewTableClick,
+    handleAddNewCategoryClick,
+    handleAddNewFoodClick,
   } = useTables();
 
   useFocusEffect(
@@ -160,6 +163,9 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             refetchTables={refetchTables}
             refetchFoods={refetch}
             onAddFoodClick={handleAddFoodClick}
+            handleAddNewTableClick={handleAddNewTableClick}
+            handleAddNewCategoryClick={handleAddNewCategoryClick}
+            handleAddNewFoodClick={handleAddNewFoodClick}
           />
         ) : (
           <FoodsMenu

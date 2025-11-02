@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, SafeAreaView } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Food } from 'app/api/services/foodService';
 import TopBar from './TopBar';
 import RegisterCategoryList from './RegisterCategoryList';
@@ -10,6 +10,7 @@ import RegisterTableList from './RegisterTableList';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { SubTabType } from '../FoodsMenu';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type ActiveView = 'categories' | 'food' | 'table';
 type ActiveSubFoodView = 'all' | 'breakfast' | 'lunch' | 'drinks';
@@ -39,6 +40,9 @@ export interface RegisterFoodMenuProps {
   refetchTables: () => void;
   onAddFoodClick: () => void;
   refetchFoods: () => void;
+  handleAddNewTableClick: () => void;
+  handleAddNewCategoryClick: () => void;
+  handleAddNewFoodClick: () => void;
 }
 
 const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
@@ -64,6 +68,9 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   onAddFoodClick,
   refetchTables,
   refetchFoods,
+  handleAddNewTableClick,
+  handleAddNewCategoryClick,
+  handleAddNewFoodClick,
 }) => {
   const { numColumnsRegisterScreen, width } = useIsDesktop();
 
@@ -162,6 +169,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
               }}
               refetchFoods={refetchFoods}
               numColumnsRegisterScreen={numColumnsRegisterScreen}
+              handleAddNewCategoryClick={handleAddNewCategoryClick}
             />
           )}
 
@@ -183,6 +191,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
                 setSelectedCategory(selectedCat);
               }}
               onPricingSubTabClick={onPricingSubTabClick}
+              handleAddNewFoodClick={handleAddNewFoodClick}
             />
           )}
 
@@ -194,6 +203,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
               screenWidth={width}
               onSelectTable={onSelectTable}
               refetchTables={refetchTables}
+              handleAddNewTableClick={handleAddNewTableClick}
             />
           )}
         </View>

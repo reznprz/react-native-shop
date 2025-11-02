@@ -12,7 +12,7 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabsParamList>;
   Cart: undefined;
   OrderDetails: { orderId: string; actionType?: string };
-  FoodManager: undefined;
+  FoodManager: { selectedTab?: string };
   Expense: undefined;
   DailySalesScreen: { selectedTab?: string };
   Inventory: undefined;
