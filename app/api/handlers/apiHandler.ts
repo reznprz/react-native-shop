@@ -14,6 +14,27 @@ const isFormData = (data: any) =>
     Object.prototype.toString.call(data) === '[object FormData]' ||
     data?.constructor?.name === 'FormData');
 
+// Infer a sensible MIME if missing
+export const guessMime = (name?: string, fallback = 'application/octet-stream') => {
+  if (!name) return fallback;
+  const ext = name.split('.').pop()?.toLowerCase();
+  switch (ext) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'webp':
+      return 'image/webp';
+    case 'gif':
+      return 'image/gif';
+    case 'pdf':
+      return 'application/pdf';
+    default:
+      return fallback;
+  }
+};    
+
 // Create the instance (do NOT force Content-Type globally)
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: config.apiBaseURL,
