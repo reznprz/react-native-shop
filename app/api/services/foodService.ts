@@ -1,8 +1,11 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
 import { Platform } from 'react-native';
+import { guessMime } from '../handlers/apiHandler';
 
-type CrossFile = File | { uri: string; name: string; type: string };
+export type CrossFile =
+  | File // web
+  | { uri: string; name?: string; type?: string };
 
 export interface GetAllFoodsResponse {
   requestId: string | null;
@@ -67,46 +70,44 @@ export const addFoodApi = async (
   file?: CrossFile,
 ): Promise<ApiResponse<Food[]>> => {
   const url = `/api/food/${restaurantId}?categoryId=${categoryId}`;
+
   if (!file) {
-    return apiMethods.post<Food[]>(url, newFood); // Axios will set application/json
+    // JSON-only
+    return apiMethods.post<Food[]>(url, newFood);
   }
 
+  // Multipart
   const fd = new FormData();
-  fd.append('data', JSON.stringify(newFood));
 
   if (Platform.OS === 'web') {
-    const maybeUri = (file as any).uri as string | undefined;
-    if (maybeUri?.startsWith?.('blob:')) {
-      const res = await fetch(maybeUri);
-      const blob = await res.blob();
-      const webFile = new File(
-        [blob],
-        (file as any).name || 'upload.jpg',
-        { type: (file as any).type || blob.type || 'application/octet-stream' }
-      );
-      fd.append('file', webFile);
-    } else if (file instanceof File) {
+    // Send JSON part as application/json
+    fd.append('data', new Blob([JSON.stringify(newFood)], { type: 'application/json' }), 'data.json');
+
+    if (file instanceof File) {
       fd.append('file', file);
     } else {
-      const res = await fetch((file as any).uri);
-      const blob = await res.blob();
-      const webFile = new File(
-        [blob],
-        (file as any).name || 'upload.jpg',
-        { type: (file as any).type || blob.type || 'application/octet-stream' }
-      );
+      const uri = (file as any).uri as string;
+      const resp = await fetch(uri);
+      const blob = await resp.blob();
+      const name = (file as any).name || 'upload.jpg';
+      const type = (file as any).type || blob.type || guessMime(name);
+      const webFile = new File([blob], name, { type });
       fd.append('file', webFile);
     }
   } else {
-    // React Native
+    // React Native: JSON as string, file with real MIME
+    fd.append('data', JSON.stringify(newFood));
+
+    const name = (file as any).name || 'upload.jpg';
+    const type = (file as any).type || guessMime(name);
     fd.append('file', {
-      uri: (file as any).uri,                        // content:// or file://
-      name: (file as any).name || 'upload.jpg',
-      type: (file as any).type || 'application/octet-stream',
+      uri: (file as any).uri,
+      name,
+      type,
     } as any);
   }
 
-  // IMPORTANT: do NOT set Content-Type; Axios adds multipart boundary
+  // Let axios set multipart boundary automatically
   return apiMethods.post<Food[]>(url, fd);
 };
 
@@ -117,48 +118,53 @@ export const updateFoodApi = async (
 ): Promise<ApiResponse<Food[]>> => {
   const baseUrl = `/api/food/${foodId}`;
 
-  // If no file: send plain JSON via PUT
+  // 1) No file: send JSON (application/json)
   if (!file) {
-    return apiMethods.put<Food[]>(baseUrl, updatedFood); // Axios will set application/json
+    return apiMethods.put<Food[]>(baseUrl, updatedFood);
   }
 
-  // Else: build FormData and POST (multipart)
+  // 2) With file: send multipart/form-data
   const fd = new FormData();
-  fd.append('data', JSON.stringify(updatedFood));
 
   if (Platform.OS === 'web') {
-    const maybeUri = (file as any).uri as string | undefined;
-    if (maybeUri?.startsWith?.('blob:')) {
-      const res = await fetch(maybeUri);
-      const blob = await res.blob();
-      const webFile = new File(
-        [blob],
-        (file as any).name || 'upload.jpg',
-        { type: (file as any).type || blob.type || 'application/octet-stream' }
-      );
-      fd.append('file', webFile);
-    } else if (file instanceof File) {
+    // IMPORTANT: Make `data` a JSON Blob so the part has Content-Type: application/json
+    const jsonBlob = new Blob([JSON.stringify(updatedFood)], {
+      type: 'application/json',
+    });
+    fd.append('data', jsonBlob, 'data.json');
+
+    // Normalize the file into a real File
+    if (file instanceof File) {
       fd.append('file', file);
     } else {
-      const res = await fetch((file as any).uri);
-      const blob = await res.blob();
-      const webFile = new File(
-        [blob],
-        (file as any).name || 'upload.jpg',
-        { type: (file as any).type || blob.type || 'application/octet-stream' }
-      );
+      const uri = (file as any).uri as string;
+      const resp = await fetch(uri);
+      const blob = await resp.blob();
+      const name = (file as any).name || 'upload';
+      const type = (file as any).type || blob.type || guessMime(name);
+      const webFile = new File([blob], name, { type });
       fd.append('file', webFile);
     }
   } else {
-    // React Native
-    fd.append('file', {
-      uri: (file as any).uri,                        // content:// or file://
-      name: (file as any).name || 'upload.jpg',
-      type: (file as any).type || 'application/octet-stream',
-    } as any);
+    // React Native: RN cannot set per-part content-type for text fields.
+    // Append the JSON string; backend should accept @RequestPart("data") String as well.
+    fd.append('data', JSON.stringify(updatedFood));
+
+    // File part for RN
+    const rnName = (file as any).name || 'upload';
+    const rnType =
+      (file as any).type || guessMime(rnName); // don't use 'multipart/form-data' here
+    fd.append(
+      'file',
+      {
+        uri: (file as any).uri, // content:// or file://
+        name: rnName,
+        type: rnType,
+      } as any
+    );
   }
 
-  // IMPORTANT: do NOT set Content-Type; Axios adds multipart boundary
+  // Don't set Content-Type; your HTTP client will add the correct boundary.
   return apiMethods.put<Food[]>(baseUrl, fd);
 };
 
