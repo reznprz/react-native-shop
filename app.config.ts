@@ -12,7 +12,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   /** dynamic branding */
   name: `MyApp (${process.env.EXPO_PUBLIC_ENV ?? 'dev'})`,
-  slug: 'react-native-shop',
+  slug: 'sajilohisabkitab',
 
   version: '1.0.0',
   orientation: 'portrait',
@@ -21,7 +21,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     ...config.extra,
     eas: config.extra?.eas ?? {
-      projectId: 'bd6f8b22-cb19-4111-9e6e-750d576fe5d9',
+      projectId: '589511b4-857b-41b4-92c8-3b1a4df4e2a2',
     },
     env: process.env.EXPO_PUBLIC_ENV,
   },

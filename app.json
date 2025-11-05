@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "react-native-shop",
-    "slug": "react-native-shop",
+    "slug": "sajilohisabkitab",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -35,14 +35,15 @@
     "extra": {
       "env": "uat",
       "eas": {
-        "projectId": "bd6f8b22-cb19-4111-9e6e-750d576fe5d9"
+        "projectId": "589511b4-857b-41b4-92c8-3b1a4df4e2a2"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/bd6f8b22-cb19-4111-9e6e-750d576fe5d9"
-    }
+      "url": "https://u.expo.dev/589511b4-857b-41b4-92c8-3b1a4df4e2a2"
+    },
+    "owner": "shk25"
   }
 }
