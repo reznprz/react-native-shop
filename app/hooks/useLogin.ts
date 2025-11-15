@@ -1,11 +1,12 @@
 import { useCallback, useState } from 'react';
 import { useLoginMutation } from './apiQuery/useLoginQuery';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
-import { navigate } from 'app/navigation/navigationService';
+import { navigate, push} from 'app/navigation/navigationService';
 import { useFoodMenuActions } from './apiQuery/useFoodMenuAction';
 import { useDispatch } from 'react-redux';
 import { setAuthData } from 'app/redux/authSlice';
 import { Credentials } from 'app/api/services/authService';
+import { ScreenNames } from 'app/types/navigation';
 
 interface UseLoginResult {
   username: string;
@@ -52,14 +53,11 @@ export function useLogin(): UseLoginResult {
     loginMutate(creds);
   };
 
-  const handleLoginSuccess = useCallback(async () => {
-    if (loginRes && loginRes?.restaurantId) {
-      dispatch(setAuthData(loginRes));
-
-      await loadFoodMenu(loginRes.restaurantId);
-    }
-    navigate('MainTabs', { screen: 'Home' });
-  }, [loginRes, dispatch, loadFoodMenu, navigate]);
+  const handleLoginSuccess = useCallback(() => {
+  if (loginRes) {
+    dispatch(setAuthData(loginRes));
+  }
+}, [loginRes, dispatch]);
 
   const loginState: ButtonState = isLoading
     ? { status: 'loading' }

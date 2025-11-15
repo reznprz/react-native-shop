@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { FoodMenuResponse } from 'app/api/services/foodService';
+import { Category, FoodMenuResponse } from 'app/api/services/foodService';
 
 interface FoodMenuState {
   foods: FoodMenuResponse['foods'];
@@ -17,6 +17,18 @@ const initialState: FoodMenuState = {
   categories: [],
 };
 
+const addAllCategory = (categories: Category[]): Category[] => {
+  const allCategory: Category = {
+    id: 0, // Using '0' as a unique ID for "All"
+    name: 'All',
+    description: '',
+    categoryNameTwo: '',
+    categoryIcon: 'all-icon', // Use a relevant icon name
+  };
+  // Prepend the "All" category to the beginning of the array
+  return [allCategory, ...categories];
+};
+
 export const foodMenuSlice = createSlice({
   name: 'foodMenu',
   initialState,
@@ -26,7 +38,7 @@ export const foodMenuSlice = createSlice({
       state.topBreakFast = action.payload.topBreakFast;
       state.topLunch = action.payload.topLunch;
       state.topDrinks = action.payload.topDrinks;
-      state.categories = action.payload.categories;
+      state.categories = addAllCategory(action.payload.categories);
     },
     setFoods: (state, action: PayloadAction<FoodMenuResponse['foods']>) => {
       state.foods = action.payload;

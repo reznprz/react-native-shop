@@ -176,7 +176,6 @@ const styles = StyleSheet.create({
   // Container styles
   container: {
     flex: 1,
-    backgroundColor: '#f9fafc',
   },
   // Mobile Top Bar styles
   topBar: {
