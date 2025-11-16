@@ -18,6 +18,7 @@ const LazyProfileScreen = createLazyScreen(() => import('app/screens/ProfileScre
 const LazySubscriptionPlansScreen = createLazyScreen(
   () => import('app/screens/SubscriptionPlansScreen'),
 );
+const LazyWelcomeScreen = createLazyScreen(() => import('app/screens/WelcomeScreen'));
 
 // function LazyQrMenuItemsScreen(props: any) {
 //   return (
@@ -32,6 +33,24 @@ const Stack = createNativeStackNavigator();
 export default function RootNav() {
   return (
     <Stack.Navigator>
+      <Stack.Screen
+        name={ScreenNames.WELCOMESCREEN}
+        component={LazyWelcomeScreen}
+        options={{
+          title: ScreenDisplayNames.WELCOMESCREEN,
+          headerShown: false,
+          headerStyle: {
+            backgroundColor: '#2a4759',
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
       {/* Main Tab Navigation */}
       <Stack.Screen
         name="MainTabs"

@@ -20,6 +20,7 @@ export type RootStackParamList = {
   Login: undefined;
   TableManager: undefined;
   SubscriptionPlans: undefined;
+  WelcomeScreen: { restaurantId: number };
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();
