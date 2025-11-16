@@ -8,8 +8,11 @@ import AvatarPickerModal from 'app/components/modal/AvatarPickerModal';
 import { useSettingsAccount } from 'app/hooks/useSettingsAccount';
 import { useUsers } from 'app/hooks/useUser';
 import { emptyUser } from 'app/api/services/userService';
+import { useTheme } from 'app/hooks/useTheme';
 
 export default function AccountScreen() {
+  const theme = useTheme();
+
   const { sections, restaurantInfo, handlePress, handleLogout } = useSettingsAccount();
   const { updateUserMutation } = useUsers();
   const {
@@ -23,9 +26,9 @@ export default function AccountScreen() {
   const [avatarsModalVisible, setAvatarsModalVisible] = useState(false);
 
   return (
-    <View className="h-full w-full bg-gray-100">
+    <View className="h-full w-full " style={{ backgroundColor: theme.primaryBg }}>
       <ScrollView
-        contentContainerStyle={{ padding: 18, paddingTop: 18, backgroundColor: '#F3F4F6' }}
+        contentContainerStyle={{ padding: 18, paddingTop: 18 }}
         showsVerticalScrollIndicator={false}
       >
         {/* User Profile Card */}
@@ -55,6 +58,7 @@ export default function AccountScreen() {
                   <SettingOption
                     label={option.label}
                     icon={option.icon}
+                    bgColor={theme.quaternary}
                     iconType={option.iconType as IconType}
                     onPress={() => {
                       handlePress(option.label);
@@ -76,10 +80,10 @@ export default function AccountScreen() {
             width="full"
             height="l"
             bgColor="bg-gray-300"
-            textColor="black"
+            textColor={theme.textPrimary}
             iconType="FontAwesome5"
             iconName="sign-out-alt"
-            iconColor="white"
+            iconColor={theme.textPrimary}
           />
         </View>
         {/* Avatar selection modal */}

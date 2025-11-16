@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface EmptyStateProps {
   iconName?: string;
@@ -25,15 +26,20 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   onAddPress,
   addButtonLabel = 'Add Item',
 }) => {
+  const theme = useTheme();
+
   return (
     <View style={[styles.container, { padding: containerPadding }]}>
-      <MaterialCommunityIcons name={iconName as any} size={iconSize} color="#2a4759" />
+      <MaterialCommunityIcons name={iconName as any} size={iconSize} color={theme.secondary} />
       <Text style={[styles.message, { fontSize: messageFontSize }]}>{message}</Text>
       {subMessage && (
         <Text style={[styles.subMessage, { fontSize: subMessageFontSize }]}>{subMessage}</Text>
       )}
       {onAddPress && (
-        <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
+        <TouchableOpacity
+          style={[styles.addButton, { backgroundColor: theme.secondary }]}
+          onPress={onAddPress}
+        >
           <MaterialCommunityIcons name="plus-circle" size={20} color="#ffffff" />
           <Text style={styles.addButtonText}>{addButtonLabel}</Text>
         </TouchableOpacity>
@@ -61,7 +67,6 @@ const styles = StyleSheet.create({
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a4759',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 25,

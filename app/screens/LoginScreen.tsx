@@ -19,6 +19,7 @@ import CreateRestaurantModal from 'app/components/modal/CreateRestaurantModal';
 import { useCreateRestaurantMutation } from 'app/hooks/apiQuery/useCreateRestaurantQuery';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 import NotificationBar from 'app/components/common/NotificationBar';
+import { useTheme } from 'app/hooks/useTheme';
 
 // If you have the asset locally, prefer require(...) for performance.
 // const bgSource = require("../../assets/pos.jpg");
@@ -48,6 +49,7 @@ const LoginScreen: React.FC = () => {
   } = useCreateRestaurantMutation();
 
   const { isMobile } = useIsDesktop();
+  const theme = useTheme();
 
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -59,7 +61,7 @@ const LoginScreen: React.FC = () => {
 
   useEffect(() => {
     if (loginState.status === 'success') handleLoginSuccess();
-  }, [loginState]);
+  }, [loginState, handleLoginSuccess]);
 
   useEffect(() => {
     if (createRestaurantRes?.success) {
@@ -72,7 +74,7 @@ const LoginScreen: React.FC = () => {
       setSuccessNotificaton('New Restauarnt Created, Please Login !');
       resetCreateRestaurantState();
     }
-  }, [isSuccess]);
+  }, [isSuccess, resetCreateRestaurantState]);
 
   const dismissKeyboard = () => Keyboard.dismiss();
 
@@ -142,12 +144,22 @@ const LoginScreen: React.FC = () => {
               <View className="mt-4 items-center">
                 <TouchableOpacity
                   onPress={() => setShowCreateModal(true)}
-                  className="px-4 py-3 rounded-xl bg-deepTeal shadow-sm flex-row items-center"
+                  className="px-4 py-3 rounded-xl shadow-sm flex-row items-center"
+                  style={{ backgroundColor: theme.buttonBg }}
                 >
-                  <MaterialCommunityIcons name="store-plus-outline" size={20} color="#e9ecf1ff" />
-                  <Text className="ml-2 text-base font-semibold text-white">Create Restaurant</Text>
+                  <MaterialCommunityIcons
+                    name="store-plus-outline"
+                    size={20}
+                    color={theme.textPrimary}
+                  />
+                  <Text
+                    className="ml-2 text-base font-semibold"
+                    style={{ color: theme.textPrimary }}
+                  >
+                    Create Restaurant
+                  </Text>
                 </TouchableOpacity>
-                <Text className="text-xs text-gray-600 mt-2">
+                <Text className="text-xs mt-2" style={{ color: theme.textSecondary }}>
                   New to the platform? Create your restaurant in seconds.
                 </Text>
               </View>

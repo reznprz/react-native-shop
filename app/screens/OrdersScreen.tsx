@@ -22,10 +22,10 @@ import OrderCard from 'app/components/order/OrderCard';
 import OrderMetrics from 'app/components/OrderMetrics';
 import OrderSummaryCard from 'app/components/order/OrderSummaryCard';
 import NotificationBar from 'app/components/common/NotificationBar';
-import { useHasPermission } from 'app/security/useHasPermission';
 import { Permission } from 'app/security/permission';
 import { usePermissionMap } from 'app/security/usePermissionMap';
-import BannerCard from 'app/components/common/BannerCard';
+import { useTheme } from 'app/hooks/useTheme';
+import FoodPreparationAnimation from 'app/components/common/FoodPreparationAnimation';
 
 const tabs = ['Past Orders', 'Todays Order'];
 type TabType = (typeof tabs)[number];
@@ -47,6 +47,8 @@ const initialSelectedDateRange: DateRangeSelection = {
 
 export default function OrdersScreen({ route }: OrdersScreenProps) {
   const { selectedTab } = route.params || {};
+
+  const theme = useTheme();
 
   const [showFilters, setShowFilters] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -249,7 +251,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
 
   /** Render the main screen */
   return (
-    <View className="h-full w-full bg-gray-100">
+    <View className="h-full w-full " style={{ backgroundColor: theme.primaryBg }}>
       {/* Tab selection at top */}
       {canViewSubTab && (
         <SubTab
@@ -283,7 +285,12 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
 
         {/* If loading, show spinner */}
         {orderScreenState?.status === 'pending' ? (
-          <FoodLoadingSpinner iconName="coffee" />
+          <View className="flex-1 items-center justify-center bg-white">
+            <FoodPreparationAnimation
+              isTabletOrDesktop={isLargeScreen}
+              message="Loading Orders ..."
+            />
+          </View>
         ) : (
           // Otherwise render the orders (or empty)
           renderOrdersList()

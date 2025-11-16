@@ -8,6 +8,7 @@ import {
   Easing,
   Dimensions,
 } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 const windowWidth = Dimensions.get('window').width;
 const MAX_BAR_WIDTH = 420;
@@ -27,13 +28,6 @@ type VariantConfig = {
   icon: string;
 };
 
-const variants: Record<NonNullable<NotificationBarProps['variant']>, VariantConfig> = {
-  success: { backgroundColor: '#2a4759', icon: '✓' },
-  info: { backgroundColor: '#3b82f6', icon: 'ℹ️' },
-  warn: { backgroundColor: '#f59e0b', icon: '⚠️' },
-  error: { backgroundColor: '#ef4444', icon: '✖️' },
-};
-
 const NotificationBar: FC<NotificationBarProps> = ({
   variant = 'success',
   message,
@@ -42,6 +36,8 @@ const NotificationBar: FC<NotificationBarProps> = ({
   topPosition = 50,
   onClose,
 }) => {
+  const theme = useTheme();
+
   const hasMessage = !!message?.trim();
   const [visible, setVisible] = useState(false);
 
@@ -51,6 +47,13 @@ const NotificationBar: FC<NotificationBarProps> = ({
   // Animated values
   const slideAnim = useRef(new Animated.Value(barWidth + HORIZONTAL_MARGIN)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
+
+  const variants: Record<NonNullable<NotificationBarProps['variant']>, VariantConfig> = {
+    success: { backgroundColor: theme.secondary, icon: '✓' },
+    info: { backgroundColor: theme.quaternary, icon: 'ℹ️' },
+    warn: { backgroundColor: theme.tertiary, icon: '⚠️' },
+    error: { backgroundColor: theme.errorBg, icon: '✖️' },
+  };
 
   useEffect(() => {
     if (!hasMessage) {

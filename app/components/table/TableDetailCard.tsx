@@ -4,6 +4,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SwipeRow } from 'react-native-swipe-list-view';
 import CustomIcon from '../common/CustomIcon';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface TableDetailCardProps {
   table: RestaurantTableInfo;
@@ -15,6 +16,8 @@ const ITEM_HEIGHT = 70; // fixed height for each card
 const SWIPE_WIDTH = 180; // total width for 2 buttons @ 70px each
 
 const TableDetailCard: React.FC<TableDetailCardProps> = ({ table, onUpdate, onDelete }) => {
+  const theme = useTheme();
+
   return (
     /**
      * SwipeRow manages a single "front" view (rowFront)
@@ -30,12 +33,12 @@ const TableDetailCard: React.FC<TableDetailCardProps> = ({ table, onUpdate, onDe
       {/* Hidden back view: shows Update & Delete when swiped left */}
       <View style={styles.rowBack}>
         <TouchableOpacity
-          style={[styles.updateButton, { backgroundColor: '#2a4759' }]}
+          style={[styles.updateButton, { backgroundColor: theme.secondary }]}
           onPress={() => {
             onUpdate(table);
           }}
         >
-          <MaterialIcons name="edit" size={24} color="#FFF" />
+          <MaterialIcons name="edit" size={24} color={theme.secondaryBg} />
           <Text style={styles.buttonText}>Update</Text>
         </TouchableOpacity>
 
@@ -43,7 +46,7 @@ const TableDetailCard: React.FC<TableDetailCardProps> = ({ table, onUpdate, onDe
           style={[styles.backButton, { backgroundColor: 'red' }]}
           onPress={onDelete}
         >
-          <MaterialIcons name="delete" size={24} color="#FFF" />
+          <MaterialIcons name="delete" size={24} color={theme.secondaryBg} />
           <Text style={styles.buttonText}>Delete</Text>
         </TouchableOpacity>
       </View>
@@ -51,7 +54,7 @@ const TableDetailCard: React.FC<TableDetailCardProps> = ({ table, onUpdate, onDe
       <View className="p-2">
         <View className="flex flex-row items-start justify-start p-5 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow duration-200">
           <View className="p-2">
-            <CustomIcon type={'TableIcon'} name={'table'} size={30} color={'#2a4759'} />
+            <CustomIcon type={'TableIcon'} name={'table'} size={30} color={theme.secondary} />
           </View>
           <View className="flex flex-row items-center space-x-4 ml-4">
             {/* Optional: Add an icon or avatar here if needed */}

@@ -11,12 +11,13 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import CountChip from '../common/CountChip';
 import CircularInitialNameChip from '../common/CircularInitialNameChip';
 import CircularImage from '../common/CircularImage';
+import { useTheme } from 'app/hooks/useTheme';
+
 interface CustomHeaderProps {
   route: RouteProp<Record<string, object | undefined>, string>;
   navigation: any;
 }
 
-// Helper: Get route label from your screen configs
 function getRouteLabel(routeName: string): string {
   const match = tabScreenConfigs.find((s) => s.name === routeName);
   return match ? match.label : routeName;
@@ -28,19 +29,18 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   const prepTableItems = useSelector((state: RootState) => state.prepTableItems);
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
 
+  const theme = useTheme();
+
   const isDesktop = deviceType === 'Desktop';
   const isPad = deviceType === 'iPad';
 
-  // Current route name & label
   const activeRouteName = getFocusedRouteNameFromRoute(route) ?? 'Home';
   const title = getRouteLabel(activeRouteName);
 
-  // Dynamically control size & spacing
   const containerHeight = isDesktop || isPad ? 100 : 110;
   const leftSectionPaddingTop = isDesktop || isPad ? 30 : 40;
   const tableChipMarginTop = isDesktop || isPad ? 30 : 40;
 
-  // Replace with your actual restaurant/logo image
   const IMAGE_URI = {
     uri: storedAuthData?.restaurantImgUrl
       ? storedAuthData.restaurantImgUrl
@@ -52,15 +52,15 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
   }, [prepTableItems]);
 
   return (
-    <View style={[styles.headerContainer, { height: containerHeight }]}>
-      {/* Left Section: Logo + Title */}
+    <View
+      style={[styles.headerContainer, { height: containerHeight, backgroundColor: theme.primary }]}
+    >
       <CircularImage
         title={title}
         paddingTop={leftSectionPaddingTop}
         fallbackImageUri={IMAGE_URI}
       />
 
-      {/* Center Section (only for desktop/iPad) */}
       {isDesktop ? (
         <View style={styles.centerSection}>
           <CenterDesktopIcons
@@ -70,13 +70,17 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
           />
         </View>
       ) : (
-        // If not desktop, just render an empty View or nothing
         <View style={{ flex: 1 }} />
       )}
 
-      {/* Right Section: Table “Chip” */}
       <TouchableOpacity
-        style={[styles.tableChip, { marginTop: tableChipMarginTop }]}
+        style={[
+          styles.tableChip,
+          {
+            marginTop: tableChipMarginTop,
+            backgroundColor: theme.tertiary,
+          },
+        ]}
         onPress={() =>
           navigation.navigate('MainTabs', {
             screen: 'Table',
@@ -84,16 +88,17 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
           })
         }
       >
-        {/* Count Chip */}
         <CountChip count={itemsCount} style={styles.countChipPosition} />
+
         <CircularInitialNameChip
           initials={storedAuthData?.initials || ''}
           size={38}
           style={{ marginRight: 12 }}
         />
-        <CustomIcon name="chair" type="FontAwesome5" size={18} color="#FFFFFF" />
-        <Text style={styles.tableText}>{tableName}</Text>
-        <Ionicons name="chevron-down-outline" size={25} color="#FFFFFF" />
+
+        <CustomIcon name="chair" type="FontAwesome5" size={18} color={theme.textPrimary} />
+        <Text style={[styles.tableText, { color: theme.textPrimary }]}>{tableName}</Text>
+        <Ionicons name="chevron-down-outline" size={25} color={theme.textPrimary} />
       </TouchableOpacity>
     </View>
   );
@@ -102,7 +107,6 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
 const styles = StyleSheet.create({
   headerContainer: {
     width: '100%',
-    backgroundColor: '#2E3A47',
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -117,7 +121,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 12,
     overflow: 'hidden',
-    backgroundColor: '#fff',
+    backgroundColor: '#fff', // (used inside CircularImage if at all)
   },
   logo: {
     width: '100%',
@@ -137,7 +141,6 @@ const styles = StyleSheet.create({
   tableChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#506D82',
     borderRadius: 20,
     paddingHorizontal: 6,
     paddingVertical: 6,
@@ -146,7 +149,6 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontSize: 16,
     fontWeight: '600',
-    color: '#fff',
   },
   countChipPosition: {
     position: 'absolute',

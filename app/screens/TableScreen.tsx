@@ -16,6 +16,7 @@ import TableListModal from 'app/components/modal/TableListModal';
 import ErrorMessagePopUp from 'app/components/common/ErrorMessagePopUp';
 import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';
+import { useTheme } from 'app/hooks/useTheme';
 
 const tabs = ['All Tables', 'Table Items'];
 
@@ -62,13 +63,17 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
     handleAddNewTableClick,
   } = useTables();
 
+  const theme = useTheme();
+
   const { isDesktop, isLargeScreen, isMobile } = useIsDesktop();
 
   // effects
   useFocusEffect(
     useCallback(() => {
-      refetchTables();
-    }, [refetchTables]),
+      if (!tables || tables.length === 0) {
+        refetchTables();
+      }
+    }, [tables, refetchTables]),
   );
 
   useFocusEffect(
@@ -147,6 +152,7 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
       </View>
     ) : (
       <TableList
+        theme={theme}
         tables={tables}
         availableTables={availableTables}
         occupiedTables={occupiedTables}
@@ -162,9 +168,9 @@ const TableScreen: React.FC<TableScreenProps> = ({ route }) => {
     );
 
   return (
-    <View className="h-full w-full bg-gray-100">
+    <View className="h-full w-full " style={{ backgroundColor: theme.primaryBg }}>
       <SubTab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-      <View className="flex-1 bg-gray-100">
+      <View className="flex-1 ">
         {activeTab === 'All Tables' ? renderTableList() : renderTableItems()}
       </View>
 

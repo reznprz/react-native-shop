@@ -1,5 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import { createNewRestaurantApi, CreateRestaurantRequest, SuccessResponse } from 'app/api/services/authService';
+import {
+  createNewRestaurantApi,
+  CreateRestaurantRequest,
+  SuccessResponse,
+} from 'app/api/services/authService';
 
 export function useCreateRestaurantMutation(
   onSuccess?: (res: SuccessResponse) => void,

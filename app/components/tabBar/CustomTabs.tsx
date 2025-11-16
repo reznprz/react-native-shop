@@ -5,14 +5,16 @@ import CustomIcon from '../common/CustomIcon';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { IconType, tabScreenConfigs } from 'app/navigation/screenConfigs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { useTheme } from 'app/hooks/useTheme';
 
 const BottomTabs = createBottomTabNavigator();
 const MaterialTopTabs = createMaterialTopTabNavigator();
 
 export function MobileTabs() {
   const { deviceType } = useIsDesktop();
+  const theme = useTheme();
 
-  const isTablet = deviceType === 'iPad' || 'Android Tablet';
+  const isTablet = deviceType === 'iPad' || deviceType === 'Android Tablet';
 
   return (
     <BottomTabs.Navigator
@@ -27,10 +29,9 @@ export function MobileTabs() {
             fontSize: 12,
             marginTop: 1,
           },
-          tabBarActiveTintColor: '#2a4759',
-          tabBarInactiveTintColor: '#999',
+          tabBarActiveTintColor: theme.secondary,
+          tabBarInactiveTintColor: theme.mutedIcon,
 
-          // 1) Style the entire tab bar (center it + set a fixed width) only for iPad.
           tabBarStyle: isTablet
             ? {
                 alignSelf: 'center',
@@ -40,7 +41,6 @@ export function MobileTabs() {
               }
             : {},
 
-          // 2) Style each tab item to remove extra spacing
           tabBarItemStyle: {
             marginHorizontal: 0,
             paddingHorizontal: 0,
@@ -58,11 +58,13 @@ export function MobileTabs() {
 
             return (
               <View style={styles.iconWrapper}>
-                {focused && <View style={styles.focusIndicator} />}
+                {focused && (
+                  <View style={[styles.focusIndicator, { backgroundColor: theme.secondary }]} />
+                )}
                 <CustomIcon
                   type={iconType as IconType}
                   name={iconName}
-                  color={focused ? '#2a4759' : color}
+                  color={focused ? theme.secondary : color}
                 />
               </View>
             );
@@ -91,16 +93,14 @@ const styles = StyleSheet.create({
     top: -8,
     width: 70,
     height: 4,
-    backgroundColor: '#2a4759',
+    borderRadius: 999,
   },
 });
 
 /** We hide the tab bar by returning null in tabBar(). */
-// Desktop Tabs (Top)
 export function DesktopTabs() {
   return (
     <MaterialTopTabs.Navigator
-      // Hide the top tab bar:
       tabBar={() => null}
       screenOptions={{
         tabBarIndicatorStyle: { backgroundColor: 'transparent' },

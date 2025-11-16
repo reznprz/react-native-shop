@@ -10,6 +10,7 @@ import PaymentMethodsSelector from '../PaymentMethodsSelector';
 import PaymentDetailsFoodItemsSummary from './PaymentDetailsFoodItemsSummary';
 import BillingSummaryCard from './BillingSummaryCard';
 import CollapsibleInfo from '../common/CollapsibleInfo';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface PaymentDetailsProps {
   tableItems: TableItem;
@@ -24,6 +25,8 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   handleCompleteOrder,
   completeOrderState,
 }) => {
+  const theme = useTheme();
+
   const items = tableItems?.orderItems || [];
   const [selectedPayments, setSelectedPayments] = useState<PaymentInfo[]>([]);
   const [paymentWarnMessage, setPaymentWarnMessage] = useState('');
@@ -71,7 +74,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
   return (
     <View className="p-4 flex-1 justify-between">
       {/* Heading */}
-      <IconLabel iconName="cash-register" label={'Payment Details'} />
+      <IconLabel iconName="cash-register" label={'Payment Details'} bgColor={theme.quaternary} />
 
       {/* Food Items Summary Section */}
       {items && items.length > 0 ? <PaymentDetailsFoodItemsSummary items={items} /> : null}
@@ -92,6 +95,7 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({
           label={'Discount'}
           containerStyle="justify-between"
           iconType="Ionicons"
+          bgColor={theme.quaternary}
         />
 
         {/* Discount Input Field */}

@@ -81,7 +81,11 @@ export const addFoodApi = async (
 
   if (Platform.OS === 'web') {
     // Send JSON part as application/json
-    fd.append('data', new Blob([JSON.stringify(newFood)], { type: 'application/json' }), 'data.json');
+    fd.append(
+      'data',
+      new Blob([JSON.stringify(newFood)], { type: 'application/json' }),
+      'data.json',
+    );
 
     if (file instanceof File) {
       fd.append('file', file);
@@ -152,16 +156,12 @@ export const updateFoodApi = async (
 
     // File part for RN
     const rnName = (file as any).name || 'upload';
-    const rnType =
-      (file as any).type || guessMime(rnName); // don't use 'multipart/form-data' here
-    fd.append(
-      'file',
-      {
-        uri: (file as any).uri, // content:// or file://
-        name: rnName,
-        type: rnType,
-      } as any
-    );
+    const rnType = (file as any).type || guessMime(rnName); // don't use 'multipart/form-data' here
+    fd.append('file', {
+      uri: (file as any).uri, // content:// or file://
+      name: rnName,
+      type: rnType,
+    } as any);
   }
 
   // Don't set Content-Type; your HTTP client will add the correct boundary.

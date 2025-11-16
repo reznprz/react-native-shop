@@ -11,6 +11,7 @@ import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { SubTabType } from '../FoodsMenu';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from 'app/hooks/useTheme';
 
 type ActiveView = 'categories' | 'food' | 'table';
 type ActiveSubFoodView = 'all' | 'breakfast' | 'lunch' | 'drinks';
@@ -78,6 +79,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   const [activeSubFoodView, setActiveSubFoodView] = useState<ActiveSubFoodView>('all');
   const [activeTopBar, setActiveTopBar] = useState<string>('Table');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const theme = useTheme();
 
   useEffect(() => {
     if (currentTable.trim().length === 0) {
@@ -105,7 +107,7 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
           : foods;
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.secondaryBg }]}>
       <View style={styles.container}>
         <TopBar
           activeTopBar={activeTopBar}
@@ -217,7 +219,6 @@ export default RegisterFoodMenu;
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
   },
   container: {
     flex: 1,

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Modal,
   View,
@@ -9,11 +9,13 @@ import {
   ActivityIndicator,
   TextInput,
   ScrollView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
 import { User } from 'app/api/services/userService';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { useTheme } from 'app/hooks/useTheme';
 
 const DEFAULT_AVATARS = [
   '',
@@ -35,21 +37,23 @@ interface UpdateUserModalProps {
   user: User;
 }
 
-const GAP = 8; // spacing between tiles
+const GAP = 8;
+const MOBILE_BREAKPOINT = 640;
 
-// AvatarTile component
 const AvatarTile: React.FC<{ uri: string; size: number; selected: boolean }> = React.memo(
   ({ uri, size, selected }) => {
     const [loaded, setLoaded] = useState(false);
     const fade = useRef(new Animated.Value(0)).current;
     const isNone = uri === '';
 
+    const theme = useTheme();
+
     const onLoad = () => {
       setLoaded(true);
       Animated.timing(fade, { toValue: 1, duration: 250, useNativeDriver: true }).start();
     };
 
-    const inner = size * 0.88; // inner image ratio
+    const inner = size * 0.88;
 
     return (
       <View
@@ -60,15 +64,23 @@ const AvatarTile: React.FC<{ uri: string; size: number; selected: boolean }> = R
             height: size,
             borderRadius: size / 2,
             borderWidth: selected ? 4 : 0,
-            borderColor: selected ? '#2563eb' : undefined,
+            // use theme secondary for the ring when selected
+            borderColor: selected ? theme.secondary : 'transparent',
           },
         ]}
       >
         {isNone ? (
-          <Ionicons name="close-circle" size={inner * 0.6} color="#9ca3af" />
+          <Ionicons
+            name="close-circle"
+            size={inner * 0.6}
+            // muted icon color from theme
+            color={theme.mutedIcon}
+          />
         ) : (
           <>
-            {!loaded && <ActivityIndicator size="small" color="#9ca3af" style={styles.loader} />}
+            {!loaded && (
+              <ActivityIndicator size="small" color={theme.mutedIcon} style={styles.loader} />
+            )}
             <Animated.Image
               source={{ uri }}
               style={{ width: inner, height: inner, borderRadius: inner / 2, opacity: fade }}
@@ -78,22 +90,25 @@ const AvatarTile: React.FC<{ uri: string; size: number; selected: boolean }> = R
           </>
         )}
         {selected && (
-          <View style={styles.checkBadge}>
-            <Ionicons name="checkmark" size={14} color="#fff" />
+          <View
+            style={[
+              styles.checkBadge,
+              // badge color from theme secondary
+              { backgroundColor: theme.secondary },
+            ]}
+          >
+            <Ionicons name="checkmark" size={14} color={theme.textPrimary} />
           </View>
         )}
       </View>
     );
   },
 );
+
 AvatarTile.displayName = 'AvatarTile';
 
-// Helpers for layout
-const MOBILE_BREAKPOINT = 640; // px
-
-const calcTileSize = (containerWidth: number, cols: number) => {
-  return (containerWidth - 40 - GAP * (cols - 1)) / cols; // 40 = 20px horizontal paddings
-};
+const calcTileSize = (containerWidth: number, cols: number) =>
+  (containerWidth - 40 - GAP * (cols - 1)) / cols;
 
 const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   visible,
@@ -102,27 +117,22 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   avatars = DEFAULT_AVATARS,
   user,
 }) => {
+  const theme = useTheme();
   const { width: screenW, height: screenH } = useIsDesktop();
 
-  // container width (modal)
   const containerWidth = Math.min(screenW - 40, Math.min(screenW * 0.9, 720));
 
-  // Device type flags
-  const isMobile = containerWidth < MOBILE_BREAKPOINT; // phones
-  const isTabletOrDesktop = !isMobile; // tablets + desktops
+  const isMobile = containerWidth < MOBILE_BREAKPOINT;
+  const isTabletOrDesktop = !isMobile;
 
-  // grid config
-  const cols = isTabletOrDesktop ? 6 : 3; // 6 columns for tablet/desktop grid, 3 for mobile row (unused)
-  const tileSize = calcTileSize(containerWidth, isTabletOrDesktop ? cols : 4); // if mobile row, give smaller calc
+  const cols = isTabletOrDesktop ? 6 : 3;
+  const tileSize = calcTileSize(containerWidth, isTabletOrDesktop ? cols : 4);
 
-  // State
   const [avatar, setAvatar] = useState(user.avatarUrl);
   const [firstName, setFirstName] = useState(user.firstName);
   const [lastName, setLastName] = useState(user.lastName);
   const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(user.phoneNumber);
-  // const [password, setPassword] = useState('');
-  // const [showPassInput, setShowPassInput] = useState(false);
 
   const handleSave = () => {
     const updated: User = {
@@ -136,7 +146,6 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
     onConfirm(updated);
   };
 
-  // UI Parts
   const renderAvatarRowMobile = () => (
     <ScrollView
       horizontal
@@ -146,9 +155,7 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
       {avatars.map((uri, idx) => (
         <Pressable
           key={uri}
-          onPress={() => {
-            setAvatar(uri);
-          }}
+          onPress={() => setAvatar(uri)}
           style={{ marginRight: idx === avatars.length - 1 ? 0 : GAP }}
         >
           <AvatarTile uri={uri} size={tileSize} selected={avatar === uri} />
@@ -160,12 +167,9 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   const renderAvatarGridTablet = () => (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 20, paddingTop: 16 }}>
       {avatars.slice(0, cols * 2).map((uri, idx) => (
-        // Only show up to 2 rows of 6 = 12 avatars
         <Pressable
           key={uri}
-          onPress={() => {
-            setAvatar(uri);
-          }}
+          onPress={() => setAvatar(uri)}
           style={{
             marginRight: idx % cols === cols - 1 ? 0 : GAP,
             marginBottom: GAP,
@@ -179,13 +183,22 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onRequestClose}>
-      <View style={styles.backdrop}>
-        <View style={[styles.container, { width: containerWidth, maxHeight: screenH * 0.92 }]}>
+      <View style={[styles.backdrop, { backgroundColor: theme.backdrop }]}>
+        <View
+          style={[
+            styles.container,
+            {
+              width: containerWidth,
+              maxHeight: screenH * 0.92,
+              backgroundColor: theme.secondaryBg,
+            },
+          ]}
+        >
           {/* Header */}
-          <View style={styles.header}>
+          <View style={[styles.header, { backgroundColor: theme.secondary }]}>
             <Text style={styles.title}>Edit User Profile</Text>
             <Pressable
-              style={styles.close}
+              style={[styles.close, { backgroundColor: 'rgba(255,255,255,0.25)' }]}
               onPress={onRequestClose}
               android_ripple={{ color: '#e5e7eb' }}
             >
@@ -197,51 +210,69 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
           <ScrollView keyboardShouldPersistTaps="always">
             {isMobile ? renderAvatarRowMobile() : renderAvatarGridTablet()}
 
-            {/* Fields */}
             <View style={{ paddingHorizontal: 20, paddingBottom: 24, paddingTop: 10 }}>
-              <Text style={styles.sectionTitle}>Contact Info</Text>
+              <Text style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+                Contact Info
+              </Text>
 
-              <Text style={styles.label}>First Name</Text>
-              <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} />
-
-              <Text style={styles.label}>Last Name</Text>
-              <TextInput style={styles.input} value={lastName} onChangeText={setLastName} />
-
-              <Text style={styles.label}>Email</Text>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>First Name</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.primaryBg,
+                    borderColor: theme.secondary,
+                    color: theme.textSecondary,
+                  },
+                ]}
+                value={firstName}
+                onChangeText={setFirstName}
+              />
+
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Last Name</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.primaryBg,
+                    borderColor: theme.secondary,
+                    color: theme.textSecondary,
+                  },
+                ]}
+                value={lastName}
+                onChangeText={setLastName}
+              />
+
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Email</Text>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.primaryBg,
+                    borderColor: theme.secondary,
+                    color: theme.textSecondary,
+                  },
+                ]}
                 value={email}
                 onChangeText={setEmail}
                 keyboardType="email-address"
                 autoCapitalize="none"
               />
 
-              <Text style={styles.label}>Phone</Text>
+              <Text style={[styles.label, { color: theme.textSecondary }]}>Phone</Text>
               <TextInput
-                style={styles.input}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.primaryBg,
+                    borderColor: theme.secondary,
+                    color: theme.textSecondary,
+                  },
+                ]}
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
               />
-
-              {/* <Text style={styles.label}>Password</Text>
-              {showPassInput ? (
-                <TextInput
-                  style={styles.input}
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="New password"
-                  secureTextEntry
-                />
-              ) : (
-                <Pressable
-                  style={[styles.input, styles.passwordMask]}
-                  onPress={() => setShowPassInput(true)}
-                >
-                  <Text style={{ color: '#6b7280', flex: 1 }}>••••••••</Text>
-                  <Ionicons name="pencil" size={18} color="#6b7280" />
-                </Pressable>
-              )} */}
             </View>
           </ScrollView>
 
@@ -258,20 +289,22 @@ const UpdateUserModal: React.FC<UpdateUserModalProps> = ({
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
   },
-  container: { backgroundColor: '#fff', borderRadius: 14, overflow: 'hidden', maxHeight: '92%' },
+  container: {
+    borderRadius: 14,
+    overflow: 'hidden',
+    maxHeight: '92%',
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a4759',
     paddingVertical: 18,
     paddingHorizontal: 16,
   },
@@ -280,7 +313,6 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(255,255,255,0.25)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -301,20 +333,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: 'rgba(37,99,235,0.92)',
     borderRadius: 9999,
     padding: 3,
   },
-  sectionTitle: { fontSize: 16, fontWeight: '600', color: '#111827', marginBottom: 8 },
-  label: { marginTop: 10, marginBottom: 4, fontSize: 14, fontWeight: '500', color: '#374151' },
+  sectionTitle: { fontSize: 16, fontWeight: '600', marginBottom: 8 },
+  label: { marginTop: 10, marginBottom: 4, fontSize: 14, fontWeight: '500' },
   input: {
     borderWidth: 1,
-    borderColor: '#d1d5db',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 15,
-    backgroundColor: '#f9fafb',
   },
   passwordMask: { flexDirection: 'row', alignItems: 'center' },
 });

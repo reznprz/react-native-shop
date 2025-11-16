@@ -2,6 +2,7 @@ import Feather from '@expo/vector-icons/build/Feather';
 import React from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import CircularInitialNameChip from './CircularInitialNameChip';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface UserProfileCardProps {
   name?: string;
@@ -20,6 +21,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   initials = '',
   onEditClick,
 }) => {
+  const theme = useTheme();
+
   return (
     <View
       className={`bg-white rounded-xl ${containerStyle} flex-row items-center justify-between shadow-sm p-4`}
@@ -38,7 +41,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       </View>
       {onEditClick && (
         <TouchableOpacity onPress={onEditClick}>
-          <Feather name="edit" size={20} color="#3B82F6" style={{ marginTop: 2 }} />
+          <Feather name="edit" size={20} color={theme.secondary} style={{ marginTop: 2 }} />
         </TouchableOpacity>
       )}
     </View>

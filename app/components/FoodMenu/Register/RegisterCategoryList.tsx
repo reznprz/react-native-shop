@@ -3,6 +3,7 @@ import { FlatList, Text, TouchableOpacity, StyleSheet, ViewStyle, View } from 'r
 import CustomIcon from 'app/components/common/CustomIcon';
 import { getFilterIcon } from 'app/hooks/utils/getFilterIcon';
 import EmptyState from 'app/components/common/EmptyState';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface Props {
   categories: string[];
@@ -24,6 +25,8 @@ const RegisterCategoryList: React.FC<Props> = ({
   refetchFoods,
   handleAddNewCategoryClick,
 }) => {
+  const theme = useTheme();
+
   const [refreshing, setRefreshing] = useState(false);
 
   const boxDynamicStyle = useMemo<ViewStyle>(
@@ -70,14 +73,18 @@ const RegisterCategoryList: React.FC<Props> = ({
         return (
           <TouchableOpacity
             onPress={() => onSelectCategory(item)}
-            style={[styles.box, boxDynamicStyle, isSelected && { backgroundColor: '#a0c4dc' }]}
+            style={[
+              styles.box,
+              boxDynamicStyle,
+              isSelected && { backgroundColor: theme.quaternary },
+            ]}
           >
             <View>
               <CustomIcon
                 type={iconType}
                 name={iconName}
                 size={24}
-                color={isSelected ? '#fff' : '#2a4759'}
+                color={isSelected ? theme.secondaryBg : theme.buttonBg}
               />
             </View>
             <Text style={styles.label} numberOfLines={2}>

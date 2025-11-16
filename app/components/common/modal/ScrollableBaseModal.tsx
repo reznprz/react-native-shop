@@ -8,6 +8,7 @@ import {
   ScrollView,
   ModalProps,
 } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface ScrollableBaseModalProps extends ModalProps {
   visible: boolean;
@@ -25,6 +26,8 @@ const ScrollableBaseModal: React.FC<ScrollableBaseModalProps> = ({
   footer,
   ...rest
 }) => {
+  const theme = useTheme();
+
   // Dynamically calculate modal dimensions
   const { width, height } = Dimensions.get('window');
   const modalWidth = Math.min(width * 0.66, 500); // 2/3 of screen width or max 700
@@ -39,9 +42,16 @@ const ScrollableBaseModal: React.FC<ScrollableBaseModalProps> = ({
       {...rest}
     >
       <View style={styles.backdropContainer}>
-        <View style={[styles.modalBox, { width: modalWidth, height: modalHeight }]}>
+        <View
+          style={[
+            styles.modalBox,
+            { width: modalWidth, height: modalHeight, backgroundColor: theme.secondaryBg },
+          ]}
+        >
           {/* Header */}
-          {header && <View style={styles.header}>{header}</View>}
+          {header && (
+            <View style={[styles.header, { backgroundColor: theme.secondary }]}>{header}</View>
+          )}
           {/* Body wrapped in a ScrollView to enable scrolling if content overflows */}
           {body && (
             <ScrollView style={styles.bodyScroll} contentContainerStyle={styles.bodyScrollContent}>
@@ -72,12 +82,10 @@ const styles = StyleSheet.create({
     ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
   },
   modalBox: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     overflow: 'hidden', // Keep rounded corners intact
   },
   header: {
-    backgroundColor: '#2a4759',
     padding: 18,
   },
   bodyScroll: {

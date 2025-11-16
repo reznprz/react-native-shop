@@ -17,6 +17,7 @@ import SubTab from 'app/components/common/SubTab';
 import CancelReasonModal from 'app/components/modal/CancelReasonModal';
 import UserProfileCard from 'app/components/common/UserProfileCard';
 import BannerCard from 'app/components/common/BannerCard';
+import { useTheme } from 'app/hooks/useTheme';
 
 const tabs = ['Details', 'More Actions'];
 type TabType = (typeof tabs)[number];
@@ -34,6 +35,8 @@ interface MenuScreenProps {
 
 export default function OrderDetailsScreen({ route }: MenuScreenProps) {
   const { orderId, actionType } = route.params || {};
+  const theme = useTheme();
+
   const {
     order,
     orderDetailScreen,
@@ -156,7 +159,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
   );
 
   return (
-    <View className="h-full w-full bg-gray-100">
+    <View className="h-full w-full " style={{ backgroundColor: theme.primaryBg }}>
       {/* Tab selection */}
       <SubTab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
 

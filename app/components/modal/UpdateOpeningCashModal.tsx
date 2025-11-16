@@ -11,7 +11,6 @@ import {
 import ErrorMessagePopUp from '../common/ErrorMessagePopUp';
 import ConditionalWrapper from '../common/ConditionalWrapper';
 import BaseModal from '../common/modal/BaseModal';
-import CustomButton from '../common/button/CustomButton';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
 
 interface UpdateOpeningCashModalProps {

@@ -1,8 +1,4 @@
-import axios, {
-  AxiosInstance,
-  AxiosResponse,
-  InternalAxiosRequestConfig,
-} from 'axios';
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { ApiResponse, ApiStatus, ErrorStatus } from './index';
 import { config } from 'app/config/config';
 import { setupApiInterceptors } from './interceptors';
@@ -33,7 +29,7 @@ export const guessMime = (name?: string, fallback = 'application/octet-stream') 
     default:
       return fallback;
   }
-};    
+};
 
 // Create the instance (do NOT force Content-Type globally)
 const axiosInstance: AxiosInstance = axios.create({

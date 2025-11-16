@@ -28,7 +28,10 @@ const SettingOption: React.FC<SettingOptionProps> = ({
       onPress={onPress}
       className={`bg-white rounded-2xl p-4 shadow-sm items-start ${className}`}
     >
-      <View className={`w-10 h-10 bg-paleSkyBlue rounded-full flex items-center justify-center`}>
+      <View
+        className={`w-10 h-10  rounded-full flex items-center justify-center`}
+        style={{ backgroundColor: bgColor }}
+      >
         <CustomIcon type={iconType} name={icon} size={20} color={iconColor} />
       </View>
 

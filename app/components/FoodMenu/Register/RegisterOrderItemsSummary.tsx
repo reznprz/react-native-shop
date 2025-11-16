@@ -4,6 +4,7 @@ import IconLabel from 'app/components/common/IconLabel';
 import TableFoodItemCard from 'app/components/table/TableFoodItemCard';
 import React from 'react';
 import { View, Text } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface RegisterOrderItemsSummaryProps {
   orderId: string;
@@ -16,9 +17,11 @@ const RegisterOrderItemsSummary: React.FC<RegisterOrderItemsSummaryProps> = ({
   items,
   updateQuantity,
 }) => {
+  const theme = useTheme();
+
   return (
     <View className="mb-4 bg-gray-100 p-4 rounded-lg mt-2">
-      <IconLabel iconName="receipt" label={`Order Summary ${orderId}`} />
+      <IconLabel iconName="receipt" label={`Order Summary ${orderId}`} bgColor={theme.quaternary} />
       {items.length === 0 ? (
         <EmptyState
           iconName="food-off"

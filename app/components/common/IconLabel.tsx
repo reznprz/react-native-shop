@@ -2,12 +2,13 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomIcon from './CustomIcon';
+import { useTheme } from 'app/hooks/useTheme';
 
 type IconLabelProps = {
   iconName?: string;
   iconSize?: number;
   iconColor?: string;
-  bgColor?: string;
+  bgColor?: string | null; // <-- now optional
   label?: string;
   value?: string | number;
   textColor?: string;
@@ -24,7 +25,7 @@ const IconLabel: React.FC<IconLabelProps> = ({
   iconName = 'table',
   iconSize = 18,
   iconColor = '',
-  bgColor = 'bg-paleSkyBlue',
+  bgColor,
   label,
   value,
   textColor = 'text-gray-700',
@@ -36,13 +37,20 @@ const IconLabel: React.FC<IconLabelProps> = ({
   rounded = 'rounded-full',
   applyCircularIconBg = true,
 }) => {
+  const theme = useTheme();
+
+  // If bgColor is NOT provided → fallback to theme.quaternary
+  const resolvedBgColor = bgColor ?? theme.quaternary;
+
+  // Special-case: label STORE icon size
   iconSize = label === 'STORE' ? 18 : iconSize;
 
   return (
     <View className={`flex-row items-center ${containerStyle}`}>
       {applyCircularIconBg ? (
         <View
-          className={`${parentWidthHeight} ${bgColor}  ${rounded} flex items-center justify-center`}
+          className={`${parentWidthHeight} ${rounded} flex items-center justify-center`}
+          style={{ backgroundColor: resolvedBgColor }}
         >
           <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
         </View>

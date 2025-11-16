@@ -15,9 +15,13 @@ import PaymentMethodDistribution from 'app/components/home/PaymentMethodDistribu
 import DailySalesTransactionCard from 'app/components/home/DailySalesTransaction';
 import { useHasPermission } from 'app/security/useHasPermission';
 import { Permission } from 'app/security/permission';
+import { useTheme } from 'app/hooks/useTheme';
+import SkeletonResponsiveGrid from 'app/components/SkeletonResponsiveGrid';
+import HomeOverviewSkeleton from 'app/components/HomeOverviewSkeleton';
 
 const HomeScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
+  const theme = useTheme();
 
   const {
     restaurantOverView,
@@ -57,7 +61,11 @@ const HomeScreen: React.FC = () => {
   }, [fetchRestaurantOverView]);
 
   if (restaurantOverViewState?.status === 'pending') {
-    return <FoodLoadingSpinner iconName="hamburger" />;
+    return (
+      <View className="p-6">
+        {isLargeScreen ? <HomeOverviewSkeleton /> : <SkeletonResponsiveGrid />}
+      </View>
+    );
   }
 
   if (!restaurantOverView) {
@@ -74,7 +82,7 @@ const HomeScreen: React.FC = () => {
   }
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
+    <View className="flex-1 p-4" style={{ backgroundColor: theme.primaryBg }}>
       {canViewMetrics && (
         <RestaurantOverviewMetrics
           totalSales={totalSales}
@@ -89,17 +97,24 @@ const HomeScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* Payment Methods and Expenses - Equal Height Pair */}
+        {/* Payment Methods + Daily Sales */}
         <View className={`mb-4 ${isTablet ? 'flex-row justify-between gap-2' : 'flex-col'}`}>
           <View
-            style={{ width: isTablet ? '48%' : '100%' }}
-            className="bg-white rounded-lg shadow-sm flex-1"
+            style={{
+              width: isTablet ? '48%' : '100%',
+              backgroundColor: theme.secondaryBg,
+            }}
+            className="rounded-lg shadow-sm flex-1"
           >
             <PaymentMethodDistribution paymentMethods={paymentMethodDistribution} />
           </View>
+
           <View
-            style={{ width: isTablet ? '48%' : '100%' }}
-            className="bg-white rounded-lg shadow-sm flex-1 mt-4 md:mt-0"
+            style={{
+              width: isTablet ? '48%' : '100%',
+              backgroundColor: theme.secondaryBg,
+            }}
+            className="rounded-lg shadow-sm flex-1 mt-4 md:mt-0"
           >
             <DailySalesTransactionCard
               salesTransaction={dailySalesTransaction}
@@ -108,11 +123,14 @@ const HomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Daily Sales and Top Selling Products - Equal Height Pair */}
+        {/* Expenses + Top Selling */}
         <View className={`mb-4 ${isTablet ? 'flex-row justify-between gap-2' : 'flex-col'}`}>
           <View
-            style={{ width: isTablet ? '48%' : '100%' }}
-            className="bg-white rounded-lg shadow-sm flex-1"
+            style={{
+              width: isTablet ? '48%' : '100%',
+              backgroundColor: theme.secondaryBg,
+            }}
+            className="rounded-lg shadow-sm flex-1"
           >
             <ExpenseSummary
               expenses={expense}
@@ -120,9 +138,13 @@ const HomeScreen: React.FC = () => {
               onAddExpensesPress={() => handleAddPress('Expenses')}
             />
           </View>
+
           <View
-            style={{ width: isTablet ? '48%' : '100%' }}
-            className="bg-white rounded-lg shadow-sm flex-1 mt-4 md:mt-0"
+            style={{
+              width: isTablet ? '48%' : '100%',
+              backgroundColor: theme.secondaryBg,
+            }}
+            className="rounded-lg shadow-sm flex-1 mt-4 md:mt-0"
           >
             <TopSellingProductsCard
               topSellingProducts={topSellingProducts}
@@ -131,13 +153,13 @@ const HomeScreen: React.FC = () => {
           </View>
         </View>
 
-        {/* Inventory Status - Full Width */}
-        <View className="mb-4 bg-white rounded-lg shadow-sm">
+        {/* Inventory Card */}
+        <View className="mb-4 rounded-lg shadow-sm" style={{ backgroundColor: theme.secondaryBg }}>
           <InventoryStatusSummaryCard inventoryStatus={inventoryStatus} />
         </View>
 
-        {/* Recent Transactions - Full Width */}
-        <View className="mb-4 bg-white rounded-lg shadow-sm">
+        {/* Recent Transactions */}
+        <View className="mb-4 rounded-lg shadow-sm" style={{ backgroundColor: theme.secondaryBg }}>
           <RecentTransactionsSummary
             recentTransactions={recentTransactions}
             isLargeScreen={isLargeScreen}

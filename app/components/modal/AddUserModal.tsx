@@ -14,6 +14,7 @@ import {
   OtpValidateResponse,
 } from 'app/api/services/authService';
 import { UseMutationResult } from '@tanstack/react-query/build/legacy';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface AddUserModalProps {
   visible: boolean;
@@ -36,6 +37,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   sendOtpState,
   verifyOtpState,
 }) => {
+  const theme = useTheme();
+
   // form state
   const [accessLevel, setAccessLevel] = useState<Role>(Role.STAFF);
   const [passcode, setPasscode] = useState('');
@@ -53,7 +56,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   const { reset: sendOtpReset } = sendOtpState;
   const { reset: verifyOtpReset } = verifyOtpState;
 
-  //  helpers
   const resetForm = () => {
     setAccessLevel(Role.STAFF);
     setPasscode('');
@@ -74,18 +76,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       sendOtpReset();
     }
   }, [localOtpVerified, verifyOtpReset, sendOtpReset]);
-
-  // const validate = (): boolean => {
-  //   if (!firstName.trim() || !lastName.trim())
-  //     return setError('First & last name are required'), false;
-  //   if (accessLevel === AccessLevel.ADMIN && !username.trim())
-  //     return setError('Username is required for admins'), false;
-  //   if (!passcode.trim() || passcode.length < 4)
-  //     return setError('Passcode must be at least 4 digits'), false;
-  //   if (!/^\+?\d{7,15}$/.test(phoneNumber)) return setError('Enter a valid phone number'), false;
-  //   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setError('Enter a valid e-mail'), false;
-  //   return true;
-  // };
 
   const validate = useMemo(() => {
     if (!firstName.trim() || !lastName.trim()) return false;
@@ -117,8 +107,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
 
   // final action
   const handleAddUser = () => {
-    console.log('validate', validate);
     if (!validate || !localOtpVerified) return;
+
     const newUser: User = {
       id: 0,
       restaurantId: 0,
@@ -131,6 +121,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       phoneNumber: phoneNumber.trim(),
       email: email.trim(),
     };
+
     onAddUser(newUser);
     resetForm();
     onRequestClose();
@@ -150,7 +141,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
           }}
           actionProps={{
             title: 'Send Verification Code',
-            disable: !validate, // simple inline check
+            disable: !validate,
             onPress: () => setShowOtp(true),
           }}
         />
@@ -167,7 +158,11 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
               setShowOtp(false);
             },
           }}
-          actionProps={{ title: 'Add User', onPress: handleAddUser, disable: !localOtpVerified }}
+          actionProps={{
+            title: 'Add User',
+            onPress: handleAddUser,
+            disable: !localOtpVerified,
+          }}
         />
       );
     }
@@ -193,9 +188,11 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       onRequestClose={onRequestClose}
       header={
         <View className="flex-row items-center justify-between">
-          <Text className="text-white text-lg font-semibold">Add New User</Text>
+          <Text className="text-lg font-semibold" style={{ color: theme.headerText }}>
+            Add New User
+          </Text>
           <Pressable onPress={onRequestClose} className="p-1">
-            <Text className="text-white text-xl">✕</Text>
+            <Text style={{ color: theme.headerText, fontSize: 20 }}>✕</Text>
           </Pressable>
         </View>
       }
@@ -221,22 +218,38 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
               />
             ) : (
               <View className="px-2">
-                {/* access picker */}
                 {error && <ErrorMessagePopUp errorMessage={error} onClose={() => setError('')} />}
 
+                {/* Access level toggle */}
                 <View className="mb-3">
-                  <Text className="mb-1 text-lg text-gray-800">Access&nbsp;Level</Text>
-                  <View className="flex-row bg-gray-100 rounded-lg overflow-hidden">
+                  <Text className="mb-1 text-lg font-medium" style={{ color: theme.textSecondary }}>
+                    Access&nbsp;Level
+                  </Text>
+
+                  <View
+                    className="flex-row rounded-lg overflow-hidden"
+                    style={{
+                      backgroundColor: theme.primaryBg,
+                      borderWidth: 1,
+                      borderColor: theme.secondaryBtnBg,
+                    }}
+                  >
                     {[Role.ADMIN, Role.STAFF].map((lvl) => {
                       const active = lvl === accessLevel;
                       return (
                         <Pressable
                           key={lvl}
                           onPress={() => setAccessLevel(lvl)}
-                          className={`flex-1 py-3 items-center ${active ? 'bg-deepTeal' : ''}`}
+                          className="flex-1 py-3 items-center"
+                          style={{
+                            backgroundColor: active ? theme.buttonBg : 'transparent',
+                          }}
                         >
                           <Text
-                            className={`font-medium ${active ? 'text-white' : 'text-gray-700'}`}
+                            style={{
+                              fontWeight: '500',
+                              color: active ? theme.textPrimary : theme.textSecondary,
+                            }}
                           >
                             {lvl === Role.ADMIN ? 'Admin' : 'Staff'}
                           </Text>

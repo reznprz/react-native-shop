@@ -4,6 +4,7 @@ import { Food } from 'app/api/services/foodService';
 import { OrderItem } from 'app/api/services/orderService';
 import { useDebouncedQuantity } from 'app/hooks/useDebouncedQuantity';
 import CountChip from 'app/components/common/CountChip';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface Props {
   food: Food;
@@ -22,6 +23,8 @@ const RegisterFoodCard: React.FC<Props> = ({
   updateCartItemForFood,
   numColumnsRegisterScreen,
 }) => {
+  const theme = useTheme();
+
   const boxDynamicStyle = useMemo<ViewStyle>(
     () => ({ width: calcWidth(numColumnsRegisterScreen) }),
     [numColumnsRegisterScreen],
@@ -36,7 +39,11 @@ const RegisterFoodCard: React.FC<Props> = ({
 
   return (
     <TouchableOpacity
-      style={[styles.card, boxDynamicStyle, tempQuantity > 0 && styles.activeCard]}
+      style={[
+        styles.card,
+        boxDynamicStyle,
+        tempQuantity > 0 && { backgroundColor: theme.quaternary },
+      ]}
       onPress={handleIncrement}
       activeOpacity={0.7}
     >
@@ -68,9 +75,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     borderWidth: 1,
     borderColor: '#f0f0f0',
-  },
-  activeCard: {
-    backgroundColor: '#d1e8f5',
   },
   cardInner: {
     position: 'relative', // needed to anchor the absolute CountChip

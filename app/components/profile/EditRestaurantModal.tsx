@@ -17,6 +17,8 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
 import Feather from '@expo/vector-icons/build/Feather';
 import { RestaurantData } from 'app/api/services/restaurantService';
+import { ThemeVariant } from 'app/theme/theme';
+import ThemeColorPicker from '../ThemeColorPicker';
 
 interface EditRestaurantModalProps {
   visible: boolean;
@@ -33,6 +35,9 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
 }) => {
   const [form, setForm] = useState<RestaurantData>({ ...restaurantData });
   const [imageUri, setImageUri] = useState<string | undefined>(restaurantData.imageUrl);
+  const [themeVariant, setThemeVariant] = useState<ThemeVariant>(
+    (restaurantData.themeVariant as ThemeVariant) || 'BLUE',
+  );
 
   useEffect(() => {
     if (restaurantData) {
@@ -43,8 +48,11 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
         imageUrl: restaurantData.imageUrl ?? '',
         emails: restaurantData.emails ?? [],
         phones: restaurantData.phones ?? [],
+        subscriptionSummary: restaurantData.subscriptionSummary,
+        themeVariant: (restaurantData.themeVariant as ThemeVariant) || 'BLUE',
       });
       setImageUri(restaurantData.imageUrl);
+      setThemeVariant((restaurantData.themeVariant as ThemeVariant) || 'BLUE');
     }
   }, [restaurantData]);
 
@@ -68,8 +76,7 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
       Alert.alert('Validation Error', 'Restaurant name is required.');
       return;
     }
-    // Build the "file" object for React Native FormData
-    // (axios on RN knows how to handle this shape)
+
     let filePart;
     if (imageUri && imageUri !== restaurantData.imageUrl) {
       const [, ext = 'jpg'] = /\.(\w+)$/.exec(imageUri) ?? [];
@@ -80,11 +87,16 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
       };
     }
 
-    onSave(form, filePart);
+    // include selected themeVariant into payload
+    const updated: RestaurantData = {
+      ...form,
+      themeVariant,
+    };
+
+    onSave(updated, filePart);
     onRequestClose();
   };
 
-  // Header content
   const headerContent = (
     <View className="flex-row items-center justify-between">
       <Text className="text-white text-lg font-semibold">Edit Restaurant</Text>
@@ -93,7 +105,7 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
       </Pressable>
     </View>
   );
-  // Main content body
+
   const bodyContent = (
     <ConditionalWrapper>
       <KeyboardAvoidingView
@@ -123,7 +135,7 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
                 <View className="items-center">
                   <MaterialIcons name="cloud-upload" size={38} color="#94a3b8" />
                   <Text className="text-gray-500 mt-2">Tap to upload image</Text>
-                  <Text className="text-gray-400 text-xs mt-1">PNG, JPG, GIF — max 5 MB</Text>
+                  <Text className="text-gray-400 text-xs mt-1">PNG, JPG, GIF — max 5 MB</Text>
                 </View>
               )}
             </TouchableOpacity>
@@ -151,21 +163,23 @@ const EditRestaurantModal: React.FC<EditRestaurantModalProps> = ({
               placeholder="Enter description"
             />
           </View>
+
+          {/* Theme Picker */}
+          <ThemeColorPicker selected={themeVariant} onSelect={setThemeVariant} />
         </View>
       </KeyboardAvoidingView>
     </ConditionalWrapper>
   );
 
-  // Footer content using Tailwind classes
   const footerContent = (
     <ModalActionsButton
       cancelProps={{
         title: 'Cancel',
-        onPress: () => onRequestClose(),
+        onPress: onRequestClose,
       }}
       actionProps={{
         title: 'Save',
-        onPress: () => handleSave(),
+        onPress: handleSave,
       }}
     />
   );

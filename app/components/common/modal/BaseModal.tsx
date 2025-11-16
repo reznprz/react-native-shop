@@ -1,5 +1,15 @@
 import React from 'react';
-import { Modal, View, Text, StyleSheet, Pressable, Dimensions, ViewStyle } from 'react-native';
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+  ViewStyle,
+  Platform,
+} from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface BaseModalProps {
   visible: boolean;
@@ -20,15 +30,21 @@ const BaseModal: React.FC<BaseModalProps> = ({
   footer,
   bodyStyle = { width: '100%', marginVertical: 15 },
 }) => {
+  const theme = useTheme();
+
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onRequestClose}>
-      <View style={styles.modalBackdrop}>
-        <View style={[styles.modalContainer, style]}>
+      <View style={[styles.modalBackdrop, { backgroundColor: theme.backdrop }]}>
+        <View style={[styles.modalContainer, { backgroundColor: theme.primaryBg }, style]}>
           {/* Header */}
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{headerTitle}</Text>
-            <Pressable style={styles.closeButton} onPress={onRequestClose}>
-              <Text style={styles.closeButtonText}>✕</Text>
+          <View style={[styles.modalHeader, { backgroundColor: theme.secondary }]}>
+            <Text style={[styles.modalTitle, { color: theme.textPrimary }]}>{headerTitle}</Text>
+
+            <Pressable
+              style={[styles.closeButton, { backgroundColor: theme.secondaryBg }]}
+              onPress={onRequestClose}
+            >
+              <Text style={[styles.closeButtonText, { color: theme.textSecondary }]}>✕</Text>
             </Pressable>
           </View>
 
@@ -48,18 +64,17 @@ const { width } = Dimensions.get('window');
 const styles = StyleSheet.create({
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)', // Dark overlay
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20, // Ensures no content goes off-screen
+    padding: 20,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
   },
   modalContainer: {
-    backgroundColor: 'white',
     padding: 0,
     borderRadius: 12,
-    minWidth: Math.min(width - 40, 350), // Responsive width, min 350px or screen width - 40px
-    maxWidth: 600, // Prevents excessive width
-    flexShrink: 1, // Prevents content overflow
+    minWidth: Math.min(width - 40, 350),
+    maxWidth: 600,
+    flexShrink: 1,
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 10,
@@ -69,7 +84,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#2a4759',
     paddingVertical: 18,
     paddingHorizontal: 15,
     borderTopLeftRadius: 12,
@@ -78,11 +92,9 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: 'white',
-    flex: 1, // Ensures text doesn't push close button out
+    flex: 1,
   },
   closeButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
     width: 30,
     height: 30,
     borderRadius: 15,
@@ -91,7 +103,6 @@ const styles = StyleSheet.create({
   },
   closeButtonText: {
     fontSize: 18,
-    color: 'white',
   },
   modalFooter: {
     alignItems: 'center',

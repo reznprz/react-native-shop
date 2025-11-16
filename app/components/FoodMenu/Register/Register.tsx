@@ -11,6 +11,7 @@ import { Food } from 'app/api/services/foodService';
 import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
 import RegisterPaymentDetails from './RegisterPaymentDetails';
 import { SubTabType } from './RegisterFoodList';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface RegisterProps {
   tableItems: TableItem;
@@ -69,6 +70,8 @@ export default function Register({
   handleAddNewFoodClick,
   completeOrderState,
 }: RegisterProps) {
+  const theme = useTheme();
+
   const { isDesktop, isMobile } = useIsDesktop();
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
@@ -86,7 +89,16 @@ export default function Register({
     <View style={styles.desktopContainer}>
       <View style={styles.desktopContent}>
         {/* Left Panel - Order Summary */}
-        <View style={styles.leftPanel}>
+        <View
+          style={[
+            styles.leftPanel,
+            {
+              backgroundColor: theme.secondaryBg,
+              borderColor: theme.borderColor,
+              shadowColor: theme.textSecondary,
+            },
+          ]}
+        >
           <RegisterFoodMenu
             isMobile={isMobile}
             updateCartItemForFood={updateCartItemForFood}
@@ -118,7 +130,14 @@ export default function Register({
 
         {/* Right Panel - Payment Details */}
         <ScrollView
-          style={styles.rightPanel}
+          style={[
+            styles.rightPanel,
+            {
+              backgroundColor: theme.secondaryBg,
+              borderColor: theme.borderColor,
+              shadowColor: theme.textSecondary,
+            },
+          ]}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -200,7 +219,6 @@ export default function Register({
 const styles = StyleSheet.create({
   desktopContainer: {
     flex: 1,
-    backgroundColor: '#F3F4F6', // Equivalent to bg-gray-100
   },
   desktopContent: {
     flex: 1,
@@ -208,15 +226,12 @@ const styles = StyleSheet.create({
   },
   leftPanel: {
     flexBasis: '60%',
-    backgroundColor: '#FFFFFF',
     padding: 10,
     marginTop: 8,
     marginLeft: 20,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: '#E5E7EB',
     marginBottom: 16,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
@@ -226,14 +241,11 @@ const styles = StyleSheet.create({
     flexBasis: '40%',
     padding: 10,
     marginLeft: 16,
-    backgroundColor: '#FFFFFF',
     marginTop: 8,
     marginRight: 20,
     marginBottom: 16,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 6,

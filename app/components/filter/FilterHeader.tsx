@@ -4,6 +4,7 @@ import { FilterStatus } from '../filter/filter'; // or your correct path
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import RemovalChip from '../common/RemovalChip';
 import OverflowChip from '../common/OverflowChip';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface FilterHeaderProps {
   filters: FilterStatus[];
@@ -16,6 +17,8 @@ const FilterHeader: React.FC<FilterHeaderProps> = ({
   onRemoveFilter,
   onOverflowPress,
 }) => {
+  const theme = useTheme();
+
   const [displayedFilters, setDisplayedFilters] = useState<FilterStatus[]>([]);
   const [overflowCount, setOverflowCount] = useState(0);
   const { width } = useIsDesktop();
@@ -41,7 +44,7 @@ const FilterHeader: React.FC<FilterHeaderProps> = ({
   return (
     <View style={styles.container}>
       {displayedFilters.map((f) => (
-        <RemovalChip key={f.name} label={f.name} onRemove={onRemoveFilter} />
+        <RemovalChip theme={theme} key={f.name} label={f.name} onRemove={onRemoveFilter} />
       ))}
       {overflowCount > 0 && <OverflowChip count={overflowCount} onPress={onOverflowPress} />}
     </View>

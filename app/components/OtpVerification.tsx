@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ErrorMessagePopUp from './common/ErrorMessagePopUp';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface Props {
   onVerify: (code: string, method: 'sms' | 'email') => void;
@@ -32,6 +33,8 @@ const OtpVerification: React.FC<Props> = ({
   verifyError,
   ttlSeconds = 180,
 }) => {
+  const theme = useTheme();
+
   const [otpCode, setOtpCode] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(ttlSeconds);
   const [expired, setExpired] = useState(false);
@@ -43,9 +46,7 @@ const OtpVerification: React.FC<Props> = ({
     return () => clearInterval(t);
   }, [secondsLeft]);
 
-  const Spinner = () => (
-    <Ionicons name="refresh-circle" size={22} color="#2563eb" className="animate-spin" />
-  );
+  const Spinner = () => <Ionicons name="refresh-circle" size={22} color={theme.secondary} />;
 
   const selectMethod = (m: 'sms' | 'email') => {
     setMethod(m);
@@ -71,10 +72,17 @@ const OtpVerification: React.FC<Props> = ({
 
   if (localOtpVerified) {
     return (
-      <View className="bg-white rounded-xl shadow-md p-20 mt-4 items-center space-y-3">
-        <Ionicons name="checkmark-circle-outline" size={68} color="green" />
-        <Text className="text-green-600 font-semibold text-lg">OTP Verified Successfully</Text>
-        <Text className="text-gray-600 text-sm">You may now proceed to add the user.</Text>
+      <View
+        className="rounded-xl shadow-md p-5 mt-4 items-center space-y-3"
+        style={{ backgroundColor: theme.successBg }}
+      >
+        <Ionicons name="checkmark-circle-outline" size={68} color={theme.tertiary} />
+        <Text className="font-semibold text-lg" style={{ color: theme.textSecondary }}>
+          OTP Verified Successfully
+        </Text>
+        <Text className="text-sm" style={{ color: theme.textTertiary }}>
+          You may now proceed to add the user.
+        </Text>
         {validateError && (
           <ErrorMessagePopUp errorMessage={validateError} onClose={() => setValidateError('')} />
         )}
@@ -83,40 +91,57 @@ const OtpVerification: React.FC<Props> = ({
   }
 
   return (
-    <View className="bg-white rounded-xl shadow-md p-5 space-y-2">
-      <Text className="text-2xl font-bold text-blue-900 text-center tracking-wide mb-2">
+    <View
+      className="rounded-xl shadow-md p-5 space-y-2"
+      style={{ backgroundColor: theme.secondaryBg }}
+    >
+      <Text
+        className="text-2xl font-bold text-center tracking-wide mb-2"
+        style={{ color: theme.secondary }}
+      >
         Verify Your Identity
       </Text>
 
       {/* Channel choices */}
       <View className="space-y-3 gap-2">
-        {(['sms', 'email'] as const).map((m) => (
-          <Pressable
-            key={m}
-            onPress={() => selectMethod(m)}
-            disabled={isSending}
-            className={`flex-row items-center justify-between border p-4 rounded-lg ${
-              method === m ? 'border-blue-600 bg-blue-50' : 'border-gray-200'
-            }`}
-          >
-            <View className="flex-row items-center space-x-3">
-              <Ionicons
-                name={m === 'sms' ? 'call-outline' : 'mail-outline'}
-                size={20}
-                color="#2563eb"
-              />
-              <Text className="text-gray-800 text-sm">
-                {m === 'sms' ? maskPhone(phone) : maskEmail(email)}
-              </Text>
-            </View>
-            {isSending && method === m ? (
-              <Spinner />
-            ) : (
-              <Text className="text-blue-600 font-medium">Send Code</Text>
-            )}
-          </Pressable>
-        ))}
-        {sendError && <Text className="text-red-500 text-center text-sm mt-1">{sendError}</Text>}
+        {(['sms', 'email'] as const).map((m) => {
+          const active = method === m;
+          return (
+            <Pressable
+              key={m}
+              onPress={() => selectMethod(m)}
+              disabled={isSending}
+              className="flex-row items-center justify-between border p-4 rounded-lg"
+              style={{
+                borderColor: active ? theme.secondary : '#E5E7EB',
+                backgroundColor: active ? theme.quaternary : theme.secondaryBg,
+              }}
+            >
+              <View className="flex-row items-center space-x-3">
+                <Ionicons
+                  name={m === 'sms' ? 'call-outline' : 'mail-outline'}
+                  size={20}
+                  color={theme.secondary}
+                />
+                <Text style={{ color: theme.textSecondary, fontSize: 14 }}>
+                  {m === 'sms' ? maskPhone(phone) : maskEmail(email)}
+                </Text>
+              </View>
+              {isSending && method === m ? (
+                <Spinner />
+              ) : (
+                <Text className="font-medium" style={{ color: theme.secondary }}>
+                  Send Code
+                </Text>
+              )}
+            </Pressable>
+          );
+        })}
+        {sendError && (
+          <Text className="text-center text-sm mt-1" style={{ color: '#EF4444' }}>
+            {sendError}
+          </Text>
+        )}
       </View>
 
       {/* OTP input */}
@@ -128,43 +153,72 @@ const OtpVerification: React.FC<Props> = ({
             keyboardType="number-pad"
             maxLength={6}
             placeholder="Enter 6-digit code"
-            className="text-center text-lg p-4 border border-gray-300 rounded-lg tracking-widest"
+            placeholderTextColor={theme.textTertiary}
+            className="text-center text-lg p-4 border rounded-lg tracking-widest"
+            style={{
+              borderColor: '#D1D5DB',
+              color: theme.textSecondary,
+              backgroundColor: theme.primaryBg,
+            }}
           />
 
           {!expired ? (
-            <Text className="text-sm text-gray-500 text-center mt-4 mb-4">
-              Code sent to <Text className="font-medium text-gray-700">{masked}</Text>. Expires in{' '}
-              <Text className="text-gray-800 font-semibold">{secondsLeft}s</Text>
+            <Text className="text-sm text-center mt-4 mb-4" style={{ color: theme.textTertiary }}>
+              Code sent to{' '}
+              <Text className="font-medium" style={{ color: theme.textSecondary }}>
+                {masked}
+              </Text>
+              . Expires in{' '}
+              <Text className="font-semibold" style={{ color: theme.textSecondary }}>
+                {secondsLeft}s
+              </Text>
             </Text>
           ) : (
-            <Text className="text-sm text-red-500 text-center mt-4 mb-4">
+            <Text className="text-sm text-center mt-4 mb-4" style={{ color: '#EF4444' }}>
               Code expired. Please resend.
             </Text>
           )}
 
           {verifyError && (
-            <Text className="text-red-500 text-center text-sm mt-2 mb-2">{verifyError}</Text>
+            <Text className="text-center text-sm mt-2 mb-2" style={{ color: '#EF4444' }}>
+              {verifyError}
+            </Text>
           )}
 
           <View className="flex-row justify-between items-center">
             <Pressable
               onPress={() => selectMethod(method)}
               disabled={isSending}
-              className={`border px-4 py-2 rounded-lg ${
-                isSending ? 'border-gray-300' : 'border-blue-500'
-              }`}
+              className="px-4 py-2 rounded-lg border"
+              style={{
+                borderColor: isSending ? '#D1D5DB' : theme.secondary,
+              }}
             >
-              {isSending ? <Spinner /> : <Text className="text-blue-600 font-medium">Resend</Text>}
+              {isSending ? (
+                <Spinner />
+              ) : (
+                <Text className="font-medium" style={{ color: theme.secondary }}>
+                  Resend
+                </Text>
+              )}
             </Pressable>
 
             <Pressable
               onPress={handleVerify}
               disabled={expired || otpCode.length < 6 || isVerifying}
-              className={`px-5 py-2 rounded-lg ${
-                expired || otpCode.length < 6 || isVerifying ? 'bg-paleSkyBlue' : 'bg-deepTeal'
-              }`}
+              className="px-5 py-2 rounded-lg"
+              style={{
+                backgroundColor:
+                  expired || otpCode.length < 6 || isVerifying ? theme.quaternary : theme.buttonBg,
+              }}
             >
-              {isVerifying ? <Spinner /> : <Text className="text-white font-medium">Verify</Text>}
+              {isVerifying ? (
+                <Spinner />
+              ) : (
+                <Text className="font-medium" style={{ color: theme.textPrimary }}>
+                  Verify
+                </Text>
+              )}
             </Pressable>
           </View>
         </View>

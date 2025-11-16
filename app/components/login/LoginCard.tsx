@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Platform } from 'react-native';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import LoadingButton, { ButtonState } from 'app/components/common/button/LoadingButton';
 import { config } from 'app/config/config';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface LoginCardProps {
   username: string;
@@ -33,12 +34,18 @@ const LoginCard: React.FC<LoginCardProps> = ({
   setRememberMe,
   handleLogin,
 }) => {
+  const theme = useTheme();
+
   return (
-    <View className="bg-white w-full rounded-xl shadow-sm p-8">
+    <View className="bg-gray-100 w-full rounded-xl shadow-sm p-8">
       <View className="pb-3 px-8 pt-3">
         {/* Icon */}
         <View className="items-center mb-4">
-          <MaterialCommunityIcons name="silverware-fork-knife" size={48} color="#374151" />
+          <MaterialCommunityIcons
+            name="silverware-fork-knife"
+            size={48}
+            color={theme.primary} // was #374151
+          />
         </View>
 
         {/* Env + Version */}
@@ -52,44 +59,57 @@ const LoginCard: React.FC<LoginCardProps> = ({
         )}
 
         {/* Title */}
-        <Text className="text-2xl font-semibold text-center text-gray-900">
+        <Text className="text-2xl font-semibold text-center" style={{ color: theme.textSecondary }}>
           Restaurant POS Login
         </Text>
-        <Text className="text-center text-gray-500 mt-2">Please sign in to continue</Text>
+        <Text className="text-center mt-2" style={{ color: theme.textSecondary }}>
+          Please sign in to continue
+        </Text>
 
         {/* Username */}
         <View className="mt-8">
-          <Text className="text-gray-700 mb-2">Username</Text>
+          <Text className="mb-2" style={{ color: theme.textSecondary }}>
+            Username
+          </Text>
           <View className="flex-row items-center border border-gray-300 rounded-lg px-4 py-3 bg-white">
-            <MaterialCommunityIcons name="account-outline" size={20} color="#9CA3AF" />
+            <MaterialCommunityIcons name="account-outline" size={20} color={theme.icon} />
             <TextInput
               placeholder="Enter your username"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={theme.icon}
               value={username}
               onChangeText={setUsername}
-              className="flex-1 ml-2 text-gray-900"
+              className="flex-1 ml-2"
+              autoFocus={Platform.OS === 'web'}
+              style={{ color: theme.textSecondary }} // was text-gray-900
             />
           </View>
         </View>
 
         {/* Password */}
         <View className="mt-6">
-          <Text className="text-gray-700 mb-2">Password</Text>
+          <Text
+            className="mb-2"
+            style={{ color: theme.textSecondary }} // was text-gray-700
+          >
+            Password
+          </Text>
           <View className="flex-row items-center border border-gray-300 rounded-xl px-4 py-3 bg-white">
-            <MaterialCommunityIcons name="lock-outline" size={20} color="#9CA3AF" />
+            <MaterialCommunityIcons name="lock-outline" size={20} color={theme.icon} />
             <TextInput
               placeholder="Enter your password"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor={theme.icon}
               secureTextEntry={!isPasswordVisible}
               value={password}
+              autoFocus={Platform.OS === 'web'}
               onChangeText={setPassword}
-              className="flex-1 ml-2 text-gray-900"
+              className="flex-1 ml-2"
+              style={{ color: theme.textSecondary }}
             />
             <TouchableOpacity onPress={togglePasswordVisibility}>
               <MaterialCommunityIcons
                 name={isPasswordVisible ? 'eye-off-outline' : 'eye-outline'}
                 size={20}
-                color="#9CA3AF"
+                color={theme.icon}
               />
             </TouchableOpacity>
           </View>
@@ -105,16 +125,21 @@ const LoginCard: React.FC<LoginCardProps> = ({
               className={`
               w-5 h-5 rounded-md border 
               border-gray-400 mr-2 justify-center items-center
-              ${rememberMe ? 'bg-blue-600' : 'bg-white'}
+              ${rememberMe ? '' : 'bg-white'}
             `}
+              style={rememberMe ? { backgroundColor: theme.textSecondary } : undefined}
             >
-              {rememberMe && <MaterialCommunityIcons name="check" size={16} color="white" />}
+              {rememberMe && <MaterialCommunityIcons name="check" size={16} color={theme.icon} />}
             </View>
-            <Text className="text-gray-700 text-sm">Remember me</Text>
+            <Text className="text-sm" style={{ color: theme.textSecondary }}>
+              Remember me
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => Alert.alert('Forgot Password')}>
-            <Text className="text-blue-900 font-medium">Forgot password?</Text>
+            <Text className="font-medium" style={{ color: theme.textSecondary }}>
+              Forgot password?
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -123,16 +148,18 @@ const LoginCard: React.FC<LoginCardProps> = ({
           <LoadingButton
             title="Sign In"
             onPress={handleLogin}
-            buttonStyle={{ paddingVertical: 14 }}
-            textStyle={{ fontSize: 20 }}
+            buttonStyle={{ paddingVertical: 14, backgroundColor: theme.buttonBg }}
+            textStyle={{ fontSize: 20, color: theme.textPrimary }}
             buttonState={loginState}
           />
         </View>
 
         {/* Help */}
         <View className="mt-8 items-center">
-          <Text className="text-gray-500">Need help? Contact</Text>
-          <Text className="text-gray-800 font-semibold">System Administrator</Text>
+          <Text style={{ color: theme.textTertiary }}>Need help? Contact</Text>
+          <Text className="font-semibold" style={{ color: theme.textSecondary }}>
+            System Administrator
+          </Text>
         </View>
       </View>
     </View>

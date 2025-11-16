@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { ContactStatus } from 'app/api/services/restaurantService';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface StatusModalProps {
   visible: boolean;
@@ -27,6 +28,8 @@ const StatusModal: React.FC<StatusModalProps> = ({
   onSelect,
   onRequestClose,
 }) => {
+  const theme = useTheme();
+
   const footerContent = (
     <ModalActionsButton
       cancelProps={{
@@ -43,14 +46,20 @@ const StatusModal: React.FC<StatusModalProps> = ({
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onRequestClose}>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="flex-1 bg-black/50 justify-center items-center px-6">
+        <View
+          className="flex-1 justify-center items-center px-6"
+          style={{
+            backgroundColor: theme.backdrop,
+            ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
+          }}
+        >
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             className="w-full max-w-[360px] bg-white rounded-2xl overflow-hidden"
           >
             {/* Header */}
             <View
-              style={{ backgroundColor: '#2a4759', padding: 12 }}
+              style={{ backgroundColor: theme.secondary, padding: 12 }}
               className="flex-row justify-between items-center"
             >
               <Text className="text-white text-lg font-semibold">Change Status</Text>
@@ -68,11 +77,15 @@ const StatusModal: React.FC<StatusModalProps> = ({
                   className={`w-full py-3 px-4 mb-2 rounded-xl ${
                     status === selected ? 'bg-blue-100' : 'bg-gray-100'
                   }`}
+                  style={{
+                    backgroundColor: status === selected ? theme.quaternary : theme.primaryBg,
+                  }}
                 >
                   <Text
-                    className={`text-base ${
-                      status === selected ? 'text-blue-800 font-semibold' : 'text-gray-800'
-                    }`}
+                    style={{
+                      color: status === selected ? theme.primary : theme.textSecondary,
+                      fontWeight: status === selected ? '600' : '400',
+                    }}
                   >
                     {status}
                   </Text>

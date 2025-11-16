@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, ViewStyle } from 'react-native';
 import CustomButton from '../button/CustomButton';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface ButtonProps {
   title?: string;
@@ -24,6 +25,8 @@ const ModalActionsButton: React.FC<ModalActionsButtonProps> = ({
   actionProps,
   containerStyle = {},
 }) => {
+  const theme = useTheme();
+
   return (
     <View
       style={{
@@ -40,7 +43,7 @@ const ModalActionsButton: React.FC<ModalActionsButtonProps> = ({
           onPress={cancelProps.onPress}
           buttonStyle={{
             width: '100%',
-            backgroundColor: cancelProps.backgroundColor || '#e5e7eb',
+            backgroundColor: cancelProps.backgroundColor || theme.secondaryBtnBg,
             ...cancelProps.buttonStyle,
           }}
           textStyle={{
@@ -57,7 +60,7 @@ const ModalActionsButton: React.FC<ModalActionsButtonProps> = ({
           onPress={actionProps.onPress}
           buttonStyle={{
             width: '100%',
-            backgroundColor: actionProps.backgroundColor || '#2a4759',
+            backgroundColor: actionProps.backgroundColor || theme.buttonBg,
             ...actionProps.buttonStyle,
           }}
           textStyle={{

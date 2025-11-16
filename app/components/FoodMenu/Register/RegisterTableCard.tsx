@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import IconLabel from 'app/components/common/IconLabel';
 import { StatusChip } from 'app/components/common/StatusChip';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface RegisterTableCardProps {
   name: string;
@@ -26,6 +27,8 @@ const RegisterTableCard: React.FC<RegisterTableCardProps> = ({
   numColumnsRegisterScreen,
   onSelectTable,
 }) => {
+  const theme = useTheme();
+
   const boxDynamicStyle = useMemo<ViewStyle>(
     () => ({ width: calcWidth(numColumnsRegisterScreen) }),
     [numColumnsRegisterScreen],
@@ -33,7 +36,15 @@ const RegisterTableCard: React.FC<RegisterTableCardProps> = ({
 
   return (
     <TouchableOpacity
-      style={[styles.card, boxDynamicStyle, currentTable === name && styles.activeCard]}
+      style={[
+        styles.card,
+        boxDynamicStyle,
+        {
+          backgroundColor: currentTable === name ? theme.quaternary : theme.secondaryBg,
+          shadowColor: theme.textSecondary,
+          borderColor: theme.borderColor ?? theme.textTertiary, // or a fixed fallback
+        },
+      ]}
       onPress={() => {
         onSelectTable(name);
       }}
@@ -50,6 +61,7 @@ const RegisterTableCard: React.FC<RegisterTableCardProps> = ({
             iconSize={16}
             containerStyle="justify-between"
             parentWidthHeight="w-8 h-8"
+            bgColor={theme.quaternary}
           />
           <StatusChip
             status={status}
@@ -71,6 +83,7 @@ const RegisterTableCard: React.FC<RegisterTableCardProps> = ({
             iconSize={14}
             parentWidthHeight="w-6 h-6"
             applyCircularIconBg={false}
+            bgColor=""
           />
         </View>
 
@@ -84,6 +97,7 @@ const RegisterTableCard: React.FC<RegisterTableCardProps> = ({
             iconSize={14}
             parentWidthHeight="w-6 h-6"
             applyCircularIconBg={false}
+            bgColor=""
           />
         </View>
         {/* Conditional Actions Menu */}
@@ -96,23 +110,17 @@ export default RegisterTableCard;
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#ffffff',
     borderRadius: 10,
     height: 100,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 2,
-    shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 3,
     paddingHorizontal: 6,
     borderWidth: 1,
-    borderColor: '#f0f0f0',
     marginTop: 2,
-  },
-  activeCard: {
-    backgroundColor: '#d1e8f5',
   },
   cardInner: {
     width: '100%',

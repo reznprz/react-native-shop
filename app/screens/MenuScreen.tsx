@@ -15,6 +15,7 @@ import { Food } from 'app/api/services/foodService';
 import { OrderMenuType } from 'app/api/services/orderService';
 import NotificationBar from 'app/components/common/NotificationBar';
 import Register from 'app/components/FoodMenu/Register/Register';
+import { useTheme } from 'app/hooks/useTheme';
 
 const tabs = ['Register', 'All Foods'];
 
@@ -40,6 +41,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   const [activeSubTab, setActiveSubTab] = useState<SubTabType>(OrderMenuType.NORMAL);
   const [showTableListModal, setShowTableListModal] = useState(false);
   const [successNotification, setSuccessNotificaton] = useState('');
+  const theme = useTheme();
 
   // external state & actions
   const {
@@ -115,7 +117,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
   };
 
   return (
-    <View className="h-full w-full bg-gray-100">
+    <View className="h-full w-full " style={{ backgroundColor: theme.primaryBg }}>
       {/* <SubTab
         tabs={tabs}
         activeTab={activeTab}
@@ -129,7 +131,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
         }}
       /> */}
 
-      <View className="flex-1 bg-gray-100">
+      <View className="flex-1">
         {activeTab === 'Register' || activeTab === 'All Foods' ? (
           <Register
             tableItems={prepTableItems}

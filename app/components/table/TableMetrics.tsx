@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { MetricsSummaryCard } from '../common/MetricsSummaryCard';
+import { useTheme } from 'app/hooks/useTheme';
 
 type TableMetricsProps = {
   availableTables: number;
@@ -17,6 +18,8 @@ const TableMetrics: React.FC<TableMetricsProps> = ({
   activeOrders,
   isLargeScreen,
 }) => {
+  const theme = useTheme();
+
   // Create a variable to hold the cards to avoid duplication.
   const cards = (
     <>
@@ -25,28 +28,31 @@ const TableMetrics: React.FC<TableMetricsProps> = ({
         iconColor="#10B981"
         title="Available Tables"
         value={availableTables}
-        bgColor="bg-green-100"
+        bgColor={theme.successBg}
       />
+
       <MetricsSummaryCard
         icon="close-circle-outline"
         iconColor="#EF4444"
         title="Occupied Tables"
         value={occupiedTables}
-        bgColor="bg-red-100"
+        bgColor={theme.errorBg}
       />
+
       <MetricsSummaryCard
         icon="people-outline"
         iconColor="#3B82F6"
         title="Total Capacity"
         value={totalCapacity}
-        bgColor="bg-blue-100"
+        bgColor={theme.infoBg}
       />
+
       <MetricsSummaryCard
         icon="restaurant-outline"
         iconColor="#8B5CF6"
         title="Active Orders"
         value={activeOrders}
-        bgColor="bg-purple-100"
+        bgColor={theme.alertBg}
       />
     </>
   );

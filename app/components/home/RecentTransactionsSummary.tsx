@@ -4,6 +4,7 @@ import { View, Text, ScrollView } from 'react-native';
 import EmptyState from '../common/EmptyState';
 import { StatusChip } from '../common/StatusChip';
 import CustomButton from '../common/button/CustomButton';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface Props {
   recentTransactions: OrderDetails[];
@@ -16,6 +17,8 @@ const RecentTransactionsSummary: React.FC<Props> = ({
   isLargeScreen,
   onViewAllPress,
 }) => {
+  const theme = useTheme();
+
   return (
     <View className="bg-white rounded-lg p-5 mt-4 shadow-sm">
       {!recentTransactions || recentTransactions.length === 0 ? (
@@ -41,9 +44,9 @@ const RecentTransactionsSummary: React.FC<Props> = ({
                 elevation: 0,
               }}
               textStyle={{
-                color: '#3b82f6',
+                color: theme.secondary,
                 fontSize: 16,
-                fontWeight: '500',
+                fontWeight: '800',
               }}
             />
           </View>

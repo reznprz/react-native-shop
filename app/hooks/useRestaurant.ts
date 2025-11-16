@@ -12,6 +12,7 @@ import {
 import { setRestaurantImgUrl } from 'app/redux/authSlice';
 import { useState } from 'react';
 import { useDeleteContactMutation, useUpsertContactMutation } from './apiQuery/useContactMutations';
+import { setThemeVariant } from 'app/redux/themeSlice';
 
 export const useRestaurant = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -95,6 +96,8 @@ export const useRestaurant = () => {
     onSuccess: (response) => {
       if (response.status === 'success' && response.data) {
         setRestaurantData(response.data);
+        dispatch(setThemeVariant(response.data.themeVariant));
+
         if (response.data.imageUrl) {
           dispatch(setRestaurantImgUrl(response.data.imageUrl));
         }

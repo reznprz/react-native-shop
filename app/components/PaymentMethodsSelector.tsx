@@ -6,6 +6,7 @@ import IconLabel from './common/IconLabel';
 import CollapsibleInfo from './common/CollapsibleInfo';
 import PaymentChip from './table/PaymentChip';
 import PaymentInput from './table/PaymentInput';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface PaymentMethodsSelectorProps {
   totalAmount: number;
@@ -24,6 +25,8 @@ const PaymentMethodsSelector: React.FC<PaymentMethodsSelectorProps> = ({
   showSplitPaymentInfo = false,
   splitPaymentInfoMessage = PAYMENT_WARN_MESSAGES.SPLIT_PAYMENT_INFO,
 }) => {
+  const theme = useTheme();
+
   const handlePaymentSelection = useCallback(
     (type: string) => {
       if (!onPaymentsChange) return;
@@ -70,7 +73,12 @@ const PaymentMethodsSelector: React.FC<PaymentMethodsSelectorProps> = ({
 
   return (
     <View className="bg-white mt-2">
-      <IconLabel iconName="document-text-outline" label="Payment Methods" iconType="Ionicons" />
+      <IconLabel
+        iconName="document-text-outline"
+        label="Payment Methods"
+        iconType="Ionicons"
+        bgColor={theme.quaternary}
+      />
 
       {showSplitPaymentInfo && (
         <CollapsibleInfo
@@ -78,7 +86,7 @@ const PaymentMethodsSelector: React.FC<PaymentMethodsSelectorProps> = ({
           iconType="FontAwesome"
           iconName="question-circle"
           iconSize={24}
-          iconColor="#2a4759"
+          iconColor={theme.secondary}
           containerStyle="ml-8 mb-4"
           textColor="text-black font-bold underline"
           collapsibleContent={splitPaymentInfoMessage}

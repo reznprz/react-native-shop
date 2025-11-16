@@ -4,6 +4,7 @@ import BaseModal from '../common/modal/BaseModal';
 import FilterChip from '../common/FilterChip';
 import { RestaurantTable } from 'app/api/services/tableService';
 import CollapsibleInfo from '../common/CollapsibleInfo';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface TableListModalProps {
   visible: boolean;
@@ -20,6 +21,8 @@ const TableListModal: React.FC<TableListModalProps> = ({
   onClose,
   onSelectTable,
 }) => {
+  const theme = useTheme();
+
   // Body: list of seats rendered in a ScrollView
   const bodyContent = (
     <>
@@ -29,7 +32,7 @@ const TableListModal: React.FC<TableListModalProps> = ({
           iconType={'FontAwesome'}
           iconName={'question-circle'}
           iconSize={24}
-          iconColor={'#2a4759'}
+          iconColor={theme.secondary}
           containerStyle={'ml-2 mb-4'}
           textColor={'text-black font-bold text-lg underline'}
           collapsibleContent={'Can only switch to available tables.'}
@@ -62,7 +65,10 @@ const TableListModal: React.FC<TableListModalProps> = ({
       headerTitle="Select a Table"
       body={bodyContent}
       footer={
-        <Pressable onPress={onClose} style={styles.footerButton}>
+        <Pressable
+          onPress={onClose}
+          style={[styles.footerButton, { backgroundColor: theme.secondary }]}
+        >
           <Text style={styles.footerButtonText}>Cancel</Text>
         </Pressable>
       }
@@ -87,7 +93,6 @@ const styles = StyleSheet.create({
   footerButton: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    backgroundColor: '#2a4759',
     borderRadius: 5,
     alignItems: 'center',
   },

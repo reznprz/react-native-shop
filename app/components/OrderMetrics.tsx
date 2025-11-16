@@ -1,6 +1,7 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 import { MetricsSummaryCard } from './common/MetricsSummaryCard';
+import { useTheme } from 'app/hooks/useTheme';
 
 type OrderMetricsProps = {
   totalAmount: number;
@@ -17,6 +18,8 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
   totalOrders,
   isLargeScreen,
 }) => {
+  const theme = useTheme();
+
   // Create a variable to hold the cards to avoid duplication.
   const cards = (
     <>
@@ -26,7 +29,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
         subtitle="+12.5% from yesterday"
         icon="coins"
         iconColor="#3B82F6"
-        bgColor="bg-blue-100"
+        bgColor="#DBEAFE"
         iconType="FontAwesome5"
       />
 
@@ -36,7 +39,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
         subtitle="85% of total orders"
         icon="check-circle"
         iconColor="#10B981"
-        bgColor="bg-green-100"
+        bgColor="#DCFCE7"
         iconType="FontAwesome5"
       />
 
@@ -46,7 +49,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
         subtitle="15% of total orders"
         icon="clock"
         iconColor="#EF4444"
-        bgColor="bg-red-100"
+        bgColor="#FEE2E2"
         textColor="text-red-600"
         iconType="FontAwesome5"
       />
@@ -57,7 +60,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
         subtitle="+8 new orders today"
         icon="receipt"
         iconColor="#8B5CF6"
-        bgColor="bg-purple-100"
+        bgColor="#EDE9FE"
         iconType="FontAwesome5"
       />
     </>

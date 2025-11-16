@@ -7,6 +7,7 @@ import { DateRangeSelection, getDisplayDateRange } from '../date/utils';
 
 import CustomIcon from './CustomIcon';
 import FilterHeader from '../filter/FilterHeader';
+import { useTheme } from 'app/hooks/useTheme';
 
 type OrderScreenHeaderProps = {
   orderStatuses: FilterStatus[];
@@ -33,6 +34,8 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
   onOverflowPress,
   handleApplyDate,
 }) => {
+  const theme = useTheme();
+
   const [isRangeModalVisible, setRangeModalVisible] = useState(false);
   const [displayDateRange, setDisplayDateRange] = useState('Last 7 Days');
   const [isPressed, setIsPressed] = useState(false);
@@ -52,28 +55,46 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
   useEffect(() => {
     if (selectedDate) {
       const label = getDisplayDateRange(selectedDate);
-
       setDisplayDateRange(label);
     }
   }, [selectedDate]);
 
+  const showPastOrdersControls = activeTab === 'Past Orders';
+
   return (
     <View>
       <View
-        style={{
-          ...styles.headerRow,
-          ...(activeTab !== 'Past Orders' && {
-            borderWidth: 0,
-            backgroundColor: '#F3F4F6',
-          }),
-        }}
+        style={[
+          styles.headerRow,
+          showPastOrdersControls
+            ? {
+                backgroundColor: theme.secondaryBg,
+                borderColor: theme.secondaryBtnBg,
+                borderWidth: 1,
+              }
+            : {
+                backgroundColor: theme.primaryBg,
+                borderWidth: 0,
+              },
+        ]}
       >
-        {activeTab === 'Past Orders' ? (
-          <TouchableOpacity onPress={() => setRangeModalVisible(true)} style={styles.dateRangeBtn}>
+        {showPastOrdersControls ? (
+          <TouchableOpacity
+            onPress={() => setRangeModalVisible(true)}
+            style={[
+              styles.dateRangeBtn,
+              {
+                backgroundColor: theme.secondaryBg,
+                borderColor: theme.secondaryBtnBg,
+              },
+            ]}
+          >
             <View style={styles.btnContent}>
-              <FontAwesome5 name="calendar-alt" size={16} color="gray" />
-              <Text style={styles.dateRangeBtnText}>{displayDateRange}</Text>
-              <FontAwesome5 name="chevron-down" size={12} color="gray" />
+              <FontAwesome5 name="calendar-alt" size={16} color={theme.textTertiary} />
+              <Text style={[styles.dateRangeBtnText, { color: theme.textTertiary }]}>
+                {displayDateRange}
+              </Text>
+              <FontAwesome5 name="chevron-down" size={12} color={theme.textTertiary} />
             </View>
           </TouchableOpacity>
         ) : (
@@ -88,16 +109,29 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
             style={[
               combinedFilters.length > 0 ? styles.iconOnlyBtn : styles.filterBtn,
               isPressed && styles.pressedBtn,
+              combinedFilters.length === 0 && {
+                backgroundColor: theme.secondary,
+                borderColor: theme.secondary,
+              },
+              combinedFilters.length > 0 && {
+                backgroundColor: 'transparent',
+              },
             ]}
           >
             <View style={styles.btnContent}>
               <CustomIcon
                 name="filter"
                 size={combinedFilters.length > 0 ? 20 : 16}
-                color={combinedFilters.length > 0 ? '#2A4759' : '#fff'}
                 type="Fontisto"
+                color={
+                  combinedFilters.length > 0
+                    ? theme.secondary // icon on transparent bg
+                    : theme.textPrimary // icon on solid secondary bg
+                }
               />
-              {combinedFilters.length === 0 && <Text style={styles.filterBtnText}>Filters</Text>}
+              {combinedFilters.length === 0 && (
+                <Text style={[styles.filterBtnText, { color: theme.textPrimary }]}>Filters</Text>
+              )}
             </View>
           </Pressable>
 
@@ -125,30 +159,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#FFF',
     padding: 12,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
     marginBottom: 8,
   },
   dateRangeBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F3F5',
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#D4D4D8',
   },
   dateRangeBtnText: {
     marginHorizontal: 6,
-    color: '#666',
     fontWeight: '600',
   },
   dateRangeBtnPlaceholder: {
-    width: 1, // keeps spacing consistent when the button is hidden
+    width: 1, // keeps spacing when button hidden
   },
   filterContainer: {
     flexDirection: 'row',
@@ -159,12 +187,10 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   filterBtn: {
-    backgroundColor: '#2A4759',
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 6,
     borderWidth: 1,
-    borderColor: '#2A4759',
     marginRight: 8,
   },
   pressedBtn: {
@@ -174,11 +200,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  iconSpacing: {
-    marginRight: 6,
-  },
   filterBtnText: {
-    color: '#fff',
     fontSize: 16,
     marginLeft: 6,
   },

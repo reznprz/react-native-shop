@@ -5,9 +5,9 @@ import IconLabel from '../common/IconLabel';
 import CustomButton from '../common/button/CustomButton';
 import { TableItem as TableItems } from 'app/hooks/useTables';
 import { OrderItem } from 'app/api/services/orderService';
-import { StatusChip } from '../common/StatusChip';
 import TableFoodItemCard from './TableFoodItemCard';
 import CustomIcon from '../common/CustomIcon';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface TableFoodItemsSummaryProps {
   tableItems: TableItems;
@@ -20,14 +20,25 @@ const TableFoodItemsSummary: React.FC<TableFoodItemsSummaryProps> = ({
   updateQuantity,
   onSwitchTableClick,
 }) => {
+  const theme = useTheme();
+
   return (
     <View className="bg-white p-4 rounded-lg ">
       {/* Order Header Info */}
       <View className="bg-white rounded-lg flex-row items-center justify-between">
         {/* Left Section: Order Info */}
         <View className="gap-1">
-          <IconLabel iconName="clipboard-list" label={`Order #${tableItems.id}`} />
-          <IconLabel iconName="table" label={'Table:'} subLabel={tableItems.tableName} />
+          <IconLabel
+            iconName="clipboard-list"
+            label={`Order #${tableItems.id}`}
+            bgColor={theme.quaternary}
+          />
+          <IconLabel
+            iconName="table"
+            label={'Table:'}
+            subLabel={tableItems.tableName}
+            bgColor={theme.quaternary}
+          />
 
           <Text className="text-gray-600 pb-4">
             {'User:'} <Text className="font-semibold">{tableItems.userId}</Text>
@@ -40,6 +51,7 @@ const TableFoodItemsSummary: React.FC<TableFoodItemsSummaryProps> = ({
             label={`${tableItems.date}`}
             applyCircularIconBg={false}
             labelTextSize={'ml-2 text-base'}
+            bgColor={theme.quaternary}
           />
         </View>
 

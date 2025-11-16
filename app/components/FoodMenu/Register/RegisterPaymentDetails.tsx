@@ -12,6 +12,7 @@ import RegisterOrderItemsSummary from './RegisterOrderItemsSummary';
 import CollapsibleInfo from 'app/components/common/CollapsibleInfo';
 import BillingSummaryCard from 'app/components/table/BillingSummaryCard';
 import CustomIcon from 'app/components/common/CustomIcon';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface RegisterPaymentDetailsProps {
   tableItems: TableItem;
@@ -30,6 +31,8 @@ const RegisterPaymentDetails: React.FC<RegisterPaymentDetailsProps> = ({
   updateQuantity,
   completeOrderState,
 }) => {
+  const theme = useTheme();
+
   const items = tableItems?.orderItems || [];
   const [selectedPayments, setSelectedPayments] = useState<PaymentInfo[]>([]);
   const [paymentWarnMessage, setPaymentWarnMessage] = useState('');
@@ -85,7 +88,10 @@ const RegisterPaymentDetails: React.FC<RegisterPaymentDetailsProps> = ({
 
   return (
     <View className="flex-1 justify-between">
-      <View className="flex-row justify-between items-center bg-slate-50 border-b-2 border-gray-200 py-3 p-4 mb-2">
+      <View
+        className="flex-row justify-between items-center border-b-2 border-gray-200 py-3 p-4 mb-2"
+        style={{ backgroundColor: theme.tertiaryBg }}
+      >
         <View className="flex-row items-center">
           <Text style={{ fontSize: 20 }} className="text-lg font-semibold text-deepTeal">
             Selected Table
@@ -128,6 +134,7 @@ const RegisterPaymentDetails: React.FC<RegisterPaymentDetailsProps> = ({
           label={'Discount'}
           containerStyle="justify-between"
           iconType="Ionicons"
+          bgColor={theme.quaternary}
         />
 
         {/* Discount Input Field */}

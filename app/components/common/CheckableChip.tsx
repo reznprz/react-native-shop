@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, Text, View, StyleSheet, Platform, StyleProp, ViewStyle } from 'react-native';
 import CustomIcon from './CustomIcon';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface CheckableChipProps {
   style?: StyleProp<ViewStyle>;
@@ -11,6 +12,7 @@ interface CheckableChipProps {
 
 const CheckableChip: React.FC<CheckableChipProps> = ({ style, isChecked, label, onClick }) => {
   const [isPressed, setIsPressed] = useState(false);
+  const theme = useTheme();
 
   return (
     <Pressable
@@ -21,15 +23,29 @@ const CheckableChip: React.FC<CheckableChipProps> = ({ style, isChecked, label, 
       onPressOut={() => setIsPressed(false)}
       style={[
         styles.filterChip,
-        isChecked ? styles.checkedChip : styles.uncheckedChip,
+        {
+          backgroundColor: isChecked ? theme.secondary : theme.secondaryBg,
+          borderColor: isChecked ? theme.secondary : theme.textSecondary,
+          borderWidth: 1.5,
+        },
         isPressed && styles.pressedChip,
         style,
         Platform.OS === 'web' && ({ transition: 'background-color 200ms, transform 150ms' } as any),
       ]}
     >
       <View style={styles.contentContainer}>
-        {isChecked && <CustomIcon type="MaterialIcons" name="check" size={18} color="#fff" />}
-        <Text style={[styles.filterText, isChecked && styles.checkedText]}>{label}</Text>
+        {isChecked && (
+          <CustomIcon type="MaterialIcons" name="check" size={18} color={theme.textPrimary} />
+        )}
+        <Text
+          style={[
+            styles.filterText,
+            { color: isChecked ? theme.textPrimary : theme.textSecondary },
+            isChecked && styles.checkedText,
+          ]}
+        >
+          {label}
+        </Text>
       </View>
     </Pressable>
   );
@@ -49,15 +65,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
   },
-  uncheckedChip: {
-    backgroundColor: '#fff',
-    borderWidth: 1.5,
-    borderColor: '#000',
-  },
-  checkedChip: {
-    backgroundColor: '#2A4759',
-    borderWidth: 1.5,
-  },
   pressedChip: {
     transform: [{ scale: 0.97 }],
   },
@@ -65,16 +72,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  iconSpacing: {
-    marginRight: 6,
-  },
   filterText: {
     fontWeight: '500',
     fontSize: 15,
-    color: '#000',
   },
   checkedText: {
-    color: '#fff',
     fontWeight: '600',
   },
 });

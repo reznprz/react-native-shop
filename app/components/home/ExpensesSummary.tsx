@@ -5,7 +5,7 @@ import CustomIcon from '../common/CustomIcon';
 import { IconType } from 'app/navigation/screenConfigs';
 import EmptyState from '../common/EmptyState';
 import CustomButton from '../common/button/CustomButton';
-import { on } from 'events';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface ExpenseSummaryProps {
   expenses: Expense[];
@@ -18,6 +18,8 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
   onViewAllPress,
   onAddExpensesPress,
 }) => {
+  const theme = useTheme();
+
   return (
     <View className="flex-1 item-center bg-white rounded-lg shadow-sm">
       {!expenses || expenses.length === 0 ? (
@@ -37,7 +39,7 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
                   elevation: 0,
                 }}
                 textStyle={{
-                  color: '#3b82f6',
+                  color: theme.secondary,
                   fontSize: 16,
                   fontWeight: '500',
                 }}
@@ -70,9 +72,9 @@ const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
                   elevation: 0,
                 }}
                 textStyle={{
-                  color: '#3b82f6',
+                  color: theme.secondary,
                   fontSize: 16,
-                  fontWeight: '500',
+                  fontWeight: '800',
                 }}
               />
             )}

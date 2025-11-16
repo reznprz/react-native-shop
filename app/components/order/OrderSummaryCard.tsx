@@ -7,6 +7,7 @@ import CustomIcon from '../common/CustomIcon';
 import { getIconDetail } from 'app/utils/getIconDetail';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import BannerCard from '../common/BannerCard';
+import { useTheme } from 'app/hooks/useTheme';
 
 type OrderSummaryProps = {
   order: OrderDetails;
@@ -19,9 +20,14 @@ const OrderSummaryCard: React.FC<OrderSummaryProps> = ({
   containerStyle = '',
   showTable = true,
 }) => {
+  const theme = useTheme();
+
   const orderTypeIconDetail = getIconDetail(order.orderType);
   return (
-    <View className={`flex bg-white p-3 rounded-lg  border border-gray-200 mb-2 ${containerStyle}`}>
+    <View
+      className={`flex  p-3 rounded-lg  border border-gray-200 mb-2 ${containerStyle}`}
+      style={{ backgroundColor: theme.secondaryBg }}
+    >
       {order.cancelReason && order.cancelReason.length > 0 && (
         <BannerCard
           primaryTitle={order.cancelReason}
