@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Animated, Easing, StyleSheet, Platform, ActivityIndicator } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomIcon from './common/CustomIcon';
+import { useTheme } from 'app/hooks/useTheme';
 
 type FoodLoadingSpinnerProps = {
   iconSize?: number;
@@ -18,11 +19,13 @@ const FoodLoadingSpinner: React.FC<FoodLoadingSpinnerProps> = ({
   iconName = 'utensils',
   iconType = 'FontAwesome5',
 }) => {
+  const theme = useTheme();
+
   // If on web, just render a simple ActivityIndicator
   if (Platform.OS === 'web') {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#2a4759" />
+        <ActivityIndicator size="large" color={theme.secondary} />
       </View>
     );
   }
@@ -84,7 +87,7 @@ const FoodLoadingSpinner: React.FC<FoodLoadingSpinnerProps> = ({
           },
         ]}
       >
-        <CustomIcon type={iconType} name={iconName} size={iconSize} color={iconColor} />
+        <CustomIcon type={iconType} name={iconName} size={iconSize} color={theme.secondary} />
       </Animated.View>
     </View>
   );

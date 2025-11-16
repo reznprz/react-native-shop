@@ -2,6 +2,7 @@ import axios from 'axios';
 import { config } from 'app/config/config';
 import { Role } from 'app/security/role';
 import { RegisterRequest } from './userService';
+import { ThemeVariant } from 'app/theme/theme';
 
 export interface Credentials {
   username: string;
@@ -88,6 +89,7 @@ export interface AuthResponse {
   initials: string;
   restaurantImgUrl: string;
   userAvatarUrl: string;
+  themeVariant: ThemeVariant;
   features: RestaurantFeature[];
   subscriptionExpirationInfo: SubscriptionExpirationInfo;
 }
@@ -100,6 +102,7 @@ export interface CreateRestaurantRequest {
   password: string;
   firstName: string;
   lastName: string;
+  themeVariant: ThemeVariant;
 }
 
 export interface SuccessResponse {
@@ -125,7 +128,9 @@ export const login = async (credentials: Credentials): Promise<AuthResponse> => 
   return authResponse;
 };
 
-export const createNewRestaurantApi = async (payload: CreateRestaurantRequest): Promise<SuccessResponse> => {
+export const createNewRestaurantApi = async (
+  payload: CreateRestaurantRequest,
+): Promise<SuccessResponse> => {
   const response = await axios.post<SuccessResponse>(
     `${config.tokenBaseURL}/auth/register`,
     payload,

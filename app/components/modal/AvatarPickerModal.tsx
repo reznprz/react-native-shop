@@ -4,18 +4,19 @@ import {
   View,
   Text,
   Pressable,
-  Image,
   FlatList,
   Animated,
   useWindowDimensions,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
+import { useTheme } from 'app/hooks/useTheme';
 
 const DEFAULT_AVATARS = [
- 'https://storage.googleapis.com/image-box-shk/Boy1.jpg',
+  'https://storage.googleapis.com/image-box-shk/Boy1.jpg',
   'https://storage.googleapis.com/image-box-shk/boy2.jpg',
   'https://storage.googleapis.com/image-box-shk/boy3.jpeg',
   'https://storage.googleapis.com/image-box-shk/boy4.jpeg',
@@ -34,13 +35,14 @@ type AvatarPickerModalProps = {
 
 const GAP = 18;
 
-//  Helper child component
+//Avatar Tile Component
 const AvatarTile: React.FC<{
   uri: string;
   size: number;
   selected: boolean;
   onPress: () => void;
-}> = React.memo(({ uri, size, selected, onPress }) => {
+  theme?: any;
+}> = React.memo(({ uri, size, selected, onPress, theme }) => {
   const [loaded, setLoaded] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -58,24 +60,34 @@ const AvatarTile: React.FC<{
             width: size,
             height: size,
             borderRadius: size / 2,
-            borderWidth: selected ? 4 : 0,
-            borderColor: selected ? '#2563eb' : undefined,
+            backgroundColor: theme.secondaryBg,
+            borderWidth: selected ? 4 : 1.5,
+            borderColor: selected ? theme.quaternary : theme.borderColor,
           },
         ]}
       >
         {!loaded && (
-          <ActivityIndicator size="small" color="#9ca3af" style={{ position: 'absolute' }} />
+          <ActivityIndicator
+            size="small"
+            color={theme.textSecondary}
+            style={{ position: 'absolute' }}
+          />
         )}
 
         <Animated.Image
           source={{ uri }}
           resizeMode="cover"
           onLoadEnd={handleLoadEnd}
-          style={{ width: size * 0.86, height: size * 0.86, borderRadius: size, opacity: fadeAnim }}
+          style={{
+            width: size * 0.86,
+            height: size * 0.86,
+            borderRadius: size,
+            opacity: fadeAnim,
+          }}
         />
 
         {selected && (
-          <View style={styles.checkBadge}>
+          <View style={[styles.checkBadge, { backgroundColor: theme.quaternary }]}>
             <Ionicons name="checkmark" size={14} color="#fff" />
           </View>
         )}
@@ -85,7 +97,8 @@ const AvatarTile: React.FC<{
 });
 AvatarTile.displayName = 'AvatarTile';
 
-// Grid utility
+//  Grid Logic
+
 const useGrid = (containerWidth: number) => {
   const numColumns = useMemo(() => {
     if (containerWidth >= 1400) return 7;
@@ -103,18 +116,21 @@ const useGrid = (containerWidth: number) => {
   return { numColumns, imageSize } as const;
 };
 
-//  Main modal component
+//  Main Component
 const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
   visible,
   onRequestClose,
   onSelect,
   avatars = DEFAULT_AVATARS,
 }) => {
+  const theme = useTheme();
+
   const { width, height } = useWindowDimensions();
   const containerWidth = Math.min(width - 40, Math.min(width * 0.9, 720));
   const containerMaxHeight = Math.min(height * 0.88, 640);
 
   const { numColumns, imageSize } = useGrid(containerWidth);
+
   const [selected, setSelected] = useState<string | null>(null);
 
   const handleConfirm = () => selected && onSelect(selected);
@@ -126,42 +142,56 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
         size={imageSize}
         selected={selected === item}
         onPress={() => setSelected(item)}
+        theme={theme}
       />
     ),
-    [imageSize, selected],
+    [imageSize, selected, theme],
   );
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onRequestClose}>
-      <View style={styles.backdrop}>
+      <View
+        style={[
+          styles.backdrop,
+          {
+            backgroundColor: theme.backdrop ?? 'rgba(0,0,0,0.35)',
+          },
+        ]}
+      >
         <View
-          style={[styles.container, { width: containerWidth, maxHeight: containerMaxHeight }]}
-          /* stop propagation so backdrop press doesn't close when pressing inside */
+          style={[
+            styles.container,
+            {
+              width: containerWidth,
+              maxHeight: containerMaxHeight,
+              backgroundColor: theme.primaryBg,
+            },
+          ]}
         >
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>Choose Profile Picture</Text>
+          <View style={[styles.header, { backgroundColor: theme.secondary }]}>
+            <Text style={[styles.title, { color: theme.textPrimary }]}>Choose Profile Picture</Text>
+
             <Pressable
-              style={styles.close}
+              style={[styles.close, { backgroundColor: theme.secondaryBg }]}
               onPress={onRequestClose}
-              android_ripple={{ color: '#e5e7eb' }}
             >
-              <Text style={styles.closeText}>✕</Text>
+              <Text style={[styles.closeText, { color: theme.buttonBg }]}>✕</Text>
             </Pressable>
           </View>
 
-          {/* Body */}
+          {/* Avatar Grid */}
           <FlatList
             data={avatars}
             keyExtractor={(item) => item}
             numColumns={numColumns}
             renderItem={renderItem}
             initialNumToRender={numColumns * 2}
-            windowSize={5}
-            removeClippedSubviews
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16 }}
-            style={{ flexGrow: 0 }}
+            contentContainerStyle={{
+              paddingHorizontal: 20,
+              paddingVertical: 16,
+            }}
           />
 
           {/* Footer */}
@@ -180,20 +210,18 @@ const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
 const styles = StyleSheet.create({
   backdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
+    ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
   },
   container: {
-    backgroundColor: 'white',
     borderRadius: 12,
     overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2a4759',
     paddingVertical: 18,
     paddingHorizontal: 16,
   },
@@ -201,7 +229,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '600',
-    color: 'white',
   },
   close: {
     width: 32,
@@ -209,11 +236,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   closeText: {
     fontSize: 18,
-    color: 'white',
   },
   footer: {
     paddingHorizontal: 16,
@@ -223,7 +248,6 @@ const styles = StyleSheet.create({
   avatarFrame: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#e5e7eb',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
@@ -234,14 +258,9 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     right: 6,
-    backgroundColor: 'rgba(37,99,235,0.9)',
     borderRadius: 9999,
     padding: 3,
     elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
   },
 });
 

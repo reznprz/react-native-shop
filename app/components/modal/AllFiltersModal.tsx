@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BaseBottomSheetModal } from '../common/modal/BaseBottomSheetModal';
 import FilterChip from '../common/FilterChip';
 import { RestaurantTable } from 'app/api/services/tableService';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface AllFiltersModalProps {
   title: string;
@@ -24,6 +25,8 @@ export const AllFiltersModal: React.FC<AllFiltersModalProps> = ({
   title,
   tableInfo,
 }) => {
+  const theme = useTheme();
+
   const getTableStatus = useCallback(
     (tableName: string) => {
       return tableInfo?.find((table) => table.tableName === tableName)?.status;
@@ -35,7 +38,7 @@ export const AllFiltersModal: React.FC<AllFiltersModalProps> = ({
       <View style={styles.header}>
         <Text style={styles.title}>{`All ${title}`}</Text>
         <Pressable onPress={onClose} style={styles.closeIcon}>
-          <Ionicons name="close" size={24} color="#000" />
+          <Ionicons name="close" size={24} color={theme.textSecondary} />
         </Pressable>
       </View>
 

@@ -3,10 +3,12 @@ import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { useRestaurant } from 'app/hooks/useRestaurant';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 const SubscriptionPlansScreen: React.FC = () => {
   const { isLargeScreen } = useIsDesktop();
   const { subscriptionPlans, getSubscriptionPlansMutation, storedAuthData } = useRestaurant();
+  const theme = useTheme();
 
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
@@ -22,25 +24,34 @@ const SubscriptionPlansScreen: React.FC = () => {
 
   if (getSubscriptionPlansMutation.isPending) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
+      <View
+        className="flex-1 items-center justify-center"
+        style={{ backgroundColor: theme.primaryBg }}
+      >
         <FoodLoadingSpinner iconName="coffee" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1" style={{ backgroundColor: theme.primaryBg }}>
       {/* Header */}
       <View className="px-6 pt-10 pb-4">
-        <Text className="text-3xl font-extrabold text-gray-900 text-center mb-2">
+        <Text
+          className="text-3xl font-extrabold text-center mb-2"
+          style={{ color: theme.textSecondary }}
+        >
           Choose Your Subscription Plan
         </Text>
-        <Text className="text-gray-500 text-center mb-6 text-base">
-          Flexible pricing plans designed for your restaurant's needs.
+        <Text className="text-center mb-6 text-base" style={{ color: theme.textTertiary }}>
+          Flexible pricing plans designed for your restaurant&apos;s needs.
         </Text>
 
         {/* Billing Toggle */}
-        <View className="self-center bg-gray-100 rounded-full p-1 flex-row shadow-sm">
+        <View
+          className="self-center rounded-full p-1 flex-row shadow-sm"
+          style={{ backgroundColor: theme.secondaryBg }}
+        >
           {(['monthly', 'yearly'] as const).map((period, index) => {
             const isSelected = billingPeriod === period;
 
@@ -49,18 +60,16 @@ const SubscriptionPlansScreen: React.FC = () => {
                 key={period}
                 onPress={() => setBillingPeriod(period)}
                 activeOpacity={0.8}
-                className={` items-center justify-center px-5 py-2 rounded-full ${
-                  isSelected ? 'bg-white ' : 'bg-transparent'
-                }`}
+                className="items-center justify-center px-5 py-2 rounded-full"
                 style={{
                   marginLeft: index === 0 ? 0 : 4,
                   marginRight: index === 1 ? 0 : 4,
+                  backgroundColor: isSelected ? theme.secondary : 'transparent',
                 }}
               >
                 <Text
-                  className={`text-sm font-semibold ${
-                    isSelected ? 'text-gray-900' : 'text-gray-500'
-                  }`}
+                  className="text-sm font-semibold"
+                  style={{ color: isSelected ? theme.textPrimary : theme.textTertiary }}
                 >
                   {period === 'monthly' ? 'Monthly' : 'Yearly (save 2 months)'}
                 </Text>
@@ -87,46 +96,66 @@ const SubscriptionPlansScreen: React.FC = () => {
           return (
             <View
               key={plan?.planName}
-              className={`bg-white rounded-3xl p-6 border shadow-md mx-2 w-72 md:w-80 lg:w-96 relative ${
-                isCurrent ? '#2a4759' : 'border-gray-100'
-              }`}
+              className="rounded-3xl p-6 shadow-md mx-2 w-72 md:w-80 lg:w-96 relative"
+              style={{
+                backgroundColor: theme.secondaryBg,
+                borderWidth: 1,
+                borderColor: isCurrent ? theme.secondary : theme.borderColor,
+              }}
             >
               <View className="flex-row justify-center items-center mb-2 relative">
                 <Text
-                  className={`text-2xl font-bold text-center text-[#2a4759] ${isPopular ? 'mt-2' : ''}`}
+                  className={`text-2xl font-bold text-center ${isPopular ? 'mt-2' : ''}`}
+                  style={{ color: theme.secondary }}
                 >
                   {plan?.planName}
                 </Text>
 
                 {isPopular && (
-                  <View className="absolute -top-4 right-0 bg-orange-500 px-3 py-1 rounded-full">
+                  <View className="absolute -top-4 right-0 px-3 py-1 rounded-full bg-orange-500">
                     <Text className="text-xs font-bold text-white">Most Popular</Text>
                   </View>
                 )}
                 {isCurrent && (
-                  <View className="absolute -top-4 left-0 bg-deepTeal px-3 py-1 rounded-full">
-                    <Text className="text-xs font-bold text-white">Current Plan</Text>
+                  <View
+                    className="absolute -top-4 left-0 px-3 py-1 rounded-full"
+                    style={{ backgroundColor: theme.secondary }}
+                  >
+                    <Text className="text-xs font-bold" style={{ color: theme.textPrimary }}>
+                      Current Plan
+                    </Text>
                   </View>
                 )}
               </View>
 
               {/* Pricing */}
-              <Text className="text-4xl font-extrabold text-center text-gray-900 mt-4">
+              <Text
+                className="text-4xl font-extrabold text-center mt-4"
+                style={{ color: theme.textSecondary }}
+              >
                 {price || 'Free'}
-                <Text className="text-base font-medium text-gray-500">
+                <Text className="text-base font-medium" style={{ color: theme.textTertiary }}>
                   /{billingPeriod === 'monthly' ? 'mo' : 'yr'}
                 </Text>
               </Text>
 
               {/* Divider */}
-              <View className="h-px bg-gray-200 my-5" />
+              <View className="h-px my-5" style={{ backgroundColor: theme.borderColor }} />
 
               {/* Features */}
               <View className="space-y-3">
                 {features.map((feature, index) => (
                   <View key={feature?.featureName || index} className="flex-row items-start gap-2">
-                    <Text className="text-lg">{feature?.enabled ? '✓' : '✗'}</Text>
-                    <Text className="flex-1 text-gray-700 text-sm leading-5">
+                    <Text
+                      className="text-lg"
+                      style={{ color: feature?.enabled ? theme.secondary : theme.textTertiary }}
+                    >
+                      {feature?.enabled ? '✓' : '✗'}
+                    </Text>
+                    <Text
+                      className="flex-1 text-sm leading-5"
+                      style={{ color: theme.textSecondary }}
+                    >
                       {feature?.featureName || 'Unknown feature'}
                     </Text>
                   </View>
@@ -135,13 +164,18 @@ const SubscriptionPlansScreen: React.FC = () => {
 
               {/* CTA Button */}
               <TouchableOpacity
-                className="mt-8 bg-[#2a4759] py-3 rounded-xl active:bg-[#1f3642]"
+                className="mt-8 py-3 rounded-xl"
                 onPress={() => {
                   // TODO: handle plan selection
                 }}
+                style={{
+                  backgroundColor: isCurrent ? theme.secondaryBtnBg : theme.buttonBg,
+                }}
+                activeOpacity={0.85}
               >
                 <Text
-                  className={`text-center font-semibold ${isCurrent ? 'text-gray-300' : 'text-white'}`}
+                  className="text-center font-semibold"
+                  style={{ color: isCurrent ? theme.textTertiary : theme.textPrimary }}
                 >
                   {isCurrent ? 'Your Current Plan' : `Select ${plan?.planName}`}
                 </Text>

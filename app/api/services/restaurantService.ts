@@ -1,5 +1,6 @@
 import apiMethods from 'app/api/handlers/apiMethod';
 import { ApiResponse } from 'app/api/handlers/index';
+import { ThemeVariant } from 'app/theme/theme';
 import { Platform } from 'react-native';
 
 export type CrossFile = File | { uri: string; name: string; type: string };
@@ -7,6 +8,7 @@ export type CrossFile = File | { uri: string; name: string; type: string };
 export interface RestaurantData {
   id: number;
   restaurantName: string;
+  themeVariant: ThemeVariant;
   description: string;
   imageUrl: string;
   emails: RestaurantEmail[];
@@ -98,7 +100,6 @@ export const deleteContactApi = (
     `/api/restaurants/${restaurantId}/contacts/${type}/${contactId}`,
   );
 
-
 /**
  * PUT /api/restaurants/{id}
  * Sends the JSON dto in part “data” and (optionally) the image in part “file”.
@@ -124,11 +125,9 @@ export const updateRestaurantApi = async (
         // Convert blob: URL → real File
         const res = await fetch(maybeUri);
         const blob = await res.blob();
-        const webFile = new File(
-          [blob],
-          (file as any).name || 'upload.jpg',
-          { type: (file as any).type || blob.type || 'application/octet-stream' },
-        );
+        const webFile = new File([blob], (file as any).name || 'upload.jpg', {
+          type: (file as any).type || blob.type || 'application/octet-stream',
+        });
         fd.append('file', webFile);
       } else if (file instanceof File) {
         fd.append('file', file);
@@ -136,17 +135,15 @@ export const updateRestaurantApi = async (
         // Fallback: a plain {uri,name,type} object on web
         const res = await fetch((file as any).uri);
         const blob = await res.blob();
-        const webFile = new File(
-          [blob],
-          (file as any).name || 'upload.jpg',
-          { type: (file as any).type || blob.type || 'application/octet-stream' },
-        );
+        const webFile = new File([blob], (file as any).name || 'upload.jpg', {
+          type: (file as any).type || blob.type || 'application/octet-stream',
+        });
         fd.append('file', webFile);
       }
     } else {
       // React-Native (iOS/Android)
       fd.append('file', {
-        uri: (file as any).uri,                                 // content:// or file://
+        uri: (file as any).uri, // content:// or file://
         name: (file as any).name || 'upload.jpg',
         type: (file as any).type || 'application/octet-stream',
       } as any);

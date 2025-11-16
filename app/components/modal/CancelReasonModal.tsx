@@ -4,6 +4,7 @@ import ModalActionsButton from '../common/modal/ModalActionsButton';
 import { Ionicons } from '@expo/vector-icons';
 import ConditionalWrapper from '../common/ConditionalWrapper';
 import ScrollableBaseModal from '../common/modal/ScrollableBaseModal';
+import { useTheme } from 'app/hooks/useTheme';
 
 export const CancelReason = {
   CUSTOMER_CHANGED_MIND: 'Customer Changed Mind',
@@ -28,6 +29,8 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
   onRequestClose,
   onConfirm,
 }) => {
+  const theme = useTheme();
+
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [customReason, setCustomReason] = useState('');
 
@@ -45,9 +48,13 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
 
   const headerContent = (
     <View className="flex-row items-center justify-between">
-      <Text className="text-white text-lg font-semibold">Cancel Order</Text>
+      <Text className="text-lg font-semibold" style={{ color: theme.textPrimary }}>
+        Cancel Order
+      </Text>
       <Pressable onPress={onRequestClose} className="p-1">
-        <Text className="text-white text-xl">✕</Text>
+        <Text className="text-xl" style={{ color: theme.textPrimary }}>
+          ✕
+        </Text>
       </Pressable>
     </View>
   );
@@ -65,17 +72,39 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
     return (
       <Pressable
         onPress={() => setSelectedReason(value)}
-        className={`flex-row items-center justify-between px-5 py-4 rounded-2xl border transition-all duration-150 gap-2 ${
+        className={`flex-row items-center justify-between px-5 py-4 rounded-2xl border transition-all duration-150 gap-2 `}
+        style={[
           selected
-            ? 'border-blue-600 shadow-lg shadow-blue-100 bg-blue-50/80'
-            : 'border-gray-200 bg-white shadow-sm hover:shadow-md'
-        }`}
+            ? {
+                borderColor: theme.secondary,
+                backgroundColor: theme.quaternary,
+                shadowColor: theme.secondary,
+                shadowOpacity: 0.25,
+              }
+            : {
+                borderColor: '#E5E7EB',
+                backgroundColor: theme.secondaryBg,
+                shadowColor: '#000',
+                shadowOpacity: 0.08,
+              },
+        ]}
       >
         <View className="flex-row items-center space-x-6">
-          {icon && <Ionicons name={icon} size={22} color={selected ? '#2563eb' : '#6b7280'} />}
-          <Text className="text-base text-gray-800 font-medium ml-2">{label}</Text>
+          {icon && (
+            <Ionicons
+              name={icon}
+              size={22}
+              color={selected ? theme.secondary : theme.textTertiary}
+            />
+          )}{' '}
+          <Text
+            className="text-base  font-medium ml-2"
+            style={[{ color: selected ? theme.textSecondary : theme.textSecondary }]}
+          >
+            {label}
+          </Text>
         </View>
-        {selected && <Ionicons name="checkmark-circle" size={24} color="#2563eb" />}
+        {selected && <Ionicons name="checkmark-circle" size={24} color={theme.secondary} />}{' '}
       </Pressable>
     );
   };
@@ -92,8 +121,9 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
             className="flex-1"
           >
             <View className="px-6 py-4 space-y-5">
-              <Text className="text-lg font-semibold text-gray-900">Choose a reason</Text>
-
+              <Text className="text-lg font-semibold" style={{ color: theme.textSecondary }}>
+                Choose a reason
+              </Text>
               {Object.entries(CancelReason).map(([key, value]) => (
                 <View key={key} className="p-2">
                   <ReasonOption
@@ -113,8 +143,14 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
               </View>
 
               {isCustom && (
-                <View className="mt-3 rounded-2xl border-2 border-dashed border-blue-300 bg-blue-50/30 p-4">
-                  <Text className="mb-2 text-sm font-medium text-blue-800">
+                <View
+                  className="mt-3 rounded-2xl border-2 border-dashed p-4"
+                  style={{
+                    borderColor: theme.secondary,
+                    backgroundColor: theme.primaryBg,
+                  }}
+                >
+                  <Text className="mb-2 text-sm font-medium" style={{ color: theme.secondary }}>
                     Type your custom reason
                   </Text>
                   <TextInput
@@ -123,7 +159,11 @@ const CancelReasonModal: React.FC<CancelReasonModalProps> = ({
                     placeholder="Type here..."
                     multiline
                     autoFocus
-                    className="bg-white/80 px-4 py-3 rounded-xl text-base text-gray-900 min-h-[100px]"
+                    className="px-4 py-3 rounded-xl text-base min-h-[100px]"
+                    style={{
+                      backgroundColor: theme.secondaryBg,
+                      color: theme.textSecondary,
+                    }}
                   />
                 </View>
               )}

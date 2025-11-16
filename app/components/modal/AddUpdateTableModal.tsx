@@ -6,6 +6,7 @@ import ModalActionsButton from '../common/modal/ModalActionsButton';
 import ConditionalWrapper from '../common/ConditionalWrapper';
 import InputField from '../common/InputField';
 import { RestaurantTableInfo } from 'app/api/services/tableService';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface AddUpdateTableModalProps {
   table: RestaurantTableInfo | null;
@@ -20,6 +21,8 @@ const AddUpdateTableModal: React.FC<AddUpdateTableModalProps> = ({
   onClose,
   onAddUpdateTable,
 }) => {
+  const theme = useTheme();
+
   const [tableName, setTableName] = useState(table?.tableName || '');
   const [capacity, setCapacity] = useState(table?.capacity.toString() || '');
   const [error, setError] = useState('');
@@ -83,11 +86,13 @@ const AddUpdateTableModal: React.FC<AddUpdateTableModalProps> = ({
   const header = useMemo(
     () => (
       <View className="flex-row items-center justify-between">
-        <Text className="text-white text-lg font-semibold">
+        <Text className="text-white text-lg font-semibold" style={{ color: theme.headerText }}>
           {table ? 'Update Table' : 'Add New Table'}
         </Text>
         <Pressable onPress={onRequestClose} className="p-1">
-          <Text className="text-white text-xl">✕</Text>
+          <Text className="text-white text-xl" style={{ color: theme.headerText }}>
+            ✕
+          </Text>
         </Pressable>
       </View>
     ),

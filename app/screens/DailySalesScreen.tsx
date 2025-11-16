@@ -18,6 +18,7 @@ import ExpenseSummary from 'app/components/home/ExpensesSummary';
 import TopSellingProductsCard from 'app/components/home/TopSellingProductsCard';
 import { Permission } from 'app/security/permission';
 import { usePermissionMap } from 'app/security/usePermissionMap';
+import { useTheme } from 'app/hooks/useTheme';
 
 const tabs = ['Past', 'Todays'];
 type TabType = (typeof tabs)[number];
@@ -39,6 +40,8 @@ const initialSelectedDateRange: DateRangeSelection = {
 
 const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
   const { selectedTab = 'Todays' } = route.params || {};
+  const theme = useTheme();
+
   const {
     dailySalesDetails,
     dailySalesState,
@@ -164,7 +167,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
   );
 
   return (
-    <View className="h-full w-full bg-gray-100">
+    <View className="h-full w-full" style={{ backgroundColor: theme.primaryBg }}>
       {/* SubTab */}
       {canViewSubTab && <SubTab tabs={tabs} activeTab={activeTab} onTabChange={handleTabChange} />}
 

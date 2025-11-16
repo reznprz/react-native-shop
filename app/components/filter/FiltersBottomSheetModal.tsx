@@ -8,6 +8,7 @@ import FiltersSection from './FiltersSection';
 import { Filter, FilterStatus, ALL_FILTER } from './filter';
 import CustomIcon from '../common/CustomIcon';
 import CustomButton from '../common/button/CustomButton';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface FiltersBottomSheetModalProps {
   visible: boolean;
@@ -35,6 +36,8 @@ export const FiltersBottomSheetModal: React.FC<FiltersBottomSheetModalProps> = (
   onApplyFilters,
   onClearFilter,
 }) => {
+  const theme = useTheme();
+
   //  Local Filter States
   const [orderStatusesFilter, setOrderStatusesFilter] = useState(
     () =>
@@ -162,11 +165,14 @@ export const FiltersBottomSheetModal: React.FC<FiltersBottomSheetModalProps> = (
       <ScrollView contentContainerStyle={styles.modalContent}>
         <View style={styles.header}>
           <View style={styles.headerTitleContainer}>
-            <CustomIcon name="filter" size={18} color="#2A4759" type="Fontisto" />
-            <Text style={styles.headerTitle}>Filters</Text>
+            <CustomIcon name="filter" size={18} color={theme.secondary} type="Fontisto" />
+            <Text style={[styles.headerTitle, { color: theme.secondary }]}>Filters</Text>
           </View>
-          <Pressable onPress={onClose} style={styles.closeIcon}>
-            <Ionicons name="close" size={24} color="#2A4759" />
+          <Pressable
+            onPress={onClose}
+            style={[styles.closeIcon, { backgroundColor: theme.primaryBg }]}
+          >
+            <Ionicons name="close" size={24} color={theme.secondary} />
           </Pressable>
         </View>
 
@@ -226,11 +232,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#2A4759',
   },
   closeIcon: {
     padding: 6,
-    backgroundColor: '#F3F4F6',
     borderRadius: 50,
   },
 });

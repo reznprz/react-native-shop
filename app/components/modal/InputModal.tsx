@@ -11,6 +11,7 @@ import {
   Keyboard,
 } from 'react-native';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface InputModalProps {
   visible: boolean;
@@ -31,6 +32,8 @@ const InputModal: React.FC<InputModalProps> = ({
   onSave,
   onRequestClose,
 }) => {
+  const theme = useTheme();
+
   const handleAdd = () => {
     if (value.trim()) {
       onSave();
@@ -41,37 +44,52 @@ const InputModal: React.FC<InputModalProps> = ({
     <ModalActionsButton
       cancelProps={{
         title: 'Cancel',
-        onPress: () => onRequestClose(),
+        onPress: onRequestClose,
       }}
       actionProps={{
         title: 'Add',
-        onPress: () => handleAdd(),
+        onPress: handleAdd,
       }}
     />
   );
 
   return (
     <Modal animationType="fade" transparent visible={visible} onRequestClose={onRequestClose}>
+      {/* backdrop */}
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="flex-1 bg-black/50 justify-center items-center px-6">
+        <View
+          className="flex-1 justify-center items-center px-6"
+          style={{
+            backgroundColor: theme.backdrop,
+            ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
+          }}
+        >
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            className="w-full max-w-[360px] bg-white rounded-2xl overflow-hidden"
+            className="w-full max-w-[360px] rounded-2xl overflow-hidden"
+            style={{ backgroundColor: theme.secondaryBg }}
           >
             {/* Header */}
             <View
-              style={{ backgroundColor: '#2a4759', padding: 12 }}
               className="flex-row justify-between items-center"
+              style={{ backgroundColor: theme.secondary, padding: 12 }}
             >
-              <Text className="text-white text-lg font-semibold">{title}</Text>
+              <Text style={{ color: theme.textPrimary }} className="text-lg font-semibold">
+                {title}
+              </Text>
               <Pressable onPress={onRequestClose} className="p-1">
-                <Text className="text-white text-xl">✕</Text>
+                <Text style={{ color: theme.textPrimary }} className="text-xl">
+                  ✕
+                </Text>
               </Pressable>
             </View>
 
             {/* Body */}
             <View className="px-5 pt-4 pb-4 mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-1">{placeholder}</Text>
+              <Text className="text-sm font-medium mb-1" style={{ color: theme.textSecondary }}>
+                {placeholder}
+              </Text>
+
               <TextInput
                 value={value}
                 onChangeText={onChangeText}
@@ -80,8 +98,13 @@ const InputModal: React.FC<InputModalProps> = ({
                   placeholder.toLowerCase().includes('phone') ? 'phone-pad' : 'email-address'
                 }
                 autoCapitalize="none"
-                className="w-full border border-gray-300 rounded-xl px-4 py-2 text-base text-gray-900 bg-white"
-                placeholderTextColor="#9CA3AF"
+                style={{
+                  borderColor: theme.borderColor,
+                  backgroundColor: theme.secondaryBg,
+                  color: theme.textSecondary,
+                }}
+                className="w-full border rounded-xl px-4 py-2 text-base"
+                placeholderTextColor={theme.mutedIcon}
               />
             </View>
 

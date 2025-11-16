@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  KeyboardAvoidingView,
-  Platform,
-  TextInput,
-  Keyboard,
-} from 'react-native';
+import { View, Text, Pressable, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
 import ScrollableBaseModal from '../common/modal/ScrollableBaseModal';
 import ErrorMessagePopUp from '../common/ErrorMessagePopUp';
 import { Expense } from 'app/api/services/expenseService';
@@ -15,6 +7,7 @@ import AutocompleteInput from '../common/AutocompleteInput';
 import DateModal from '../common/modal/DateModal';
 import ConditionalWrapper from '../common/ConditionalWrapper';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface AddExpenseModalProps {
   visible: boolean;
@@ -29,6 +22,8 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
   onRequestClose,
   onAddExpense,
 }) => {
+  const theme = useTheme();
+
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [quantity, setQuantity] = useState('');
@@ -74,12 +69,16 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
     setDate(new Date().toISOString().split('T')[0]);
   };
 
-  // Header content using Tailwind classes
+  // Header content
   const headerContent = (
     <View className="flex-row items-center justify-between">
-      <Text className="text-white text-lg font-semibold">Add New Expense</Text>
+      <Text className="text-lg font-semibold" style={{ color: theme.headerText }}>
+        Add New Expense
+      </Text>
       <Pressable onPress={onRequestClose} className="p-1">
-        <Text className="text-white text-xl">✕</Text>
+        <Text className="text-xl" style={{ color: theme.headerText }}>
+          ✕
+        </Text>
       </Pressable>
     </View>
   );
@@ -94,7 +93,9 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
         >
           {/* Description Field */}
           <View className="mb-3">
-            <Text className="mb-1 text-lg text-gray-800">Description</Text>
+            <Text className="mb-1 text-lg font-semibold" style={{ color: theme.textSecondary }}>
+              Description
+            </Text>
             <AutocompleteInput
               value={description}
               onChange={setDescription}
@@ -105,10 +106,19 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 
           {/* Amount Field */}
           <View className="mb-3">
-            <Text className="mb-1 text-lg text-gray-800">Amount</Text>
+            <Text className="mb-1 text-lg font-semibold" style={{ color: theme.textSecondary }}>
+              Amount
+            </Text>
             <TextInput
-              className="bg-gray-100 rounded-md py-3 px-3 border border-gray-300"
+              className="rounded-md py-3 px-3"
+              style={{
+                backgroundColor: theme.primaryBg,
+                borderColor: theme.icon,
+                borderWidth: 1,
+                color: theme.textSecondary,
+              }}
               placeholder="0.00"
+              placeholderTextColor={theme.textTertiary}
               keyboardType="decimal-pad"
               value={amount}
               onChangeText={setAmount}
@@ -117,10 +127,19 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 
           {/* Quantity Field */}
           <View className="mb-3">
-            <Text className="mb-1 text-lg text-gray-800">Quantity</Text>
+            <Text className="mb-1 text-lg font-semibold" style={{ color: theme.textSecondary }}>
+              Quantity
+            </Text>
             <TextInput
-              className="bg-gray-100 rounded-md py-3 px-3 border border-gray-300"
+              className="rounded-md py-3 px-3"
+              style={{
+                backgroundColor: theme.primaryBg,
+                borderColor: theme.icon,
+                borderWidth: 1,
+                color: theme.textSecondary,
+              }}
               placeholder="1"
+              placeholderTextColor={theme.textTertiary}
               keyboardType="numeric"
               value={quantity}
               onChangeText={setQuantity}
@@ -129,12 +148,19 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
 
           {/* Date Field using DateModal */}
           <View className="mb-3">
-            <Text className="mb-1 text-lg text-gray-800">Date</Text>
+            <Text className="mb-1 text-lg font-semibold" style={{ color: theme.textSecondary }}>
+              Date
+            </Text>
             <Pressable
               onPress={showPicker}
-              className="bg-gray-100 rounded-md py-3 px-3 border border-gray-300"
+              className="rounded-md py-3 px-3"
+              style={{
+                backgroundColor: theme.primaryBg,
+                borderColor: theme.icon,
+                borderWidth: 1,
+              }}
             >
-              <Text className="text-gray-700">{date}</Text>
+              <Text style={{ color: theme.textSecondary }}>{date}</Text>
             </Pressable>
           </View>
 
@@ -155,7 +181,7 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
     </ConditionalWrapper>
   );
 
-  // Footer content using Tailwind classes
+  // Footer content
   const footerContent = (
     <ModalActionsButton
       cancelProps={{

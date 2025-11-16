@@ -15,8 +15,11 @@ import { IconType } from 'app/navigation/screenConfigs';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import { useFocusEffect } from '@react-navigation/native';
 import ListHeader from 'app/components/common/ListHeader';
+import { useTheme } from 'app/hooks/useTheme';
 
 const ExpenseScreen = () => {
+  const theme = useTheme();
+
   const {
     expenseDetails,
     expenseDescription,
@@ -87,7 +90,7 @@ const ExpenseScreen = () => {
   );
 
   return (
-    <View className="flex-1 bg-gray-100 p-4">
+    <View className="flex-1 p-4" style={{ backgroundColor: theme.primaryBg }}>
       {/* Date Header */}
       <DateHeader
         selectedDate={selectedDate}

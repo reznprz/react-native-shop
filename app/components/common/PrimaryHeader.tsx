@@ -3,6 +3,7 @@ import { View, Text, Pressable, TextInput, TouchableOpacity } from 'react-native
 import Ionicons from '@expo/vector-icons/Ionicons';
 import PrimaryHeaderFilter from '../FoodMenu/CategoryFilter';
 import { RestaurantTable } from 'app/api/services/tableService';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface PrimaryHeaderProps {
   title: string;
@@ -29,6 +30,8 @@ export default function PrimaryHeader({
   handleFilterClick,
   selectedFilter,
 }: PrimaryHeaderProps) {
+  const theme = useTheme();
+
   return (
     <View className="border-b border-gray-200">
       {/* Top row: back arrow, title, search/filter icons */}
@@ -39,7 +42,9 @@ export default function PrimaryHeader({
               <Ionicons name="chevron-back" size={24} color="black" />
             </Pressable>
           )}
-          <Text className="text-lg font-bold">{title}</Text>
+          <Text className="text-lg font-bold" style={{ color: theme.textSecondary }}>
+            {title}
+          </Text>
         </View>
 
         {/* Hide search if onSearch callback is null or not pass in param */}

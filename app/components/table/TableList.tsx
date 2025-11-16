@@ -2,10 +2,11 @@ import React, { useCallback, useState } from 'react';
 import { View, ScrollView, RefreshControl } from 'react-native';
 import TableMetrics from 'app/components/table/TableMetrics';
 import { RestaurantTable } from 'app/api/services/tableService';
-import { SwipeTableCard } from './SwipeTableCard';
 import { TableCard } from './TableCard';
+import { RestaurantTheme } from 'app/theme/theme';
 
 interface TableListProps {
+  theme: RestaurantTheme;
   tables: RestaurantTable[];
   availableTables: number;
   occupiedTables: number;
@@ -20,6 +21,7 @@ interface TableListProps {
 }
 
 export default function TableList({
+  theme,
   tables,
   availableTables,
   occupiedTables,
@@ -41,7 +43,7 @@ export default function TableList({
   }, [fetchTable]);
 
   return (
-    <View className="flex-1 bg-gray-100 p-2">
+    <View className="flex-1 p-2" style={{ backgroundColor: theme.primaryBg }}>
       {/* Top Header Section */}
       <TableMetrics
         availableTables={availableTables}

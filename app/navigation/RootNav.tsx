@@ -4,6 +4,7 @@ import MainTabs from './MainTabs';
 import CustomHeader from '../components/headers/CustomHeader';
 import { ScreenDisplayNames, ScreenNames } from 'app/types/navigation';
 import { createLazyScreen } from 'app/utils/lazyScreen';
+import { useTheme } from 'app/hooks/useTheme';
 
 // const QrMenuItemsScreen = React.lazy(() => import('app/screens/QrMenuItemsScreen'));
 const LazyOrderDetailsScreen = createLazyScreen(() => import('app/screens/OrderDetailsScreen'));
@@ -31,6 +32,8 @@ const LazyWelcomeScreen = createLazyScreen(() => import('app/screens/WelcomeScre
 const Stack = createNativeStackNavigator();
 
 export default function RootNav() {
+  const theme = useTheme();
+
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -40,7 +43,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.WELCOMESCREEN,
           headerShown: false,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -67,7 +70,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.ORDER_DETAILS,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -85,7 +88,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.FOODMANAGER,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -103,7 +106,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.EXPENSE,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -121,7 +124,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.DAILYSALES,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -139,7 +142,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.INVENTORY,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -157,7 +160,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.SALESANALYTICS,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -175,7 +178,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.USER,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -193,7 +196,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.TABLEMANAGER,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -211,7 +214,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.PROFILE,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',
@@ -229,7 +232,7 @@ export default function RootNav() {
           title: ScreenDisplayNames.SUBSCRIPTIONPLANS,
           headerShown: true,
           headerStyle: {
-            backgroundColor: '#2a4759',
+            backgroundColor: theme.secondary,
           },
           headerBackTitle: 'Go Back',
           headerTintColor: '#ffffff',

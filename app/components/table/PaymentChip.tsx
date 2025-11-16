@@ -4,6 +4,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { getPaymentTypeIcon } from 'app/hooks/utils/getPaymentTypeIcon';
 import IconLabel from '../common/IconLabel';
 import { getIconDetail } from 'app/utils/getIconDetail';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface PaymentChipProps {
   paymentType: string;
@@ -22,10 +23,15 @@ const PaymentChip: React.FC<PaymentChipProps> = ({
   textSize = 'text-base ml-2',
   onSelect,
 }) => {
+  const theme = useTheme();
+
   const iconDetails = getIconDetail(paymentType, 'Payment');
 
   // assume `existingText` is whatever you’d shown before, or undefined/null if none
   const existingText: string | undefined = paymentText;
+
+  const btnBg = isSelected ? theme.secondary : theme.quaternary;
+  const textColor = isSelected ? theme.textPrimary : theme.textSecondary;
 
   // build the new text
   const newPaymentText =
@@ -39,17 +45,17 @@ const PaymentChip: React.FC<PaymentChipProps> = ({
     return (
       <Pressable
         onPress={() => onSelect(paymentType)}
-        className={`flex-1 rounded-lg border border-gray-300 flex items-center justify-between p-2 ${
-          isSelected ? 'bg-deepTeal' : 'bg-paleSkyBlue'
-        }`}
+        className={`flex-1 rounded-lg border border-gray-300 flex items-center justify-between p-2 `}
+        style={{ backgroundColor: btnBg }}
       >
         <FontAwesome5
           name={getPaymentTypeIcon(paymentType)}
           size={20}
-          color={isSelected ? '#fff' : '#000'}
+          color={isSelected ? theme.secondaryBg : theme.textSecondary}
         />
         <Text
-          className={`${textSize} pl-1 pr-1 ${isSelected ? 'text-white' : 'text-black'}`}
+          className={`${textSize} pl-1 pr-1 `}
+          style={{ color: textColor }}
         >{`${paymentType}`}</Text>
       </Pressable>
     );
@@ -66,6 +72,7 @@ const PaymentChip: React.FC<PaymentChipProps> = ({
       labelTextSize={textSize ? textSize : 'text-sm ml-2'}
       applyCircularIconBg={false}
       iconColor="gray"
+      bgColor={theme.quaternary}
     />
   );
 };

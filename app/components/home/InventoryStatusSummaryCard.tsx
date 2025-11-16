@@ -2,6 +2,7 @@ import { InventoryStatus } from 'app/api/services/restaurantOverviewService';
 import React from 'react';
 import { View, Text } from 'react-native';
 import EmptyState from '../common/EmptyState';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface Props {
   inventoryStatus: InventoryStatus[];
@@ -15,11 +16,15 @@ const getStatusColor = (percentage: number) => {
 };
 
 const InventoryStatusSummaryCard: React.FC<Props> = ({ inventoryStatus }) => {
+  const theme = useTheme();
+
   return (
     <View className="bg-white rounded-lg p-5 mt-4 ">
       <View className="flex-row justify-between items-center mb-5">
         <Text className="text-lg font-bold">Inventory Status</Text>
-        <Text className="text-blue-600 font-medium">View Details</Text>
+        <Text className="text-blue-600 font-medium" style={{ color: theme.secondary }}>
+          View Details
+        </Text>
       </View>
 
       {/* Responsive Two-column layout */}
@@ -46,12 +51,14 @@ const InventoryStatusSummaryCard: React.FC<Props> = ({ inventoryStatus }) => {
                   {/* Progress Bar */}
                   <View className="h-2 rounded-full bg-gray-200 overflow-hidden mb-3">
                     <View
-                      className="h-2 bg-gray-700 rounded-full"
-                      style={{ width: `${item.percentage}%` }}
+                      className="h-2  rounded-full"
+                      style={{ width: `${item.percentage}%`, backgroundColor: theme.secondary }}
                     />
                   </View>
 
-                  <Text className="text-gray-600">{item.status}</Text>
+                  <Text className="text-gray-600" style={{ color: theme.textSecondary }}>
+                    {item.status}
+                  </Text>
                 </View>
               </View>
             ))}

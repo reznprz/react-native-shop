@@ -5,6 +5,7 @@ import EmptyState from '../common/EmptyState';
 import LabeledProgressItem from '../common/LabeledProgressItem';
 import { useHasPermission } from 'app/security/useHasPermission';
 import { Permission } from 'app/security/permission';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface Props {
   paymentMethods: PaymentDistribution[];
@@ -12,6 +13,8 @@ interface Props {
 }
 
 const PaymentMethodDistribution: React.FC<Props> = ({ paymentMethods, fontSize = 14 }) => {
+  const theme = useTheme();
+
   const getFillColor = (method: string) => {
     return method === 'Cash'
       ? '#10B981' // green-500
@@ -29,8 +32,11 @@ const PaymentMethodDistribution: React.FC<Props> = ({ paymentMethods, fontSize =
   const totalAmount = paymentMethods.reduce((sum, pm) => sum + pm.amount, 0);
 
   return (
-    <View className="bg-white rounded-lg p-5 mt-4">
-      <Text className="font-bold mb-5" style={{ fontSize: fontSize + 2 }}>
+    <View className="rounded-lg p-5 mt-4" style={{ backgroundColor: theme.secondaryBg }}>
+      <Text
+        className="font-bold mb-5"
+        style={{ fontSize: fontSize + 2, color: theme.textSecondary }}
+      >
         Payment Methods Distribution
       </Text>
 

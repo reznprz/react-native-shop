@@ -6,6 +6,7 @@ import { OrderDetails } from 'app/api/services/orderService';
 import { StatusChip } from '../common/StatusChip';
 import CollapsibleInfo from '../common/CollapsibleInfo';
 import CustomButton from '../common/button/CustomButton';
+import { useTheme } from 'app/hooks/useTheme';
 
 type OrderItemSummaryProps = {
   order: OrderDetails;
@@ -18,6 +19,8 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
   containerStyle = '',
   onMoreActionPress,
 }) => {
+  const theme = useTheme();
+
   const [showMoreAction, setShowMoreAction] = useState(false);
   const paymentStatus = order.paymentStatus ? order.paymentStatus : 'UNPAID';
   const hideCollabsibleInfo = order.orderStatus === 'CANCELED';
@@ -27,7 +30,7 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
   };
 
   return (
-    <View className={`bg-white p-4 rounded-lg  border border-gray-200 ${containerStyle}`}>
+    <View className={`p-4 rounded-lg  border border-gray-200 ${containerStyle}`}>
       <View className="flex-row justify-between items-center mb-2">
         <IconLabel iconName="utensils" label={'Order Items'} containerStyle="justify-between" />
       </View>
@@ -122,9 +125,9 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
           iconType={'FontAwesome'}
           iconName={'question-circle'}
           iconSize={14}
-          iconColor={'#2a4759'}
+          iconColor={theme.secondary}
           containerStyle={'items-start mb-1 mt-2 ml-2'}
-          textColor={'text-black font-bold text-sm underline'}
+          textColor={'font-bold text-sm underline'}
           collapsibleContent={
             'Click the "More Actions" button to add food, switch tables, print receipts and cancel Order!'
           }
@@ -135,7 +138,7 @@ const OrderItemSummary: React.FC<OrderItemSummaryProps> = ({
 
       {showMoreAction && onMoreActionPress && (
         <>
-          <View className="border-b border-gray-200 my-3" />
+          <View className="border-b  my-3" style={{ backgroundColor: theme.primaryBg }} />
 
           <CustomButton
             title={'More Actions'}

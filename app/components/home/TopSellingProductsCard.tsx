@@ -7,6 +7,7 @@ import EmptyState from '../common/EmptyState';
 import CustomButton from '../common/button/CustomButton';
 import { RequirePermission } from 'app/security/RequirePermission';
 import { Permission } from 'app/security/permission';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface Props {
   topSellingProducts: TopSellingProduct[];
@@ -14,6 +15,8 @@ interface Props {
 }
 
 const TopSellingProductsCard: React.FC<Props> = ({ topSellingProducts, onViewAllPress }) => {
+  const theme = useTheme();
+
   return (
     <View className="bg-white rounded-lg p-5  shadow-sm">
       {!topSellingProducts || topSellingProducts.length === 0 ? (
@@ -42,9 +45,9 @@ const TopSellingProductsCard: React.FC<Props> = ({ topSellingProducts, onViewAll
                   elevation: 0,
                 }}
                 textStyle={{
-                  color: '#3b82f6',
+                  color: theme.secondary,
                   fontSize: 16,
-                  fontWeight: '500',
+                  fontWeight: '800',
                 }}
               />
             )}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View, StyleSheet, Platform } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface TopBarProps {
   activeTopBar: string;
@@ -28,6 +29,8 @@ const TopBar: React.FC<TopBarProps> = ({
   onTopBarClick,
   onAddFoodClick,
 }) => {
+  const theme = useTheme();
+
   // Define common buttons
   const buttons = [
     { label: 'Table', action: onTableClick },
@@ -64,7 +67,7 @@ const TopBar: React.FC<TopBarProps> = ({
               key={btn.label}
               style={[
                 styles.button,
-                isSelected && styles.buttonSelected,
+                isSelected && { backgroundColor: theme.buttonBg },
                 Platform.OS === 'web' && styles.webButton,
               ]}
               onPress={() => handlePress(btn.label, btn.action)}

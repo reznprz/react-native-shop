@@ -20,7 +20,7 @@ export enum ScreenNames {
   TABLEMANAGER = 'TableManagerScreen',
   PROFILE = 'ProfileScreen',
   SUBSCRIPTIONPLANS = 'SubscriptionPlansScreen',
-  WELCOMESCREEN = 'WelcomeScreen'
+  WELCOMESCREEN = 'WelcomeScreen',
 }
 
 export enum ScreenDisplayNames {
@@ -39,7 +39,7 @@ export enum ScreenDisplayNames {
   TABLEMANAGER = 'Table Manager',
   PROFILE = 'Profile',
   SUBSCRIPTIONPLANS = 'Subscription Plans',
-  WELCOMESCREEN = 'WelcomeScreen'
+  WELCOMESCREEN = 'WelcomeScreen',
 }
 
 // Create a constant object for screen details

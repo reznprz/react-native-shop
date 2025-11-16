@@ -3,6 +3,8 @@ import { logoutAll } from './actions';
 import authReducer from './authSlice';
 import tableReducer from './tableSlice';
 import foodMenuReducer from './foodMenuSlice';
+import themeReducer from './themeSlice';
+
 import prepTableItemReducer from './prepTableItemsSlice';
 
 /**
@@ -13,6 +15,7 @@ const appReducer = combineReducers({
   table: tableReducer,
   prepTableItems: prepTableItemReducer,
   foodMenu: foodMenuReducer,
+  theme: themeReducer,
 });
 
 /**

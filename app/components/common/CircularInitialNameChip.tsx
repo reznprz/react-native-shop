@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface CircularInitialNameChipProps {
   initials: string;
@@ -14,8 +15,16 @@ const CircularInitialNameChip: React.FC<CircularInitialNameChipProps> = ({
   style,
   textStyle,
 }) => {
+  const theme = useTheme();
+
   return (
-    <View style={[styles.chip, { width: size, height: size, borderRadius: size / 2 }, style]}>
+    <View
+      style={[
+        styles.chip,
+        { width: size, height: size, borderRadius: size / 2, backgroundColor: theme.secondary },
+        style,
+      ]}
+    >
       <Text style={[styles.text, textStyle]}>{initials}</Text>
     </View>
   );
@@ -23,7 +32,6 @@ const CircularInitialNameChip: React.FC<CircularInitialNameChipProps> = ({
 
 const styles = StyleSheet.create({
   chip: {
-    backgroundColor: '#2A4759',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,

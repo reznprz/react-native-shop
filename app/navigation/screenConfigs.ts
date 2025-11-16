@@ -7,7 +7,6 @@ const LazyTableScreen = createLazyScreen(() => import('app/screens/TableScreen')
 const LazyOrdersScreen = createLazyScreen(() => import('app/screens/OrdersScreen'));
 const LazyAccountScreen = createLazyScreen(() => import('app/screens/AccountScreen'));
 
-
 export type IconType = keyof typeof ICON_TYPES;
 
 interface TabScreenConfig {

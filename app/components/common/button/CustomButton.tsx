@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { IconType } from 'app/navigation/screenConfigs';
 import CustomIcon from '../CustomIcon';
+import { useTheme } from 'app/hooks/useTheme';
 
 type SizeOption = 's' | 'm' | 'l' | '2l' | 'xl' | '2xl' | 'full';
 
@@ -45,13 +46,13 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   width = 'm',
   height = 's',
   textSize = 'text-lg',
-  bgColor = 'bg-[#2a4759]',
-  textColor = 'text-white',
+  bgColor, // legacy tailwind classes
+  textColor,
   fontWeight = 'font-semibold',
   customButtonStyle,
   customTextStyle,
   iconName,
-  iconColor = 'white',
+  iconColor,
   iconSize = 18,
   iconType = 'Ionicons',
   buttonStyle,
@@ -60,6 +61,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   buttonType = 'TouchableOpacity',
   ...props
 }) => {
+  const theme = useTheme();
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
@@ -75,7 +77,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     }).start();
   };
 
-  // map width + height classes
+  // width + height maps
   const widthMap: Record<SizeOption, string> = {
     s: 'w-20',
     m: 'w-32',
@@ -85,6 +87,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     '2xl': 'w-64',
     full: 'w-full',
   };
+
   const heightMap: Record<SizeOption, string> = {
     s: 'h-8',
     m: 'h-10',
@@ -95,24 +98,27 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     full: 'h-full',
   };
 
+  /** FINAL COLORS based on theme */
+  const finalBg = disabled
+    ? theme.secondaryBtnBg // disabled bg
+    : backgroundColor || theme.buttonBg; // theme button color
+
+  const finalTextColor = disabled ? theme.textTertiary : textColor || theme.textPrimary; // default white on dark buttons
+
+  const finalIconColor = disabled ? theme.textTertiary : iconColor || theme.textPrimary;
+
   return (
     <>
       {buttonType === 'TouchableOpacity' ? (
         <Animated.View
-          style={[{ transform: [{ scale: scaleAnim }] }, disabled && { opacity: 0.5 }]}
+          style={[{ transform: [{ scale: scaleAnim }] }, disabled && { opacity: 0.6 }]}
         >
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={disabled ? undefined : onPress}
             onPressIn={disabled ? undefined : handlePressIn}
             onPressOut={disabled ? undefined : handlePressOut}
-            style={[
-              styles.button,
-              {
-                backgroundColor: disabled ? '#D1D5DB' : backgroundColor || '#2a4759',
-              },
-              buttonStyle,
-            ]}
+            style={[styles.button, { backgroundColor: finalBg }, buttonStyle]}
             {...props}
           >
             <View style={styles.rowCenter}>
@@ -121,11 +127,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
                   type={iconType}
                   name={iconName}
                   size={iconSize}
-                  color={iconColor}
+                  color={finalIconColor}
                   iconStyle="mr-2"
                 />
               )}
-              <Text style={[styles.text, textStyle]}>{title}</Text>
+              <Text style={[styles.text, { color: finalTextColor }, textStyle]}>{title}</Text>
             </View>
           </TouchableOpacity>
         </Animated.View>
@@ -135,29 +141,23 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           disabled={disabled}
           className={
             customButtonStyle
-              ? `${customButtonStyle} ${bgColor} ${
-                  disabled ? 'bg-gray-400' : bgColor
-                } flex flex-row items-center justify-center rounded px-2 py-1`
-              : `${widthMap[width]} ${heightMap[height]} ${bgColor} ${
-                  disabled ? 'bg-gray-400' : bgColor
-                } flex flex-row items-center justify-center rounded px-2 py-1`
+              ? `${customButtonStyle}`
+              : `${widthMap[width]} ${heightMap[height]} flex flex-row items-center justify-center rounded px-2 py-1`
           }
+          style={{ backgroundColor: finalBg }}
         >
           {iconName && (
             <CustomIcon
               type={iconType}
               name={iconName}
               size={iconSize}
-              color={iconColor}
+              color={finalIconColor}
               iconStyle="mr-2"
             />
           )}
           <Text
-            className={
-              customTextStyle
-                ? customTextStyle
-                : `${textSize} ${textColor} ${fontWeight} text-center`
-            }
+            className={customTextStyle ? customTextStyle : `${textSize} ${fontWeight} text-center`}
+            style={{ color: finalTextColor }}
           >
             {title}
           </Text>
@@ -169,25 +169,23 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: '#2a4759',
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
+
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
   },
   rowCenter: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   text: {
-    color: '#fff',
     fontSize: 16,
     fontWeight: '600',
   },

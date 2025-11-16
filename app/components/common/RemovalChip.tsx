@@ -1,8 +1,10 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
 import CustomIcon from './CustomIcon';
+import { RestaurantTheme } from 'app/theme/theme';
 
 interface RemovalChipProps {
+  theme: RestaurantTheme;
   label: string;
   onRemove: (label: string) => void;
 }
@@ -11,11 +13,14 @@ interface RemovalChipProps {
  * A chip that displays a label + close “X” icon.
  * When pressed, it calls `onRemove(label)`.
  */
-const RemovalChip: React.FC<RemovalChipProps> = ({ label, onRemove }) => {
+const RemovalChip: React.FC<RemovalChipProps> = ({ theme, label, onRemove }) => {
   return (
-    <Pressable onPress={() => onRemove(label)} style={styles.removalChip}>
-      <Text style={styles.removalChipText}>{label}</Text>
-      <CustomIcon name="close" size={16} color="#fff" type="MaterialIcons" />
+    <Pressable
+      onPress={() => onRemove(label)}
+      style={[styles.removalChip, { backgroundColor: theme.buttonBg }]}
+    >
+      <Text style={[styles.removalChipText, { color: theme.textPrimary }]}>{label}</Text>
+      <CustomIcon name="close" size={16} color={theme.secondaryBg} type="MaterialIcons" />
     </Pressable>
   );
 };
@@ -26,7 +31,6 @@ const styles = StyleSheet.create({
   removalChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#2A4759',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 10,
@@ -38,7 +42,6 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
   },
   removalChipText: {
-    color: '#fff',
     marginRight: 6,
   },
 });

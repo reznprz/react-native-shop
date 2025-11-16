@@ -2,6 +2,7 @@ import CustomIcon from 'app/components/common/CustomIcon';
 import { getFilterIcon } from 'app/hooks/utils/getFilterIcon';
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View, StyleSheet, Platform } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface RegisterCategoryBarProps {
   categories: string[];
@@ -14,6 +15,8 @@ const RegisterCategoryBar: React.FC<RegisterCategoryBarProps> = ({
   selectedCategory,
   onCategoryClick,
 }) => {
+  const theme = useTheme();
+
   return (
     <View style={styles.container}>
       <ScrollView
@@ -29,7 +32,7 @@ const RegisterCategoryBar: React.FC<RegisterCategoryBarProps> = ({
               key={cat}
               style={[
                 styles.button,
-                isSelected && styles.buttonSelected,
+                isSelected && { backgroundColor: theme.buttonBg },
                 Platform.OS === 'web' && styles.webButton,
               ]}
               onPress={() => {
@@ -41,7 +44,7 @@ const RegisterCategoryBar: React.FC<RegisterCategoryBarProps> = ({
                 type={iconType}
                 name={iconName}
                 size={12}
-                color={isSelected ? '#fff' : '#2a4759'}
+                color={isSelected ? theme.secondaryBg : theme.buttonBg}
               />
               <Text style={[styles.buttonText, isSelected && styles.buttonTextSelected]}>
                 {cat}
@@ -84,9 +87,6 @@ const styles = StyleSheet.create({
         cursor: 'pointer',
       },
     }),
-  },
-  buttonSelected: {
-    backgroundColor: '#2a4759',
   },
   buttonText: {
     marginTop: 4,

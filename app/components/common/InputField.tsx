@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TextInput, TextInputProps } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
 
 interface InputFieldProps {
   label: string;
@@ -20,22 +21,38 @@ const InputField: React.FC<InputFieldProps> = React.memo(
     keyboardType = 'default',
     secureTextEntry = false,
     maxLength,
-  }) => (
-    <View className="mb-4">
-      <Text className="mb-1 text-base text-gray-800">{label}</Text>
-      <TextInput
-        className="bg-gray-100 rounded-md px-3 py-2 border border-gray-300"
-        value={value}
-        onChangeText={onChange}
-        placeholder={placeholder}
-        keyboardType={keyboardType}
-        secureTextEntry={secureTextEntry}
-        maxLength={maxLength}
-        autoCapitalize="none"
-        placeholderTextColor="#999"
-      />
-    </View>
-  ),
+  }) => {
+    const theme = useTheme();
+
+    return (
+      <View className="mb-4">
+        <Text className="mb-1 text-base font-medium" style={{ color: theme.textSecondary }}>
+          {label}
+        </Text>
+
+        <TextInput
+          value={value}
+          onChangeText={onChange}
+          placeholder={placeholder}
+          keyboardType={keyboardType}
+          secureTextEntry={secureTextEntry}
+          maxLength={maxLength}
+          autoCapitalize="none"
+          placeholderTextColor={theme.textTertiary}
+          style={{
+            backgroundColor: theme.primaryBg,
+            borderColor: theme.icon,
+            color: theme.textSecondary,
+            paddingVertical: 10,
+            paddingHorizontal: 12,
+            borderRadius: 8,
+            borderWidth: 1,
+            fontSize: 16,
+          }}
+        />
+      </View>
+    );
+  },
 );
 
 export default InputField;

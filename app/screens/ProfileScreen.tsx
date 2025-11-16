@@ -22,8 +22,14 @@ import CustomButton from 'app/components/common/button/CustomButton';
 import ConfirmationModal from 'app/components/modal/ConfirmationModal';
 import PlanSummaryCard from 'app/components/profile/PlanSummaryCard';
 import CollapsibleInfo from 'app/components/common/CollapsibleInfo';
-import CustomIcon from 'app/components/common/CustomIcon';
 import BannerCard from 'app/components/common/BannerCard';
+
+import { useTheme } from 'app/hooks/useTheme';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from 'app/redux/rootReducer';
+import { setThemeVariant } from 'app/redux/themeSlice';
+import { ThemeVariant } from 'app/theme/theme';
+import ThemePickerModal from 'app/components/modal/ThemePickerModal';
 
 const defaultSubscriptionInfo: SubscriptionExpirationInfo = {
   planType: PlanType.NONE,
@@ -38,6 +44,7 @@ const defaultSubscriptionInfo: SubscriptionExpirationInfo = {
 const defaultRestaurant: RestaurantData = {
   id: 0,
   restaurantName: '',
+  themeVariant: 'BLUE',
   description: '',
   imageUrl: '',
   emails: [],
@@ -63,6 +70,16 @@ const ProfileScreen = () => {
     upsertContactMutation,
     deleteContactMutation,
   } = useRestaurant();
+
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const storedTheme = useSelector((state: RootState) => state.theme);
+
+  // Read variant from Redux and always fall back to 'blue'
+  const currentVariant: ThemeVariant = storedTheme?.variant ?? 'blue';
+
+  // Nicely formatted label for UI
+  const currentVariantLabel = currentVariant.charAt(0).toUpperCase() + currentVariant.slice(1);
 
   const {
     restaurantName = '',

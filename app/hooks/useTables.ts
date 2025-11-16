@@ -1,9 +1,9 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../redux/store';
 import { Food } from 'app/api/services/foodService';
 import { RestaurantTable, TableStatus } from 'app/api/services/tableService';
-import { setTableName } from 'app/redux/tableSlice';
+import { setTableName, setTables } from 'app/redux/tableSlice';
 import { navigate, navigationRef, push } from 'app/navigation/navigationService';
 import { Order, OrderItem, OrderMenuType, OrderType } from 'app/api/services/orderService';
 import { useAddUpdateOrderMutation } from './apiQuery/useAddUpdateOrderMutation';
@@ -171,15 +171,17 @@ export function useTables() {
   const prepTableItems = useSelector((state: RootState) => state.prepTableItems);
   const storedAuthData = useSelector((state: RootState) => state.auth.authData);
   const { restaurantId: storeRestaurantId = 0, userId: storedUserId = 0 } = storedAuthData || {};
+  const { tables: storedTables } = useSelector((state: RootState) => state.table);
 
   // Queries Api
   const {
-    data: tablesData,
     isLoading: isTablesLoading,
     error: tablesError,
     refetch: refetchTables,
   } = useRestaurantTablesQuery(storeRestaurantId);
-  const tables: RestaurantTable[] = tablesData?.data || [];
+
+  // Use Redux list as the source of truth
+  const tables: RestaurantTable[] = storedTables;
 
   const {
     mutate: completeOrderMutation,
@@ -404,15 +406,15 @@ export function useTables() {
 
   const handleAddNewCategoryClick = useCallback(() => {
     push(ScreenNames.FOODMANAGER, {
-          selectedTab: "Category",
-        });
-      }, [push]);
+      selectedTab: 'Category',
+    });
+  }, [push]);
 
   const handleAddNewFoodClick = useCallback(() => {
     push(ScreenNames.FOODMANAGER, {
-          selectedTab: "Food",
-        });
-      }, [push]);
+      selectedTab: 'Food',
+    });
+  }, [push]);
 
   return {
     // TABLES QUERY
@@ -456,6 +458,6 @@ export function useTables() {
     handleSelectTable,
     handleAddNewTableClick,
     handleAddNewCategoryClick,
-    handleAddNewFoodClick
+    handleAddNewFoodClick,
   };
 }

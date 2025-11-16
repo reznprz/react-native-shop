@@ -5,6 +5,7 @@ import { StatusChip } from '../common/StatusChip';
 import { ActionsMenu } from '../common/ActionsMenu';
 import IconLabel from '../common/IconLabel';
 import { on } from 'events';
+import { useTheme } from 'app/hooks/useTheme';
 
 type TableCardProps = {
   name: string;
@@ -25,6 +26,8 @@ export function TableCard({
   onGoToCart,
   onSwitchTable,
 }: TableCardProps) {
+  const theme = useTheme();
+
   const [showActions, setShowActions] = useState(false);
 
   // Hide ActionsMenu when clicking outside
@@ -44,7 +47,10 @@ export function TableCard({
       touchSoundDisabled={true}
       onPressIn={() => Keyboard.dismiss()} // Dismiss keyboard in case of active input
     >
-      <View className="bg-white p-4 gap-3 rounded-lg shadow-sm border border-gray-200 mb-2">
+      <View
+        className="p-4 gap-3 rounded-lg shadow-sm border border-gray-200 mb-2"
+        style={{ backgroundColor: theme.secondaryBg }}
+      >
         {/* Top header name and status */}
         <View className="flex-row justify-between items-center ">
           <IconLabel
@@ -54,6 +60,7 @@ export function TableCard({
             iconSize={24}
             containerStyle="justify-between"
             parentWidthHeight="w-12 h-12"
+            bgColor={theme.quaternary}
           />
           <StatusChip status={status} />
         </View>
@@ -66,6 +73,7 @@ export function TableCard({
             containerStyle=""
             textColor="text-base"
             labelTextSize="text-base pl-2 text-gray-500"
+            bgColor={theme.quaternary}
           />
         </View>
 
@@ -76,6 +84,7 @@ export function TableCard({
             label={`Items: ${items}`}
             containerStyle="justify-between"
             labelTextSize="text-base pl-2 text-gray-500"
+            bgColor={theme.quaternary}
           />
           {/* <Pressable onPress={() => setShowActions(!showActions)} className="mt-auto">
             <Ionicons name="chevron-forward-outline" size={25} color="#9CA3AF" />

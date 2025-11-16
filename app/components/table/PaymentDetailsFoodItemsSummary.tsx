@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import IconLabel from '../common/IconLabel';
+import { useTheme } from 'app/hooks/useTheme';
 
 export interface FoodItem {
   productName: string;
@@ -15,9 +16,11 @@ interface PaymentDetailsFoodItemsSummaryProps {
 const PaymentDetailsFoodItemsSummary: React.FC<PaymentDetailsFoodItemsSummaryProps> = ({
   items,
 }) => {
+  const theme = useTheme();
+
   return (
     <View className="mb-4 bg-gray-100 p-4 rounded-lg mt-2">
-      <IconLabel iconName="receipt" label="Order Summary" />
+      <IconLabel iconName="receipt" label="Order Summary" bgColor={theme.quaternary} />
       {items.map((item, index) => (
         <View key={index} className="flex-row justify-between mb-1">
           <View className="flex-row px-2 w-2/3">
