@@ -13,7 +13,6 @@ import { OrderDetails } from 'app/api/services/orderService';
 import { FiltersBottomSheetModal } from 'app/components/filter/FiltersBottomSheetModal';
 import { DateRangeSelection, DateRangeSelectionType } from 'app/components/date/utils';
 
-import FoodLoadingSpinner from 'app/components/FoodLoadingSpinner';
 import EmptyState from 'app/components/common/EmptyState';
 import OrderScreenHeader from 'app/components/common/OrderScreenHeader';
 import SubTab from 'app/components/common/SubTab';
@@ -289,6 +288,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
             <FoodPreparationAnimation
               isTabletOrDesktop={isLargeScreen}
               message="Loading Orders ..."
+              bottomLine={true}
             />
           </View>
         ) : (

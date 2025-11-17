@@ -12,6 +12,8 @@ import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
 import RegisterPaymentDetails from './RegisterPaymentDetails';
 import { SubTabType } from './RegisterFoodList';
 import { useTheme } from 'app/hooks/useTheme';
+import FoodPreparationAnimation from 'app/components/common/FoodPreparationAnimation';
+import { MutationStatus } from '@tanstack/query-core/build/legacy';
 
 interface RegisterProps {
   tableItems: TableItem;
@@ -23,6 +25,7 @@ interface RegisterProps {
   topDrinks: Food[];
   activatedSubTab: SubTabType;
   completeOrderState: ButtonState;
+  exstingOrderForTableState: MutationStatus;
   currentTable: string;
   searchTerm: string;
   handleSearch: (text: string) => void;
@@ -69,6 +72,7 @@ export default function Register({
   handleAddNewCategoryClick,
   handleAddNewFoodClick,
   completeOrderState,
+  exstingOrderForTableState,
 }: RegisterProps) {
   const theme = useTheme();
 
@@ -83,6 +87,37 @@ export default function Register({
   const closePaymentModal = useCallback(() => {
     setShowPaymentModal(false);
   }, []);
+
+  const renderFoodMenu = () => (
+    <RegisterFoodMenu
+      isMobile={isMobile}
+      updateCartItemForFood={updateCartItemForFood}
+      categories={categories}
+      foods={foods}
+      topBreakFast={topBreakFast}
+      topDrinks={topDrinks}
+      topLunch={topLunch}
+      selectedSubTab={activatedSubTab}
+      tableItems={tableItems}
+      tables={tables}
+      currentTable={currentTable}
+      activatedSubTab={activatedSubTab}
+      completeOrderState={completeOrderState}
+      handleSearch={handleSearch}
+      searchTerm={searchTerm}
+      onSwitchTableClick={onSwitchTableClick}
+      handleCategoryClick={handleCategoryClick}
+      onPricingSubTabClick={handleSubTabChange}
+      onAddFoodClick={onAddFoodClick}
+      onSelectTable={onSelectTable}
+      refetchTables={refetchTables}
+      refetchFoods={refetchFoods}
+      handleAddNewTableClick={handleAddNewTableClick}
+      handleAddNewCategoryClick={handleAddNewCategoryClick}
+      handleAddNewFoodClick={handleAddNewFoodClick}
+      exstingOrderForTableState={exstingOrderForTableState}
+    />
+  );
 
   // Render function for Desktop layout
   const renderDesktopLayout = () => (
@@ -99,33 +134,7 @@ export default function Register({
             },
           ]}
         >
-          <RegisterFoodMenu
-            isMobile={isMobile}
-            updateCartItemForFood={updateCartItemForFood}
-            categories={categories}
-            foods={foods}
-            topBreakFast={topBreakFast}
-            topDrinks={topDrinks}
-            topLunch={topLunch}
-            selectedSubTab={activatedSubTab}
-            tableItems={tableItems}
-            tables={tables}
-            currentTable={currentTable}
-            activatedSubTab={activatedSubTab}
-            completeOrderState={completeOrderState}
-            handleSearch={handleSearch}
-            searchTerm={searchTerm}
-            onSwitchTableClick={onSwitchTableClick}
-            handleCategoryClick={handleCategoryClick}
-            onPricingSubTabClick={handleSubTabChange}
-            onSelectTable={onSelectTable}
-            onAddFoodClick={onAddFoodClick}
-            refetchTables={refetchTables}
-            refetchFoods={refetchFoods}
-            handleAddNewTableClick={handleAddNewTableClick}
-            handleAddNewCategoryClick={handleAddNewCategoryClick}
-            handleAddNewFoodClick={handleAddNewFoodClick}
-          />
+          {renderFoodMenu()}
         </View>
 
         {/* Right Panel - Payment Details */}
@@ -157,33 +166,7 @@ export default function Register({
   // Render function for Mobile layout
   const renderMobileLayout = () => (
     <>
-      <RegisterFoodMenu
-        isMobile={isMobile}
-        updateCartItemForFood={updateCartItemForFood}
-        categories={categories}
-        foods={foods}
-        topBreakFast={topBreakFast}
-        topDrinks={topDrinks}
-        topLunch={topLunch}
-        selectedSubTab={activatedSubTab}
-        tableItems={tableItems}
-        tables={tables}
-        currentTable={currentTable}
-        activatedSubTab={activatedSubTab}
-        completeOrderState={completeOrderState}
-        handleSearch={handleSearch}
-        searchTerm={searchTerm}
-        onSwitchTableClick={onSwitchTableClick}
-        handleCategoryClick={handleCategoryClick}
-        onPricingSubTabClick={handleSubTabChange}
-        onAddFoodClick={onAddFoodClick}
-        onSelectTable={onSelectTable}
-        refetchTables={refetchTables}
-        refetchFoods={refetchFoods}
-        handleAddNewTableClick={handleAddNewTableClick}
-        handleAddNewCategoryClick={handleAddNewCategoryClick}
-        handleAddNewFoodClick={handleAddNewFoodClick}
-      />
+      {renderFoodMenu()}
 
       {tableItems?.id > 0 && (
         <>

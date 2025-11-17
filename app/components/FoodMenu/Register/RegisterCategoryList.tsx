@@ -87,7 +87,7 @@ const RegisterCategoryList: React.FC<Props> = ({
                 color={isSelected ? theme.secondaryBg : theme.buttonBg}
               />
             </View>
-            <Text style={styles.label} numberOfLines={2}>
+            <Text style={[styles.label, { color: theme.primary }]} numberOfLines={2}>
               {item}
             </Text>
           </TouchableOpacity>
@@ -124,7 +124,6 @@ const styles = StyleSheet.create({
   },
   label: {
     marginTop: 4,
-    color: '#2a4759',
     fontSize: 13,
     fontWeight: '600',
     textAlign: 'center',
