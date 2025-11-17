@@ -4,6 +4,7 @@ import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { RestaurantTable } from 'app/api/services/tableService';
 import RegisterTableCard from './RegisterTableCard';
 import EmptyState from 'app/components/common/EmptyState';
+import FoodPreparationAnimation from 'app/components/common/FoodPreparationAnimation';
 
 interface RegisterTableListProps {
   tables: RestaurantTable[];
@@ -13,6 +14,7 @@ interface RegisterTableListProps {
   onSelectTable: (selectedTable: string) => void;
   refetchTables: () => void;
   handleAddNewTableClick: () => void;
+  exstingOrderForTableState: boolean;
 }
 
 const RegisterTableList: React.FC<RegisterTableListProps> = ({
@@ -23,6 +25,7 @@ const RegisterTableList: React.FC<RegisterTableListProps> = ({
   onSelectTable,
   refetchTables,
   handleAddNewTableClick,
+  exstingOrderForTableState,
 }) => {
   const [refreshing, setRefreshing] = useState(false);
 
@@ -58,18 +61,23 @@ const RegisterTableList: React.FC<RegisterTableListProps> = ({
       showsVerticalScrollIndicator={false}
       onRefresh={handleRefresh}
       refreshing={refreshing}
-      renderItem={({ item }) => (
-        <RegisterTableCard
-          name={item.tableName}
-          status={item.status}
-          seats={item.capacity}
-          items={item.orderItemsCount}
-          currentTable={currentTable}
-          numColumnsRegisterScreen={numColumnsRegisterScreen}
-          screenWidth={screenWidth}
-          onSelectTable={onSelectTable}
-        />
-      )}
+      renderItem={({ item }) => {
+        const isSelectedTable = exstingOrderForTableState && currentTable === item.tableName;
+
+        return (
+          <RegisterTableCard
+            name={item.tableName}
+            status={item.status}
+            seats={item.capacity}
+            items={item.orderItemsCount}
+            currentTable={currentTable}
+            numColumnsRegisterScreen={numColumnsRegisterScreen}
+            screenWidth={screenWidth}
+            onSelectTable={onSelectTable}
+            exstingOrderForTableState={isSelectedTable}
+          />
+        );
+      }}
     />
   );
 };

@@ -5,23 +5,22 @@ import { useTheme } from 'app/hooks/useTheme';
 
 type FoodPreparationAnimationProps = {
   isTabletOrDesktop: boolean;
-  /** Optional external animation value. If not provided, this component will create its own. */
   floatAnim?: Animated.Value;
-  /** Main message shown under the animation, e.g. "Loading orders..." */
   message: string;
-  /** Optional secondary hint, e.g. "This may take a few seconds." */
   hint?: string;
+  /** Compact mode for small containers like table cards */
+  compact?: boolean;
+  bottomLine?: boolean;
 };
 
 const FoodPreparationAnimation: React.FC<FoodPreparationAnimationProps> = React.memo(
-  ({ isTabletOrDesktop, floatAnim, message, hint }) => {
+  ({ isTabletOrDesktop, floatAnim, message, hint, compact = false, bottomLine = false }) => {
     const theme = useTheme();
     const internalAnim = useRef(new Animated.Value(0)).current;
     const anim = floatAnim ?? internalAnim;
-    const useNative = Platform.OS !== 'web'; // avoid native-driver issues on web
+    const useNative = Platform.OS !== 'web';
 
     useEffect(() => {
-      // If parent passed an external Animated.Value, do NOT run our own loop
       if (floatAnim) return;
 
       const loop = Animated.loop(
@@ -48,86 +47,106 @@ const FoodPreparationAnimation: React.FC<FoodPreparationAnimationProps> = React.
       };
     }, [floatAnim, internalAnim, useNative]);
 
-    const baseSize = isTabletOrDesktop ? 58 : 54;
-    const heroSize = isTabletOrDesktop ? 66 : 62;
-    const iconSize = isTabletOrDesktop ? 28 : 26;
+    // Sizes tuned for compact vs normal
+    const baseSize = compact ? 28 : isTabletOrDesktop ? 58 : 54;
+    const heroSize = compact ? 34 : isTabletOrDesktop ? 66 : 62;
+    const iconSize = compact ? 16 : isTabletOrDesktop ? 28 : 26;
 
-    // Motion (smooth bounce + subtle scale)
+    const trayWidth = compact ? 130 : isTabletOrDesktop ? 240 : 214;
+    const trayHeight = compact ? 22 : isTabletOrDesktop ? 48 : 42;
+    const trayBottom = compact ? 4 : isTabletOrDesktop ? 12 : 10;
+
+    const messageFontSize = compact ? 11 : isTabletOrDesktop ? 14 : 13;
+    const messageMarginTop = compact ? 4 : isTabletOrDesktop ? 12 : 10;
+
     const cookBounce1 = anim.interpolate({
       inputRange: [0, 0.5, 1],
-      outputRange: [0, -10, 0],
+      outputRange: [0, -6, 0],
     });
     const cookScale1 = anim.interpolate({
-      inputRange: [0, 0.5, 1],
-      outputRange: [1, 1.04, 1],
-    });
-
-    const cookBounce2 = anim.interpolate({
-      inputRange: [0, 0.5, 1],
-      outputRange: [-4, 4, -4],
-    });
-    const cookScale2 = anim.interpolate({
-      inputRange: [0, 0.5, 1],
-      outputRange: [1.02, 1.07, 1.02],
-    });
-
-    const cookBounce3 = anim.interpolate({
-      inputRange: [0, 0.5, 1],
-      outputRange: [0, -8, 0],
-    });
-    const cookScale3 = anim.interpolate({
       inputRange: [0, 0.5, 1],
       outputRange: [1, 1.03, 1],
     });
 
-    // Elegant tray colors based on your blue theme
+    const cookBounce2 = anim.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [-3, 3, -3],
+    });
+    const cookScale2 = anim.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [1.01, 1.05, 1.01],
+    });
+
+    const cookBounce3 = anim.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [0, -5, 0],
+    });
+    const cookScale3 = anim.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [1, 1.02, 1],
+    });
+
     const trayBorder = theme.borderColor ?? '#E5E7EB';
-    const trayBackground = theme.quaternary; // white
-    const trayTintLine = theme.quaternary; // subtle top accent
+    const trayBackground = theme.quaternary;
+    const trayTintLine = theme.quaternary;
 
     return (
       <View
         style={{
           alignItems: 'center',
           justifyContent: 'center',
-          paddingVertical: isTabletOrDesktop ? 14 : 10,
-          // NOTE: no flex-1, no bg-white – let parent control layout/background
+          paddingVertical: compact ? 2 : isTabletOrDesktop ? 14 : 10,
         }}
       >
-        {/* Elegant tray capsule */}
-        <View
-          style={{
-            position: 'absolute',
-            bottom: isTabletOrDesktop ? 12 : 10,
-            width: isTabletOrDesktop ? 240 : 214,
-            height: isTabletOrDesktop ? 48 : 42,
-            borderRadius: 999,
-            backgroundColor: trayBackground,
-            borderWidth: 1,
-            borderColor: trayBorder,
-            shadowColor: '#000',
-            shadowOpacity: 0.05,
-            shadowOffset: { width: 0, height: 1 },
-            shadowRadius: 4,
-            elevation: 1,
-            overflow: 'hidden',
-          }}
-        >
-          {/* subtle top highlight line */}
+        {/* Tray */}
+        {!bottomLine ? (
           <View
             style={{
               position: 'absolute',
-              top: 0,
-              left: 12,
-              right: 12,
-              height: 1,
-              backgroundColor: trayTintLine,
-              opacity: 0.12,
+              bottom: trayBottom,
+              width: trayWidth,
+              height: trayHeight,
+              borderRadius: 999,
+              backgroundColor: trayBackground,
+              borderWidth: 1,
+              borderColor: trayBorder,
+              shadowColor: '#000',
+              shadowOpacity: 0.05,
+              shadowOffset: { width: 0, height: 1 },
+              shadowRadius: 4,
+              elevation: 1,
+              overflow: 'hidden',
+            }}
+          >
+            {/* Top highlight line */}
+            <View
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 10,
+                right: 10,
+                height: 1,
+                backgroundColor: trayTintLine,
+                opacity: 0.12,
+              }}
+            />
+          </View>
+        ) : (
+          <View
+            style={{
+              position: 'absolute',
+              bottom: -4,
+              left: 20,
+              right: 20,
+              height: 3,
+              backgroundColor: theme.secondary,
+              borderRadius: 2,
+              opacity: 0.9,
             }}
           />
-        </View>
+        )}
 
-        {/* Icon Row */}
+        {/* Icons */}
         <View
           style={{
             flexDirection: 'row',
@@ -135,7 +154,6 @@ const FoodPreparationAnimation: React.FC<FoodPreparationAnimationProps> = React.
             justifyContent: 'center',
           }}
         >
-          {/* Left icon */}
           <Animated.View
             style={{
               transform: [{ translateY: cookBounce1 }, { scale: cookScale1 }],
@@ -146,17 +164,12 @@ const FoodPreparationAnimation: React.FC<FoodPreparationAnimationProps> = React.
                 width: baseSize,
                 height: baseSize,
                 borderRadius: 999,
-                marginHorizontal: 6,
+                marginHorizontal: 4,
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: theme.secondaryBg,
-                borderWidth: 1.2,
+                borderWidth: 1,
                 borderColor: theme.quaternary,
-                shadowColor: '#000',
-                shadowOpacity: 0.08,
-                shadowRadius: 5,
-                shadowOffset: { width: 0, height: 2 },
-                elevation: 3,
               }}
             >
               <MaterialCommunityIcons
@@ -167,7 +180,6 @@ const FoodPreparationAnimation: React.FC<FoodPreparationAnimationProps> = React.
             </View>
           </Animated.View>
 
-          {/* Center / hero icon */}
           <Animated.View
             style={{
               transform: [{ translateY: cookBounce2 }, { scale: cookScale2 }],
@@ -178,28 +190,22 @@ const FoodPreparationAnimation: React.FC<FoodPreparationAnimationProps> = React.
                 width: heroSize,
                 height: heroSize,
                 borderRadius: 999,
-                marginHorizontal: 6,
+                marginHorizontal: 4,
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: theme.secondary,
                 borderWidth: 2,
                 borderColor: theme.quaternary,
-                shadowColor: '#000',
-                shadowOpacity: 0.18,
-                shadowRadius: 10,
-                shadowOffset: { width: 0, height: 4 },
-                elevation: 5,
               }}
             >
               <MaterialCommunityIcons
                 name="food-variant"
-                size={iconSize + 4}
+                size={iconSize + 2}
                 color={theme.textPrimary}
               />
             </View>
           </Animated.View>
 
-          {/* Right icon */}
           <Animated.View
             style={{
               transform: [{ translateY: cookBounce3 }, { scale: cookScale3 }],
@@ -210,17 +216,12 @@ const FoodPreparationAnimation: React.FC<FoodPreparationAnimationProps> = React.
                 width: baseSize,
                 height: baseSize,
                 borderRadius: 999,
-                marginHorizontal: 6,
+                marginHorizontal: 4,
                 alignItems: 'center',
                 justifyContent: 'center',
                 backgroundColor: theme.secondaryBg,
-                borderWidth: 1.2,
+                borderWidth: 1,
                 borderColor: theme.quaternary,
-                shadowColor: '#000',
-                shadowOpacity: 0.08,
-                shadowRadius: 5,
-                shadowOffset: { width: 0, height: 2 },
-                elevation: 3,
               }}
             >
               <MaterialCommunityIcons
@@ -232,21 +233,21 @@ const FoodPreparationAnimation: React.FC<FoodPreparationAnimationProps> = React.
           </Animated.View>
         </View>
 
-        {/* Main message */}
+        {/* Message */}
         <Text
           style={{
-            marginTop: isTabletOrDesktop ? 12 : 10,
-            fontSize: isTabletOrDesktop ? 14 : 13,
+            marginTop: messageMarginTop,
+            fontSize: messageFontSize,
             fontWeight: '600',
             color: theme.textSecondary,
             textAlign: 'center',
           }}
+          numberOfLines={1}
         >
           {message}
         </Text>
 
-        {/* Optional hint */}
-        {hint && (
+        {hint && !compact && (
           <Text
             style={{
               marginTop: 4,

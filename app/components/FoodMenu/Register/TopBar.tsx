@@ -88,11 +88,7 @@ export default TopBar;
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    paddingVertical: 12,
+    paddingVertical: 0,
     zIndex: 100,
     elevation: 4,
     marginLeft: 6,
@@ -114,9 +110,6 @@ const styles = StyleSheet.create({
         cursor: 'pointer',
       },
     }),
-  },
-  buttonSelected: {
-    backgroundColor: '#2a4759',
   },
   buttonText: {
     color: '#2a4759',

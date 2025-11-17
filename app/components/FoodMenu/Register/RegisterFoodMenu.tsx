@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Food } from 'app/api/services/foodService';
 import TopBar from './TopBar';
@@ -10,13 +10,13 @@ import RegisterTableList from './RegisterTableList';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { SubTabType } from '../FoodsMenu';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from 'app/hooks/useTheme';
+import { MutationStatus } from '@tanstack/react-query/build/legacy';
 
 type ActiveView = 'categories' | 'food' | 'table';
 type ActiveSubFoodView = 'all' | 'breakfast' | 'lunch' | 'drinks';
 
-const TOPBAR_HEIGHT = 60;
+const TOPBAR_HEIGHT = 20;
 
 export interface RegisterFoodMenuProps {
   isMobile: boolean;
@@ -44,6 +44,7 @@ export interface RegisterFoodMenuProps {
   handleAddNewTableClick: () => void;
   handleAddNewCategoryClick: () => void;
   handleAddNewFoodClick: () => void;
+  exstingOrderForTableState: MutationStatus;
 }
 
 const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
@@ -72,29 +73,51 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
   handleAddNewTableClick,
   handleAddNewCategoryClick,
   handleAddNewFoodClick,
+  exstingOrderForTableState,
 }) => {
   const { numColumnsRegisterScreen, width } = useIsDesktop();
 
-  const [activeView, setActiveView] = useState<ActiveView>('categories');
+  const [activeView, setActiveView] = useState<ActiveView>('table');
   const [activeSubFoodView, setActiveSubFoodView] = useState<ActiveSubFoodView>('all');
   const [activeTopBar, setActiveTopBar] = useState<string>('Table');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const theme = useTheme();
 
+  // This ref marks that WE triggered the existing-order fetch by clicking a table
+  const existingOrderTriggerRef = useRef(true);
+
   useEffect(() => {
     if (currentTable.trim().length === 0) {
       setActiveView('table');
       setActiveTopBar('Table');
+      // When no table selected, always go back to table view
+
+      existingOrderTriggerRef.current = false;
     }
   }, [currentTable]);
 
+  // When complete order succeeds, go to table view and ignore future success from that fetch
   useEffect(() => {
     if (completeOrderState.status === 'success') {
       setActiveView('table');
       setActiveTopBar('Table');
+
+      // ignore the follow-up existing-order call
+      existingOrderTriggerRef.current = false;
+
       completeOrderState.reset?.();
     }
   }, [completeOrderState]);
+
+  // When existing order fetch finishes successfully,
+  // only switch to Food if WE flagged it (i.e., user clicked table)
+  useEffect(() => {
+    if (exstingOrderForTableState === 'success' && existingOrderTriggerRef.current) {
+      setActiveTopBar('Food');
+      setActiveView('food');
+      existingOrderTriggerRef.current = true; // consume the trigger
+    }
+  }, [exstingOrderForTableState]);
 
   // Pick which list of foods to render based on the sub-tab
   const displayedFoods =
@@ -107,7 +130,10 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
           : foods;
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.secondaryBg }]}>
+    <View
+      style={[{ backgroundColor: theme.secondaryBg }, isMobile && { paddingTop: 10 }]}
+      className="flex-1 justify-between"
+    >
       <View style={styles.container}>
         <TopBar
           activeTopBar={activeTopBar}
@@ -203,14 +229,18 @@ const RegisterFoodMenu: React.FC<RegisterFoodMenuProps> = ({
               currentTable={currentTable}
               numColumnsRegisterScreen={numColumnsRegisterScreen}
               screenWidth={width}
-              onSelectTable={onSelectTable}
+              exstingOrderForTableState={exstingOrderForTableState === 'pending'}
+              onSelectTable={(selectedTable) => {
+                onSelectTable(selectedTable);
+                existingOrderTriggerRef.current = true;
+              }}
               refetchTables={refetchTables}
               handleAddNewTableClick={handleAddNewTableClick}
             />
           )}
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -222,7 +252,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    position: 'relative',
   },
   content: {
     flex: 1,

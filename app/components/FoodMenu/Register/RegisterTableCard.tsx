@@ -3,6 +3,7 @@ import { Text, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-nativ
 import IconLabel from 'app/components/common/IconLabel';
 import { StatusChip } from 'app/components/common/StatusChip';
 import { useTheme } from 'app/hooks/useTheme';
+import FoodPreparationAnimation from 'app/components/common/FoodPreparationAnimation';
 
 interface RegisterTableCardProps {
   name: string;
@@ -13,6 +14,7 @@ interface RegisterTableCardProps {
   screenWidth: number;
   numColumnsRegisterScreen: number;
   onSelectTable: (name: string) => void;
+  exstingOrderForTableState: boolean;
 }
 
 const calcWidth = (cols: number): `${number}%` => `${(100 - 4) / cols}%` as `${number}%`;
@@ -26,6 +28,7 @@ const RegisterTableCard: React.FC<RegisterTableCardProps> = ({
   screenWidth,
   numColumnsRegisterScreen,
   onSelectTable,
+  exstingOrderForTableState,
 }) => {
   const theme = useTheme();
 
@@ -34,13 +37,19 @@ const RegisterTableCard: React.FC<RegisterTableCardProps> = ({
     [numColumnsRegisterScreen],
   );
 
+  const shouldHideStatusText = screenWidth <= 1024 || name.length > 8;
+
   return (
     <TouchableOpacity
       style={[
         styles.card,
         boxDynamicStyle,
         {
-          backgroundColor: currentTable === name ? theme.quaternary : theme.secondaryBg,
+          backgroundColor: exstingOrderForTableState
+            ? theme.secondaryBg
+            : currentTable === name
+              ? theme.quaternary
+              : theme.secondaryBg,
           shadowColor: theme.textSecondary,
           borderColor: theme.borderColor ?? theme.textTertiary, // or a fixed fallback
         },
@@ -52,54 +61,69 @@ const RegisterTableCard: React.FC<RegisterTableCardProps> = ({
     >
       <View style={styles.cardInner}>
         {/* Top header name and status */}
-        <View className="flex-row justify-between items-center">
-          <IconLabel
-            iconName="clipboard-list"
-            iconType={'TableIcon'}
-            label={name}
-            labelTextSize="text-base"
-            iconSize={16}
-            containerStyle="justify-between"
-            parentWidthHeight="w-8 h-8"
-            bgColor={theme.quaternary}
-          />
-          <StatusChip
-            status={status}
-            customSize="px-1 py-0.5 text-xs"
-            textSize="text-xs"
-            applyBg={false}
-            hideText={screenWidth <= 1024}
-          />
-        </View>
 
-        {/* seat count */}
-        <View className="flex-col justify-between mt-1">
-          <IconLabel
-            label={`Seats: ${seats}`}
-            iconName="chair"
-            containerStyle="ml-2"
-            textColor="text-base"
-            labelTextSize="text-base pl-2 text-gray-500"
-            iconSize={14}
-            parentWidthHeight="w-6 h-6"
-            applyCircularIconBg={false}
-            bgColor=""
-          />
-        </View>
+        {exstingOrderForTableState ? (
+          <View className="flex-1 items-center justify-center bg-white">
+            <FoodPreparationAnimation
+              isTabletOrDesktop={false}
+              message="Loading Orders ..."
+              compact={true}
+              bottomLine={true}
+            />
+          </View>
+        ) : (
+          <>
+            <View className="flex-row justify-between items-center">
+              <IconLabel
+                iconName="clipboard-list"
+                iconType={'TableIcon'}
+                label={name}
+                labelTextSize="text-base"
+                iconSize={16}
+                containerStyle="justify-between"
+                parentWidthHeight="w-8 h-8"
+                bgColor={theme.quaternary}
+              />
+              <StatusChip
+                status={status}
+                customSize="px-1 py-0.5 text-xs"
+                textSize="text-xs"
+                applyBg={false}
+                hideText={shouldHideStatusText}
+              />
+            </View>
 
-        {/* footer items count and more action button */}
-        <View className="flex-row justify-between items-center mt-2">
-          <IconLabel
-            iconName="utensils"
-            label={`Items: ${items}`}
-            containerStyle="justify-between ml-2"
-            labelTextSize="text-base pl-2 text-gray-500"
-            iconSize={14}
-            parentWidthHeight="w-6 h-6"
-            applyCircularIconBg={false}
-            bgColor=""
-          />
-        </View>
+            {/* seat count */}
+            <View className="flex-col justify-between mt-1">
+              <IconLabel
+                label={`Seats: ${seats}`}
+                iconName="chair"
+                containerStyle="ml-2"
+                textColor="text-base"
+                labelTextSize="text-base pl-2 text-gray-500"
+                iconSize={14}
+                parentWidthHeight="w-6 h-6"
+                applyCircularIconBg={false}
+                bgColor=""
+              />
+            </View>
+
+            {/* footer items count and more action button */}
+            <View className="flex-row justify-between items-center mt-2">
+              <IconLabel
+                iconName="utensils"
+                label={`Items: ${items}`}
+                containerStyle="justify-between ml-2"
+                labelTextSize="text-base pl-2 text-gray-500"
+                iconSize={14}
+                parentWidthHeight="w-6 h-6"
+                applyCircularIconBg={false}
+                bgColor=""
+              />
+            </View>
+          </>
+        )}
+
         {/* Conditional Actions Menu */}
       </View>
     </TouchableOpacity>

@@ -45,7 +45,6 @@ export default function MenuScreen({ route }: MenuScreenProps) {
 
   // external state & actions
   const {
-    restaurantFeatures,
     foods,
     foodMenu,
     refetch,
@@ -137,6 +136,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
             tableItems={prepTableItems}
             activatedSubTab={activeSubTab}
             completeOrderState={completeOrderState}
+            exstingOrderForTableState={exstingOrderForTableMutation.status}
             tables={tables}
             foods={foods}
             topBreakFast={topBreakFast}
