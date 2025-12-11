@@ -51,6 +51,9 @@ const WelcomeScreen: React.FC = () => {
   const footerOpacity = useRef(new Animated.Value(0)).current;
   const ambientAnim = useRef(new Animated.Value(0)).current;
 
+  // guard to ensure we only trigger the initial load once per mount
+  const hasLoadedRef = useRef(false);
+
   useEffect(() => {
     // reset and run intro animations
     Animated.sequence([
@@ -94,7 +97,7 @@ const WelcomeScreen: React.FC = () => {
         Animated.timing(ambientAnim, { toValue: 0, duration: 9000, useNativeDriver: true }),
       ]),
     ).start();
-  }, []);
+  }, [ambientAnim, cardOpacity, entryScaleAnim, floatAnim, footerOpacity, spinAnim, subtitleOpacity]);
 
   const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
   const float = floatAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -8] });
@@ -120,15 +123,20 @@ const WelcomeScreen: React.FC = () => {
     }
   }, [restaurantId, loadFoodMenu, refetchTables, navigateToMainTabs]);
 
+  //  Only run the initial load once per mount (prevents infinite API loop)
   useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
+
     runLoadMenuAndTables();
   }, [runLoadMenuAndTables]);
 
+  // navigate once data for menu + tables is ready
   useEffect(() => {
     if (restaurantId && isSuccess && isTablesSuccess) {
       navigateToMainTabs();
     }
-  }, [restaurantId, isSuccess, navigateToMainTabs]);
+  }, [restaurantId, isSuccess, isTablesSuccess, navigateToMainTabs]);
 
   const showError = isError && !isLoading;
   const friendlyError =
@@ -201,7 +209,6 @@ const WelcomeScreen: React.FC = () => {
         className="rounded-3xl shadow-xl"
         style={{
           backgroundColor: isDesktop ? theme.secondary + 'CC' : theme.secondary,
-          // web blur fallback, no TS error:
           ...(isDesktop && isWeb
             ? ({
                 backdropFilter: 'blur(22px)',
