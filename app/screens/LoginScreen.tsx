@@ -111,76 +111,85 @@ const LoginScreen: React.FC = () => {
     />
   );
 
-  return (
-    <TouchableWithoutFeedback onPress={dismissKeyboard}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+  const renderLoginLayout = () => (
+    <>
+      <ImageBackground
+        source={bgSource}
+        resizeMode="cover"
         className="flex-1"
+        imageStyle={{
+          // move the background art to the left on desktop so the POS screen shows
+          transform: [{ translateX: imageShiftX }],
+        }}
       >
-        <ImageBackground
-          source={bgSource}
-          resizeMode="cover"
-          className="flex-1"
-          imageStyle={{
-            // move the background art to the left on desktop so the POS screen shows
-            transform: [{ translateX: imageShiftX }],
-          }}
-        >
-          {/* subtle dark overlay to improve form contrast */}
-          <View className="absolute inset-0 bg-black/20" />
+        {/* subtle dark overlay to improve form contrast */}
+        <View className="absolute inset-0 bg-black/20" />
 
-          <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
-            {/* Positioning container */}
-            <View
-              className={`flex-1 px-4 py-8 ${
-                isMobile ? 'items-center justify-center' : `items-end justify-center ${rightGutter}`
-              }`}
-            >
-              {/* Right-aligned card on desktop, centered card on mobile */}
-              <View className={`w-full ${isMobile ? 'max-w-md' : 'max-w-lg'} drop-shadow-lg`}>
-                {renderLoginCard()}
-              </View>
-
-              <View className="mt-4 items-center">
-                <TouchableOpacity
-                  onPress={() => setShowCreateModal(true)}
-                  className="px-4 py-3 rounded-xl shadow-sm flex-row items-center"
-                  style={{ backgroundColor: theme.buttonBg }}
-                >
-                  <MaterialCommunityIcons
-                    name="store-plus-outline"
-                    size={20}
-                    color={theme.textPrimary}
-                  />
-                  <Text
-                    className="ml-2 text-base font-semibold"
-                    style={{ color: theme.textPrimary }}
-                  >
-                    Create Restaurant
-                  </Text>
-                </TouchableOpacity>
-                <Text className="text-xs mt-2" style={{ color: theme.textSecondary }}>
-                  New to the platform? Create your restaurant in seconds.
-                </Text>
-              </View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
+          {/* Positioning container */}
+          <View
+            className={`flex-1 px-4 py-8 ${
+              isMobile ? 'items-center justify-center' : `items-end justify-center ${rightGutter}`
+            }`}
+          >
+            {/* Right-aligned card on desktop, centered card on mobile */}
+            <View className={`w-full ${isMobile ? 'max-w-md' : 'max-w-lg'} drop-shadow-lg`}>
+              {renderLoginCard()}
             </View>
-          </ScrollView>
-        </ImageBackground>
 
-        <CreateRestaurantModal
-          visible={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          onSubmit={(payload) => {
-            createRestaurantMutation(payload);
-          }}
-          error={createRestaurantError?.message}
-          createRestaurantBtnState={createRestaurantState}
-        />
+            <View className="mt-4 items-center">
+              <TouchableOpacity
+                onPress={() => setShowCreateModal(true)}
+                className="px-4 py-3 rounded-xl shadow-sm flex-row items-center"
+                style={{ backgroundColor: theme.buttonBg }}
+              >
+                <MaterialCommunityIcons
+                  name="store-plus-outline"
+                  size={20}
+                  color={theme.textPrimary}
+                />
+                <Text className="ml-2 text-base font-semibold" style={{ color: theme.textPrimary }}>
+                  Create Restaurant
+                </Text>
+              </TouchableOpacity>
+              <Text className="text-xs mt-2" style={{ color: theme.textSecondary }}>
+                New to the platform? Create your restaurant in seconds.
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+      </ImageBackground>
 
-        {/* Success notification */}
-        <NotificationBar message={successNotification} onClose={() => setSuccessNotificaton('')} />
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+      <CreateRestaurantModal
+        visible={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSubmit={(payload) => {
+          createRestaurantMutation(payload);
+        }}
+        error={createRestaurantError?.message}
+        createRestaurantBtnState={createRestaurantState}
+      />
+
+      {/* Success notification */}
+      <NotificationBar message={successNotification} onClose={() => setSuccessNotificaton('')} />
+    </>
+  );
+
+  return (
+    <>
+      {Platform.OS === 'web' ? (
+        <KeyboardAvoidingView className="flex-1">{renderLoginLayout()}</KeyboardAvoidingView>
+      ) : (
+        <TouchableWithoutFeedback onPress={dismissKeyboard}>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            className="flex-1"
+          >
+            {renderLoginLayout()}
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
+      )}
+    </>
   );
 };
 
