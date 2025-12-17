@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, View, TouchableOpacity, RefreshControl } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { useOrder } from 'app/hooks/useOrder';
 
-import { navigate } from 'app/navigation/navigationService';
+import { MainTabsParamList, navigate } from 'app/navigation/navigationService';
 import { ScreenNames } from 'app/types/navigation';
 
 import { removedFilter } from 'app/components/filter/filter';
@@ -25,35 +25,30 @@ import { Permission } from 'app/security/permission';
 import { usePermissionMap } from 'app/security/usePermissionMap';
 import { useTheme } from 'app/hooks/useTheme';
 import FoodPreparationAnimation from 'app/components/common/FoodPreparationAnimation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 const tabs = ['Past Orders', 'Todays Order'];
 type TabType = (typeof tabs)[number];
 
-interface OrdersScreenRouteParams {
-  selectedTab?: TabType;
-}
-
-interface OrdersScreenProps {
-  route: {
-    params: OrdersScreenRouteParams;
-  };
-}
+type OrdersScreenProps = NativeStackScreenProps<MainTabsParamList, 'Orders'>;
 
 const initialSelectedDateRange: DateRangeSelection = {
   selectionType: DateRangeSelectionType.QUICK_RANGE,
   quickRange: { label: 'Last 7 Days', unit: 'days', value: 7 },
 };
 
-export default function OrdersScreen({ route }: OrdersScreenProps) {
+export default function OrdersScreen({ route, navigation }: OrdersScreenProps) {
   const { selectedTab } = route.params || {};
 
   const theme = useTheme();
+  const { isLargeScreen, isMobile } = useIsDesktop();
 
   const [showFilters, setShowFilters] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Todays Order');
-
-  const { isLargeScreen, isMobile } = useIsDesktop();
+  const [forceOrderCard, setForceOrderCard] = useState(false);
+  const showFullOrderCard = forceOrderCard || !isMobile;
+  const skipNextFocusRef = useRef(false);
 
   const {
     orders,
@@ -107,6 +102,10 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
 
   useFocusEffect(
     useCallback(() => {
+      if (skipNextFocusRef.current) {
+        skipNextFocusRef.current = false; // reset
+        return; // don't reset tab/date or fetch
+      }
       if (selectedTab === 'Past Orders') {
         setActiveTab('Past Orders');
         setSelectedRange(initialSelectedDateRange);
@@ -123,6 +122,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
 
   /** Called when user selects an order from the list (e.g., on phone). */
   const handleOrderPress = useCallback((order: OrderDetails) => {
+    skipNextFocusRef.current = true;
     navigate(ScreenNames.ORDER_DETAILS, {
       orderId: order.orderId.toString(),
       actionType: 'Details',
@@ -131,6 +131,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
 
   /** Called for "More Actions" on an order. */
   const handleMoreActionPress = useCallback((order: OrderDetails) => {
+    skipNextFocusRef.current = true;
     navigate(ScreenNames.ORDER_DETAILS, {
       orderId: order.orderId.toString(),
       actionType: 'More Action',
@@ -196,7 +197,7 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
           {activeTab === 'Todays Order' ? (
             <View className={`flex-1 gap-1 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
               {orders.map((order) =>
-                !isMobile ? (
+                showFullOrderCard ? (
                   <OrderCard
                     key={order.orderId}
                     order={order}
@@ -212,11 +213,19 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
           ) : (
             // "Past Orders"
             <View className={`flex gap-1 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
-              {orders.map((order) => (
-                <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>
-                  <OrderSummaryCard order={order} showTable={false} />
-                </TouchableOpacity>
-              ))}
+              {orders.map((order) =>
+                showFullOrderCard ? (
+                  <OrderCard
+                    key={order.orderId}
+                    order={order}
+                    onMoreActionPress={handleMoreActionPress}
+                  />
+                ) : (
+                  <TouchableOpacity key={order.orderId} onPress={() => handleOrderPress(order)}>
+                    <OrderSummaryCard order={order} showTable={false} />
+                  </TouchableOpacity>
+                ),
+              )}
             </View>
           )}
         </ScrollView>
@@ -258,6 +267,8 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
           activeTab={activeTab}
           onTabChange={(newTab) => {
             setActiveTab(newTab);
+            handleClearFilter();
+            navigation.setParams({ selectedTab: newTab });
             if (newTab === 'Todays Order') {
               handleTodaysSubtabSelect();
             } else {
@@ -278,6 +289,8 @@ export default function OrdersScreen({ route }: OrdersScreenProps) {
           paymentStatuses={paymentStatuses}
           activeTab={activeTab}
           selectedDate={selectedRange}
+          forceOrderCard={forceOrderCard}
+          onToggleForceOrderCard={() => setForceOrderCard((v) => !v)}
           onRemoveFilter={handleRemoveFilter}
           onOverflowPress={() => setShowFilters(true)}
         />
