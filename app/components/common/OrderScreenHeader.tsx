@@ -16,6 +16,8 @@ type OrderScreenHeaderProps = {
   paymentMethods: FilterStatus[];
   activeTab: string;
   selectedDate?: DateRangeSelection | null;
+  forceOrderCard?: boolean;
+  onToggleForceOrderCard?: () => void;
   onFilterPress?: () => void;
   onRemoveFilter: (label: string) => void;
   onOverflowPress: () => void;
@@ -29,6 +31,8 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
   paymentMethods = [],
   activeTab,
   selectedDate,
+  forceOrderCard,
+  onToggleForceOrderCard,
   onFilterPress,
   onRemoveFilter,
   onOverflowPress,
@@ -99,6 +103,28 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
           </TouchableOpacity>
         ) : (
           <View style={styles.dateRangeBtnPlaceholder} />
+        )}
+
+        {onToggleForceOrderCard && (
+          <Pressable
+            onPress={onToggleForceOrderCard}
+            style={[
+              styles.toggleBtn,
+              {
+                borderColor: theme.secondary,
+                backgroundColor: forceOrderCard ? theme.secondary : 'transparent',
+              },
+            ]}
+          >
+            <Text
+              style={[
+                styles.toggleBtnText,
+                { color: forceOrderCard ? theme.textPrimary : theme.secondary },
+              ]}
+            >
+              {forceOrderCard ? 'Card' : 'Summary'}
+            </Text>
+          </Pressable>
         )}
 
         <View style={styles.filterContainer}>
@@ -203,5 +229,18 @@ const styles = StyleSheet.create({
   filterBtnText: {
     fontSize: 16,
     marginLeft: 6,
+  },
+  toggleBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    borderWidth: 1,
+    marginRight: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  toggleBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
