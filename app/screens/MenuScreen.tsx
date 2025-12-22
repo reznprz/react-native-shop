@@ -72,6 +72,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
     handleAddUpdateFoodItems,
     resetAddOrUpdateOrder,
     handleTableClick,
+    handleSwitchTableClick,
     handleAddDiscount,
     handleCompleteOrder,
     handleAddNewTableClick,
@@ -208,7 +209,7 @@ export default function MenuScreen({ route }: MenuScreenProps) {
         onClose={() => setShowTableListModal(false)}
         onSelectTable={(selectedTable) => {
           setShowTableListModal(false);
-          handleSwitchTable(prepTableItems.id, selectedTable);
+          handleSwitchTableClick(prepTableItems.id, selectedTable);
         }}
       />
 
