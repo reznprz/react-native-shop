@@ -47,7 +47,7 @@ export default function OrdersScreen({ route, navigation }: OrdersScreenProps) {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Todays Order');
   const [forceOrderCard, setForceOrderCard] = useState(false);
-  const showFullOrderCard = forceOrderCard || !isMobile;
+  const showFullOrderCard = forceOrderCard;
   const skipNextFocusRef = useRef(false);
 
   const {
@@ -197,7 +197,7 @@ export default function OrdersScreen({ route, navigation }: OrdersScreenProps) {
           {activeTab === 'Todays Order' ? (
             <View className={`flex-1 gap-1 ${isLargeScreen ? 'flex-row flex-wrap' : ''}`}>
               {orders.map((order) =>
-                showFullOrderCard ? (
+                !showFullOrderCard ? (
                   <OrderCard
                     key={order.orderId}
                     order={order}
