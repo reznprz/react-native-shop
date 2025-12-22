@@ -51,9 +51,12 @@ const prepTableItemsSlice = createSlice({
       state.discountAmount = action.payload;
       recalcTotals(state);
     },
+    updateTableName(state, action: PayloadAction<string>) {
+      state.tableName = action.payload;
+    },
   },
 });
 
-export const { setPrepTableItems, resetPrepTableItems, applyDiscount } =
+export const { setPrepTableItems, resetPrepTableItems, applyDiscount, updateTableName } =
   prepTableItemsSlice.actions;
 export default prepTableItemsSlice.reducer;

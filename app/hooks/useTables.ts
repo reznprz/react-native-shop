@@ -1,16 +1,24 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../redux/store';
 import { Food } from 'app/api/services/foodService';
 import { RestaurantTable, TableStatus } from 'app/api/services/tableService';
-import { setTableName, setTables } from 'app/redux/tableSlice';
+import { setTableName } from 'app/redux/tableSlice';
 import { navigate, navigationRef, push } from 'app/navigation/navigationService';
-import { Order, OrderItem, OrderMenuType, OrderType } from 'app/api/services/orderService';
+import {
+  Order,
+  OrderDetails,
+  OrderItem,
+  OrderMenuType,
+  OrderType,
+  switchTableApi,
+} from 'app/api/services/orderService';
 import { useAddUpdateOrderMutation } from './apiQuery/useAddUpdateOrderMutation';
 import {
   resetPrepTableItems,
   setPrepTableItems,
   applyDiscount,
+  updateTableName,
 } from 'app/redux/prepTableItemsSlice';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 
@@ -19,6 +27,8 @@ import { useRestaurantTablesQuery } from './apiQuery/useRestaurantTablesQuery';
 import { useExistingOrderMutation } from './apiQuery/useExistingOrderMutation';
 import { useCompleteOrderMutation } from './apiQuery/useCompleteOrderMutation';
 import { ScreenNames } from 'app/types/navigation';
+import { ApiResponse } from 'app/api/handlers';
+import { useMutation } from '@tanstack/react-query/build/legacy';
 
 // Types
 export interface TableItem {
@@ -251,6 +261,34 @@ export function useTables() {
     },
   });
 
+  const switchTableMutation = useMutation<
+    ApiResponse<OrderDetails>,
+    Error,
+    { orderId: number; tableName: string }
+  >({
+    mutationFn: async ({ orderId, tableName }) => {
+      if (!orderId || orderId === 0) {
+        throw new Error('Missing order Id');
+      }
+      const response: ApiResponse<OrderDetails> = await switchTableApi(orderId, tableName);
+      if (response.status !== 'success') {
+        throw new Error(response.message);
+      }
+      return response;
+    },
+    onSuccess: (response) => {
+      if (response.data?.tableName) {
+        dispatch(updateTableName(response.data?.tableName));
+        dispatch(setTableName(response.data?.tableName));
+      } else {
+        throw new Error('Something went wrong!');
+      }
+    },
+    onError: (err) => {
+      console.warn('existing order fetch failed:', err);
+    },
+  });
+
   /**
    * Update state for a Food item, then call api for update with mutation.
    */
@@ -297,6 +335,13 @@ export function useTables() {
       console.warn('existing order fetch failed:', error);
       dispatch(resetPrepTableItems());
     },
+  );
+
+  const handleSwitchTableClick = useCallback(
+    (orderId: number, selectedTable: string) => {
+      switchTableMutation.mutate({ orderId: orderId, tableName: selectedTable });
+    },
+    [switchTableMutation],
   );
 
   const handleTableClick = useCallback(
@@ -430,6 +475,7 @@ export function useTables() {
 
     // COMPLETE ORDER MUTATION
     completeOrderState,
+    switchTableMutation,
 
     // REDUX APP STATE
     prepTableItems,
@@ -459,5 +505,6 @@ export function useTables() {
     handleAddNewTableClick,
     handleAddNewCategoryClick,
     handleAddNewFoodClick,
+    handleSwitchTableClick,
   };
 }

@@ -97,7 +97,15 @@ const WelcomeScreen: React.FC = () => {
         Animated.timing(ambientAnim, { toValue: 0, duration: 9000, useNativeDriver: true }),
       ]),
     ).start();
-  }, [ambientAnim, cardOpacity, entryScaleAnim, floatAnim, footerOpacity, spinAnim, subtitleOpacity]);
+  }, [
+    ambientAnim,
+    cardOpacity,
+    entryScaleAnim,
+    floatAnim,
+    footerOpacity,
+    spinAnim,
+    subtitleOpacity,
+  ]);
 
   const spin = spinAnim.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] });
   const float = floatAnim.interpolate({ inputRange: [0, 1], outputRange: [0, -8] });

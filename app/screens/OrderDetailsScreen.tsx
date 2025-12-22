@@ -42,15 +42,13 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
     orderDetailScreen,
     addPaymentState,
     canceledOrderState,
-    switchTableState,
     switchPaymentState,
     fetchOrderById,
     handleAddPayments,
     handleCancelOrder,
-    handleSwitchTable,
     handleSwitchPayment,
   } = useOrder();
-  const { tables, handleGoToMenuPress } = useTables();
+  const { tables, handleGoToMenuPress, handleSwitchTableClick, switchTableMutation } = useTables();
 
   const [showSpinner, setShowSpinner] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>(actionType ?? 'Details');
@@ -96,12 +94,13 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
   }, [canceledOrderState]);
 
   useEffect(() => {
-    if (switchTableState.status === 'success') {
+    if (switchTableMutation.status === 'success') {
       setActiveTab('Details');
       setSuccessNotificaton('Table Switch Successfully!.');
-      switchTableState.reset?.();
+      switchTableMutation.reset?.();
+      fetchOrderById(Number(orderId));
     }
-  }, [switchTableState]);
+  }, [switchTableMutation]);
 
   useEffect(() => {
     if (switchPaymentState.status === 'success') {
@@ -188,7 +187,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
 
       {/* Main content area */}
       {orderDetailScreen?.status === 'pending' ||
-      switchTableState.status === 'loading' ||
+      switchTableMutation?.status === 'pending' ||
       switchPaymentState.status === 'loading' ? (
         <View className="flex-1 bg-gray-100 p-4 pb-0">
           <FoodLoadingSpinner iconName="hamburger" />
@@ -206,7 +205,7 @@ export default function OrderDetailsScreen({ route }: MenuScreenProps) {
         onClose={() => setShowSwitchTableModal(false)}
         onSelectTable={(selectedTable) => {
           setShowSwitchTableModal(false);
-          handleSwitchTable(order.orderId, selectedTable);
+          handleSwitchTableClick(order.orderId, selectedTable);
         }}
       />
 
