@@ -1,10 +1,20 @@
 {
   "cli": { "version": ">= 16.1.0" },
   "build": {
-    "local":   { "developmentClient": true,  "distribution": "internal", "env": { "DOTENV_FILE": ".env.local" } },
-    "uat":     { "channel": "uat",           "env": { "DOTENV_FILE": ".env.uat"   } },
+    "local": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": { "DOTENV_FILE": ".env.local" }
+    },
+    "uat": {
+      "channel": "uat",
+      "distribution": "internal",
+      "android": { "buildType": "apk" },
+      "env": { "DOTENV_FILE": ".env.uat" }
+    },
     "production": {
       "channel": "production",
+      "android": { "buildType": "app-bundle" },
       "env": { "DOTENV_FILE": ".env.prod" }
     }
   }

@@ -1,8 +1,6 @@
-// app.config.ts
 import * as dotenv from 'dotenv';
 import { ExpoConfig, ConfigContext } from '@expo/config';
 
-// Load the same file the Babel plugin is using
 dotenv.config({
   path: process.env.DOTENV_FILE ?? '.env',
 });
@@ -18,6 +16,11 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: 'portrait',
   icon: './assets/icon.png',
 
+  /** REQUIRED for Android builds */
+  android: {
+    package: 'com.sajilohisabkitab.shop',
+  },
+
   extra: {
     ...config.extra,
     eas: config.extra?.eas ?? {
@@ -25,7 +28,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     env: process.env.EXPO_PUBLIC_ENV,
   },
+
   plugins: [
-    "expo-asset"
-  ]
+    'expo-asset',
+  ],
 });
