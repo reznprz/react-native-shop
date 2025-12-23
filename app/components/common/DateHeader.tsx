@@ -57,7 +57,7 @@ const DateHeader: React.FC<DateHeaderProps> = ({
   const hideWebModal = () => setWebModalVisible(false);
 
   const handleMobileConfirm = (date: Date) => {
-    const formattedDate = date.toLocaleDateString(); // yyyy-MM-dd
+    const formattedDate = date.toISOString().split('T')[0];
     onDateChange(formattedDate);
     hideMobileDatePicker();
   };
