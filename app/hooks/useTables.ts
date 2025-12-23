@@ -28,7 +28,7 @@ import { useExistingOrderMutation } from './apiQuery/useExistingOrderMutation';
 import { useCompleteOrderMutation } from './apiQuery/useCompleteOrderMutation';
 import { ScreenNames } from 'app/types/navigation';
 import { ApiResponse } from 'app/api/handlers';
-import { useMutation } from '@tanstack/react-query/build/legacy';
+import { useMutation } from '@tanstack/react-query';
 
 // Types
 export interface TableItem {
