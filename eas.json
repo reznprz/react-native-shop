@@ -14,6 +14,7 @@
     },
     "production": {
       "channel": "production",
+      "distribution": "store",
       "android": { "buildType": "app-bundle" },
       "env": { "DOTENV_FILE": ".env.prod" }
     }

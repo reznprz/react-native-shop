@@ -21,16 +21,23 @@
     "web:uat": "expo start --web --env-file .env.uat",
     "web:prod": "expo start --web --env-file .env.prod",
     "build:local:android": "eas build --profile local      --platform android",
-    "build:uat:android": "eas build --profile uat        --platform android",
-    "build:prod:android": "eas build --profile production --platform android",
     "build:uat:ios": "eas build --profile uat        --platform ios",
     "build:prod:ios": "eas build --profile production --platform ios",
     "update:local": "eas update --branch local",
-    "update:uat": "cross-env DOTENV_FILE=.env.uat eas update --branch develop",
     "update:shajhya": "cross-env DOTENV_FILE=.env.uat eas update --branch shajhya",
     "update:prod": "cross-env EXPO_NO_DOTENV=1 dotenv -e .env.prod -o -- eas update --branch master",
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
-    "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix"
+    "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix",
+     "release:patch": "ts-node scripts/bump-version.ts patch",
+    "release:minor": "ts-node scripts/bump-version.ts minor",
+    "release:major": "ts-node scripts/bump-version.ts major",
+
+    "build:uat:android": "eas build --profile uat --platform android",
+    "update:uat": "cross-env EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat eas update --channel uat",
+
+    "ship:uat:bugfix": "yarn release:patch && yarn build:uat:android && yarn update:uat --message \"uat bugfix\"",
+    "ship:uat:feature": "yarn release:minor && yarn build:uat:android && yarn update:uat --message \"uat feature\"",
+    "ship:uat:breaking": "yarn release:major && yarn build:uat:android && yarn update:uat --message \"uat breaking\""
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
@@ -83,7 +90,7 @@
     "@types/jest": "^29.5.14",
     "@types/lodash": "^4.17.14",
     "@types/lodash.debounce": "^4.0.9",
-    "@types/node": "^22.14.1",
+    "@types/node": "^25.0.3",
     "@types/qs": "^6.9.18",
     "@types/react": "^19.1.5",
     "@types/react-native": "^0.73.0",
@@ -102,7 +109,8 @@
     "postcss": "^8.5.6",
     "prettier": "^3.5.2",
     "tailwindcss": "3.3.2",
-    "typescript": "^5.3.3"
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "resolutions": {
     "@babel/core": "^7.21.0"
