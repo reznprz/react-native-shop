@@ -4,8 +4,18 @@ import { BsDate, BsMonth, bsToIso, compareBs } from './bs-adapter';
 import { buildBsMonthGrid } from './bs-calendar-grid';
 
 const BS_MONTHS = [
-  'Baishakh','Jestha','Asar','Shrawan','Bhadra','Ashwin',
-  'Kartik','Mangsir','Poush','Magh','Falgun','Chaitra',
+  'Baishakh',
+  'Jestha',
+  'Asar',
+  'Shrawan',
+  'Bhadra',
+  'Ashwin',
+  'Kartik',
+  'Mangsir',
+  'Poush',
+  'Magh',
+  'Falgun',
+  'Chaitra',
 ];
 
 type Props = {
@@ -37,7 +47,7 @@ export const BsDateRangePanel: React.FC<Props> = ({
 
   const cells = useMemo(
     () => buildBsMonthGrid(currentMonth),
-    [currentMonth.year, currentMonth.month]
+    [currentMonth.year, currentMonth.month],
   );
 
   const lo = compareBs(start, end) <= 0 ? start : end;
@@ -72,14 +82,20 @@ export const BsDateRangePanel: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Pressable onPress={onPrevMonth}><Text style={styles.navBtn}>{'‹'}</Text></Pressable>
+        <Pressable onPress={onPrevMonth}>
+          <Text style={styles.navBtn}>{'‹'}</Text>
+        </Pressable>
         <Text style={styles.headerText}>{title}</Text>
-        <Pressable onPress={onNextMonth}><Text style={styles.navBtn}>{'›'}</Text></Pressable>
+        <Pressable onPress={onNextMonth}>
+          <Text style={styles.navBtn}>{'›'}</Text>
+        </Pressable>
       </View>
 
       <View style={styles.weekRow}>
-        {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map((d) => (
-          <Text key={d} style={styles.weekDay}>{d}</Text>
+        {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((d) => (
+          <Text key={d} style={styles.weekDay}>
+            {d}
+          </Text>
         ))}
       </View>
 
@@ -99,12 +115,8 @@ export const BsDateRangePanel: React.FC<Props> = ({
                 !cell.inMonth && styles.cellMuted,
               ]}
             >
-              <Text style={[styles.bsText, edge && styles.edgeText]}>
-                {cell.bs.day}
-              </Text>
-              <Text style={[styles.adHint, edge && styles.adHintOnEdge]}>
-                {cell.adHint}
-              </Text>
+              <Text style={[styles.bsText, edge && styles.edgeText]}>{cell.bs.day}</Text>
+              <Text style={[styles.adHint, edge && styles.adHintOnEdge]}>{cell.adHint}</Text>
             </Pressable>
           );
         })}
@@ -116,7 +128,12 @@ export const BsDateRangePanel: React.FC<Props> = ({
 const styles = StyleSheet.create({
   container: { flex: 1, minHeight: 0 },
 
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   navBtn: { fontSize: 22, fontWeight: '700', paddingHorizontal: 12 },
   headerText: { fontSize: 16, fontWeight: '700' },
 

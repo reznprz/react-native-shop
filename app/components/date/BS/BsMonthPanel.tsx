@@ -10,17 +10,45 @@ type Props = {
 };
 
 const BS_MONTHS = [
-  'Baishakh','Jestha','Asar','Shrawan','Bhadra','Ashwin',
-  'Kartik','Mangsir','Poush','Magh','Falgun','Chaitra',
+  'Baishakh',
+  'Jestha',
+  'Asar',
+  'Shrawan',
+  'Bhadra',
+  'Ashwin',
+  'Kartik',
+  'Mangsir',
+  'Poush',
+  'Magh',
+  'Falgun',
+  'Chaitra',
 ];
 
-const AD_MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const AD_MONTHS_SHORT = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 function adMonthShort(m: number) {
   return AD_MONTHS_SHORT[m - 1];
 }
 
-export const BsMonthPanel: React.FC<Props> = ({ year, selectedMonth, onYearChange, onSelectMonth }) => {
+export const BsMonthPanel: React.FC<Props> = ({
+  year,
+  selectedMonth,
+  onYearChange,
+  onSelectMonth,
+}) => {
   const adHints = useMemo(() => {
     const hints: Record<number, string> = {};
     for (let m = 1; m <= 12; m++) {
@@ -59,11 +87,7 @@ export const BsMonthPanel: React.FC<Props> = ({ year, selectedMonth, onYearChang
           const active = month === selectedMonth;
 
           return (
-            <Pressable
-              key={name}
-              onPress={() => onSelectMonth(month)}
-              style={styles.monthCell}
-            >
+            <Pressable key={name} onPress={() => onSelectMonth(month)} style={styles.monthCell}>
               <Text style={[styles.monthText, active && styles.monthTextActive]}>{name}</Text>
               <Text style={[styles.adHint, active && styles.adHintActive]}>{adHints[month]}</Text>
             </Pressable>
@@ -79,7 +103,12 @@ export const BsMonthPanel: React.FC<Props> = ({ year, selectedMonth, onYearChang
 const styles = StyleSheet.create({
   container: { flex: 1, minHeight: 0, backgroundColor: '#F4F6F8', borderRadius: 6, padding: 12 },
 
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
   navBtn: { fontSize: 22, fontWeight: '700', paddingHorizontal: 12 },
   headerText: { fontSize: 16, fontWeight: '800' },
 

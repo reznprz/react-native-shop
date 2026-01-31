@@ -3,8 +3,8 @@ import { View, Text, TouchableOpacity, Platform, Pressable, StyleSheet } from 'r
 import { FontAwesome5 } from '@expo/vector-icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import BaseModal from './modal/BaseModal';
-import DateRangePickerModal from '../DateRangePickerModal';
 import { DateRangeSelection, DateRangeSelectionType, getDisplayDateRange } from '../date/utils';
+import { CalendarMode, DateRangePickerModal } from '../DateRangePickerModal';
 
 type DateHeaderProps = {
   selectedDate: string;

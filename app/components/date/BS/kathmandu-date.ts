@@ -26,7 +26,7 @@ export function getTodayAdInKathmandu(): AdDate {
 export function addDaysKtm(ad: AdDate, days: number): AdDate {
   const dt = DateTime.fromObject(
     { year: ad.year, month: ad.month, day: ad.day, hour: 12 }, // noon avoids DST-like edge cases
-    { zone: KTM_TZ }
+    { zone: KTM_TZ },
   ).plus({ days });
 
   return { year: dt.year, month: dt.month, day: dt.day };
@@ -38,7 +38,7 @@ export function addDaysKtm(ad: AdDate, days: number): AdDate {
 export function weekdayMon0Ktm(ad: AdDate): number {
   const dt = DateTime.fromObject(
     { year: ad.year, month: ad.month, day: ad.day, hour: 12 },
-    { zone: KTM_TZ }
+    { zone: KTM_TZ },
   );
   return dt.weekday - 1; // Luxon: Mon=1..Sun=7
 }

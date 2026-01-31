@@ -36,6 +36,10 @@ export type DateRangeSelection =
   | {
       selectionType: DateRangeSelectionType.SINGLE_DATE;
       date: string;
+      meta?: {
+        calendar: 'AD' | 'BS';
+        bsDate?: string; // BS: "2082-10-01" (when NP mode)
+      };
     }
   | {
       selectionType: DateRangeSelectionType.DATE_RANGE;
@@ -47,6 +51,7 @@ export type DateRangeSelection =
         bsStart?: string; // "2082-01-01"
         bsEnd?: string; // "2082-01-31"
         mode?: 'DATE_RANGE' | 'MONTH';
+        bsMonth?: { year: number; month: number };
       };
     };
 
@@ -71,28 +76,87 @@ export function atMidnight(d: Date) {
   return copy;
 }
 
+function formatAdIso(iso: string) {
+  return iso; // keep "YYYY-MM-DD" (safe & consistent)
+}
+
+function parseBsIso(bsIso: string) {
+  // "2082-10-01"
+  const [y, m, d] = bsIso.split('-').map(Number);
+  return { year: y, month: m, day: d };
+}
+
+function formatBsDate(bsIso: string) {
+  const { year, month, day } = parseBsIso(bsIso);
+  const monthName = BS_MONTHS[month - 1] ?? `M${month}`;
+  return `${monthName} ${day}, ${year}`;
+}
+
+function formatBsMonthLabel(year: number, month: number) {
+  const monthName = BS_MONTHS[month - 1] ?? `M${month}`;
+  return `${monthName} ${year}`;
+}
+
+/**
+ * Display label rules:
+ * - QUICK_RANGE: label
+ * - TIME_RANGE_TODAY: same as before
+ * - SINGLE_DATE:
+ *    - if meta.calendar === 'BS' and meta.bsDate exists => "BS (AD)"
+ *    - else => "Date: AD"
+ * - DATE_RANGE:
+ *    - if meta.calendar === 'BS' and mode === 'MONTH' and meta.bsMonth exists => "MonthName Year (AD range)"
+ *    - else if meta.calendar === 'BS' and bsStart/bsEnd exist => "BS range (AD range)"
+ *    - else => "AD range"
+ */
 export function getDisplayDateRange(selection: DateRangeSelection): string {
   switch (selection.selectionType) {
     case DateRangeSelectionType.QUICK_RANGE:
-      // e.g. "Past 15 Mins"
       return selection.quickRange.label;
 
     case DateRangeSelectionType.TIME_RANGE_TODAY: {
-      // e.g. "Today 00:00 → 01:00"
       const { startHour, startMin, endHour, endMin } = selection;
       const formatHM = (h: number, m: number) =>
         `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
       return `Today ${formatHM(startHour, startMin)} → ${formatHM(endHour, endMin)}`;
     }
 
-    case DateRangeSelectionType.SINGLE_DATE:
-      // e.g. "Date: 2025-03-25"
-      return `Date: ${selection.date}`;
+    case DateRangeSelectionType.SINGLE_DATE: {
+      const adText = formatAdIso(selection.date);
+
+      // If BS selection, show BS + AD
+      if (selection.meta?.calendar === 'BS' && selection.meta.bsDate) {
+        const bsText = formatBsDate(selection.meta.bsDate);
+        return `${bsText} (${adText})`;
+      }
+
+      // Otherwise AD-only
+      return `Date: ${adText}`;
+    }
 
     case DateRangeSelectionType.DATE_RANGE:
-    default:
-      // e.g. "2025-03-20 → 2025-03-22"
-      const { startDate, endDate } = selection;
-      return `${startDate} → ${endDate}`;
+    default: {
+      const adStart = formatAdIso(selection.startDate);
+      const adEnd = formatAdIso(selection.endDate);
+      const adRange = `${adStart} → ${adEnd}`;
+
+      const meta = selection.meta;
+
+      // Month mode (BS): use month name label
+      if (meta?.calendar === 'BS' && meta.mode === 'MONTH' && meta.bsMonth) {
+        const monthLabel = formatBsMonthLabel(meta.bsMonth.year, meta.bsMonth.month);
+        return `${monthLabel} (${adRange})`;
+      }
+
+      // BS range: show BS + AD
+      if (meta?.calendar === 'BS' && meta.bsStart && meta.bsEnd) {
+        const bsStartText = formatBsDate(meta.bsStart);
+        const bsEndText = formatBsDate(meta.bsEnd);
+        return `${bsStartText} → ${bsEndText} (${adRange})`;
+      }
+
+      // Otherwise AD-only
+      return adRange;
+    }
   }
 }

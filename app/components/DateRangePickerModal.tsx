@@ -1,13 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {
-  View,
-  Text,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Platform,
-  useWindowDimensions,
-} from 'react-native';
+import { View, Text, Modal, Pressable, StyleSheet, Platform } from 'react-native';
 
 import { QuickRangePanel } from './date/QuickRangePanel';
 import { ADDatePicker } from './date/AD/ADDatePicker';
@@ -21,12 +13,12 @@ import {
   QuickRangePayload,
 } from './date/utils';
 
-import { adToBs, bsToAd, getBsMonthDays, getTodayBsInKathmandu } from './date/BS/bs-adapter';
-import { adToIso, pad2 } from './date/BS/kathmandu-date';
+import { adToBs, bsToAd, bsToIso, getTodayBsInKathmandu, nextBsMonth } from './date/BS/bs-adapter';
+import { addDaysKtm, adToIso, pad2 } from './date/BS/kathmandu-date';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
 // BS adapter (for Month/BS conversions when applying)
-enum CalendarMode {
+export enum CalendarMode {
   EN = 'EN',
   NP = 'NP',
 }
@@ -108,9 +100,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   // Month tab flag (BS only)
   const [isBsMonthTab, setIsBsMonthTab] = useState(false);
 
-  // --------------------------------------------
   // Parent handlers
-  // --------------------------------------------
   const handleQuickRange = (label: string, unit?: 'minutes' | 'days', value?: number) => {
     setActiveQuickRange({ label, unit, value });
     setActiveSubTab(DateRangeSelectionType.QUICK_RANGE);
@@ -142,9 +132,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     }
   };
 
-  // --------------------------------------------
   // AD Calendar: build 42 days
-  // --------------------------------------------
   const adCalendarDays = useMemo(() => {
     const firstOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const dayOfWeek = firstOfMonth.getDay(); // 0=Sun..6=Sat
@@ -206,9 +194,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     return t >= Math.min(s, e) && t <= Math.max(s, e);
   };
 
-  // --------------------------------------------
   // BS month navigation helpers
-  // --------------------------------------------
   const bsPrevMonth = () => {
     setCurrentBsMonth((m) =>
       m.month === 1 ? { year: m.year - 1, month: 12 } : { year: m.year, month: m.month - 1 },
@@ -221,9 +207,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     );
   };
 
-  // --------------------------------------------
   // APPLY: single place builds payload (AD or BS)
-  // --------------------------------------------
   const handleApply = () => {
     let result: DateRangeSelection;
 
@@ -270,17 +254,26 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     if (calendarMode === CalendarMode.NP) {
       // Month tab -> DATE_RANGE, converted to AD
       if (isBsMonthTab) {
-        const lastDay = getBsMonthDays(selectedBsMonth.year, selectedBsMonth.month);
-
-        const bsStart: BsDate = { year: selectedBsMonth.year, month: selectedBsMonth.month, day: 1 };
-        const bsEnd: BsDate = {
+        // BS month start
+        const bsStart: BsDate = {
           year: selectedBsMonth.year,
           month: selectedBsMonth.month,
-          day: lastDay,
+          day: 1,
         };
 
+        // Next BS month start
+        const next = nextBsMonth(selectedBsMonth);
+        const bsNextStart: BsDate = { year: next.year, month: next.month, day: 1 };
+
+        // Convert both to AD using your STABLE conversion
         const adStart = bsToAd(bsStart);
-        const adEnd = bsToAd(bsEnd);
+        const adNextStart = bsToAd(bsNextStart);
+
+        // End date = day before next month starts (Kathmandu-canonical)
+        const adEnd = addDaysKtm(adNextStart, -1);
+
+        // Optional: get the real BS end by converting AD end back to BS (stable)
+        const bsEnd = adToBs(adEnd);
 
         result = {
           selectionType: DateRangeSelectionType.DATE_RANGE,
@@ -289,8 +282,9 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
           meta: {
             calendar: 'BS',
             mode: 'MONTH',
-            bsStart: `${bsStart.year}-${pad2(bsStart.month)}-${pad2(bsStart.day)}`,
-            bsEnd: `${bsEnd.year}-${pad2(bsEnd.month)}-${pad2(bsEnd.day)}`,
+            bsStart: bsToIso(bsStart),
+            bsEnd: bsToIso(bsEnd),
+            bsMonth: { year: selectedBsMonth.year, month: selectedBsMonth.month },
           },
         };
         onApply(result);
@@ -303,6 +297,10 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
         result = {
           selectionType: DateRangeSelectionType.SINGLE_DATE,
           date: adToIso(ad),
+          meta: {
+            calendar: 'BS',
+            bsDate: `${singleBsDate.year}-${pad2(singleBsDate.month)}-${pad2(singleBsDate.day)}`,
+          },
         };
         onApply(result);
         return;

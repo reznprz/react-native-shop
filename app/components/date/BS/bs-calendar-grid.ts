@@ -9,7 +9,20 @@ export type BsGridCell = {
   adHint: string;
 };
 
-const AD_MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const AD_MONTHS_SHORT = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+];
 
 function adHint(ad: AdDate) {
   return `${AD_MONTHS_SHORT[ad.month - 1]} ${ad.day}`;

@@ -1,11 +1,5 @@
 import DateConverter from '@remotemerge/nepali-date-converter';
-import {
-  AdDate,
-  addDaysKtm,
-  adToIso,
-  getTodayAdInKathmandu,
-  pad2,
-} from './kathmandu-date';
+import { AdDate, addDaysKtm, adToIso, getTodayAdInKathmandu, pad2 } from './kathmandu-date';
 
 export type BsDate = {
   year: number;
@@ -41,7 +35,7 @@ function adToBsRaw(ad: AdDate): BsDate {
   return {
     year: out.year,
     month: out.month,
-    day: out.date, // ✅ IMPORTANT: out.date is day-of-month, out.day is weekday string
+    day: out.date, // IMPORTANT: out.date is day-of-month, out.day is weekday string
   };
 }
 
@@ -125,17 +119,25 @@ export function compareBs(a: BsDate, b: BsDate): number {
 
 /**
  * Days in BS month, derived by probing 32..28.
- * Uses RAW conversion (validity check), not stable conversion.
+ * We must validate because the library may NOT throw for invalid dates
+ * (it can rollover). So we do a round-trip check.
  */
 export function getBsMonthDays(year: number, month: number): number {
   for (let d = 32; d >= 28; d--) {
+    const candidate: BsDate = { year, month, day: d };
+
     try {
-      new DateConverter(`${year}-${pad2(month)}-${pad2(d)}`).toAd();
-      return d;
+      const ad = bsToAdRaw(candidate); // convert candidate
+      const bsBack = adToBsRaw(ad); // convert back
+
+      // accept only if it round-trips correctly
+      if (sameBs(bsBack, candidate)) return d;
     } catch {
-      // continue
+      // ignore
     }
   }
+
+  // fallback (rare)
   return 30;
 }
 
