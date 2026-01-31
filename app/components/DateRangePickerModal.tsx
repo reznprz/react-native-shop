@@ -1,9 +1,18 @@
-import React, { useState, useMemo } from 'react';
-import { View, Text, Modal, Pressable, StyleSheet, Platform } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Platform,
+  useWindowDimensions,
+} from 'react-native';
+
 import { QuickRangePanel } from './date/QuickRangePanel';
-import { TimeRangeTodayPanel } from './date/TimeRangeTodayPanel';
-import { SingleDatePanel } from './date/SingleDatePanel';
-import { DateRangePanel } from './date/DateRangePanel';
+import { ADDatePicker } from './date/AD/ADDatePicker';
+import { BSDatePicker, BsMonth } from './date/BS/BSDatePicker';
+
 import {
   atMidnight,
   DateRangeSelection,
@@ -12,178 +21,17 @@ import {
   QuickRangePayload,
 } from './date/utils';
 
-// --------------------------------------------------
-// Custom Hook: useDateRangePickerLogic
-// Encapsulates state & logic for all date range modes
-// --------------------------------------------------
-function useDateRangePickerLogic() {
-  // Which sub-tab is active
-  const [activeSubTab, setActiveSubTab] = useState<DateRangeSelectionType>(
-    DateRangeSelectionType.TIME_RANGE_TODAY,
-  );
+import { adToBs, bsToAd, getBsMonthDays, getTodayBsInKathmandu } from './date/BS/bs-adapter';
+import { adToIso, pad2 } from './date/BS/kathmandu-date';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
-  // QUICK RANGE
-  const [activeQuickRange, setActiveQuickRange] = useState<QuickRangePayload | null>(null);
-
-  // TIME RANGE (TODAY)
-  const [todayStartHour, setTodayStartHour] = useState(0);
-  const [todayStartMin, setTodayStartMin] = useState(0);
-  const [todayEndHour, setTodayEndHour] = useState(1);
-  const [todayEndMin, setTodayEndMin] = useState(0);
-
-  // SINGLE DATE
-  const [singleDate, setSingleDate] = useState<Date>(atMidnight(new Date()));
-
-  // DATE RANGE
-  const [startDateRange, setStartDateRange] = useState<Date>(atMidnight(new Date()));
-  const [endDateRange, setEndDateRange] = useState<Date>(atMidnight(new Date()));
-  // "2-click approach" for selecting date ranges
-  const [rangeClicks, setRangeClicks] = useState(0);
-
-  // Shared calendar state (for SINGLE_DATE & DATE_RANGE)
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
-
-  /** Switch sub-tab => reset relevant states. */
-  const handleSubTabChange = (newTab: DateRangeSelectionType) => {
-    setActiveSubTab(newTab);
-
-    // Reset states for whichever sub-tab is selected
-    switch (newTab) {
-      case DateRangeSelectionType.QUICK_RANGE:
-        setActiveQuickRange(null);
-        break;
-      case DateRangeSelectionType.TIME_RANGE_TODAY:
-        setTodayStartHour(0);
-        setTodayStartMin(0);
-        setTodayEndHour(1);
-        setTodayEndMin(0);
-        break;
-      case DateRangeSelectionType.SINGLE_DATE:
-        setSingleDate(atMidnight(new Date()));
-        break;
-      case DateRangeSelectionType.DATE_RANGE:
-        setStartDateRange(atMidnight(new Date()));
-        setEndDateRange(atMidnight(new Date()));
-        setRangeClicks(0);
-        break;
-    }
-  };
-
-  /** QUICK RANGES => set the active quick range. */
-  const handleQuickRange = (label: string, unit?: 'minutes' | 'days', value?: number) => {
-    setActiveQuickRange({ label, unit, value });
-    setActiveSubTab(DateRangeSelectionType.QUICK_RANGE);
-  };
-
-  /** Calendar month nav => next/previous month. */
-  const nextMonth = () => {
-    const d = new Date(currentMonth);
-    d.setMonth(d.getMonth() + 1);
-    setCurrentMonth(d);
-  };
-  const prevMonth = () => {
-    const d = new Date(currentMonth);
-    d.setMonth(d.getMonth() - 1);
-    setCurrentMonth(d);
-  };
-
-  /** Build array of 42 days for the displayed month (Mon-Sun layout). */
-  const calendarDays = useMemo(() => {
-    const firstOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
-    const dayOfWeek = firstOfMonth.getDay(); // 0 = Sunday, ... 6 = Saturday
-    // shift so Monday is day 0
-    const offset = (dayOfWeek + 6) % 7;
-
-    const start = new Date(firstOfMonth);
-    start.setDate(start.getDate() - offset);
-
-    const days: Date[] = [];
-    for (let i = 0; i < 42; i++) {
-      days.push(new Date(start));
-      start.setDate(start.getDate() + 1);
-    }
-    return days;
-  }, [currentMonth]);
-
-  /** SINGLE_DATE => one-click picks that date. */
-  const selectSingleDate = (clicked: Date) => {
-    setSingleDate(clicked);
-  };
-
-  /**
-   * DATE_RANGE => 2-click approach:
-   *  1st click: set startDate/endDate = clicked
-   *  2nd click: set endDate = clicked; if clicked < start => swap
-   *  3rd click: reset & treat it as new start
-   */
-  const handleDateRangeClick = (clicked: Date) => {
-    if (rangeClicks === 0) {
-      setStartDateRange(clicked);
-      setEndDateRange(clicked);
-      setRangeClicks(1);
-    } else if (rangeClicks === 1) {
-      // second click
-      if (clicked.getTime() < startDateRange.getTime()) {
-        setEndDateRange(startDateRange);
-        setStartDateRange(clicked);
-      } else {
-        setEndDateRange(clicked);
-      }
-      setRangeClicks(2);
-    } else {
-      // third click => reset
-      setStartDateRange(clicked);
-      setEndDateRange(clicked);
-      setRangeClicks(1);
-    }
-  };
-
-  /** Check if a day is in the selected [startDate, endDate]. */
-  const isInSelectedRange = (day: Date) => {
-    const t = day.getTime();
-    const s = startDateRange.getTime();
-    const e = endDateRange.getTime();
-    return t >= Math.min(s, e) && t <= Math.max(s, e);
-  };
-
-  /** Main day-press handler => depends on sub-tab. */
-  const handleDayPress = (day: Date) => {
-    const clickedMidnight = atMidnight(day);
-
-    if (activeSubTab === DateRangeSelectionType.SINGLE_DATE) {
-      selectSingleDate(clickedMidnight);
-    } else if (activeSubTab === DateRangeSelectionType.DATE_RANGE) {
-      handleDateRangeClick(clickedMidnight);
-    }
-  };
-
-  return {
-    // States
-    activeSubTab,
-    activeQuickRange,
-    todayStartHour,
-    todayStartMin,
-    todayEndHour,
-    todayEndMin,
-    singleDate,
-    startDateRange,
-    endDateRange,
-    currentMonth,
-    calendarDays,
-
-    // Handlers
-    handleSubTabChange,
-    handleQuickRange,
-    setTodayStartHour,
-    setTodayStartMin,
-    setTodayEndHour,
-    setTodayEndMin,
-    prevMonth,
-    nextMonth,
-    handleDayPress,
-    isInSelectedRange,
-  };
+// BS adapter (for Month/BS conversions when applying)
+enum CalendarMode {
+  EN = 'EN',
+  NP = 'NP',
 }
+
+type BsDate = { year: number; month: number; day: number };
 
 type DateRangePickerModalProps = {
   visible: boolean;
@@ -213,100 +61,319 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     DateRangeSelectionType.DATE_RANGE,
   ],
 }) => {
-  const {
-    activeSubTab,
-    activeQuickRange,
-    todayStartHour,
-    todayStartMin,
-    todayEndHour,
-    todayEndMin,
-    singleDate,
-    startDateRange,
-    endDateRange,
-    currentMonth,
-    calendarDays,
-    handleSubTabChange,
-    handleQuickRange,
-    setTodayStartHour,
-    setTodayStartMin,
-    setTodayEndHour,
-    setTodayEndMin,
-    prevMonth,
-    nextMonth,
-    handleDayPress,
-    isInSelectedRange,
-  } = useDateRangePickerLogic();
+  const displayedSubTabs = enabledSubTabs;
 
+  const { isLargeScreen } = useIsDesktop();
+
+  // Parent owns "mode" + "active tab"
+  const [calendarMode, setCalendarMode] = useState<CalendarMode>(CalendarMode.EN);
+  const [activeSubTab, setActiveSubTab] = useState<DateRangeSelectionType>(
+    DateRangeSelectionType.TIME_RANGE_TODAY,
+  );
+
+  // Parent owns AD state
+  const [activeQuickRange, setActiveQuickRange] = useState<QuickRangePayload | null>(null);
+
+  const [todayStartHour, setTodayStartHour] = useState(0);
+  const [todayStartMin, setTodayStartMin] = useState(0);
+  const [todayEndHour, setTodayEndHour] = useState(1);
+  const [todayEndMin, setTodayEndMin] = useState(0);
+
+  const [singleDate, setSingleDate] = useState<Date>(atMidnight(new Date()));
+
+  const [startDateRange, setStartDateRange] = useState<Date>(atMidnight(new Date()));
+  const [endDateRange, setEndDateRange] = useState<Date>(atMidnight(new Date()));
+  const [rangeClicks, setRangeClicks] = useState(0);
+
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+
+  // Parent owns BS state
+  const todayBs = useMemo(() => getTodayBsInKathmandu(), []);
+
+  const [singleBsDate, setSingleBsDate] = useState(todayBs);
+  const [startBsRange, setStartBsRange] = useState(todayBs);
+  const [endBsRange, setEndBsRange] = useState(todayBs);
+  const [bsRangeClicks, setBsRangeClicks] = useState(0);
+
+  const [currentBsMonth, setCurrentBsMonth] = useState<BsMonth>({
+    year: todayBs.year,
+    month: todayBs.month,
+  });
+
+  const [selectedBsMonth, setSelectedBsMonth] = useState<BsMonth>({
+    year: todayBs.year,
+    month: todayBs.month,
+  });
+
+  // Month tab flag (BS only)
+  const [isBsMonthTab, setIsBsMonthTab] = useState(false);
+
+  // --------------------------------------------
+  // Parent handlers
+  // --------------------------------------------
+  const handleQuickRange = (label: string, unit?: 'minutes' | 'days', value?: number) => {
+    setActiveQuickRange({ label, unit, value });
+    setActiveSubTab(DateRangeSelectionType.QUICK_RANGE);
+    setIsBsMonthTab(false);
+  };
+
+  const handleSubTabChange = (tab: DateRangeSelectionType) => {
+    setActiveSubTab(tab);
+    setIsBsMonthTab(false);
+
+    switch (tab) {
+      case DateRangeSelectionType.QUICK_RANGE:
+        setActiveQuickRange(null);
+        break;
+      case DateRangeSelectionType.TIME_RANGE_TODAY:
+        setTodayStartHour(0);
+        setTodayStartMin(0);
+        setTodayEndHour(1);
+        setTodayEndMin(0);
+        break;
+      case DateRangeSelectionType.SINGLE_DATE:
+        setSingleDate(atMidnight(new Date()));
+        break;
+      case DateRangeSelectionType.DATE_RANGE:
+        setStartDateRange(atMidnight(new Date()));
+        setEndDateRange(atMidnight(new Date()));
+        setRangeClicks(0);
+        break;
+    }
+  };
+
+  // --------------------------------------------
+  // AD Calendar: build 42 days
+  // --------------------------------------------
+  const adCalendarDays = useMemo(() => {
+    const firstOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+    const dayOfWeek = firstOfMonth.getDay(); // 0=Sun..6=Sat
+    const offset = (dayOfWeek + 6) % 7; // Mon=0
+
+    const start = new Date(firstOfMonth);
+    start.setDate(start.getDate() - offset);
+
+    const days: Date[] = [];
+    for (let i = 0; i < 42; i++) {
+      days.push(new Date(start));
+      start.setDate(start.getDate() + 1);
+    }
+    return days;
+  }, [currentMonth]);
+
+  const adPrevMonth = () => {
+    const d = new Date(currentMonth);
+    d.setMonth(d.getMonth() - 1);
+    setCurrentMonth(d);
+  };
+
+  const adNextMonth = () => {
+    const d = new Date(currentMonth);
+    d.setMonth(d.getMonth() + 1);
+    setCurrentMonth(d);
+  };
+
+  const handleAdDayPress = (day: Date) => {
+    const clickedMidnight = atMidnight(day);
+
+    if (activeSubTab === DateRangeSelectionType.SINGLE_DATE) {
+      setSingleDate(clickedMidnight);
+    } else if (activeSubTab === DateRangeSelectionType.DATE_RANGE) {
+      if (rangeClicks === 0) {
+        setStartDateRange(clickedMidnight);
+        setEndDateRange(clickedMidnight);
+        setRangeClicks(1);
+      } else if (rangeClicks === 1) {
+        if (clickedMidnight.getTime() < startDateRange.getTime()) {
+          setEndDateRange(startDateRange);
+          setStartDateRange(clickedMidnight);
+        } else {
+          setEndDateRange(clickedMidnight);
+        }
+        setRangeClicks(2);
+      } else {
+        setStartDateRange(clickedMidnight);
+        setEndDateRange(clickedMidnight);
+        setRangeClicks(1);
+      }
+    }
+  };
+
+  const isInAdSelectedRange = (day: Date) => {
+    const t = day.getTime();
+    const s = startDateRange.getTime();
+    const e = endDateRange.getTime();
+    return t >= Math.min(s, e) && t <= Math.max(s, e);
+  };
+
+  // --------------------------------------------
+  // BS month navigation helpers
+  // --------------------------------------------
+  const bsPrevMonth = () => {
+    setCurrentBsMonth((m) =>
+      m.month === 1 ? { year: m.year - 1, month: 12 } : { year: m.year, month: m.month - 1 },
+    );
+  };
+
+  const bsNextMonth = () => {
+    setCurrentBsMonth((m) =>
+      m.month === 12 ? { year: m.year + 1, month: 1 } : { year: m.year, month: m.month + 1 },
+    );
+  };
+
+  // --------------------------------------------
+  // APPLY: single place builds payload (AD or BS)
+  // --------------------------------------------
   const handleApply = () => {
     let result: DateRangeSelection;
-    switch (activeSubTab) {
-      case DateRangeSelectionType.QUICK_RANGE: {
-        // If a quickRange is actually selected, use that; otherwise, send a fallback
-        if (activeQuickRange) {
-          result = {
-            selectionType: DateRangeSelectionType.QUICK_RANGE,
-            quickRange: activeQuickRange,
-          };
-        } else {
-          result = {
-            selectionType: DateRangeSelectionType.QUICK_RANGE,
-            quickRange: { label: 'Unknown' },
-          };
-        }
-        break;
-      }
-      case DateRangeSelectionType.TIME_RANGE_TODAY: {
-        result = {
-          selectionType: DateRangeSelectionType.TIME_RANGE_TODAY,
-          startHour: todayStartHour,
-          startMin: todayStartMin,
-          endHour: todayEndHour,
-          endMin: todayEndMin,
-        };
-        break;
-      }
-      case DateRangeSelectionType.SINGLE_DATE: {
+
+    if (activeSubTab === DateRangeSelectionType.QUICK_RANGE) {
+      result = {
+        selectionType: DateRangeSelectionType.QUICK_RANGE,
+        quickRange: activeQuickRange ?? { label: 'Unknown' },
+      };
+      onApply(result);
+      return;
+    }
+
+    if (activeSubTab === DateRangeSelectionType.TIME_RANGE_TODAY) {
+      result = {
+        selectionType: DateRangeSelectionType.TIME_RANGE_TODAY,
+        startHour: todayStartHour,
+        startMin: todayStartMin,
+        endHour: todayEndHour,
+        endMin: todayEndMin,
+      };
+      onApply(result);
+      return;
+    }
+
+    // EN mode
+    if (calendarMode === CalendarMode.EN) {
+      if (activeSubTab === DateRangeSelectionType.SINGLE_DATE) {
         result = {
           selectionType: DateRangeSelectionType.SINGLE_DATE,
           date: singleDate.toISOString().split('T')[0],
         };
-        break;
-      }
-      case DateRangeSelectionType.DATE_RANGE:
-      default: {
+      } else {
         result = {
           selectionType: DateRangeSelectionType.DATE_RANGE,
           startDate: startDateRange.toISOString().split('T')[0],
           endDate: endDateRange.toISOString().split('T')[0],
         };
-        break;
       }
+      onApply(result);
+      return;
     }
-    onApply(result);
-  };
 
-  const displayedSubTabs = enabledSubTabs || [
-    DateRangeSelectionType.TIME_RANGE_TODAY,
-    DateRangeSelectionType.SINGLE_DATE,
-    DateRangeSelectionType.DATE_RANGE,
-  ];
+    // NP mode
+    if (calendarMode === CalendarMode.NP) {
+      // Month tab -> DATE_RANGE, converted to AD
+      if (isBsMonthTab) {
+        const lastDay = getBsMonthDays(selectedBsMonth.year, selectedBsMonth.month);
+
+        const bsStart: BsDate = { year: selectedBsMonth.year, month: selectedBsMonth.month, day: 1 };
+        const bsEnd: BsDate = {
+          year: selectedBsMonth.year,
+          month: selectedBsMonth.month,
+          day: lastDay,
+        };
+
+        const adStart = bsToAd(bsStart);
+        const adEnd = bsToAd(bsEnd);
+
+        result = {
+          selectionType: DateRangeSelectionType.DATE_RANGE,
+          startDate: adToIso(adStart),
+          endDate: adToIso(adEnd),
+          meta: {
+            calendar: 'BS',
+            mode: 'MONTH',
+            bsStart: `${bsStart.year}-${pad2(bsStart.month)}-${pad2(bsStart.day)}`,
+            bsEnd: `${bsEnd.year}-${pad2(bsEnd.month)}-${pad2(bsEnd.day)}`,
+          },
+        };
+        onApply(result);
+        return;
+      }
+
+      // BS Specific Date -> SINGLE_DATE
+      if (activeSubTab === DateRangeSelectionType.SINGLE_DATE) {
+        const ad = bsToAd(singleBsDate);
+        result = {
+          selectionType: DateRangeSelectionType.SINGLE_DATE,
+          date: adToIso(ad),
+        };
+        onApply(result);
+        return;
+      }
+
+      // BS Date Range -> DATE_RANGE
+      const adStart = bsToAd(startBsRange);
+      const adEnd = bsToAd(endBsRange);
+
+      result = {
+        selectionType: DateRangeSelectionType.DATE_RANGE,
+        startDate: adToIso(adStart),
+        endDate: adToIso(adEnd),
+        meta: {
+          calendar: 'BS',
+          mode: 'DATE_RANGE',
+          bsStart: `${startBsRange.year}-${pad2(startBsRange.month)}-${pad2(startBsRange.day)}`,
+          bsEnd: `${endBsRange.year}-${pad2(endBsRange.month)}-${pad2(endBsRange.day)}`,
+        },
+      };
+      onApply(result);
+    }
+  };
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        <View style={styles.modalContainer}>
+        <View style={[styles.modalContainer, !isLargeScreen && styles.modalContainerSmall]}>
           <View style={[styles.topRow, { minHeight: 500 }]}>
-            {/* LEFT SIDEBAR: Quick Ranges (render only if we have quickRanges) */}
-            {quickRanges && quickRanges.length > 0 && (
+            {/* LEFT (only large screens) */}
+            {isLargeScreen && quickRanges?.length ? (
               <QuickRangePanel
                 quickRanges={quickRanges}
                 activeQuickRange={activeQuickRange}
                 onSelectRange={handleQuickRange}
               />
-            )}
+            ) : null}
 
-            {/* RIGHT CONTENT: Sub-Tab Navigation & Panels */}
+            {/* RIGHT */}
             <View style={styles.rightContainer}>
+              {/* mode toggle */}
+              <View style={styles.modeRow}>
+                <Pressable
+                  onPress={() => setCalendarMode(CalendarMode.EN)}
+                  style={[styles.modeBtn, calendarMode === CalendarMode.EN && styles.modeBtnActive]}
+                >
+                  <Text
+                    style={[
+                      styles.modeBtnText,
+                      calendarMode === CalendarMode.EN && styles.modeBtnTextActive,
+                    ]}
+                  >
+                    English
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => setCalendarMode(CalendarMode.NP)}
+                  style={[styles.modeBtn, calendarMode === CalendarMode.NP && styles.modeBtnActive]}
+                >
+                  <Text
+                    style={[
+                      styles.modeBtnText,
+                      calendarMode === CalendarMode.NP && styles.modeBtnTextActive,
+                    ]}
+                  >
+                    Nepali
+                  </Text>
+                </Pressable>
+              </View>
+
+              {/* sub tabs */}
               <View style={styles.subTabRow}>
                 {displayedSubTabs.map((subTabType) => {
                   let label = '';
@@ -333,13 +400,15 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
                       onPress={() => handleSubTabChange(subTabType)}
                       style={[
                         styles.subTabBtn,
-                        activeSubTab === subTabType && styles.subTabBtnActive,
+                        activeSubTab === subTabType && !isBsMonthTab && styles.subTabBtnActive,
                       ]}
                     >
                       <Text
                         style={[
                           styles.subTabBtnText,
-                          activeSubTab === subTabType && styles.subTabBtnTextActive,
+                          activeSubTab === subTabType &&
+                            !isBsMonthTab &&
+                            styles.subTabBtnTextActive,
                         ]}
                       >
                         {label}
@@ -347,71 +416,87 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
                     </Pressable>
                   );
                 })}
+
+                {/* BS-only Month tab */}
+                {calendarMode === CalendarMode.NP && (
+                  <Pressable
+                    onPress={() => {
+                      setIsBsMonthTab(true);
+                      setActiveSubTab(DateRangeSelectionType.DATE_RANGE);
+                    }}
+                    style={[styles.subTabBtn, isBsMonthTab && styles.subTabBtnActive]}
+                  >
+                    <Text
+                      style={[styles.subTabBtnText, isBsMonthTab && styles.subTabBtnTextActive]}
+                    >
+                      Month
+                    </Text>
+                  </Pressable>
+                )}
               </View>
 
-              <View style={{ flex: 1, minHeight: 300 }}>
-                {/* TIME RANGE (TODAY) */}
-                {activeSubTab === DateRangeSelectionType.TIME_RANGE_TODAY &&
-                  displayedSubTabs.includes(DateRangeSelectionType.TIME_RANGE_TODAY) && (
-                    <TimeRangeTodayPanel
-                      todayStartHour={todayStartHour}
-                      todayStartMin={todayStartMin}
-                      todayEndHour={todayEndHour}
-                      todayEndMin={todayEndMin}
-                      setTodayStartHour={setTodayStartHour}
-                      setTodayStartMin={setTodayStartMin}
-                      setTodayEndHour={setTodayEndHour}
-                      setTodayEndMin={setTodayEndMin}
-                    />
-                  )}
+              {/* picker panels */}
+              {calendarMode === CalendarMode.EN ? (
+                <ADDatePicker
+                  activeSubTab={activeSubTab}
+                  displayedSubTabs={displayedSubTabs}
+                  todayStartHour={todayStartHour}
+                  todayStartMin={todayStartMin}
+                  todayEndHour={todayEndHour}
+                  todayEndMin={todayEndMin}
+                  setTodayStartHour={setTodayStartHour}
+                  setTodayStartMin={setTodayStartMin}
+                  setTodayEndHour={setTodayEndHour}
+                  setTodayEndMin={setTodayEndMin}
+                  singleDate={singleDate}
+                  currentMonth={currentMonth}
+                  calendarDays={adCalendarDays}
+                  onPrevMonth={adPrevMonth}
+                  onNextMonth={adNextMonth}
+                  onDayPress={handleAdDayPress}
+                  startDateRange={startDateRange}
+                  endDateRange={endDateRange}
+                  isInSelectedRange={isInAdSelectedRange}
+                />
+              ) : (
+                <BSDatePicker
+                  activeSubTab={activeSubTab}
+                  displayedSubTabs={displayedSubTabs}
+                  isMonthTab={isBsMonthTab}
+                  todayStartHour={todayStartHour}
+                  todayStartMin={todayStartMin}
+                  todayEndHour={todayEndHour}
+                  todayEndMin={todayEndMin}
+                  setTodayStartHour={setTodayStartHour}
+                  setTodayStartMin={setTodayStartMin}
+                  setTodayEndHour={setTodayEndHour}
+                  setTodayEndMin={setTodayEndMin}
+                  singleBsDate={singleBsDate}
+                  setSingleBsDate={setSingleBsDate}
+                  startBsRange={startBsRange}
+                  endBsRange={endBsRange}
+                  bsRangeClicks={bsRangeClicks}
+                  setStartBsRange={setStartBsRange}
+                  setEndBsRange={setEndBsRange}
+                  setBsRangeClicks={setBsRangeClicks}
+                  currentBsMonth={currentBsMonth}
+                  onPrevBsMonth={bsPrevMonth}
+                  onNextBsMonth={bsNextMonth}
+                  selectedBsMonth={selectedBsMonth}
+                  setSelectedBsMonth={setSelectedBsMonth}
+                />
+              )}
 
-                {/* SINGLE DATE PICKER */}
-                {activeSubTab === DateRangeSelectionType.SINGLE_DATE &&
-                  displayedSubTabs.includes(DateRangeSelectionType.SINGLE_DATE) && (
-                    <SingleDatePanel
-                      singleDate={singleDate}
-                      currentMonth={currentMonth}
-                      calendarDays={calendarDays}
-                      onPrevMonth={prevMonth}
-                      onNextMonth={nextMonth}
-                      onDayPress={handleDayPress}
-                    />
-                  )}
-
-                {/* DATE RANGE PICKER */}
-                {activeSubTab === DateRangeSelectionType.DATE_RANGE &&
-                  displayedSubTabs.includes(DateRangeSelectionType.DATE_RANGE) && (
-                    <DateRangePanel
-                      currentMonth={currentMonth}
-                      calendarDays={calendarDays}
-                      onPrevMonth={prevMonth}
-                      onNextMonth={nextMonth}
-                      onDayPress={handleDayPress}
-                      isInSelectedRange={isInSelectedRange}
-                    />
-                  )}
-
-                {/* QUICK RANGE tab (if you want a separate tab for it) */}
-                {activeSubTab === DateRangeSelectionType.QUICK_RANGE &&
-                  displayedSubTabs.includes(DateRangeSelectionType.QUICK_RANGE) && (
-                    <View style={styles.subTabContent}>
-                      <Text style={{ textAlign: 'center', marginTop: 20 }}>
-                        Please select a quick range from the left panel.
-                      </Text>
-                    </View>
-                  )}
+              {/* FOOTER (common) */}
+              <View style={styles.footer}>
+                <Pressable onPress={onClose} style={[styles.btn, styles.cancelBtn]}>
+                  <Text style={styles.btnText}>Cancel</Text>
+                </Pressable>
+                <Pressable onPress={handleApply} style={[styles.btn, styles.applyBtn]}>
+                  <Text style={styles.btnText}>Apply</Text>
+                </Pressable>
               </View>
             </View>
-          </View>
-
-          {/* FOOTER */}
-          <View style={styles.footer}>
-            <Pressable onPress={onClose} style={[styles.btn, styles.cancelBtn]}>
-              <Text style={styles.btnText}>Cancel</Text>
-            </Pressable>
-            <Pressable onPress={handleApply} style={[styles.btn, styles.applyBtn]}>
-              <Text style={styles.btnText}>Apply</Text>
-            </Pressable>
           </View>
         </View>
       </View>
@@ -433,17 +518,27 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
   },
-  topRow: {
-    flexDirection: 'row',
+  modalContainerSmall: {
+    width: '95%',
+    maxWidth: 520,
   },
-  rightContainer: {
-    flex: 1,
-    padding: 12,
-  },
-  subTabRow: {
+
+  topRow: { flexDirection: 'row' },
+  rightContainer: { flex: 1, padding: 12 },
+
+  modeRow: {
     flexDirection: 'row',
     marginBottom: 10,
+    backgroundColor: '#F0F2F4',
+    borderRadius: 6,
+    padding: 4,
   },
+  modeBtn: { flex: 1, paddingVertical: 8, borderRadius: 6, alignItems: 'center' },
+  modeBtnActive: { backgroundColor: '#2A4759' },
+  modeBtnText: { fontSize: 13, fontWeight: '700', color: '#666' },
+  modeBtnTextActive: { color: '#FFF' },
+
+  subTabRow: { flexDirection: 'row', marginBottom: 10 },
   subTabBtn: {
     flex: 1,
     alignItems: 'center',
@@ -452,47 +547,20 @@ const styles = StyleSheet.create({
     marginHorizontal: 2,
     borderRadius: 4,
   },
-  subTabBtnActive: {
-    backgroundColor: '#2A4759',
-  },
-  subTabBtnText: {
-    color: '#666',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  subTabBtnTextActive: {
-    color: '#FFF',
-  },
-  subTabContent: {
-    backgroundColor: '#F4F6F8',
-    padding: 10,
-    borderRadius: 4,
-    flex: 1,
-  },
+  subTabBtnActive: { backgroundColor: '#2A4759' },
+  subTabBtnText: { color: '#666', fontSize: 13, fontWeight: '600' },
+  subTabBtnTextActive: { color: '#FFF' },
+
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    padding: 12,
+    paddingTop: 12,
     borderTopColor: '#DDD',
     borderTopWidth: 1,
+    marginTop: 8,
   },
-  btn: {
-    paddingVertical: 12,
-    paddingHorizontal: 26,
-    borderRadius: 4,
-    marginLeft: 10,
-  },
-  btnText: {
-    color: '#FFF',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  cancelBtn: {
-    backgroundColor: '#777',
-  },
-  applyBtn: {
-    backgroundColor: '#2A4759',
-  },
+  btn: { paddingVertical: 12, paddingHorizontal: 26, borderRadius: 4, marginLeft: 10 },
+  btnText: { color: '#FFF', fontWeight: '600', fontSize: 16 },
+  cancelBtn: { backgroundColor: '#777' },
+  applyBtn: { backgroundColor: '#2A4759' },
 });
-
-export default DateRangePickerModal;

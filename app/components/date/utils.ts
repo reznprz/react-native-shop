@@ -41,7 +41,29 @@ export type DateRangeSelection =
       selectionType: DateRangeSelectionType.DATE_RANGE;
       startDate: string;
       endDate: string;
+      // optional metadata (nice for UI/debug)
+      meta?: {
+        calendar: 'AD' | 'BS';
+        bsStart?: string; // "2082-01-01"
+        bsEnd?: string; // "2082-01-31"
+        mode?: 'DATE_RANGE' | 'MONTH';
+      };
     };
+
+export const BS_MONTHS = [
+  'Baishakh',
+  'Jestha',
+  'Asar',
+  'Shrawan',
+  'Bhadra',
+  'Ashwin',
+  'Kartik',
+  'Mangsir',
+  'Poush',
+  'Magh',
+  'Falgun',
+  'Chaitra',
+] as const;
 
 export function atMidnight(d: Date) {
   const copy = new Date(d);

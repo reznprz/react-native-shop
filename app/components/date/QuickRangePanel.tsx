@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { QuickRangePayload } from '../DateRangePickerModal';
+import { QuickRangePayload } from './utils';
 
 interface QuickRangeItem {
   label: string;
