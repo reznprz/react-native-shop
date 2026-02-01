@@ -1,23 +1,46 @@
-name: Release (patch bump + tag)
+name: Release (auto version bump)
 
 on:
-  push:
-    branches: [ master ]
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+permissions:
+  contents: write
+  pull-requests: read
 
 jobs:
-  bump:
+  bump_version:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout master
+        uses: actions/checkout@v4
         with:
+          ref: master
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Bump patch version
-        run: npm version patch
+      - name: Determine bump type from PR labels (default patch)
+        id: bump
+        run: |
+          LABELS='${{ toJson(github.event.pull_request.labels) }}'
+          TYPE="patch"
+          echo "$LABELS" | grep -q '"name":"semver:major"' && TYPE="major"
+          echo "$LABELS" | grep -q '"name":"semver:minor"' && TYPE="minor"
+          echo "$LABELS" | grep -q '"name":"semver:patch"' && TYPE="patch"
+          echo "type=$TYPE" >> $GITHUB_OUTPUT
+          echo "Bump type: $TYPE"
+
+      - name: Bump version + create tag
+        run: |
+          npm version ${{ steps.bump.outputs.type }}
 
       - name: Push commit + tags
-        run: git push --follow-tags
+        run: |
+          git push --follow-tags
