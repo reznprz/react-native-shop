@@ -1,0 +1,81 @@
+name: Release - Tag + Notes + Sync Develop
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [master]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-finalize-master
+  cancel-in-progress: false
+
+jobs:
+  finalize_release:
+    # Only when merged AND source branch starts with release/
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout master (full history)
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Fetch tags
+        run: git fetch --tags
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Read version from package.json
+        id: ver
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Create tag if missing
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists. Skipping tag creation."
+            exit 0
+          fi
+          git tag "$TAG" -m "$TAG"
+          git push origin "$TAG"
+
+      # GitHub Release notes (auto-generated)
+      - name: Create GitHub Release (auto notes)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes \
+            || echo "Release already exists or creation failed."
+
+      # Create PR master -> develop to sync
+      - name: Create sync PR master -> develop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.ver.outputs.tag }}"
+          # Create a unique branch name for the sync PR
+          BR="chore/sync-master-to-develop-${TAG}"
+
+          # If PR already exists, don't fail
+          gh pr create \
+            --base develop \
+            --head master \
+            --title "chore: sync master back to develop ($TAG)" \
+            --body "Sync release $TAG back into develop." \
+            || echo "Sync PR may already exist (or develop is already up to date)."

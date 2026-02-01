@@ -1,0 +1,81 @@
+name: Release Branch - Set Version
+
+on:
+  push:
+    branches:
+      - "release/*"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-branch-version-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  set_version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract version from branch name
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH="${GITHUB_REF_NAME}"        # e.g. release/1.2.0
+          VERSION="${BRANCH#release/}"       # -> 1.2.0
+
+          # Validate semver x.y.z
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "❌ Invalid release branch version: '$VERSION' (expected x.y.z)"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Release version: $VERSION"
+
+      - name: Set package.json version if needed
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TARGET="${{ steps.ver.outputs.version }}"
+          CURRENT="$(node -p "require('./package.json').version")"
+
+          echo "TARGET=$TARGET"
+          echo "CURRENT=$CURRENT"
+
+          if [ "$CURRENT" = "$TARGET" ]; then
+            echo "package.json already at $CURRENT, nothing to do."
+            exit 0
+          fi
+
+          npm version "$TARGET" --no-git-tag-version
+
+          git add package.json
+          [ -f package-lock.json ] && git add package-lock.json
+          [ -f yarn.lock ] && git add yarn.lock
+          [ -f pnpm-lock.yaml ] && git add pnpm-lock.yaml
+
+          if git diff --cached --quiet; then
+            echo "No staged changes after version bump. Exiting."
+            exit 0
+          fi
+
+          git commit -m "chore(release): v$TARGET"
+          git push
