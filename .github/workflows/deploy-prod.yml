@@ -22,6 +22,28 @@ jobs:
           ref: master
           fetch-depth: 0
 
+      - name: required secrets present
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # EXPO_TOKEN is required for EAS CLI auth on CI
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "❌ Missing EXPO_TOKEN secret."
+            echo "Add it in GitHub → Settings → Secrets → Actions."
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ]; then
+            echo "❌ Missing PROD_EXPO_PUBLIC_API_BASE_URL secret."
+            exit 1
+          fi
+
+          if [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+            echo "❌ Missing PROD_EXPO_PUBLIC_TOKEN_BASE_URL secret."
+            exit 1
+          fi
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -34,7 +56,9 @@ jobs:
         run: npm i -g eas-cli
 
       - name: Create .env.prod
+        shell: bash
         run: |
+          set -euo pipefail
           cat > .env.prod << EOF
           EXPO_PUBLIC_ENV=prod
           EXPO_PUBLIC_DEBUG=false
@@ -44,10 +68,30 @@ jobs:
 
       - name: Determine release tag from package.json
         id: ver
+        shell: bash
         run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
-          echo "Release tag: v$VERSION"
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          TAG="v$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Release version: $VERSION"
+          echo "Release tag: $TAG"
+
+      # Optional but useful sanity check
+      - name: Verify Expo account + project
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          eas whoami
+          eas project:info --non-interactive
+
+      # Optional: sanity print (public config only)
+      - name: Print resolved Expo config (optional)
+        env:
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+        run: npx expo config --type public
 
       - name: EAS Update (production) with version tag message
         env:
