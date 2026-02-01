@@ -1,0 +1,76 @@
+name: Deploy Production (EAS Update + Build)
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout tag
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install EAS CLI
+        run: npm i -g eas-cli
+
+      # Create .env.prod from GitHub secrets
+      - name: Create .env.prod
+        run: |
+          cat > .env.prod << 'EOF'
+          EXPO_PUBLIC_ENV=prod
+          EXPO_PUBLIC_DEBUG=false
+          EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+          EOF
+
+      # Optional: sanity print (no secrets)
+      - name: Print resolved Expo config (optional)
+        env:
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+        run: |
+          npx expo config --type public
+
+      - name: EAS Update (production) with version tag message
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+        run: |
+          TAG="${GITHUB_REF_NAME}" # e.g. v1.2.0
+          eas update \
+            --branch production \
+            --message "$TAG" \
+            --platform all \
+            --non-interactive
+
+      - name: EAS Build (iOS + Android)
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+        run: |
+          eas build \
+            --profile production \
+            --platform all \
+            --non-interactive
