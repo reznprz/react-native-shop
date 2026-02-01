@@ -9,7 +9,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
 
   /** dynamic branding */
-  name: `MyApp (${process.env.EXPO_PUBLIC_ENV ?? 'dev'})`,
+  name: `SHK (${process.env.EXPO_PUBLIC_ENV ?? 'dev'})`,
   slug: 'sajilohisabkitab',
 
   version: '1.0.0',

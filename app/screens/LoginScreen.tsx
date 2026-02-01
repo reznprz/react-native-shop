@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { config } from 'app/config/config';
 import {
   View,
   Text,
@@ -20,6 +19,7 @@ import { useCreateRestaurantMutation } from 'app/hooks/apiQuery/useCreateRestaur
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 import NotificationBar from 'app/components/common/NotificationBar';
 import { useTheme } from 'app/hooks/useTheme';
+import { config } from 'app/config/config';
 
 // If you have the asset locally, prefer require(...) for performance.
 // const bgSource = require("../../assets/pos.jpg");
@@ -56,7 +56,6 @@ const LoginScreen: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [successNotification, setSuccessNotificaton] = useState('');
 
-  const appVersion = 'v1.0.0';
   const showEnvDetails = config.env === 'local' || config.env === 'uat';
 
   useEffect(() => {
@@ -102,7 +101,7 @@ const LoginScreen: React.FC = () => {
       rememberMe={rememberMe}
       loginState={loginState}
       showEnvDetails={showEnvDetails}
-      appVersion={appVersion}
+      appVersion={config.version}
       setUsername={setUsername}
       setPassword={setPassword}
       togglePasswordVisibility={() => setIsPasswordVisible((p) => !p)}
