@@ -186,3 +186,7 @@ yarn add @remotemerge/nepali-date-converter
 npm i @remotemerge/nepali-date-converter
 yarn add luxon
 this works -> yarn add -D @types/luxon
+yarn add expo-constants dotenv
+
+//to check version
+node -p "require('./package.json').version"

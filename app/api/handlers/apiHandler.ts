@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { ApiResponse, ApiStatus, ErrorStatus } from './index';
-import { config } from 'app/config/config';
 import { setupApiInterceptors } from './interceptors';
+import { config } from "app/config/config";
 
 // --- helpers ---
 const isFormData = (data: any) =>
