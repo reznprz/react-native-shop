@@ -26,6 +26,12 @@ jobs:
         with:
           node-version: 20
 
+      # ✅ REQUIRED: set author identity for commits made by npm version
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Determine bump type from PR labels (default patch)
         id: bump
         run: |
@@ -38,7 +44,10 @@ jobs:
           echo "Bump type: $TYPE"
 
       - name: Bump version + create tag
-        run: npm version ${{ steps.bump.outputs.type }}
+        run: |
+          npm version ${{ steps.bump.outputs.type }}
 
+      # Ensure push uses GITHUB_TOKEN (checkout sets remote with token by default)
       - name: Push commit + tags
-        run: git push --follow-tags
+        run: |
+          git push --follow-tags
