@@ -1,0 +1,55 @@
+name: Release Branch - Set Version
+
+on:
+  push:
+    branches:
+      - "release/*"
+
+permissions:
+  contents: write
+
+jobs:
+  set_version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract version from branch name
+        id: ver
+        shell: bash
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"        # e.g. release/1.2.0
+          VERSION="${BRANCH#release/}"       # -> 1.2.0
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Release version: $VERSION"
+
+      - name: Set package.json version if needed
+        shell: bash
+        run: |
+          TARGET="${{ steps.ver.outputs.version }}"
+          CURRENT="$(node -p "require('./package.json').version")"
+
+          if [ "$CURRENT" = "$TARGET" ]; then
+            echo "package.json already at $CURRENT, nothing to do."
+            exit 0
+          fi
+
+          npm version "$TARGET" --no-git-tag-version
+
+          git add package.json package-lock.json yarn.lock pnpm-lock.yaml 2>/dev/null || true
+          git commit -m "chore(release): v$TARGET"
+          git push
