@@ -1,6 +1,6 @@
 {
   "name": "react-native-shop",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "main": "index.js",
   "scripts": {
     "start": "expo start -c",
@@ -32,11 +32,9 @@
     "version:patch": "npm version patch",
     "version:minor": "npm version minor",
     "version:major": "npm version major",
-
     "release:patch": "git branch --show-current | grep -q master && npm version patch && git push --follow-tags || echo \"❌ Switch to master before releasing\"",
     "release:minor": "git branch --show-current | grep -q master && npm version minor && git push --follow-tags || echo \"❌ Switch to master before releasing\"",
     "release:major": "git branch --show-current | grep -q master && npm version major && git push --follow-tags || echo \"❌ Switch to master before releasing\"",
-
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
     "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix"
   },
