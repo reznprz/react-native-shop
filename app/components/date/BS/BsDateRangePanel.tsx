@@ -1,7 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, useWindowDimensions } from 'react-native';
+
 import { BsDate, BsMonth, bsToIso, compareBs } from './bs-adapter';
 import { buildBsMonthGrid } from './bs-calendar-grid';
+import { makeBsCalendarStyles, trimToMonthOnly } from '../common/bs-calendar-ui';
+import { useTheme } from 'app/hooks/useTheme';
 
 const BS_MONTHS = [
   'Baishakh',
@@ -43,12 +46,18 @@ export const BsDateRangePanel: React.FC<Props> = ({
   onPrevMonth,
   onNextMonth,
 }) => {
+  const theme = useTheme();
+  const styles = useMemo(() => makeBsCalendarStyles(theme), [theme]);
+  const { height } = useWindowDimensions();
+  const tight = height < 700;
+
   const title = `${BS_MONTHS[currentMonth.month - 1]} ${currentMonth.year}`;
 
-  const cells = useMemo(
+  const rawCells = useMemo(
     () => buildBsMonthGrid(currentMonth),
     [currentMonth.year, currentMonth.month],
   );
+  const cells = useMemo(() => trimToMonthOnly(rawCells), [rawCells]);
 
   const lo = compareBs(start, end) <= 0 ? start : end;
   const hi = compareBs(start, end) <= 0 ? end : start;
@@ -80,14 +89,16 @@ export const BsDateRangePanel: React.FC<Props> = ({
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.panel}>
       <View style={styles.header}>
-        <Pressable onPress={onPrevMonth}>
-          <Text style={styles.navBtn}>{'‹'}</Text>
+        <Pressable onPress={onPrevMonth} style={styles.navBtn}>
+          <Text style={styles.navIcon}>{'‹'}</Text>
         </Pressable>
+
         <Text style={styles.headerText}>{title}</Text>
-        <Pressable onPress={onNextMonth}>
-          <Text style={styles.navBtn}>{'›'}</Text>
+
+        <Pressable onPress={onNextMonth} style={styles.navBtn}>
+          <Text style={styles.navIcon}>{'›'}</Text>
         </Pressable>
       </View>
 
@@ -100,7 +111,9 @@ export const BsDateRangePanel: React.FC<Props> = ({
       </View>
 
       <View style={styles.grid}>
-        {cells.map((cell) => {
+        {cells.map((cell: any) => {
+          if (cell.__empty) return <View key={cell.key} style={styles.cellEmpty} />;
+
           const selected = inRange(cell.bs);
           const edge = isStart(cell.bs) || isEnd(cell.bs);
 
@@ -110,13 +123,14 @@ export const BsDateRangePanel: React.FC<Props> = ({
               onPress={() => handleDayClick(cell.bs)}
               style={[
                 styles.cell,
+                styles.pressable,
+                tight && { paddingVertical: 4, marginVertical: 2 },
                 selected && styles.inRange,
-                edge && styles.edge,
-                !cell.inMonth && styles.cellMuted,
+                edge && styles.selected,
               ]}
             >
-              <Text style={[styles.bsText, edge && styles.edgeText]}>{cell.bs.day}</Text>
-              <Text style={[styles.adHint, edge && styles.adHintOnEdge]}>{cell.adHint}</Text>
+              <Text style={[styles.bsText, edge && styles.bsTextOnPrimary]}>{cell.bs.day}</Text>
+              <Text style={[styles.adHint, edge && styles.adHintOnPrimary]}>{cell.adHint}</Text>
             </Pressable>
           );
         })}
@@ -124,41 +138,3 @@ export const BsDateRangePanel: React.FC<Props> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, minHeight: 0 },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  navBtn: { fontSize: 22, fontWeight: '700', paddingHorizontal: 12 },
-  headerText: { fontSize: 16, fontWeight: '700' },
-
-  weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  weekDay: { width: '14.28%', textAlign: 'center', fontWeight: '600', color: '#666' },
-
-  grid: { flexDirection: 'row', flexWrap: 'wrap', flexShrink: 1 },
-
-  cell: {
-    width: '14.28%',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 1,
-    borderRadius: 6,
-  },
-
-  inRange: { backgroundColor: '#D6E3EA' },
-  edge: { backgroundColor: '#2A4759' },
-  edgeText: { color: '#FFF' },
-
-  cellMuted: { opacity: 0.45 },
-
-  bsText: { fontSize: 14, fontWeight: '800', color: '#111' },
-
-  adHint: { marginTop: 2, fontSize: 10, fontWeight: '800', color: '#B00020' },
-  adHintOnEdge: { color: '#FFD6D6' },
-});

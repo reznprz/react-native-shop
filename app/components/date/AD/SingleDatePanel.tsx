@@ -1,5 +1,7 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useTheme } from 'app/hooks/useTheme';
+import React, { useMemo } from 'react';
+import { View, Text, Pressable } from 'react-native';
+import { makeCalendarStyles } from '../common/ad-calendar-ui';
 
 type Props = {
   singleDate: Date;
@@ -18,6 +20,9 @@ export const SingleDatePanel: React.FC<Props> = ({
   onNextMonth,
   onDayPress,
 }) => {
+  const theme = useTheme();
+  const styles = useMemo(() => makeCalendarStyles(theme), [theme]);
+
   const monthLabel = currentMonth.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
   const isSameDay = (a: Date, b: Date) =>
@@ -29,17 +34,17 @@ export const SingleDatePanel: React.FC<Props> = ({
     d.getFullYear() === currentMonth.getFullYear() && d.getMonth() === currentMonth.getMonth();
 
   return (
-    <View style={styles.container}>
+    <View style={styles.panel}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={onPrevMonth}>
-          <Text style={styles.navBtn}>{'‹'}</Text>
+        <Pressable onPress={onPrevMonth} style={styles.navBtn}>
+          <Text style={styles.navIcon}>{'‹'}</Text>
         </Pressable>
 
         <Text style={styles.headerText}>{monthLabel}</Text>
 
-        <Pressable onPress={onNextMonth}>
-          <Text style={styles.navBtn}>{'›'}</Text>
+        <Pressable onPress={onNextMonth} style={styles.navBtn}>
+          <Text style={styles.navIcon}>{'›'}</Text>
         </Pressable>
       </View>
 
@@ -62,15 +67,14 @@ export const SingleDatePanel: React.FC<Props> = ({
             <Pressable
               key={idx}
               onPress={() => onDayPress(day)}
-              style={[styles.cell, selected && styles.cellSelected, !inMonth && styles.cellMuted]}
+              style={[
+                styles.cell,
+                styles.pressable,
+                selected && styles.selected,
+                !inMonth && styles.muted,
+              ]}
             >
-              <Text
-                style={[
-                  styles.cellText,
-                  selected && styles.cellTextSelected,
-                  !inMonth && styles.cellTextMuted,
-                ]}
-              >
+              <Text style={[styles.textStrong, selected && styles.textOnPrimary]}>
                 {day.getDate()}
               </Text>
             </Pressable>
@@ -80,34 +84,3 @@ export const SingleDatePanel: React.FC<Props> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  navBtn: { fontSize: 22, fontWeight: '700', paddingHorizontal: 12 },
-  headerText: { fontSize: 16, fontWeight: '700' },
-
-  weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  weekDay: { width: '14.28%', textAlign: 'center', fontWeight: '600', color: '#666' },
-
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-
-  cell: {
-    width: '14.28%',
-    height: 42,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 2,
-  },
-  cellSelected: { backgroundColor: '#2A4759', borderRadius: 6 },
-  cellMuted: { opacity: 0.45 },
-
-  cellText: { fontSize: 14 },
-  cellTextSelected: { color: '#FFF', fontWeight: '700' },
-  cellTextMuted: { color: '#333' },
-});

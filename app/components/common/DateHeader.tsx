@@ -4,7 +4,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import BaseModal from './modal/BaseModal';
 import { DateRangeSelection, DateRangeSelectionType, getDisplayDateRange } from '../date/utils';
-import { CalendarMode, DateRangePickerModal } from '../DateRangePickerModal';
+import { DateRangePickerModal } from '../DateRangePickerModal';
 
 type DateHeaderProps = {
   selectedDate: string;

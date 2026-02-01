@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { bsToAd, getBsMonthDays } from './bs-adapter';
+import { useTheme } from 'app/hooks/useTheme';
 
 type Props = {
   year: number;
@@ -38,10 +39,7 @@ const AD_MONTHS_SHORT = [
   'Nov',
   'Dec',
 ];
-
-function adMonthShort(m: number) {
-  return AD_MONTHS_SHORT[m - 1];
-}
+const adMonthShort = (m: number) => AD_MONTHS_SHORT[m - 1];
 
 export const BsMonthPanel: React.FC<Props> = ({
   year,
@@ -49,6 +47,18 @@ export const BsMonthPanel: React.FC<Props> = ({
   onYearChange,
   onSelectMonth,
 }) => {
+  const theme = useTheme();
+
+  const bg = theme.primaryBg ?? '#F4F6F8';
+  const text = theme.textSecondary ?? '#111';
+  const danger = '#B00020';
+  const dangerOnPrimary = theme.errorBg ?? 'rgba(255, 214, 214, 0.95)';
+
+  const surface = theme.primaryBg ?? '#FFFFFF';
+  const primary = theme.primary ?? '#2A4759';
+  const border = theme.borderColor ?? '#DDD';
+  const textMuted = theme.textSecondary ?? '#666';
+
   const adHints = useMemo(() => {
     const hints: Record<number, string> = {};
     for (let m = 1; m <= 12; m++) {
@@ -68,68 +78,99 @@ export const BsMonthPanel: React.FC<Props> = ({
   }, [year]);
 
   return (
-    <View style={styles.container}>
-      {/* Year header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => onYearChange(year - 1)}>
-          <Text style={styles.navBtn}>{'‹'}</Text>
+    <View
+      style={{
+        flex: 1,
+        minHeight: 0,
+        backgroundColor: bg,
+        borderRadius: 12,
+        padding: 12,
+      }}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 12,
+        }}
+      >
+        <Pressable
+          onPress={() => onYearChange(year - 1)}
+          style={{
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderRadius: 10,
+            backgroundColor: surface,
+            borderWidth: 1,
+            borderColor: border,
+          }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: '900', color: textMuted }}>{'‹'}</Text>
         </Pressable>
-        <Text style={styles.headerText}>{year}</Text>
-        <Pressable onPress={() => onYearChange(year + 1)}>
-          <Text style={styles.navBtn}>{'›'}</Text>
+
+        <Text style={{ fontSize: 20, fontWeight: '900', color: text }}>{year}</Text>
+
+        <Pressable
+          onPress={() => onYearChange(year + 1)}
+          style={{
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderRadius: 10,
+            backgroundColor: surface,
+            borderWidth: 1,
+            borderColor: border,
+          }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: '900', color: textMuted }}>{'›'}</Text>
         </Pressable>
       </View>
 
-      {/* Month grid */}
-      <View style={styles.grid}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
         {BS_MONTHS.map((name, idx) => {
           const month = idx + 1;
           const active = month === selectedMonth;
 
           return (
-            <Pressable key={name} onPress={() => onSelectMonth(month)} style={styles.monthCell}>
-              <Text style={[styles.monthText, active && styles.monthTextActive]}>{name}</Text>
-              <Text style={[styles.adHint, active && styles.adHintActive]}>{adHints[month]}</Text>
+            <Pressable
+              key={name}
+              onPress={() => onSelectMonth(month)}
+              style={{ width: '33.33%', paddingHorizontal: 6, paddingVertical: 6 }}
+            >
+              <View
+                style={{
+                  backgroundColor: active ? primary : surface,
+                  borderRadius: 12,
+                  paddingVertical: 10,
+                  borderWidth: 1,
+                  borderColor: active ? primary : border,
+                }}
+              >
+                <Text
+                  style={{ textAlign: 'center', fontWeight: '900', color: active ? '#FFF' : text }}
+                >
+                  {name}
+                </Text>
+                <Text
+                  style={{
+                    marginTop: 4,
+                    textAlign: 'center',
+                    fontSize: 10,
+                    fontWeight: '900',
+                    color: active ? dangerOnPrimary : danger,
+                  }}
+                >
+                  {adHints[month]}
+                </Text>
+              </View>
             </Pressable>
           );
         })}
       </View>
 
-      <Text style={styles.hint}>Select a month, then press Apply.</Text>
+      <Text style={{ marginTop: 10, textAlign: 'center', color: textMuted, fontWeight: '800' }}>
+        Select a month, then press Apply.
+      </Text>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, minHeight: 0, backgroundColor: '#F4F6F8', borderRadius: 6, padding: 12 },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  navBtn: { fontSize: 22, fontWeight: '700', paddingHorizontal: 12 },
-  headerText: { fontSize: 16, fontWeight: '800' },
-
-  grid: { flexDirection: 'row', flexWrap: 'wrap', flexShrink: 1 },
-
-  monthCell: { width: '33.33%', paddingHorizontal: 6, paddingVertical: 6 },
-
-  monthText: {
-    textAlign: 'center',
-    backgroundColor: '#FFF',
-    borderRadius: 8,
-    paddingVertical: 9,
-    fontWeight: '800',
-    borderWidth: 1,
-    borderColor: '#DDD',
-    color: '#333',
-  },
-  monthTextActive: { backgroundColor: '#2A4759', color: '#FFF', borderColor: '#2A4759' },
-
-  adHint: { marginTop: 4, textAlign: 'center', fontSize: 10, fontWeight: '800', color: '#B00020' },
-  adHintActive: { color: '#FFD6D6' },
-
-  hint: { marginTop: 8, textAlign: 'center', color: '#666', fontWeight: '600' },
-});

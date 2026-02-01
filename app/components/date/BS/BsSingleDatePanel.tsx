@@ -1,7 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, Pressable, useWindowDimensions } from 'react-native';
+
 import { BsDate, BsMonth, bsToIso } from './bs-adapter';
 import { buildBsMonthGrid } from './bs-calendar-grid';
+import { makeBsCalendarStyles, trimToMonthOnly } from '../common/bs-calendar-ui';
+import { useTheme } from 'app/hooks/useTheme';
 
 const BS_MONTHS = [
   'Baishakh',
@@ -33,23 +36,32 @@ export const BsSingleDatePanel: React.FC<Props> = ({
   onNextMonth,
   onSelect,
 }) => {
+  const theme = useTheme();
+  const styles = useMemo(() => makeBsCalendarStyles(theme), [theme]);
+  const { height } = useWindowDimensions();
+  const tight = height < 700;
+
   const title = `${BS_MONTHS[currentMonth.month - 1]} ${currentMonth.year}`;
   const selectedKey = bsToIso(selected);
 
-  const cells = useMemo(
+  const rawCells = useMemo(
     () => buildBsMonthGrid(currentMonth),
     [currentMonth.year, currentMonth.month],
   );
 
+  const cells = useMemo(() => trimToMonthOnly(rawCells), [rawCells]);
+
   return (
-    <View style={styles.container}>
+    <View style={styles.panel}>
       <View style={styles.header}>
-        <Pressable onPress={onPrevMonth}>
-          <Text style={styles.navBtn}>{'‹'}</Text>
+        <Pressable onPress={onPrevMonth} style={styles.navBtn}>
+          <Text style={styles.navIcon}>{'‹'}</Text>
         </Pressable>
+
         <Text style={styles.headerText}>{title}</Text>
-        <Pressable onPress={onNextMonth}>
-          <Text style={styles.navBtn}>{'›'}</Text>
+
+        <Pressable onPress={onNextMonth} style={styles.navBtn}>
+          <Text style={styles.navIcon}>{'›'}</Text>
         </Pressable>
       </View>
 
@@ -62,22 +74,26 @@ export const BsSingleDatePanel: React.FC<Props> = ({
       </View>
 
       <View style={styles.grid}>
-        {cells.map((cell) => {
+        {cells.map((cell: any) => {
+          if (cell.__empty) return <View key={cell.key} style={styles.cellEmpty} />;
+
           const isSelected = cell.key === selectedKey;
+
           return (
             <Pressable
               key={cell.key}
               onPress={() => onSelect(cell.bs)}
               style={[
                 styles.cell,
-                isSelected && styles.cellSelected,
-                !cell.inMonth && styles.cellMuted,
+                styles.pressable,
+                tight && { paddingVertical: 4, marginVertical: 2 },
+                isSelected && styles.selected,
               ]}
             >
-              <Text style={[styles.bsText, isSelected && styles.bsTextSelected]}>
+              <Text style={[styles.bsText, isSelected && styles.bsTextOnPrimary]}>
                 {cell.bs.day}
               </Text>
-              <Text style={[styles.adHint, isSelected && styles.adHintSelected]}>
+              <Text style={[styles.adHint, isSelected && styles.adHintOnPrimary]}>
                 {cell.adHint}
               </Text>
             </Pressable>
@@ -87,39 +103,3 @@ export const BsSingleDatePanel: React.FC<Props> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: { flex: 1, minHeight: 0 },
-
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  navBtn: { fontSize: 22, fontWeight: '700', paddingHorizontal: 12 },
-  headerText: { fontSize: 16, fontWeight: '700' },
-
-  weekRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  weekDay: { width: '14.28%', textAlign: 'center', fontWeight: '600', color: '#666' },
-
-  grid: { flexDirection: 'row', flexWrap: 'wrap', flexShrink: 1 },
-
-  cell: {
-    width: '14.28%',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 1,
-    borderRadius: 6,
-  },
-
-  cellSelected: { backgroundColor: '#2A4759' },
-  cellMuted: { opacity: 0.45 },
-
-  bsText: { fontSize: 14, fontWeight: '800', color: '#111' },
-  bsTextSelected: { color: '#FFF' },
-
-  adHint: { marginTop: 2, fontSize: 10, fontWeight: '800', color: '#B00020' },
-  adHintSelected: { color: '#FFD6D6' },
-});

@@ -82,7 +82,7 @@ export const BSDatePicker: React.FC<Props> = (props) => {
   } = props;
 
   return (
-    <View style={{ flex: 1, minHeight: 300 }}>
+    <View style={{ flex: 1, minHeight: 0 }}>
       {activeSubTab === DateRangeSelectionType.TIME_RANGE_TODAY &&
         displayedSubTabs.includes(DateRangeSelectionType.TIME_RANGE_TODAY) && (
           <TimeRangeTodayPanel
