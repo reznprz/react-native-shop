@@ -33,9 +33,9 @@
     "version:minor": "npm version minor",
     "version:major": "npm version major",
 
-    "release:patch": "npm version patch && git push --follow-tags",
-    "release:minor": "npm version minor && git push --follow-tags",
-    "release:major": "npm version major && git push --follow-tags",
+    "release:patch": "git branch --show-current | grep -q master && npm version patch && git push --follow-tags || echo \"❌ Switch to master before releasing\"",
+    "release:minor": "git branch --show-current | grep -q master && npm version minor && git push --follow-tags || echo \"❌ Switch to master before releasing\"",
+    "release:major": "git branch --show-current | grep -q master && npm version major && git push --follow-tags || echo \"❌ Switch to master before releasing\"",
 
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
     "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix"
