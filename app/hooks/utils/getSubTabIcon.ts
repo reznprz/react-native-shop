@@ -26,6 +26,8 @@ export function getSubTabIcon(
       tourist: { icon: 'earth-outline', iconType: 'Ionicons', iconSize: 18 },
       food: { icon: 'fast-food', iconType: 'Ionicons', iconSize: 18 },
       category: { icon: 'pricetags', iconType: 'Ionicons', iconSize: 18 },
+      en: { icon: 'earth-outline', iconType: 'Ionicons', iconSize: 18 },
+      np: { icon: 'flag-outline', iconType: 'Ionicons', iconSize: 18 },
     };
 
     for (const key in subTabsIcons) {

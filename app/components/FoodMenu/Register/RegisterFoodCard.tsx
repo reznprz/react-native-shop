@@ -52,7 +52,7 @@ const RegisterFoodCard: React.FC<Props> = ({
         <Text style={styles.name} numberOfLines={4}>
           {food.name}
         </Text>
-        <Text style={styles.price}>${price.toFixed(2)}</Text>
+        <Text style={styles.price}>रु {price.toFixed(2)}</Text>
       </View>
     </TouchableOpacity>
   );

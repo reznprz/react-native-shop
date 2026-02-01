@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { View, ScrollView, RefreshControl } from 'react-native';
 import { DailySalesMetrics } from 'app/components/dailySales/DailySalesMetrics';
@@ -50,8 +50,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
     handleUpdateOpeningCash,
   } = useRestaurantOverview();
 
-  const { isLargeScreen, width } = useIsDesktop();
-  const isTablet = width >= 768;
+  const { isLargeScreen, isTablet } = useIsDesktop();
 
   // State
   const [activeTab, setActiveTab] = useState<TabType>(selectedTab ?? 'Todays');
@@ -108,6 +107,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
   // Handler for applying date range in Past sub-tab
   const handleApplyDate = useCallback(
     (selectedDateRange: DateRangeSelection) => {
+      console.log('activeTab', activeTab);
       if (activeTab === 'Past') {
         handleFetchPastSales(selectedDateRange);
         setSelectedRange(selectedDateRange);
@@ -163,7 +163,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
         handleFetchTodaySales(selectedDate);
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedTab, selectedRange, selectedDate]),
+    }, [selectedTab]),
   );
 
   return (
@@ -173,7 +173,7 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
 
       <View className="flex-1 p-4 pb-0">
         {/* Date Header */}
-        {canViewDateHeader && (
+        {activeTab === 'Past' && (
           <DateHeader
             activeTab={activeTab || ''}
             selectedDate={selectedDate}

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, Pressable, StyleSheet } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import BaseModal from './modal/BaseModal';
 import { DateRangeSelection, DateRangeSelectionType, getDisplayDateRange } from '../date/utils';
 import { DateRangePickerModal } from '../DateRangePickerModal';
@@ -87,7 +86,7 @@ const DateHeader: React.FC<DateHeaderProps> = ({
       </View>
 
       {/* Mobile Date Picker */}
-      {Platform.OS !== 'web' && (
+      {/* {Platform.OS !== 'web' && (
         <DateTimePickerModal
           isVisible={isMobileDatePickerVisible}
           mode="date"
@@ -96,7 +95,7 @@ const DateHeader: React.FC<DateHeaderProps> = ({
           onCancel={hideMobileDatePicker}
           themeVariant="light" // Force light theme on iOS
         />
-      )}
+      )} */}
 
       {/* Web Date Picker */}
       {Platform.OS === 'web' && (
