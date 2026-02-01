@@ -37,19 +37,38 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Release version: $VERSION"
 
-      - name: Set package.json version if needed
-        shell: bash
-        run: |
-          TARGET="${{ steps.ver.outputs.version }}"
-          CURRENT="$(node -p "require('./package.json').version")"
-
-          if [ "$CURRENT" = "$TARGET" ]; then
-            echo "package.json already at $CURRENT, nothing to do."
-            exit 0
-          fi
-
-          npm version "$TARGET" --no-git-tag-version
-
-          git add package.json package-lock.json yarn.lock pnpm-lock.yaml 2>/dev/null || true
-          git commit -m "chore(release): v$TARGET"
-          git push
+          - name: Set package.json version if needed
+          shell: bash
+          run: |
+            set -euo pipefail
+  
+            TARGET="${{ steps.ver.outputs.version }}"
+            CURRENT="$(node -p "require('./package.json').version")"
+  
+            echo "TARGET=$TARGET"
+            echo "CURRENT=$CURRENT"
+  
+            if [ "$CURRENT" = "$TARGET" ]; then
+              echo "package.json already at $CURRENT, nothing to do."
+              exit 0
+            fi
+  
+            # Update version in package.json only
+            npm version "$TARGET" --no-git-tag-version
+  
+            # Stage package.json explicitly
+            git add package.json
+  
+            # Stage lockfiles only if they exist
+            [ -f package-lock.json ] && git add package-lock.json
+            [ -f yarn.lock ] && git add yarn.lock
+            [ -f pnpm-lock.yaml ] && git add pnpm-lock.yaml
+  
+            # If nothing is staged (shouldn't happen, but safe), exit without failing
+            if git diff --cached --quiet; then
+              echo "No staged changes after version bump. Exiting."
+              exit 0
+            fi
+  
+            git commit -m "chore(release): v$TARGET"
+            git push
