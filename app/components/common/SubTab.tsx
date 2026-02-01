@@ -26,7 +26,7 @@ const SubTab: React.FC<SubTabProps> = ({ tabs, activeTab, onTabChange, tabStyle 
         const iconColor = isActive ? theme.secondary : theme.textTertiary;
 
         // If no icon info is found, render a fallback (text only).
-        if (!iconInfo || tab === 'NORMAL') {
+        if (!iconInfo || tab === 'NORMAL' || tab === 'NP') {
           return (
             <Pressable
               key={tab}

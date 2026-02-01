@@ -27,11 +27,15 @@ import { adToBs, bsToAd, getTodayBsInKathmandu, nextBsMonth } from './date/BS/bs
 import { addDaysKtm, adToIso, pad2 } from './date/BS/kathmandu-date';
 import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { useTheme } from 'app/hooks/useTheme';
+import SubTab from './common/SubTab';
 
 export enum CalendarMode {
   EN = 'EN',
   NP = 'NP',
 }
+
+const tabs = ['EN', 'NP'];
+type TabType = (typeof tabs)[number];
 
 type BsDate = { year: number; month: number; day: number };
 
@@ -77,10 +81,8 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   const shouldScroll = Platform.OS !== 'web' || !isLargeScreen;
 
   // Parent owns "mode" + "active tab"
-  const [calendarMode, setCalendarMode] = useState<CalendarMode>(CalendarMode.EN);
-  const [activeSubTab, setActiveSubTab] = useState<DateRangeSelectionType>(
-    DateRangeSelectionType.TIME_RANGE_TODAY,
-  );
+  const [calendarMode, setCalendarMode] = useState<TabType>('EN');
+  const [activeSubTab, setActiveSubTab] = useState<DateRangeSelectionType>(displayedSubTabs[0]);
 
   const [activeQuickRange, setActiveQuickRange] = useState<QuickRangePayload | null>(null);
 
@@ -339,42 +341,12 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   }, [theme]);
 
   const renderModeToggle = () => (
-    <View style={[styles.modeRow, { backgroundColor: colors.primaryBg }]}>
-      <Pressable
-        onPress={() => setCalendarMode(CalendarMode.EN)}
-        style={[
-          styles.modeBtn,
-          calendarMode === CalendarMode.EN && { backgroundColor: colors.primary },
-        ]}
-      >
-        <Text
-          style={[
-            styles.modeBtnText,
-            { color: colors.textMuted },
-            calendarMode === CalendarMode.EN && { color: '#FFF' },
-          ]}
-        >
-          English
-        </Text>
-      </Pressable>
-
-      <Pressable
-        onPress={() => setCalendarMode(CalendarMode.NP)}
-        style={[
-          styles.modeBtn,
-          calendarMode === CalendarMode.NP && { backgroundColor: colors.primary },
-        ]}
-      >
-        <Text
-          style={[
-            styles.modeBtnText,
-            { color: colors.textMuted },
-            calendarMode === CalendarMode.NP && { color: '#FFF' },
-          ]}
-        >
-          Nepali
-        </Text>
-      </Pressable>
+    <View className="mb-4">
+      <SubTab
+        tabs={tabs}
+        activeTab={calendarMode}
+        onTabChange={(selectedTab) => setCalendarMode(selectedTab)}
+      />
     </View>
   );
 
@@ -548,7 +520,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
                     style={{ flex: 1 }}
                     contentContainerStyle={{ flexGrow: 1 }}
                     showsVerticalScrollIndicator={true}
-                    indicatorStyle="black" 
+                    indicatorStyle="black"
                   >
                     {renderModeToggle()}
                     {renderSubTabs()}
