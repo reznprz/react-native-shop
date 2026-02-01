@@ -1,9 +1,7 @@
 name: Deploy Production (EAS Update + Build)
 
 on:
-  workflow_run:
-    workflows: ["Release - Tag + Notes + Sync Develop"]
-    types: [completed]
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -15,8 +13,6 @@ concurrency:
 
 jobs:
   deploy:
-    # Only run if the release workflow succeeded
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -37,7 +33,6 @@ jobs:
       - name: Install EAS CLI
         run: npm i -g eas-cli
 
-      # Create .env.prod from GitHub secrets
       - name: Create .env.prod
         run: |
           cat > .env.prod << EOF
@@ -46,14 +41,6 @@ jobs:
           EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
           EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
           EOF
-
-      # Optional: sanity print (public config only)
-      - name: Print resolved Expo config (optional)
-        env:
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ".env.prod"
-        run: |
-          npx expo config --type public
 
       - name: Determine release tag from package.json
         id: ver
