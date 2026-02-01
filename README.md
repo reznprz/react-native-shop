@@ -66,10 +66,9 @@ yarn add react-native-gesture-handler react-native-reanimated react-native-scree
 - **npm**: v6.x or later (or **Yarn** as an alternative)
 - **Expo CLI**: Local CLI is used (`npx expo`).
 
------
+---
 
-
------
+---
 
 ## Getting Started
 
@@ -113,23 +112,25 @@ npx expo start -c
 yarn add @reduxjs/toolkit react-redux redux-persist @react-native-async-storage/async-storage
 ```
 
-- *** app doesn't start on ios/andriod**: install local expo
+- **\* app doesn't start on ios/andriod**: install local expo
+
 ### 6. local CLI (npx expo)
 
 ```bash
 npx expo install react-native-reanimated
 ```
 
+- **\* app doesn't start on ios/andriod**: install local expo
 
-- *** app doesn't start on ios/andriod**: install local expo
 ### 6. local CLI (npx expo)
 
 ```bash
 yarn add postcss
 ```
 
-- *** install for expo 54
-### 8. 
+- \*\*\* install for expo 54
+
+### 8.
 
 ```bash
 npx expo install react-native-worklets
@@ -147,32 +148,41 @@ icon would be similar to - https://expo.dev/go
 
 ### After starting the app `npx expo start -c` would would see qr code scan that from your mobile camera and it would direct to the expo go app in your phone and run the react-native application. Your phone and laptop should be on same network.
 
+note: got error: ERROR Uncaught error: [Error: Exception in HostFunction: TypeError: expected dynamic type 'boolean', but had type 'string']
+and ran
 
-note: got error:  ERROR  Uncaught error: [Error: Exception in HostFunction: TypeError: expected dynamic type 'boolean', but had type 'string'] 
-and ran 
+npx expo install --check
 
-npx expo install --check 
+which fixed the error.
 
-which fixed the error. 
-
-and also added follow this, 
+and also added follow this,
 
 Cannot automatically write to dynamic config at: app.config.ts
 Add the following to your Expo config
 
 {
-  "plugins": [
-    "expo-asset"
-  ]
+"plugins": [
+"expo-asset"
+]
 }
 
-
-### steps to buld the app in expo 
+### steps to buld the app in expo
 
 1. Install EAS CLI
 
 yarn global add eas-cli
 
-2. Login to EAS 
+2. Login to EAS
 
 eas login
+
+// Date
+
+using this
+yarn add @remotemerge/nepali-date-converter
+
+# or
+
+npm i @remotemerge/nepali-date-converter
+yarn add luxon
+this works -> yarn add -D @types/luxon
