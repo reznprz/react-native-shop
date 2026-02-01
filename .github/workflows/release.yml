@@ -38,9 +38,7 @@ jobs:
           echo "Bump type: $TYPE"
 
       - name: Bump version + create tag
-        run: |
-          npm version ${{ steps.bump.outputs.type }}
+        run: npm version ${{ steps.bump.outputs.type }}
 
       - name: Push commit + tags
-        run: |
-          git push --follow-tags
+        run: git push --follow-tags
