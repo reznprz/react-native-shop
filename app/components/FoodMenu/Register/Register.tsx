@@ -12,8 +12,7 @@ import { PaymentDetailsModal } from 'app/components/modal/PaymentDetailsModal';
 import RegisterPaymentDetails from './RegisterPaymentDetails';
 import { SubTabType } from './RegisterFoodList';
 import { useTheme } from 'app/hooks/useTheme';
-import FoodPreparationAnimation from 'app/components/common/FoodPreparationAnimation';
-import { MutationStatus } from '@tanstack/query-core/build/legacy';
+import { MutationStatus } from '@tanstack/react-query';
 
 interface RegisterProps {
   tableItems: TableItem;

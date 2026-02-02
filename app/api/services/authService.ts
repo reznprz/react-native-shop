@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Role } from 'app/security/role';
 import { RegisterRequest } from './userService';
 import { ThemeVariant } from 'app/theme/theme';
-import { config } from "app/config/config";
+import { config } from 'app/config/config';
 
 export interface Credentials {
   username: string;
