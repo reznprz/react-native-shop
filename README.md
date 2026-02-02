@@ -190,3 +190,18 @@ yarn add expo-constants dotenv
 
 //to check version
 node -p "require('./package.json').version"
+
+//debug in git
+git show v1.2.0:.github/workflows/deploy-prod.yml
+
+fatal: path '.github/workflows/deploy-prod.yml' exists on disk, but not in 'v1.2.0'
+
+---
+
+Key difference
+Old (@env) New (Expo config)
+Build-time string injection Runtime config
+Requires .env file Uses EAS env vars
+Babel-dependent Expo-native
+Breaks on CI easily CI-safe
+RN-specific hack Expo standard

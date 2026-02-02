@@ -1,0 +1,72 @@
+name: PR Temp EAS Build (Android)
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [develop, master]
+    types: [opened, synchronize, reopened, labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-eas-build-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eas_build_android:
+    # Run only if manual dispatch OR PR has label "ci:eas-build"
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      contains(toJson(github.event.pull_request.labels), '"name":"ci:eas-build"')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Ensure yarn.lock exists
+        run: test -f yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install EAS CLI
+        run: npm i -g eas-cli
+
+      # Create .env.prod from GitHub secrets
+      - name: Create .env.prod
+        run: |
+          cat > .env.prod << EOF
+          EXPO_PUBLIC_ENV=prod
+          EXPO_PUBLIC_DEBUG=false
+          EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+          EOF
+
+      # Fail fast before wasting an EAS job
+      - name: Preflight bundle (android)
+        env:
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+        run: |
+          npx expo export --platform android --output-dir /tmp/dist
+
+      - name: EAS Build (Android)
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+        run: |
+          eas build \
+            --profile production \
+            --platform android \
+            --non-interactive
