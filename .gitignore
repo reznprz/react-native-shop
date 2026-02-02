@@ -23,7 +23,6 @@ Desktop.ini
 android/app/build/
 ios/Pods/
 ios/build/
-*.lock
 *.log
 .expo/
 
