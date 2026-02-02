@@ -23,7 +23,6 @@ Desktop.ini
 android/app/build/
 ios/Pods/
 ios/build/
-*.lock
 *.log
 .expo/
 
@@ -35,7 +34,7 @@ out/
 .env
 .env.local
 .env.development
-.env.production
+.env.prod
 .env.test
 
 # IDE files

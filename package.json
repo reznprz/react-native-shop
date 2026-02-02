@@ -1,6 +1,6 @@
 {
   "name": "react-native-shop",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "main": "index.js",
   "scripts": {
     "start": "expo start -c",
@@ -24,7 +24,7 @@
     "web:uat": "expo start --web --env-file .env.uat",
     "web:prod": "expo start --web --env-file .env.prod",
     "update:uat": "EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat dotenv -e .env.uat -o -- eas update --branch develop --message \"uat v$(node -p \\\"require('./package.json').version\\\")\"",
-    "update:prod": "EXPO_NO_DOTENV=1 DOTENV_FILE=.env.prod dotenv -e .env.prod -o -- eas update --branch master --message \"prod v$(node -p \\\"require('./package.json').version\\\")\"",
+    "update:prod": "EXPO_NO_DOTENV=1 DOTENV_FILE=.env.prod dotenv -e .env.prod -o -- eas update --branch master ",
     "build:uat:android": "cross-env DOTENV_FILE=.env.uat eas build --profile uat --platform android",
     "build:prod:android": "EXPO_NO_DOTENV=1 DOTENV_FILE=.env.prod eas build --profile production --platform android",
     "build:uat:ios": "cross-env DOTENV_FILE=.env.uat eas build --profile uat --platform ios",
@@ -36,7 +36,9 @@
     "release:minor": "git branch --show-current | grep -q master && npm version minor && git push --follow-tags || echo \"❌ Switch to master before releasing\"",
     "release:major": "git branch --show-current | grep -q master && npm version major && git push --follow-tags || echo \"❌ Switch to master before releasing\"",
     "format": "prettier --write 'app/**/*.{js,jsx,ts,tsx}'",
-    "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix"
+    "lint": "eslint 'app/**/*.{js,jsx,ts,tsx}' --fix",
+    "preflight": "EXPO_NO_DOTENV=1 DOTENV_FILE=.env.ci npx expo export --platform ios --platform android --output-dir /tmp/dist",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@expo/metro-runtime": "~6.1.2",
@@ -116,7 +118,7 @@
     "postcss": "^8.5.6",
     "prettier": "^3.5.2",
     "tailwindcss": "3.3.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   },
   "resolutions": {
     "@babel/core": "^7.21.0"
