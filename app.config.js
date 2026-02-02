@@ -56,22 +56,24 @@ module.exports = ({ config }) => {
 
   return {
     ...config,
-
-    // use centralized identity
     name: `SHK (${env})`,
     slug: ExpoIdentity.slug,
     owner: ExpoIdentity.owner,
-
-    // versioning
     version,
     runtimeVersion: { policy: 'appVersion' },
-
-    // set updates URL from identity (recommended for EAS Update)
-    updates: {
-      url: getUpdatesUrl(),
+    updates: { url: getUpdatesUrl() },
+  
+    ios: {
+      ...(config.ios ?? {}),
+      bundleIdentifier: config.ios?.bundleIdentifier ?? 'com.reznprz.reactnativeshop',
+      supportsTablet: true,
     },
-
-    // keep extra last
+  
+    android: {
+      ...(config.android ?? {}),
+      package: config.android?.package ?? 'com.sajilohisabkitab.shop',
+    },
+  
     extra,
   };
-};
+};  
