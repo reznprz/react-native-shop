@@ -87,17 +87,18 @@ jobs:
   eas_build_android:
     needs: preflight
     if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:eas-build') }}
-    uses: ./.github/workflows/pr-eas-build-android.yml
+    uses: ./.github/workflows/pr-eas-build-andriod.yml
     with:
       profile: "uat"
+      dotenv_file: ".env.uat"
     secrets:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-  # Prod EAS Build only when PR has label "ci:eas-build-prod"
+  # Optional: Prod EAS Build only when PR has label "ci:eas-build-prod"
   eas_build_android_prod:
     needs: preflight
     if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:eas-build-prod') }}
-    uses: ./.github/workflows/pr-eas-build-android.yml
+    uses: ./.github/workflows/pr-eas-build-andriod.yml
     with:
       profile: "production"
       dotenv_file: ".env.prod"
