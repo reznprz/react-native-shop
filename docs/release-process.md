@@ -332,3 +332,27 @@ CI --> R[GitHub Release]
 CI --> OTA[OTA Update]
 CI --> B[Store Builds]
 CI --> S[Sync develop]
+
+---
+
+flowchart TD
+A[".env.* files\n(local/uat/prod)"] -->|DOTENV*FILE| B["app.config.js\n(Node eval time)"]
+B --> C["Validates required EXPO_PUBLIC*\* vars\n(must())"]
+B --> D["Reads package.json version\n(single source of truth)"]
+B --> E["Injects expo.extra\nextra.env + extra.app"]
+E --> F["expo config / expo export / eas build\nbundling step"]
+F --> G["App runtime\n(Expo Go / Dev / Prod)"]
+G --> H["app/config/config.ts\nreads Constants.expoConfig.extra\nand Updates.manifest.extra"]
+H --> I["Typed config object\n(apiBaseURL, tokenBaseURL, env, debug, version)"]
+I --> J["App uses config\nAPI clients, UI labels, debugging"]
+
+subgraph CI["CI / GitHub Actions"]
+K["Generate .env.ci from secrets or placeholders"] --> B
+L["Assert extra.app keys exist"] --> F
+M["expo export (preflight bundle)"] --> F
+end
+
+subgraph EAS["EAS"]
+N["EAS Update (OTA)\n--message vX.Y.Z"] --> G
+O["EAS Build\nAndroid/iOS"] --> G
+end

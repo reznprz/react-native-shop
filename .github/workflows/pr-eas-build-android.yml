@@ -1,0 +1,103 @@
+name: PR Temp EAS Build (Android)
+
+on:
+  workflow_call:
+    inputs:
+      profile:
+        type: string
+        required: false
+        default: "uat"
+    secrets:
+      EXPO_TOKEN:
+        required: true
+      PROD_EXPO_PUBLIC_API_BASE_URL:
+        required: false
+      PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  eas_build_android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Ensure yarn.lock exists
+        run: test -f yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install EAS CLI
+        run: npm i -g eas-cli
+
+      - name: Create DOTENV_FILE matching profile
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROFILE="${{ inputs.profile }}"
+
+          if [ "$PROFILE" = "production" ]; then
+            FILE=".env.prod"
+          else
+            FILE=".env.uat"
+          fi
+
+          echo "DOTENV_FILE=$FILE" >> "$GITHUB_ENV"
+          echo "Using DOTENV_FILE=$FILE for profile=$PROFILE"
+
+          if [ "$PROFILE" = "production" ]; then
+            if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+              echo "❌ Missing PROD secrets (PROD_EXPO_PUBLIC_API_BASE_URL / PROD_EXPO_PUBLIC_TOKEN_BASE_URL)."
+              exit 1
+            fi
+
+            cat > "$FILE" <<EOF
+            EXPO_PUBLIC_ENV=prod
+            EXPO_PUBLIC_DEBUG=false
+            EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+            EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+            EOF
+                      else
+                        cat > "$FILE" <<EOF
+            EXPO_PUBLIC_ENV=uat
+            EXPO_PUBLIC_DEBUG=true
+            EXPO_PUBLIC_API_BASE_URL=https://example.com/api
+            EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com
+            EOF
+                      fi
+
+      - name: Read Expo config (debug)
+        env:
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ${{ env.DOTENV_FILE }}
+        run: npx expo config --type public
+
+      - name: Preflight bundle (android)
+        env:
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ${{ env.DOTENV_FILE }}
+        run: npx expo export --platform android --output-dir /tmp/dist
+
+      - name: EAS Build (Android)
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ${{ env.DOTENV_FILE }}
+        run: |
+          eas build \
+            --profile "${{ inputs.profile }}" \
+            --platform android \
+            --non-interactive

@@ -1,20 +1,21 @@
-name: PR Preflight (Typecheck + Bundle)
+name: PR Preflight (Config + Bundle)
 
 on:
   pull_request:
     branches: [develop, master]
+    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: pr-preflight-${{ github.event.pull_request.number }}
+  group: pr-preflight-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   preflight:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,34 +26,73 @@ jobs:
           node-version: 20
           cache: yarn
 
+      - name: Ensure yarn.lock exists
+        run: test -f yarn.lock
+
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      # --- TypeScript check ---
-      # Requires "typecheck" script in package.json:
-      # "typecheck": "tsc -p tsconfig.json --noEmit"
-      - name: Typecheck (non-blocking for now)
-        continue-on-error: true
-        run: yarn typecheck
-
-      # --- Create CI env file (no secrets) ---
-      # This prevents runtime config crashes during bundling if your config expects EXPO_PUBLIC_*
-      - name: Create .env.ci
+      - name: Create .env.ci (PUBLIC env only)
         run: |
-          cat > .env.ci << EOF
+          cat > .env.ci <<EOF
           EXPO_PUBLIC_ENV=uat
-          EXPO_PUBLIC_DEBUG=false
-          EXPO_PUBLIC_API_BASE_URL=https://example.invalid/api
-          EXPO_PUBLIC_TOKEN_BASE_URL=https://example.invalid
+          EXPO_PUBLIC_DEBUG=true
+          EXPO_PUBLIC_API_BASE_URL=https://example.com/api
+          EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com
           EOF
 
-      # --- Bundling preflight (this is what catches missing modules/import errors) ---
-      - name: Bundle check (Expo export)
+      - name: Assert Expo config has required extra.app keys
         env:
           EXPO_NO_DOTENV: "1"
           DOTENV_FILE: ".env.ci"
         run: |
-          npx expo export \
-            --platform ios \
-            --platform android \
-            --output-dir /tmp/dist
+          node - <<'NODE'
+          const { execSync } = require('child_process');
+          const out = execSync('npx expo config --type public --json', { stdio: ['ignore','pipe','pipe'] }).toString();
+          const cfg = JSON.parse(out);
+
+          const must = (path, v) => {
+            if (typeof v !== 'string' || !v.trim()) {
+              console.error('❌ Missing or invalid:', path);
+              process.exit(1);
+            }
+          };
+
+          const extra = cfg.extra || {};
+          const app = extra.app || {};
+          must('expo.extra.app.apiBaseURL', app.apiBaseURL);
+          must('expo.extra.app.tokenBaseURL', app.tokenBaseURL);
+
+          console.log('✅ Expo config looks good.');
+          console.log('env:', extra.env);
+          console.log('name:', cfg.name);
+          console.log('version:', cfg.version);
+          NODE
+
+      - name: Preflight bundle (expo export ios+android)
+        env:
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.ci"
+        run: npx expo export --platform ios --platform android --output-dir /tmp/dist
+
+  # Optional: run EAS Build (uat) only if PR has label "ci:eas-build"
+  eas_build_android:
+    needs: preflight
+    if: ${{ github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:eas-build') }}
+    uses: ./.github/workflows/pr-eas-build-android.yml
+    with:
+      profile: "uat"
+    secrets:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+  # Optional: run EAS Build (production) only if PR has label "ci:eas-build-prod"
+  eas_build_android_prod:
+    needs: preflight
+    if: ${{ github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:eas-build-prod') }}
+    uses: ./.github/workflows/pr-eas-build-android.yml
+    with:
+      profile: "production"
+    secrets:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      PROD_EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+      PROD_EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}

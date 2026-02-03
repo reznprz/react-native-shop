@@ -1,10 +1,5 @@
 import Constants from 'expo-constants';
-import {
-  EXPO_PUBLIC_API_BASE_URL,
-  EXPO_PUBLIC_TOKEN_BASE_URL,
-  EXPO_PUBLIC_ENV,
-  EXPO_PUBLIC_DEBUG,
-} from '@env';
+import * as Updates from 'expo-updates';
 
 export type Env = 'local' | 'uat' | 'prod';
 
@@ -16,43 +11,32 @@ export interface AppConfig {
   version: string;
 }
 
-function getExtra(): any {
-  return (
-    Constants.expoConfig?.extra ??
-    Constants.manifest2?.extra ??
-    // @ts-expect-error - varies by Expo runtime
-    Constants.manifest?.extra ??
-    {}
-  );
-}
-
-function isEnv(v: any): v is Env {
-  return v === 'local' || v === 'uat' || v === 'prod';
-}
-
-function must<T>(v: T | undefined, key: string): T {
-  if (v === undefined || v === null || v === ('' as any)) {
-    throw new Error(`Missing config: ${key}`);
+function must(path: string, v: unknown): string {
+  if (typeof v !== 'string' || !v.trim()) {
+    throw new Error(`Missing config: ${path}`);
   }
   return v;
 }
 
+function getExtra(): any {
+  // dev (expo go / dev client)
+  const expoExtra = Constants.expoConfig?.extra;
+
+  // prod OTA (eas update)
+  const updateExtra = (Updates.manifest as any)?.extra;
+
+  // legacy fallback
+  const legacyExtra = (Constants as any).manifest?.extra;
+
+  return expoExtra ?? updateExtra ?? legacyExtra ?? {};
+}
+
 const extra = getExtra();
-const app = extra.app ?? {};
-
-const tokenBaseURL = app.tokenBaseURL ?? EXPO_PUBLIC_TOKEN_BASE_URL;
-const apiBaseURL = app.apiBaseURL ?? EXPO_PUBLIC_API_BASE_URL;
-
-const envRaw = app.env ?? EXPO_PUBLIC_ENV;
-const env: Env = isEnv(envRaw) ? envRaw : 'local';
-
-const debug = typeof app.debug === 'boolean' ? app.debug : EXPO_PUBLIC_DEBUG === 'true';
-const version = app.version ?? Constants.expoConfig?.version ?? '0.0.0';
 
 export const config: AppConfig = {
-  tokenBaseURL: must(tokenBaseURL, 'tokenBaseURL'),
-  apiBaseURL: must(apiBaseURL, 'apiBaseURL'),
-  env,
-  debug,
-  version,
+  env: (extra.app?.env ?? extra.env ?? 'local') as Env,
+  debug: Boolean(extra.app?.debug),
+  apiBaseURL: must('expo.extra.app.apiBaseURL', extra.app?.apiBaseURL),
+  tokenBaseURL: must('expo.extra.app.tokenBaseURL', extra.app?.tokenBaseURL),
+  version: must('expo.extra.app.version', extra.app?.version),
 };
