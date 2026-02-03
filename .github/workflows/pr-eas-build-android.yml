@@ -7,10 +7,6 @@ on:
         type: string
         required: false
         default: "uat"
-      dotenv_file:
-        type: string
-        required: false
-        default: ".env.ci"
     secrets:
       EXPO_TOKEN:
         required: true
@@ -22,6 +18,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: pr-eas-build-android-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   eas_build_android:
     runs-on: ubuntu-latest
@@ -29,6 +29,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -39,47 +41,73 @@ jobs:
       - name: Ensure yarn.lock exists
         run: test -f yarn.lock
 
-      - name: Install deps
+      - name: Install dependencies
         run: yarn install --frozen-lockfile
 
       - name: Install EAS CLI
         run: npm i -g eas-cli
 
-      # Create dotenv file depending on profile
-      - name: Create dotenv file
+      # IMPORTANT:
+      # - uat profile  → expects DOTENV_FILE=.env.uat
+      # - prod profile → expects DOTENV_FILE=.env.prod
+      - name: Create dotenv file that matches profile
+        shell: bash
         run: |
-          FILE="${{ inputs.dotenv_file }}"
+          set -euo pipefail
+
           PROFILE="${{ inputs.profile }}"
+          if [ "$PROFILE" = "production" ]; then
+            FILE=".env.prod"
+          else
+            FILE=".env.uat"
+          fi
+
+          echo "DOTENV_FILE=$FILE" >> "$GITHUB_ENV"
+          echo "Using DOTENV_FILE=$FILE for profile=$PROFILE"
 
           if [ "$PROFILE" = "production" ]; then
-            # This requires secrets to exist if you want real prod URLs in PR build
-            cat > "$FILE" << EOF
+            if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || \
+               [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+              echo "❌ Missing PROD_* secrets."
+              exit 1
+            fi
+
+            cat > "$FILE" <<EOF
           EXPO_PUBLIC_ENV=prod
           EXPO_PUBLIC_DEBUG=false
           EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
           EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
           EOF
           else
-            cat > "$FILE" << EOF
+            # Safe dummy values for CI
+            cat > "$FILE" <<EOF
           EXPO_PUBLIC_ENV=uat
           EXPO_PUBLIC_DEBUG=true
-          EXPO_PUBLIC_API_BASE_URL=https://example.com/api
-          EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com
+          EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
           EOF
           fi
 
-      - name: show Expo config (debug)
+      - name: Read Expo config (debug)
         env:
           EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ${{ inputs.dotenv_file }}
+          DOTENV_FILE: ${{ env.DOTENV_FILE }}
         run: |
           npx expo config --type public
 
-      - name: EAS Build Android
+      # Fail fast before consuming EAS minutes
+      - name: Preflight bundle (android)
+        env:
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ${{ env.DOTENV_FILE }}
+        run: |
+          npx expo export --platform android --output-dir /tmp/dist
+
+      - name: EAS Build (Android)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ${{ inputs.dotenv_file }}
+          DOTENV_FILE: ${{ env.DOTENV_FILE }}
         run: |
           eas build \
             --profile "${{ inputs.profile }}" \
