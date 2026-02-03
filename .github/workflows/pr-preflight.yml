@@ -16,7 +16,6 @@ concurrency:
 jobs:
   preflight:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,7 +34,7 @@ jobs:
 
       - name: Create .env.ci (PUBLIC env only)
         run: |
-          cat > .env.ci << 'EOF'
+          cat > .env.ci <<EOF
           EXPO_PUBLIC_ENV=uat
           EXPO_PUBLIC_DEBUG=true
           EXPO_PUBLIC_API_BASE_URL=https://example.com/api
@@ -49,12 +48,7 @@ jobs:
         run: |
           node - <<'NODE'
           const { execSync } = require('child_process');
-
-          const out = execSync('npx expo config --type public --json', {
-            stdio: ['ignore', 'pipe', 'pipe'],
-            env: process.env,
-          }).toString();
-
+          const out = execSync('npx expo config --type public --json', { stdio: ['ignore','pipe','pipe'] }).toString();
           const cfg = JSON.parse(out);
 
           const must = (path, v) => {
@@ -66,7 +60,6 @@ jobs:
 
           const extra = cfg.extra || {};
           const app = extra.app || {};
-
           must('expo.extra.app.apiBaseURL', app.apiBaseURL);
           must('expo.extra.app.tokenBaseURL', app.tokenBaseURL);
 
@@ -80,28 +73,25 @@ jobs:
         env:
           EXPO_NO_DOTENV: "1"
           DOTENV_FILE: ".env.ci"
-        run: |
-          npx expo export --platform ios --platform android --output-dir /tmp/dist
+        run: npx expo export --platform ios --platform android --output-dir /tmp/dist
 
-  # Optional: EAS Build only when PR has label "ci:eas-build"
+  # Optional: run EAS Build (uat) only if PR has label "ci:eas-build"
   eas_build_android:
     needs: preflight
-    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:eas-build') }}
-    uses: ./.github/workflows/pr-eas-build-andriod.yml
+    if: ${{ github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:eas-build') }}
+    uses: ./.github/workflows/pr-eas-build-android.yml
     with:
       profile: "uat"
-      dotenv_file: ".env.uat"
     secrets:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-  # Optional: Prod EAS Build only when PR has label "ci:eas-build-prod"
+  # Optional: run EAS Build (production) only if PR has label "ci:eas-build-prod"
   eas_build_android_prod:
     needs: preflight
-    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ci:eas-build-prod') }}
-    uses: ./.github/workflows/pr-eas-build-andriod.yml
+    if: ${{ github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:eas-build-prod') }}
+    uses: ./.github/workflows/pr-eas-build-android.yml
     with:
       profile: "production"
-      dotenv_file: ".env.prod"
     secrets:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       PROD_EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
