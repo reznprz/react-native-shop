@@ -9,25 +9,13 @@
       "channel": "uat",
       "distribution": "internal",
       "android": { "buildType": "apk", "autoIncrement": true },
-      "ios": { "autoIncrement": true },
-      "env": {
-        "EXPO_PUBLIC_ENV": "uat",
-        "EXPO_PUBLIC_DEBUG": "false",
-        "EXPO_PUBLIC_API_BASE_URL": "https://sajilohisabkitab.com/api",
-        "EXPO_PUBLIC_TOKEN_BASE_URL": "https://sajilohisabkitab.com"
-      }
+      "ios": { "autoIncrement": true }
     },
     "production": {
       "environment": "production",
       "channel": "production",
       "android": { "buildType": "app-bundle", "autoIncrement": true },
-      "ios": { "autoIncrement": true },
-      "env": {
-        "EXPO_PUBLIC_ENV": "prod",
-        "EXPO_PUBLIC_DEBUG": "false",
-        "EXPO_PUBLIC_API_BASE_URL": "https://sajilohisabkitab.com/api",
-        "EXPO_PUBLIC_TOKEN_BASE_URL": "https://sajilohisabkitab.com"
-      }
+      "ios": { "autoIncrement": true }
     }
   }
 }
