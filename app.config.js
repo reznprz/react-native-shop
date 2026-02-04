@@ -21,8 +21,17 @@ function normalizeEnv(raw) {
 }
 
 function resolveAppEnv() {
-  // DO NOT use NODE_ENV here
-  return normalizeEnv(process.env.EXPO_PUBLIC_ENV || process.env.APP_ENV || 'local');
+  const env = normalizeEnv(process.env.EXPO_PUBLIC_ENV || process.env.APP_ENV || 'local');
+
+  // On EAS cloud, EXPO_PUBLIC_ENV must be explicitly set
+  if (isEasCloudBuild() && env === 'local') {
+    throw new Error(
+      `EAS Cloud build detected but EXPO_PUBLIC_ENV resolved to "local". ` +
+      `Check Expo dashboard env vars: profile=${process.env.EAS_BUILD_PROFILE}`
+    );
+  }
+
+  return env;
 }
 
 function resolveDotenvFileLocal(appEnv) {
