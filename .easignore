@@ -1,0 +1,9 @@
+# keep default ignores (optional)
+node_modules
+.expo
+dist
+
+# If you have a rule ignoring env files somewhere, re-include the ones you need:
+!.env.uat
+!.env.prod
+!.env.local.debug

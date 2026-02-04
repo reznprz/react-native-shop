@@ -8,7 +8,12 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "DOTENV_FILE": ".env.local.debug"
+        "EXPO_NO_DOTENV": "1",
+        "DOTENV_FILE": ".env.local.debug",
+        "EXPO_PUBLIC_ENV": "local",
+        "EXPO_PUBLIC_DEBUG": "false",
+        "EXPO_PUBLIC_API_BASE_URL": "https://sajilohisabkitab.com/api",
+        "EXPO_PUBLIC_TOKEN_BASE_URL": "https://sajilohisabkitab.com"
       }
     },
     "uat": {
@@ -22,6 +27,7 @@
         "autoIncrement": true
       },
       "env": {
+        "EXPO_NO_DOTENV": "1",
         "DOTENV_FILE": ".env.uat"
       }
     },
@@ -35,6 +41,7 @@
         "autoIncrement": true
       },
       "env": {
+        "EXPO_NO_DOTENV": "1",
         "DOTENV_FILE": ".env.prod"
       }
     }

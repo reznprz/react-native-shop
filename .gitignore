@@ -25,6 +25,8 @@ ios/Pods/
 ios/build/
 *.log
 .expo/
+android
+ios
 
 # Build outputs
 build/
@@ -34,8 +36,9 @@ out/
 .env
 .env.local
 .env.development
-.env.prod
 .env.test
+.env.prod
+.env.ci
 
 # IDE files
 .idea/
