@@ -144,3 +144,48 @@ runtime reads from Constants/Updates extra
 scripts use dotenv -e <file> -- ... for EAS build/update
 
 CI preflight ensures config is correct before consuming EAS build minutes
+
+
+---
+
+# Env + EAS Build Notes (SHK)
+
+## Problem we hit
+Remote EAS builds sometimes failed with:
+
+- `Missing env: EXPO_PUBLIC_API_BASE_URL (DOTENV_FILE=.env.uat)`
+- or the build used `env: local` even when profile was `uat/production`.
+
+Root cause:
+- `.env.uat` is available locally, but **not guaranteed** to be present inside the remote EAS builder.
+- Relying on reading `.env.*` files inside `app.config.js` causes remote builds to fall back to `.env`/`local` or fail.
+
+## Golden rule
+✅ Remote EAS build should get env vars via:
+1) `eas.json -> build.<profile>.env` (for non-secret values), OR
+2) Expo dashboard EAS Environment Variables (for secrets)
+
+🚫 Do not rely on shipping `.env.*` files to remote EAS builders.
+
+## app.config.js behavior
+- Determine environment from `EAS_BUILD_PROFILE` first (remote builds).
+- Load dotenv file only if needed *and* file exists.
+- Never silently fall back to `.env`.
+
+## Local builds
+We use dotenv-cli:
+
+- UAT:
+  `yarn build:uat:android`
+- PROD:
+  `yarn build:prod:android`
+
+## GitHub Actions PR builds
+- `pr-preflight.yml` runs always on PR open/sync.
+- `pr-eas-build-android.yml` runs only when PR has labels:
+  - `ci:eas-build` (uat)
+  - `ci:eas-build-prod` (production)
+
+Reusable workflow path must match exactly:
+`./.github/workflows/pr-eas-build-android.yml`
+(no typos like "andriod").

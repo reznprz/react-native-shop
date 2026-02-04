@@ -4,45 +4,29 @@
     "appVersionSource": "remote"
   },
   "build": {
-    "localDebug": {
-      "developmentClient": true,
+    "uat": {
+      "environment": "preview",
+      "channel": "uat",
       "distribution": "internal",
+      "android": { "buildType": "apk", "autoIncrement": true },
+      "ios": { "autoIncrement": true },
       "env": {
-        "EXPO_NO_DOTENV": "1",
-        "DOTENV_FILE": ".env.local.debug",
-        "EXPO_PUBLIC_ENV": "local",
+        "EXPO_PUBLIC_ENV": "uat",
         "EXPO_PUBLIC_DEBUG": "false",
         "EXPO_PUBLIC_API_BASE_URL": "https://sajilohisabkitab.com/api",
         "EXPO_PUBLIC_TOKEN_BASE_URL": "https://sajilohisabkitab.com"
       }
     },
-    "uat": {
-      "channel": "uat",
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk",
-        "autoIncrement": true
-      },
-      "ios": {
-        "autoIncrement": true
-      },
-      "env": {
-        "EXPO_NO_DOTENV": "1",
-        "DOTENV_FILE": ".env.uat"
-      }
-    },
     "production": {
+      "environment": "production",
       "channel": "production",
-      "android": {
-        "buildType": "app-bundle",
-        "autoIncrement": true
-      },
-      "ios": {
-        "autoIncrement": true
-      },
+      "android": { "buildType": "app-bundle", "autoIncrement": true },
+      "ios": { "autoIncrement": true },
       "env": {
-        "EXPO_NO_DOTENV": "1",
-        "DOTENV_FILE": ".env.prod"
+        "EXPO_PUBLIC_ENV": "prod",
+        "EXPO_PUBLIC_DEBUG": "false",
+        "EXPO_PUBLIC_API_BASE_URL": "https://sajilohisabkitab.com/api",
+        "EXPO_PUBLIC_TOKEN_BASE_URL": "https://sajilohisabkitab.com"
       }
     }
   }
