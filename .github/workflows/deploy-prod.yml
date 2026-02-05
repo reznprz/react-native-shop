@@ -22,25 +22,12 @@ jobs:
           ref: master
           fetch-depth: 0
 
-      - name: required secrets present
+      - name: Required secrets present
         shell: bash
         run: |
           set -euo pipefail
-
-          # EXPO_TOKEN is required for EAS CLI auth on CI
           if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
             echo "❌ Missing EXPO_TOKEN secret."
-            echo "Add it in GitHub → Settings → Secrets → Actions."
-            exit 1
-          fi
-
-          if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ]; then
-            echo "❌ Missing PROD_EXPO_PUBLIC_API_BASE_URL secret."
-            exit 1
-          fi
-
-          if [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
-            echo "❌ Missing PROD_EXPO_PUBLIC_TOKEN_BASE_URL secret."
             exit 1
           fi
 
@@ -48,23 +35,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: yarn
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
       - name: Install EAS CLI
         run: npm i -g eas-cli
-
-      - name: Create .env.prod
-        shell: bash
-        run: |
-          set -euo pipefail
-          cat > .env.prod << EOF
-          EXPO_PUBLIC_ENV=prod
-          EXPO_PUBLIC_DEBUG=false
-          EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
-          EOF
 
       - name: Determine release tag from package.json
         id: ver
@@ -78,7 +55,6 @@ jobs:
           echo "Release version: $VERSION"
           echo "Release tag: $TAG"
 
-      # Optional but useful sanity check
       - name: Verify Expo account + project
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -86,18 +62,19 @@ jobs:
           eas whoami
           eas project:info --non-interactive
 
-      # Optional: sanity print (public config only)
-      - name: Print resolved Expo config (optional)
+      # sanity: Read config in CI with safe dummy env (NOT EAS cloud)
+      - name: Preflight config (CI-only, not production secrets)
         env:
           EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ".env.prod"
+          EXPO_PUBLIC_ENV: "prod"
+          EXPO_PUBLIC_DEBUG: "false"
+          EXPO_PUBLIC_API_BASE_URL: "https://example.com/api"
+          EXPO_PUBLIC_TOKEN_BASE_URL: "https://example.com"
         run: npx expo config --type public
 
       - name: EAS Update (production) with version tag message
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ".env.prod"
         run: |
           TAG="${{ steps.ver.outputs.tag }}"
           eas update \
@@ -109,8 +86,6 @@ jobs:
       - name: EAS Build (Android)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ".env.prod"
         run: |
           eas build \
             --profile production \

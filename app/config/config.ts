@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import * as Updates from 'expo-updates';
 
-export type Env = 'local' | 'uat' | 'prod';
+export type Env = 'local' | 'uat' | 'prod' | 'production';
 
 export interface AppConfig {
   tokenBaseURL: string;
@@ -33,9 +33,13 @@ function getExtra(): any {
 
 const extra = getExtra();
 
+const debugRaw = extra.app?.debug;
+const debug =
+  typeof debugRaw === 'boolean' ? debugRaw : String(debugRaw ?? 'false').toLowerCase() === 'true';
+
 export const config: AppConfig = {
   env: (extra.app?.env ?? extra.env ?? 'local') as Env,
-  debug: Boolean(extra.app?.debug),
+  debug,
   apiBaseURL: must('expo.extra.app.apiBaseURL', extra.app?.apiBaseURL),
   tokenBaseURL: must('expo.extra.app.tokenBaseURL', extra.app?.tokenBaseURL),
   version: must('expo.extra.app.version', extra.app?.version),

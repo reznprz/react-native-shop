@@ -1,17 +1,7 @@
 {
-  "cli": {
-    "version": ">= 16.1.0",
-    "appVersionSource": "remote"
-  },
   "build": {
-    "localDebug": {
-      "developmentClient": true,
-      "distribution": "internal",
-      "env": {
-        "DOTENV_FILE": ".env.local.debug"
-      }
-    },
     "uat": {
+      "environment": "preview",
       "channel": "uat",
       "distribution": "internal",
       "android": {
@@ -22,10 +12,11 @@
         "autoIncrement": true
       },
       "env": {
-        "DOTENV_FILE": ".env.uat"
+        "EXPO_PUBLIC_ENV": "uat"
       }
     },
     "production": {
+      "environment": "production",
       "channel": "production",
       "android": {
         "buildType": "app-bundle",
@@ -35,8 +26,11 @@
         "autoIncrement": true
       },
       "env": {
-        "DOTENV_FILE": ".env.prod"
+        "EXPO_PUBLIC_ENV": "prod"
       }
     }
+  },
+  "cli": {
+    "appVersionSource": "remote"
   }
 }

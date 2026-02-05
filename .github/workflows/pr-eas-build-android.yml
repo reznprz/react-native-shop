@@ -10,6 +10,8 @@ on:
     secrets:
       EXPO_TOKEN:
         required: true
+
+      # We'll use PROD_* secrets for both uat and prod for now
       PROD_EXPO_PUBLIC_API_BASE_URL:
         required: false
       PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
@@ -17,6 +19,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: pr-eas-build-android-${{ github.ref }}-${{ inputs.profile }}
+  cancel-in-progress: true
 
 jobs:
   eas_build_android:
@@ -43,60 +49,103 @@ jobs:
       - name: Install EAS CLI
         run: npm i -g eas-cli
 
-      - name: Create DOTENV_FILE matching profile
+      # IMPORTANT:
+      # - Prevent reading any .env file on the runner
+      # - Provide env vars so app.config.js never throws on the runner
+      # - For now, use PROD_* secrets for BOTH uat and production builds
+      - name: Set runner env (CI-only)
         shell: bash
         run: |
           set -euo pipefail
           PROFILE="${{ inputs.profile }}"
 
+          echo "EXPO_NO_DOTENV=1" >> "$GITHUB_ENV"
+          echo "DOTENV_FILE=" >> "$GITHUB_ENV" # blank on purpose
+          echo "EXPO_PUBLIC_DEBUG=false" >> "$GITHUB_ENV"
+
           if [ "$PROFILE" = "production" ]; then
-            FILE=".env.prod"
+            echo "EXPO_PUBLIC_ENV=prod" >> "$GITHUB_ENV"
           else
-            FILE=".env.uat"
+            echo "EXPO_PUBLIC_ENV=uat" >> "$GITHUB_ENV"
           fi
 
-          echo "DOTENV_FILE=$FILE" >> "$GITHUB_ENV"
-          echo "Using DOTENV_FILE=$FILE for profile=$PROFILE"
+          # Use PROD secrets for both profiles (uat + prod)
+          if [ -n "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] && [ -n "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+            echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
+          else
+            # Safe fallback so config evaluation doesn't crash
+            echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
+          fi
 
+      - name: Verify Expo config + bundle (runner)
+        env:
+          EXPO_NO_DOTENV: ${{ env.EXPO_NO_DOTENV }}
+          DOTENV_FILE: ${{ env.DOTENV_FILE }}
+          EXPO_PUBLIC_ENV: ${{ env.EXPO_PUBLIC_ENV }}
+          EXPO_PUBLIC_DEBUG: ${{ env.EXPO_PUBLIC_DEBUG }}
+          EXPO_PUBLIC_API_BASE_URL: ${{ env.EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ env.EXPO_PUBLIC_TOKEN_BASE_URL }}
+        run: |
+          set -euo pipefail
+          npx expo config --type public
+          npx expo export --platform android --output-dir /tmp/dist
+
+      - name: Authenticate EAS
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          eas whoami
+          eas project:info
+
+      # OPTIONAL:
+      # If you want CI to keep EAS environment variables in sync too (so cloud builds resolve the same values)
+      # This uses PROD_* secrets for both uat and prod for now.
+      - name: Ensure EAS env vars exist (optional auto-create)
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          PROFILE="${{ inputs.profile }}"
+
+          # If you didn't provide PROD secrets, skip auto-create
+          if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+            echo "Skipping EAS env auto-create (no PROD secrets provided)."
+            exit 0
+          fi
+
+          # Map profile -> EAS environment name
+          # - uat builds typically use "preview"
+          # - production builds typically use "production"
           if [ "$PROFILE" = "production" ]; then
-            if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
-              echo "❌ Missing PROD secrets (PROD_EXPO_PUBLIC_API_BASE_URL / PROD_EXPO_PUBLIC_TOKEN_BASE_URL)."
-              exit 1
-            fi
+            EAS_ENV="production"
+            APP_ENV="prod"
+          else
+            EAS_ENV="preview"
+            APP_ENV="uat"
+          fi
 
-            cat > "$FILE" <<EOF
-            EXPO_PUBLIC_ENV=prod
-            EXPO_PUBLIC_DEBUG=false
-            EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-            EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
-            EOF
-                      else
-                        cat > "$FILE" <<EOF
-            EXPO_PUBLIC_ENV=uat
-            EXPO_PUBLIC_DEBUG=true
-            EXPO_PUBLIC_API_BASE_URL=https://example.com/api
-            EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com
-            EOF
-                      fi
-
-      - name: Read Expo config (debug)
-        env:
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ${{ env.DOTENV_FILE }}
-        run: npx expo config --type public
-
-      - name: Preflight bundle (android)
-        env:
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ${{ env.DOTENV_FILE }}
-        run: npx expo export --platform android --output-dir /tmp/dist
+          # Create/overwrite env vars on EAS
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_ENV --value "$APP_ENV" --force --non-interactive
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_DEBUG --value false --force --non-interactive
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_API_BASE_URL --value "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" --force --non-interactive
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_TOKEN_BASE_URL --value "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" --force --non-interactive
 
       - name: EAS Build (Android)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_NO_DOTENV: "1"
+          # Also pass the same env into the build command process (helps if your config reads env during build invocation)
+          EXPO_NO_DOTENV: ${{ env.EXPO_NO_DOTENV }}
           DOTENV_FILE: ${{ env.DOTENV_FILE }}
+          EXPO_PUBLIC_ENV: ${{ env.EXPO_PUBLIC_ENV }}
+          EXPO_PUBLIC_DEBUG: ${{ env.EXPO_PUBLIC_DEBUG }}
+          EXPO_PUBLIC_API_BASE_URL: ${{ env.EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ env.EXPO_PUBLIC_TOKEN_BASE_URL }}
         run: |
+          set -euo pipefail
           eas build \
             --profile "${{ inputs.profile }}" \
             --platform android \
