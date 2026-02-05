@@ -5,9 +5,9 @@ on:
     secrets:
       EXPO_TOKEN:
         required: true
-      UAT_EXPO_PUBLIC_API_BASE_URL:
+      PROD_EXPO_PUBLIC_API_BASE_URL:
         required: true
-      UAT_EXPO_PUBLIC_TOKEN_BASE_URL:
+      PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
         required: true
 
 permissions:
@@ -21,18 +21,19 @@ jobs:
   update:
     runs-on: ubuntu-latest
 
+    # Apply env globally for all steps
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # Do not read any .env on runner
+      # Hard-disable dotenv on runner
       EXPO_NO_DOTENV: "1"
       DOTENV_FILE: ""
 
-      # UAT config
+      # UAT runtime, PROD endpoints (as requested)
       EXPO_PUBLIC_ENV: "uat"
       EXPO_PUBLIC_DEBUG: "false"
       EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-      EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+      EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
 
     steps:
       - name: Checkout (PR merge commit)
@@ -60,12 +61,6 @@ jobs:
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "UAT update tag: $TAG"
 
-      - name: Verify Expo config (CI)
-        shell: bash
-        run: |
-          set -euo pipefail
-          npx expo config --type public
-
       - name: Verify Expo account + project
         shell: bash
         run: |
@@ -73,13 +68,18 @@ jobs:
           npx eas-cli whoami
           npx eas-cli project:info --non-interactive
 
+      - name: Verify Expo config (CI)
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx expo config --type public
+
       - name: EAS Update (UAT) with version tag message
         shell: bash
         run: |
           set -euo pipefail
           TAG="${{ steps.ver.outputs.tag }}"
 
-          # Use CHANNEL (recommended) so devices subscribed to "uat" get it.
           npx eas-cli update \
             --channel uat \
             --message "$TAG" \
