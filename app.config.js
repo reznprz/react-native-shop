@@ -19,21 +19,43 @@ function normalizeEnv(raw) {
   return env;
 }
 
-function resolveDotenvFileLocal() {
-  // explicit always wins
+// ✅ Cloud-safe: env vars from eas.json "env" may NOT exist during "Read app config".
+// But EAS_BUILD_PROFILE DOES exist, so map it.
+function resolveAppEnv() {
+  const explicit = normalizeEnv(process.env.EXPO_PUBLIC_ENV || process.env.APP_ENV);
+
+  // If user explicitly provided EXPO_PUBLIC_ENV, always honor it.
+  if (explicit && explicit !== 'local') return explicit;
+
+  if (isEasCloudBuild()) {
+    const profile = String(process.env.EAS_BUILD_PROFILE || '').trim().toLowerCase();
+
+    // Map your build profiles -> app env
+    if (profile === 'uat') return 'uat';
+    if (profile === 'production') return 'production';
+
+    // Default for any other cloud profile
+    return 'production';
+  }
+
+  // Local default
+  return explicit || 'local';
+}
+
+function resolveDotenvFileLocal(appEnv) {
   if (process.env.DOTENV_FILE) return process.env.DOTENV_FILE;
-  // default local behavior
+  if (appEnv === 'uat') return '.env.uat';
+  if (appEnv === 'production') return '.env.prod';
   if (fs.existsSync(path.resolve(__dirname, '.env.local'))) return '.env.local';
   return '.env';
 }
 
-function maybeLoadDotenvLocal() {
+function maybeLoadDotenvLocal(appEnv) {
   if (isEasCloudBuild()) return;
 
   const noDotenv = String(process.env.EXPO_NO_DOTENV || '') === '1';
-  const file = resolveDotenvFileLocal();
+  const file = resolveDotenvFileLocal(appEnv);
 
-  // If dotenv is disabled and no explicit DOTENV_FILE, skip implicit ".env"
   if (noDotenv && path.basename(file) === '.env' && !process.env.DOTENV_FILE) return;
 
   const abs = path.resolve(__dirname, file);
@@ -42,35 +64,25 @@ function maybeLoadDotenvLocal() {
   dotenv.config({ path: abs, override: false });
 }
 
-function resolveAppEnv() {
-  const env = normalizeEnv(process.env.EXPO_PUBLIC_ENV || process.env.APP_ENV || 'local');
-
-  // hard guard on cloud
-  if (isEasCloudBuild() && env === 'local') {
-    throw new Error(
-      `EAS Cloud build detected but EXPO_PUBLIC_ENV resolved to "local". ` +
-        `Fix env vars for profile=${process.env.EAS_BUILD_PROFILE}.`
-    );
-  }
-
-  return env;
-}
-
 function must(name, appEnv) {
   const v = process.env[name];
   if (!v || !String(v).trim()) {
     const where = isEasCloudBuild()
-      ? 'EAS Cloud env vars (Dashboard / eas.json)'
-      : `dotenv (${resolveDotenvFileLocal()}) or shell env`;
+      ? 'EAS Cloud env vars (Dashboard / EAS env)'
+      : `dotenv (${resolveDotenvFileLocal(appEnv)}) or shell env`;
     throw new Error(`Missing env: ${name} (appEnv=${appEnv}, source=${where})`);
   }
   return String(v).trim();
 }
 
 module.exports = ({ config }) => {
-  // Load dotenv only locally (never on cloud)
-  maybeLoadDotenvLocal();
+  // Determine env early (cloud uses profile mapping)
+  const appEnvPre = resolveAppEnv();
 
+  // Only local loads dotenv
+  maybeLoadDotenvLocal(appEnvPre);
+
+  // Re-resolve after dotenv (local may change things)
   const appEnv = resolveAppEnv();
 
   const apiBaseURL = must('EXPO_PUBLIC_API_BASE_URL', appEnv);
@@ -78,14 +90,17 @@ module.exports = ({ config }) => {
   const debug = String(process.env.EXPO_PUBLIC_DEBUG ?? 'false').toLowerCase() === 'true';
   const version = getPackageVersion();
 
-  // Probe shown in "Read app config" output (more reliable than console logs)
+  // Show in "Read app config" output (more reliable than console.log)
   const envProbe = {
+    appEnvPre,
+    appEnvFinal: appEnv,
+    EAS_BUILD: process.env.EAS_BUILD || null,
+    EAS_BUILD_PROFILE: process.env.EAS_BUILD_PROFILE || null,
     EXPO_PUBLIC_ENV: process.env.EXPO_PUBLIC_ENV || null,
     EXPO_PUBLIC_API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL ? 'SET' : null,
     EXPO_PUBLIC_TOKEN_BASE_URL: process.env.EXPO_PUBLIC_TOKEN_BASE_URL ? 'SET' : null,
     EXPO_PUBLIC_DEBUG: process.env.EXPO_PUBLIC_DEBUG || null,
-    EAS_BUILD: process.env.EAS_BUILD || null,
-    EAS_BUILD_PROFILE: process.env.EAS_BUILD_PROFILE || null,
+    DOTENV_FILE: process.env.DOTENV_FILE || null,
   };
 
   const signature = `app.config.js|env=${appEnv}|eas=${isEasCloudBuild()}|${new Date().toISOString()}`;
@@ -101,7 +116,6 @@ module.exports = ({ config }) => {
     ios: { ...(config.ios || {}), bundleIdentifier: ExpoIdentity.iosBundleIdentifier },
     android: { ...(config.android || {}), package: ExpoIdentity.androidPackage },
     extra: {
-      // Keep any non-env extra that might exist, but ALWAYS overwrite env/app blocks:
       ...(config.extra || {}),
       __CONFIG_SIG: signature,
       __ENV_PROBE: envProbe,
