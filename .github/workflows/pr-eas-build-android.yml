@@ -11,11 +11,7 @@ on:
       EXPO_TOKEN:
         required: true
 
-      # Optional: if you want CI to inject real Preview env vars on EAS automatically
-      UAT_EXPO_PUBLIC_API_BASE_URL:
-        required: false
-      UAT_EXPO_PUBLIC_TOKEN_BASE_URL:
-        required: false
+      # We'll use PROD_* secrets for both uat and prod for now
       PROD_EXPO_PUBLIC_API_BASE_URL:
         required: false
       PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
@@ -56,6 +52,7 @@ jobs:
       # IMPORTANT:
       # - Prevent reading any .env file on the runner
       # - Provide env vars so app.config.js never throws on the runner
+      # - For now, use PROD_* secrets for BOTH uat and production builds
       - name: Set runner env (CI-only)
         shell: bash
         run: |
@@ -64,30 +61,22 @@ jobs:
 
           echo "EXPO_NO_DOTENV=1" >> "$GITHUB_ENV"
           echo "DOTENV_FILE=" >> "$GITHUB_ENV" # blank on purpose
+          echo "EXPO_PUBLIC_DEBUG=false" >> "$GITHUB_ENV"
 
           if [ "$PROFILE" = "production" ]; then
             echo "EXPO_PUBLIC_ENV=prod" >> "$GITHUB_ENV"
-            echo "EXPO_PUBLIC_DEBUG=false" >> "$GITHUB_ENV"
-
-            # If prod secrets exist, use them; else use safe dummy for runner evaluation
-            if [ -n "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] && [ -n "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
-              echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
-              echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
-            else
-              echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
-              echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
-            fi
           else
             echo "EXPO_PUBLIC_ENV=uat" >> "$GITHUB_ENV"
-            echo "EXPO_PUBLIC_DEBUG=false" >> "$GITHUB_ENV"
+          fi
 
-            if [ -n "${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" ] && [ -n "${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
-              echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
-              echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
-            else
-              echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
-              echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
-            fi
+          # Use PROD secrets for both profiles (uat + prod)
+          if [ -n "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] && [ -n "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+            echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
+          else
+            # Safe fallback so config evaluation doesn't crash
+            echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
           fi
 
       - name: Verify Expo config + bundle (runner)
@@ -109,57 +98,52 @@ jobs:
         run: |
           set -euo pipefail
           eas whoami
+          eas project:info
 
-      # OPTIONAL (Recommended):
-      # If Preview env vars are missing on EAS, create them automatically from GitHub secrets.
-      # If you don't want CI to manage EAS env vars, delete this step.
+      # OPTIONAL:
+      # If you want CI to keep EAS environment variables in sync too (so cloud builds resolve the same values)
+      # This uses PROD_* secrets for both uat and prod for now.
       - name: Ensure EAS env vars exist (optional auto-create)
-        if: ${{ inputs.profile == 'uat' }}
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         shell: bash
         run: |
           set -euo pipefail
+          PROFILE="${{ inputs.profile }}"
 
-          # If you didn't provide secrets, skip auto-create
-          if [ -z "${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" ] || [ -z "${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
-            echo "Skipping EAS env auto-create (no UAT secrets provided)."
+          # If you didn't provide PROD secrets, skip auto-create
+          if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+            echo "Skipping EAS env auto-create (no PROD secrets provided)."
             exit 0
           fi
 
-          # Create/overwrite env vars in "preview" env on EAS
-          eas env:create --environment preview --visibility public --name EXPO_PUBLIC_ENV --value uat --force --non-interactive
-          eas env:create --environment preview --visibility public --name EXPO_PUBLIC_DEBUG --value false --force --non-interactive
-          eas env:create --environment preview --visibility public --name EXPO_PUBLIC_API_BASE_URL --value "${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" --force --non-interactive
-          eas env:create --environment preview --visibility public --name EXPO_PUBLIC_TOKEN_BASE_URL --value "${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" --force --non-interactive
-
-      # IMPORTANT:
-      # Fail early with a clear reason if Android keystore is missing.
-      - name: Check Android credentials exist (fail fast)
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if eas credentials -p android --non-interactive >/tmp/creds.txt 2>&1; then
-            echo "✅ Android credentials look available."
+          # Map profile -> EAS environment name
+          # - uat builds typically use "preview"
+          # - production builds typically use "production"
+          if [ "$PROFILE" = "production" ]; then
+            EAS_ENV="production"
+            APP_ENV="prod"
           else
-            echo "❌ Android credentials are missing or not accessible for this project."
-            echo ""
-            echo "EAS cannot generate a new keystore in --non-interactive mode."
-            echo "Fix once locally (interactive):"
-            echo "  eas credentials -p android"
-            echo "  (choose: Generate new keystore)"
-            echo ""
-            echo "Then re-run the GitHub Action."
-            echo ""
-            cat /tmp/creds.txt || true
-            exit 1
+            EAS_ENV="preview"
+            APP_ENV="uat"
           fi
+
+          # Create/overwrite env vars on EAS
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_ENV --value "$APP_ENV" --force --non-interactive
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_DEBUG --value false --force --non-interactive
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_API_BASE_URL --value "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" --force --non-interactive
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_TOKEN_BASE_URL --value "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" --force --non-interactive
 
       - name: EAS Build (Android)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          # Also pass the same env into the build command process (helps if your config reads env during build invocation)
+          EXPO_NO_DOTENV: ${{ env.EXPO_NO_DOTENV }}
+          DOTENV_FILE: ${{ env.DOTENV_FILE }}
+          EXPO_PUBLIC_ENV: ${{ env.EXPO_PUBLIC_ENV }}
+          EXPO_PUBLIC_DEBUG: ${{ env.EXPO_PUBLIC_DEBUG }}
+          EXPO_PUBLIC_API_BASE_URL: ${{ env.EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ env.EXPO_PUBLIC_TOKEN_BASE_URL }}
         run: |
           set -euo pipefail
           eas build \
