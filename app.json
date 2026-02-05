@@ -1,7 +1,6 @@
 {
   "expo": {
-    "ios": {
-      "bundleIdentifier": "com.sajilohisabkitab.shop"
-    }
+    "name": "SHK",
+    "slug": "sajilohisabkitab"
   }
 }
