@@ -21,6 +21,20 @@ jobs:
   update:
     runs-on: ubuntu-latest
 
+    # Apply env globally for all steps
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # Hard-disable dotenv on runner
+      EXPO_NO_DOTENV: "1"
+      DOTENV_FILE: ""
+
+      # UAT runtime, PROD endpoints (as requested)
+      EXPO_PUBLIC_ENV: "uat"
+      EXPO_PUBLIC_DEBUG: "false"
+      EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+      EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+
     steps:
       - name: Checkout (PR merge commit)
         uses: actions/checkout@v4
@@ -48,18 +62,6 @@ jobs:
           echo "UAT update tag: $TAG"
 
       - name: Verify Expo account + project
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-          # hard-disable dotenv in CI
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
-          # UAT runtime, PROD endpoints
-          EXPO_PUBLIC_ENV: "uat"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         shell: bash
         run: |
           set -euo pipefail
@@ -67,34 +69,12 @@ jobs:
           npx eas-cli project:info --non-interactive
 
       - name: Verify Expo config (CI)
-        env:
-          # hard-disable dotenv in CI
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
-          # UAT runtime, PROD endpoints
-          EXPO_PUBLIC_ENV: "uat"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         shell: bash
         run: |
           set -euo pipefail
           npx expo config --type public
 
       - name: EAS Update (UAT) with version tag message
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-          # hard-disable dotenv in CI
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
-          # UAT runtime, PROD endpoints
-          EXPO_PUBLIC_ENV: "uat"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         shell: bash
         run: |
           set -euo pipefail

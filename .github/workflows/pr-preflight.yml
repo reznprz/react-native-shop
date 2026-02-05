@@ -100,3 +100,15 @@ jobs:
       profile: "production"
     secrets:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+  # Optional: deploy OTA update to UAT channel when PR has label "ci:uat-update"
+  deploy_uat_update:
+    needs: preflight
+    if: ${{ github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:uat-update') && (github.base_ref == 'develop' || github.base_ref == 'master') }}
+    uses: ./.github/workflows/deploy-uat-update.yml
+    secrets:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # For now, re-use PROD endpoints for UAT updates (as you requested earlier)
+      PROD_EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+      PROD_EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
