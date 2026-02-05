@@ -11,6 +11,18 @@ on:
       EXPO_TOKEN:
         required: true
 
+      # Production secrets (you already have these)
+      PROD_EXPO_PUBLIC_API_BASE_URL:
+        required: false
+      PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
+        required: false
+
+      # Optional (recommended): add these for real UAT runner evaluation
+      UAT_EXPO_PUBLIC_API_BASE_URL:
+        required: false
+      UAT_EXPO_PUBLIC_TOKEN_BASE_URL:
+        required: false
+
 permissions:
   contents: read
 
@@ -43,11 +55,67 @@ jobs:
       - name: Install EAS CLI
         run: npm i -g eas-cli
 
-      - name: Verify Expo auth
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: eas whoami
+      # 1) Provide env vars for *runner-side* config evaluation
+      #    This is what prevents:
+      #      - "Missing env: EXPO_PUBLIC_API_BASE_URL (appEnv=local...)"
+      #      - metro.config read failures due to config crash
+      - name: Prepare env for runner config evaluation
+        shell: bash
+        run: |
+          set -euo pipefail
 
+          PROFILE="${{ inputs.profile }}"
+          echo "PROFILE=$PROFILE"
+
+          if [ "$PROFILE" = "production" ]; then
+            echo "EXPO_PUBLIC_ENV=prod" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_DEBUG=false" >> "$GITHUB_ENV"
+
+            if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+              echo "❌ Missing PROD secrets: PROD_EXPO_PUBLIC_API_BASE_URL / PROD_EXPO_PUBLIC_TOKEN_BASE_URL"
+              exit 1
+            fi
+
+            echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
+          else
+            echo "EXPO_PUBLIC_ENV=uat" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_DEBUG=false" >> "$GITHUB_ENV"
+
+            # If you add UAT secrets, we use them; otherwise safe fallback for PR builds.
+            if [ -n "${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" ] && [ -n "${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+              echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
+              echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
+            else
+              echo "⚠️ UAT secrets not set. Using safe fallback example.com values for runner preflight only."
+              echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
+              echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
+            fi
+          fi
+
+          # Prevent any automatic dotenv reading on CI runner
+          echo "EXPO_NO_DOTENV=1" >> "$GITHUB_ENV"
+
+      - name: Verify Expo config (runner)
+        env:
+          EXPO_NO_DOTENV: ${{ env.EXPO_NO_DOTENV }}
+          EXPO_PUBLIC_ENV: ${{ env.EXPO_PUBLIC_ENV }}
+          EXPO_PUBLIC_DEBUG: ${{ env.EXPO_PUBLIC_DEBUG }}
+          EXPO_PUBLIC_API_BASE_URL: ${{ env.EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ env.EXPO_PUBLIC_TOKEN_BASE_URL }}
+        run: npx expo config --type public
+
+      - name: Preflight bundle (android)
+        env:
+          EXPO_NO_DOTENV: ${{ env.EXPO_NO_DOTENV }}
+          EXPO_PUBLIC_ENV: ${{ env.EXPO_PUBLIC_ENV }}
+          EXPO_PUBLIC_DEBUG: ${{ env.EXPO_PUBLIC_DEBUG }}
+          EXPO_PUBLIC_API_BASE_URL: ${{ env.EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ env.EXPO_PUBLIC_TOKEN_BASE_URL }}
+        run: npx expo export --platform android --output-dir /tmp/dist
+
+      # 2) Actual EAS Cloud build
+      #    Remote builder will use Expo dashboard env vars + eas.json env
       - name: EAS Build (Android)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
