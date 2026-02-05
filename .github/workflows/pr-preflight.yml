@@ -110,5 +110,5 @@ jobs:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       # For now, re-use PROD endpoints for UAT updates (as you requested earlier)
-      UAT_EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-      UAT_EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+      PROD_EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+      PROD_EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
