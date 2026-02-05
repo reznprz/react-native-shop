@@ -2,6 +2,13 @@ name: Deploy Production (EAS Update + Build)
 
 on:
   workflow_call:
+    secrets:
+      EXPO_TOKEN:
+        required: true
+      PROD_EXPO_PUBLIC_API_BASE_URL:
+        required: true
+      PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
+        required: true
   workflow_dispatch:
 
 permissions:
@@ -26,10 +33,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
-            echo "❌ Missing EXPO_TOKEN secret."
-            exit 1
-          fi
+          [ -n "${{ secrets.EXPO_TOKEN }}" ] || { echo "❌ Missing EXPO_TOKEN secret."; exit 1; }
+          [ -n "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || { echo "❌ Missing PROD_EXPO_PUBLIC_API_BASE_URL secret."; exit 1; }
+          [ -n "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ] || { echo "❌ Missing PROD_EXPO_PUBLIC_TOKEN_BASE_URL secret."; exit 1; }
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -58,24 +64,41 @@ jobs:
       - name: Verify Expo account + project
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ""
+          EXPO_PUBLIC_ENV: "prod"
+          EXPO_PUBLIC_DEBUG: "false"
+          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         run: |
+          set -euo pipefail
           eas whoami
           eas project:info --non-interactive
 
-      # sanity: Read config in CI with safe dummy env (NOT EAS cloud)
-      - name: Preflight config (CI-only, not production secrets)
+      # Sanity: read config in CI with REAL production env (since prod deploy should never ship placeholders)
+      - name: Preflight config (CI)
         env:
           EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ""
           EXPO_PUBLIC_ENV: "prod"
           EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: "https://example.com/api"
-          EXPO_PUBLIC_TOKEN_BASE_URL: "https://example.com"
-        run: npx expo config --type public
+          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+        run: |
+          set -euo pipefail
+          npx expo config --type public
 
       - name: EAS Update (production) with version tag message
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ""
+          EXPO_PUBLIC_ENV: "prod"
+          EXPO_PUBLIC_DEBUG: "false"
+          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         run: |
+          set -euo pipefail
           TAG="${{ steps.ver.outputs.tag }}"
           eas update \
             --branch production \
@@ -86,7 +109,14 @@ jobs:
       - name: EAS Build (Android)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ""
+          EXPO_PUBLIC_ENV: "prod"
+          EXPO_PUBLIC_DEBUG: "false"
+          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         run: |
+          set -euo pipefail
           eas build \
             --profile production \
             --platform android \
