@@ -1,9 +1,9 @@
 const ExpoIdentity = {
-  owner: 'shk25',
-  slug: 'sajilohisabkitab',
-  projectId: '589511b4-857b-41b4-92c8-3b1a4df4e2a2',
-  androidPackage: 'com.sajilohisabkitab.shop',
-  iosBundleIdentifier: 'com.sajilohisabkitab.shop',
+  owner: 'shk255',
+  slug: 'shk255',
+  projectId: '4629cf56-fad3-4bb6-999a-f28173158891',
+  androidPackage: 'com.sajilohisabkitab25.shop',
+  iosBundleIdentifier: 'com.sajilohisabkitab25.shop',
 };
 
 function getUpdatesUrl() {
