@@ -89,7 +89,7 @@ jobs:
     with:
       profile: "uat"
     secrets:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_2 }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
   # Optional: run EAS Build (production) only if PR has label "ci:eas-build-prod"
   eas_build_android_prod:
@@ -99,4 +99,4 @@ jobs:
     with:
       profile: "production"
     secrets:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_2 }}
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

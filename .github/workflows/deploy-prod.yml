@@ -26,8 +26,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [ -z "${{ secrets.EXPO_TOKEN_2 }}" ]; then
-            echo "❌ Missing EXPO_TOKEN_2 secret."
+          if [ -z "${{ secrets.EXPO_TOKEN }}" ]; then
+            echo "❌ Missing EXPO_TOKEN secret."
             exit 1
           fi
 
@@ -57,7 +57,7 @@ jobs:
 
       - name: Verify Expo account + project
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_2 }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           eas whoami
           eas project:info --non-interactive
@@ -74,7 +74,7 @@ jobs:
 
       - name: EAS Update (production) with version tag message
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_2 }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           TAG="${{ steps.ver.outputs.tag }}"
           eas update \
@@ -85,7 +85,7 @@ jobs:
 
       - name: EAS Build (Android)
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_2 }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           eas build \
             --profile production \

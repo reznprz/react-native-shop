@@ -118,7 +118,7 @@ jobs:
       #    Remote builder will use Expo dashboard env vars + eas.json env
       - name: EAS Build (Android)
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_2 }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
           eas build \
             --profile "${{ inputs.profile }}" \
