@@ -1,9 +1,49 @@
-# keep default ignores (optional)
-node_modules
-.expo
-dist
+# Node / JS
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# If you have a rule ignoring env files somewhere, re-include the ones you need:
-!.env.uat
-!.env.prod
-!.env.local.debug
+# Expo / React Native
+.expo/
+.expo-shared/
+web-build/
+dist/
+
+# Android / iOS build artifacts
+android/.gradle/
+android/build/
+android/app/build/
+ios/build/
+ios/Pods/
+ios/DerivedData/
+android
+ios
+
+# Environment files (cloud uses EAS env)
+.env
+.env.*
+!.env.example
+
+# Git / CI
+.git/
+.gitignore
+.github/
+
+# Editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Tests & coverage
+coverage/
+__tests__/
+*.spec.*
+*.test.*
+
+# Assets you don’t ship
+docs/
+screenshots/
+design/
+figma/
