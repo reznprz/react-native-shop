@@ -1,0 +1,87 @@
+name: Deploy UAT (EAS Update only)
+
+on:
+  workflow_call:
+    secrets:
+      EXPO_TOKEN:
+        required: true
+      UAT_EXPO_PUBLIC_API_BASE_URL:
+        required: true
+      UAT_EXPO_PUBLIC_TOKEN_BASE_URL:
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-uat-update
+  cancel-in-progress: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      # Do not read any .env on runner
+      EXPO_NO_DOTENV: "1"
+      DOTENV_FILE: ""
+
+      # UAT config
+      EXPO_PUBLIC_ENV: "uat"
+      EXPO_PUBLIC_DEBUG: "false"
+      EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+      EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+
+    steps:
+      - name: Checkout (PR merge commit)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Determine version tag from package.json
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          TAG="v$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "UAT update tag: $TAG"
+
+      - name: Verify Expo config (CI)
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx expo config --type public
+
+      - name: Verify Expo account + project
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx eas-cli whoami
+          npx eas-cli project:info --non-interactive
+
+      - name: EAS Update (UAT) with version tag message
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.ver.outputs.tag }}"
+
+          # Use CHANNEL (recommended) so devices subscribed to "uat" get it.
+          npx eas-cli update \
+            --channel uat \
+            --message "$TAG" \
+            --platform android \
+            --non-interactive
