@@ -43,12 +43,10 @@ jobs:
       - name: Install EAS CLI
         run: npm i -g eas-cli
 
-      - name: Verify Expo account + project
+      - name: Verify Expo auth
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          eas whoami
-          eas project:info --non-interactive
+        run: eas whoami
 
       - name: EAS Build (Android)
         env:
