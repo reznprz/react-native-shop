@@ -35,9 +35,7 @@ const extra = getExtra();
 
 const debugRaw = extra.app?.debug;
 const debug =
-  typeof debugRaw === 'boolean'
-    ? debugRaw
-    : String(debugRaw ?? 'false').toLowerCase() === 'true';
+  typeof debugRaw === 'boolean' ? debugRaw : String(debugRaw ?? 'false').toLowerCase() === 'true';
 
 export const config: AppConfig = {
   env: (extra.app?.env ?? extra.env ?? 'local') as Env,
