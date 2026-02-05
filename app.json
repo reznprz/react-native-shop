@@ -1,3 +1,12 @@
 {
-  "expo": {}   
+  "expo": {
+    "name": "shk255",
+    "slug": "shk255",
+    "owner": "shk255",
+    "extra": {
+      "eas": {
+        "projectId": "4629cf56-fad3-4bb6-999a-f28173158891"
+      }
+    }
+  }
 }

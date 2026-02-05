@@ -205,3 +205,10 @@ Requires .env file Uses EAS env vars
 Babel-dependent Expo-native
 Breaks on CI easily CI-safe
 RN-specific hack Expo standard
+
+[RUN_EXPO_DOCTOR] Use 'npx expo install --check' to review and upgrade your dependencies.
+
+EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat eas build --profile uat --platform android --local
+
+-- view config
+EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat npx expo config --type public

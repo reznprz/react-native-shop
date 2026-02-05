@@ -16,6 +16,7 @@ concurrency:
 jobs:
   preflight:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,9 +33,12 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Create .env.ci (PUBLIC env only)
+      # CI-only env for bundling sanity (NOT used by EAS Cloud)
+      - name: Create .env.ci (public safe values)
+        shell: bash
         run: |
-          cat > .env.ci <<EOF
+          set -euo pipefail
+          cat > .env.ci <<'EOF'
           EXPO_PUBLIC_ENV=uat
           EXPO_PUBLIC_DEBUG=true
           EXPO_PUBLIC_API_BASE_URL=https://example.com/api
@@ -45,7 +49,9 @@ jobs:
         env:
           EXPO_NO_DOTENV: "1"
           DOTENV_FILE: ".env.ci"
+        shell: bash
         run: |
+          set -euo pipefail
           node - <<'NODE'
           const { execSync } = require('child_process');
           const out = execSync('npx expo config --type public --json', { stdio: ['ignore','pipe','pipe'] }).toString();
@@ -94,5 +100,3 @@ jobs:
       profile: "production"
     secrets:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      PROD_EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-      PROD_EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
