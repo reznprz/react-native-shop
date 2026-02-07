@@ -1,4 +1,4 @@
-name: Deploy UAT (EAS Update only)
+name: Deploy Production (EAS Update only)
 
 on:
   workflow_call:
@@ -14,7 +14,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-uat-update
+  group: deploy-prod-update
   cancel-in-progress: true
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout (PR merge commit)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -36,44 +36,40 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      - name: Determine version tag from package.json
+      - name: Install EAS CLI
+        run: npm i -g eas-cli
+
+      - name: Determine message from package.json
         id: ver
         shell: bash
         run: |
           set -euo pipefail
           VERSION="$(node -p "require('./package.json').version")"
-          TAG="v$VERSION"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "UAT update tag: $TAG"
+          echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Production update message: v$VERSION"
 
       - name: Verify Expo account + project
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-          # hard-disable dotenv in CI
           EXPO_NO_DOTENV: "1"
           DOTENV_FILE: ""
 
-          # UAT runtime, PROD endpoints
-          EXPO_PUBLIC_ENV: "uat"
+          EXPO_PUBLIC_ENV: "prod"
           EXPO_PUBLIC_DEBUG: "false"
           EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
           EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         shell: bash
         run: |
           set -euo pipefail
-          npx eas-cli whoami
-          npx eas-cli project:info --non-interactive
+          eas whoami
+          eas project:info --non-interactive
 
       - name: Verify Expo config (CI)
         env:
-          # hard-disable dotenv in CI
           EXPO_NO_DOTENV: "1"
           DOTENV_FILE: ""
 
-          # UAT runtime, PROD endpoints
-          EXPO_PUBLIC_ENV: "uat"
+          EXPO_PUBLIC_ENV: "prod"
           EXPO_PUBLIC_DEBUG: "false"
           EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
           EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
@@ -82,26 +78,22 @@ jobs:
           set -euo pipefail
           npx expo config --type public
 
-      - name: EAS Update (UAT) with version tag message
+      - name: EAS Update (production channel)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-          # hard-disable dotenv in CI
           EXPO_NO_DOTENV: "1"
           DOTENV_FILE: ""
 
-          # UAT runtime, PROD endpoints
-          EXPO_PUBLIC_ENV: "uat"
+          EXPO_PUBLIC_ENV: "prod"
           EXPO_PUBLIC_DEBUG: "false"
           EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
           EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         shell: bash
         run: |
           set -euo pipefail
-          TAG="${{ steps.ver.outputs.tag }}"
-
-          npx eas-cli update \
-            --channel uat \
-            --message "$TAG" \
+          eas update \
+            --channel production \
+            --message "${{ steps.ver.outputs.msg }}" \
             --platform android \
             --non-interactive

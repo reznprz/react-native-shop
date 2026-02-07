@@ -210,5 +210,7 @@ RN-specific hack Expo standard
 
 EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat eas build --profile uat --platform android --local
 
+yarn add -D dotenv-cli
+
 -- view config
 EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat npx expo config --type public
