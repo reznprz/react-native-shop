@@ -80,6 +80,4 @@ jobs:
           set -euo pipefail
           eas update \
             --channel production \
-            --message "${{ steps.ver.outputs.msg }}" \
-            --platform android \
-            --non-interactive
+            --message "${{ steps.ver.outputs.msg }}"
