@@ -80,35 +80,3 @@ jobs:
           EXPO_NO_DOTENV: "1"
           DOTENV_FILE: ".env.ci"
         run: npx expo export --platform ios --platform android --output-dir /tmp/dist
-
-  # Optional: run EAS Build (uat) only if PR has label "ci:eas-build"
-  eas_build_android:
-    needs: preflight
-    if: ${{ github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:eas-build') }}
-    uses: ./.github/workflows/pr-eas-build-android.yml
-    with:
-      profile: "uat"
-    secrets:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-  # Optional: run EAS Build (production) only if PR has label "ci:eas-build-prod"
-  eas_build_android_prod:
-    needs: preflight
-    if: ${{ github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:eas-build-prod') }}
-    uses: ./.github/workflows/pr-eas-build-android.yml
-    with:
-      profile: "production"
-    secrets:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-  # Optional: deploy OTA update to UAT channel when PR has label "ci:uat-update"
-  deploy_uat_update:
-    needs: preflight
-    if: ${{ github.event_name == 'pull_request' && contains(join(github.event.pull_request.labels.*.name, ','), 'ci:uat-update') && (github.base_ref == 'develop' || github.base_ref == 'master') }}
-    uses: ./.github/workflows/deploy-uat-update.yml
-    secrets:
-      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      # For now, re-use PROD endpoints for UAT updates (as you requested earlier)
-      PROD_EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-      PROD_EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
