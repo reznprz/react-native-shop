@@ -46,7 +46,7 @@ jobs:
           VERSION="$(node -p "require('./package.json').version")"
           echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
 
-      # Create .env.uat on runner to match your local flow
+      # ✅ MUST happen before any `eas` command that evaluates app.config.js
       - name: Create .env.uat from secrets
         shell: bash
         run: |
@@ -58,22 +58,31 @@ jobs:
           EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
           EOF
 
-      - name: Verify Expo account
+      - name: Verify Expo account + project
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+          # match your working local command
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.uat"
+          EXPO_PUBLIC_ENV: "uat"
+        shell: bash
         run: |
           set -euo pipefail
           eas whoami
           eas project:info --non-interactive
 
-      # Run EXACTLY like your local command
       - name: EAS Update (preview channel)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+          # match your working local command
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.uat"
+          EXPO_PUBLIC_ENV: "uat"
         shell: bash
         run: |
           set -euo pipefail
-          EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat EXPO_PUBLIC_ENV=uat \
           eas update \
             --channel preview \
             --message "${{ steps.ver.outputs.msg }}" \

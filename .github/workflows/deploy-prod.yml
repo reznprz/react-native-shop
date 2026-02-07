@@ -46,7 +46,6 @@ jobs:
           VERSION="$(node -p "require('./package.json').version")"
           echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
 
-      # Create .env.prod on runner to match your local flow
       - name: Create .env.prod from secrets
         shell: bash
         run: |
@@ -58,22 +57,27 @@ jobs:
           EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
           EOF
 
-      - name: Verify Expo account
+      - name: Verify Expo account + project
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+          EXPO_PUBLIC_ENV: "prod"
+        shell: bash
         run: |
           set -euo pipefail
           eas whoami
           eas project:info --non-interactive
 
-      # Run EXACTLY like your local command
       - name: EAS Update (production channel)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+          EXPO_PUBLIC_ENV: "prod"
         shell: bash
         run: |
           set -euo pipefail
-          EXPO_NO_DOTENV=1 DOTENV_FILE=.env.prod EXPO_PUBLIC_ENV=prod \
           eas update \
             --channel production \
             --message "${{ steps.ver.outputs.msg }}" \
