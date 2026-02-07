@@ -1,4 +1,5 @@
 name: "OTA Update on Merge (Expo Go: UAT Preview + Prod)"
+run-name: Release • ${{ github.ref_name }} • ${{ github.event_name }}
 
 on:
   pull_request:
