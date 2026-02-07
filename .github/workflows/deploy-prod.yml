@@ -1,4 +1,4 @@
-name: Deploy Production (EAS Update only)
+name: Deploy Production (Expo Go) - EAS Update
 
 on:
   workflow_call:
@@ -9,6 +9,7 @@ on:
         required: true
       PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
         required: true
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,8 +25,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -46,54 +45,39 @@ jobs:
           set -euo pipefail
           VERSION="$(node -p "require('./package.json').version")"
           echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Production update message: v$VERSION"
+
+      - name: Create .env.prod from secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .env.prod <<EOF
+          EXPO_PUBLIC_ENV=prod
+          EXPO_PUBLIC_DEBUG=false
+          EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+          EOF
 
       - name: Verify Expo account + project
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
+          DOTENV_FILE: ".env.prod"
           EXPO_PUBLIC_ENV: "prod"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         shell: bash
         run: |
           set -euo pipefail
           eas whoami
           eas project:info --non-interactive
 
-      - name: Verify Expo config (CI)
-        env:
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
-          EXPO_PUBLIC_ENV: "prod"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          npx expo config --type public
-
       - name: EAS Update (production channel)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
           EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
+          DOTENV_FILE: ".env.prod"
           EXPO_PUBLIC_ENV: "prod"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         shell: bash
         run: |
           set -euo pipefail
           eas update \
             --channel production \
-            --message "${{ steps.ver.outputs.msg }}" \
-            --platform android \
-            --non-interactive
+            --message "${{ steps.ver.outputs.msg }}"
