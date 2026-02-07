@@ -1,0 +1,62 @@
+name: PR EAS Build (Android) after Preflight
+
+on:
+  workflow_run:
+    workflows: ["PR Preflight (Config + Bundle)"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "pr-eas-build-after-preflight-${{ github.event.workflow_run.head_branch }}"
+  cancel-in-progress: true
+
+jobs:
+  # Determine PR base branch (develop/master) from the workflow_run payload
+  route:
+    if: >-
+      ${{
+        github.event.workflow_run.conclusion == 'success' &&
+        github.event.workflow_run.event == 'pull_request'
+      }}
+    runs-on: ubuntu-latest
+    outputs:
+      pr_number: ${{ steps.pr.outputs.number }}
+      base_ref: ${{ steps.pr.outputs.base_ref }}
+
+    steps:
+      - name: Extract PR info from workflow_run
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prs = context.payload.workflow_run.pull_requests || [];
+            if (prs.length === 0) {
+              core.setFailed("No PR found on workflow_run payload.");
+              return;
+            }
+
+            const pr = prs[0];
+            core.setOutput("number", String(pr.number));
+            core.setOutput("base_ref", pr.base.ref);
+
+            console.log(`PR #${pr.number} base: ${pr.base.ref}`);
+
+  # UAT build for PRs targeting develop
+  eas_build_uat:
+    needs: route
+    if: ${{ needs.route.outputs.base_ref == 'develop' }}
+    uses: ./.github/workflows/reusable-eas-build-android.yml
+    with:
+      profile: uat
+    secrets: inherit
+
+  # PROD build for PRs targeting master
+  eas_build_prod:
+    needs: route
+    if: ${{ needs.route.outputs.base_ref == 'master' }}
+    uses: ./.github/workflows/reusable-eas-build-android.yml
+    with:
+      profile: production
+    secrets: inherit

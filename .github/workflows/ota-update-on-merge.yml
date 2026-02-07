@@ -1,0 +1,216 @@
+name: "OTA Update on Merge (Expo Go: UAT Preview + Prod)"
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop, master]
+
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Which update to run (uat | prod | both)"
+        required: true
+        default: "both"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: "ota-update-on-merge-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  # Shared prep: compute v<version> message
+  prepare:
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+      }}
+    runs-on: ubuntu-latest
+    outputs:
+      msg: "${{ steps.ver.outputs.msg }}"
+
+    steps:
+      - name: Checkout (merge commit)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Determine update message from package.json
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Update message: v$VERSION"
+
+  # =========================
+  # UAT (Expo Go preview)
+  # Runs when:
+  # - PR merged into develop AND label includes "ci:uat-update"
+  # - OR workflow_dispatch target is uat/both
+  # =========================
+  uat_update:
+    needs: prepare
+    if: >-
+      ${{
+        (github.event_name == 'workflow_dispatch' && (inputs.target == 'uat' || inputs.target == 'both'))
+        ||
+        (
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.merged == true &&
+          github.event.pull_request.base.ref == 'develop' &&
+          contains(join(github.event.pull_request.labels.*.name, ','), 'ci:uat-update')
+        )
+      }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (merge commit)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install EAS CLI
+        run: npm i -g eas-cli
+
+      - name: Assert UAT secrets present
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "${{ secrets.EXPO_TOKEN }}" ] || { echo "❌ Missing EXPO_TOKEN"; exit 1; }
+          [ -n "${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" ] || { echo "❌ Missing UAT_EXPO_PUBLIC_API_BASE_URL"; exit 1; }
+          [ -n "${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" ] || { echo "❌ Missing UAT_EXPO_PUBLIC_TOKEN_BASE_URL"; exit 1; }
+
+      - name: Create .env.uat
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .env.uat <<EOF
+          EXPO_PUBLIC_ENV=uat
+          EXPO_PUBLIC_DEBUG=false
+          EXPO_PUBLIC_API_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}
+          EOF
+
+      - name: Verify Expo account + project (UAT)
+        env:
+          EXPO_TOKEN: "${{ secrets.EXPO_TOKEN }}"
+        shell: bash
+        run: |
+          set -euo pipefail
+          eas whoami
+          eas project:info --non-interactive
+
+      - name: EAS Update (UAT → preview channel)
+        env:
+          EXPO_TOKEN: "${{ secrets.EXPO_TOKEN }}"
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.uat"
+          EXPO_PUBLIC_ENV: "uat"
+        shell: bash
+        run: |
+          set -euo pipefail
+          eas update \
+            --channel preview \
+            --message "${{ needs.prepare.outputs.msg }}"
+
+  # =========================
+  # PROD (Expo Go production)
+  # Runs when:
+  # - PR merged into master AND label includes "ci:prod-update"
+  # - OR workflow_dispatch target is prod/both
+  # =========================
+  prod_update:
+    needs: prepare
+    if: >-
+      ${{
+        (github.event_name == 'workflow_dispatch' && (inputs.target == 'prod' || inputs.target == 'both'))
+        ||
+        (
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.merged == true &&
+          github.event.pull_request.base.ref == 'master' &&
+          contains(join(github.event.pull_request.labels.*.name, ','), 'ci:prod-update')
+        )
+      }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (merge commit)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install EAS CLI
+        run: npm i -g eas-cli
+
+      - name: Assert PROD secrets present
+        shell: bash
+        run: |
+          set -euo pipefail
+          [ -n "${{ secrets.EXPO_TOKEN }}" ] || { echo "❌ Missing EXPO_TOKEN"; exit 1; }
+          [ -n "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || { echo "❌ Missing PROD_EXPO_PUBLIC_API_BASE_URL"; exit 1; }
+          [ -n "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ] || { echo "❌ Missing PROD_EXPO_PUBLIC_TOKEN_BASE_URL"; exit 1; }
+
+      - name: Create .env.prod
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .env.prod <<EOF
+          EXPO_PUBLIC_ENV=prod
+          EXPO_PUBLIC_DEBUG=false
+          EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+          EOF
+
+      - name: Verify Expo account + project (PROD)
+        env:
+          EXPO_TOKEN: "${{ secrets.EXPO_TOKEN }}"
+        shell: bash
+        run: |
+          set -euo pipefail
+          eas whoami
+          eas project:info --non-interactive
+
+      - name: EAS Update (PROD → production channel)
+        env:
+          EXPO_TOKEN: "${{ secrets.EXPO_TOKEN }}"
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+          EXPO_PUBLIC_ENV: "prod"
+        shell: bash
+        run: |
+          set -euo pipefail
+          eas update \
+            --channel production \
+            --message "${{ needs.prepare.outputs.msg }}"

@@ -11,7 +11,13 @@ on:
       EXPO_TOKEN:
         required: true
 
-      # We'll use PROD_* secrets for both uat and prod for now
+      # UAT secrets
+      UAT_EXPO_PUBLIC_API_BASE_URL:
+        required: false
+      UAT_EXPO_PUBLIC_TOKEN_BASE_URL:
+        required: false
+
+      # PROD secrets
       PROD_EXPO_PUBLIC_API_BASE_URL:
         required: false
       PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
@@ -49,10 +55,9 @@ jobs:
       - name: Install EAS CLI
         run: npm i -g eas-cli
 
-      # IMPORTANT:
-      # - Prevent reading any .env file on the runner
-      # - Provide env vars so app.config.js never throws on the runner
-      # - For now, use PROD_* secrets for BOTH uat and production builds
+      # -----------------------------
+      # CI-only runner environment
+      # -----------------------------
       - name: Set runner env (CI-only)
         shell: bash
         run: |
@@ -60,23 +65,30 @@ jobs:
           PROFILE="${{ inputs.profile }}"
 
           echo "EXPO_NO_DOTENV=1" >> "$GITHUB_ENV"
-          echo "DOTENV_FILE=" >> "$GITHUB_ENV" # blank on purpose
+          echo "DOTENV_FILE=" >> "$GITHUB_ENV"
           echo "EXPO_PUBLIC_DEBUG=false" >> "$GITHUB_ENV"
 
           if [ "$PROFILE" = "production" ]; then
             echo "EXPO_PUBLIC_ENV=prod" >> "$GITHUB_ENV"
+
+            if [ -n "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] && [ -n "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+              echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
+              echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
+            else
+              echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
+              echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
+            fi
+
           else
             echo "EXPO_PUBLIC_ENV=uat" >> "$GITHUB_ENV"
-          fi
 
-          # Use PROD secrets for both profiles (uat + prod)
-          if [ -n "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] && [ -n "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
-            echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
-            echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
-          else
-            # Safe fallback so config evaluation doesn't crash
-            echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
-            echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
+            if [ -n "${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" ] && [ -n "${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
+              echo "EXPO_PUBLIC_API_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}" >> "$GITHUB_ENV"
+              echo "EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}" >> "$GITHUB_ENV"
+            else
+              echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
+              echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
+            fi
           fi
 
       - name: Verify Expo config + bundle (runner)
@@ -100,9 +112,9 @@ jobs:
           eas whoami
           eas project:info
 
-      # OPTIONAL:
-      # If you want CI to keep EAS environment variables in sync too (so cloud builds resolve the same values)
-      # This uses PROD_* secrets for both uat and prod for now.
+      # -----------------------------
+      # Optional: sync EAS env vars
+      # -----------------------------
       - name: Ensure EAS env vars exist (optional auto-create)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -111,33 +123,31 @@ jobs:
           set -euo pipefail
           PROFILE="${{ inputs.profile }}"
 
-          # If you didn't provide PROD secrets, skip auto-create
-          if [ -z "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" ] || [ -z "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" ]; then
-            echo "Skipping EAS env auto-create (no PROD secrets provided)."
-            exit 0
-          fi
-
-          # Map profile -> EAS environment name
-          # - uat builds typically use "preview"
-          # - production builds typically use "production"
           if [ "$PROFILE" = "production" ]; then
             EAS_ENV="production"
             APP_ENV="prod"
+            API="${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}"
+            TOKEN="${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}"
           else
             EAS_ENV="preview"
             APP_ENV="uat"
+            API="${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}"
+            TOKEN="${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}"
           fi
 
-          # Create/overwrite env vars on EAS
+          if [ -z "$API" ] || [ -z "$TOKEN" ]; then
+            echo "Skipping EAS env auto-create (missing secrets)."
+            exit 0
+          fi
+
           eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_ENV --value "$APP_ENV" --force --non-interactive
           eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_DEBUG --value false --force --non-interactive
-          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_API_BASE_URL --value "${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}" --force --non-interactive
-          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_TOKEN_BASE_URL --value "${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}" --force --non-interactive
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_API_BASE_URL --value "$API" --force --non-interactive
+          eas env:create --environment "$EAS_ENV" --visibility public --name EXPO_PUBLIC_TOKEN_BASE_URL --value "$TOKEN" --force --non-interactive
 
       - name: EAS Build (Android)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          # Also pass the same env into the build command process (helps if your config reads env during build invocation)
           EXPO_NO_DOTENV: ${{ env.EXPO_NO_DOTENV }}
           DOTENV_FILE: ${{ env.DOTENV_FILE }}
           EXPO_PUBLIC_ENV: ${{ env.EXPO_PUBLIC_ENV }}

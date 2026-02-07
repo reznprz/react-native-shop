@@ -1,83 +1,111 @@
-name: Deploy Production (Expo Go) - EAS Update
+name: Release - Tag + Notes + Sync Develop
 
 on:
-  workflow_call:
-    secrets:
-      EXPO_TOKEN:
-        required: true
-      PROD_EXPO_PUBLIC_API_BASE_URL:
-        required: true
-      PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
-        required: true
-  workflow_dispatch:
+  pull_request:
+    types: [closed]
+    branches: [master]
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 concurrency:
-  group: deploy-prod-update
-  cancel-in-progress: true
+  group: release-finalize-master
+  cancel-in-progress: false
 
 jobs:
-  update:
+  finalize_release:
+    if: >-
+      ${{
+        github.event.pull_request.merged == true &&
+        startsWith(github.event.pull_request.head.ref, 'release/')
+      }}
     runs-on: ubuntu-latest
 
+    outputs:
+      tag: ${{ steps.ver.outputs.tag }}
+      version: ${{ steps.ver.outputs.version }}
+
     steps:
-      - name: Checkout
+      - name: Checkout master (full history)
         uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: yarn
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+      - name: Fetch tags
+        run: git fetch --tags
 
-      - name: Install EAS CLI
-        run: npm i -g eas-cli
+      - name: Ensure deploy workflow exists in this commit
+        run: |
+          test -f .github/workflows/deploy-prod.yml || {
+            echo "❌ .github/workflows/deploy-prod.yml missing on master at this revision. Aborting release."
+            exit 1
+          }
 
-      - name: Determine message from package.json
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Read version from package.json
         id: ver
         shell: bash
         run: |
           set -euo pipefail
           VERSION="$(node -p "require('./package.json').version")"
-          echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
+          TAG="v$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
-      - name: Create .env.prod from secrets
+      - name: Create and push tag (fail if exists)
+        id: tag
         shell: bash
         run: |
           set -euo pipefail
-          cat > .env.prod <<EOF
-          EXPO_PUBLIC_ENV=prod
-          EXPO_PUBLIC_DEBUG=false
-          EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
-          EOF
+          TAG="${{ steps.ver.outputs.tag }}"
 
-      - name: Verify Expo account + project
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "❌ Tag $TAG already exists. Refusing to release again."
+            exit 1
+          fi
+
+          git tag "$TAG" -m "$TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub Release (auto notes)
+        if: ${{ steps.tag.outcome == 'success' }}
+        continue-on-error: true
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ".env.prod"
-          EXPO_PUBLIC_ENV: "prod"
-        shell: bash
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          eas whoami
-          eas project:info --non-interactive
+          TAG="${{ steps.ver.outputs.tag }}"
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --generate-notes
 
-      - name: EAS Update (production channel)
+      - name: Create sync PR master -> develop
+        if: ${{ steps.tag.outcome == 'success' }}
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ".env.prod"
-          EXPO_PUBLIC_ENV: "prod"
-        shell: bash
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          eas update \
-            --channel production \
-            --message "${{ steps.ver.outputs.msg }}"
+          TAG="${{ steps.ver.outputs.tag }}"
+          gh pr create \
+            --base develop \
+            --head master \
+            --title "chore: sync master back to develop ($TAG)" \
+            --body "Sync release $TAG back into develop." \
+            || echo "Sync PR may already exist (or develop is already up to date)."
+
+  # deploy_prod:
+  #   needs: finalize_release
+  #   if: ${{ needs.finalize_release.result == 'success' }}
+  #   uses: ./.github/workflows/deploy-prod.yml
+  #   secrets: inherit
