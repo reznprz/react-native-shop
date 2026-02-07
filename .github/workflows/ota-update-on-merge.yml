@@ -93,6 +93,14 @@ jobs:
 
       - name: Install EAS CLI
         run: npm i -g eas-cli
+      - name: Determine update message from package.json
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Update message: v$VERSION"  
 
       - name: Assert UAT secrets present
         shell: bash
@@ -116,6 +124,9 @@ jobs:
       - name: Verify Expo account + project (UAT)
         env:
           EXPO_TOKEN: "${{ secrets.EXPO_TOKEN }}"
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.uat"
+          EXPO_PUBLIC_ENV: "uat"
         shell: bash
         run: |
           set -euo pipefail
@@ -174,6 +185,15 @@ jobs:
       - name: Install EAS CLI
         run: npm i -g eas-cli
 
+      - name: Determine message from package.json
+        id: ver
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Production update message: v$VERSION"  
+
       - name: Assert PROD secrets present
         shell: bash
         run: |
@@ -193,9 +213,12 @@ jobs:
           EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
           EOF
 
-      - name: Verify Expo account + project (PROD)
+      - name: Verify Expo account + project
         env:
-          EXPO_TOKEN: "${{ secrets.EXPO_TOKEN }}"
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          EXPO_NO_DOTENV: "1"
+          DOTENV_FILE: ".env.prod"
+          EXPO_PUBLIC_ENV: "prod"
         shell: bash
         run: |
           set -euo pipefail
