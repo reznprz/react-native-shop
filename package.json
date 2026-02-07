@@ -31,6 +31,8 @@
     "build:uat:ios": "eas build --profile uat --platform ios",
     "build:prod:ios": "eas build --profile production --platform ios",
     "preflight": "cross-env EXPO_NO_DOTENV=1 DOTENV_FILE=.env.ci npx expo export --platform ios --platform android --output-dir /tmp/dist",
+    "update:uat": "EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat EXPO_PUBLIC_ENV=uat eas update --channel preview --message \"v$(node -p \"require('./package.json').version\")\"",
+    "update:prod": "EXPO_NO_DOTENV=1 DOTENV_FILE=.env.prod EXPO_PUBLIC_ENV=prod eas update --channel production --message \"v$(node -p \"require('./package.json').version\")\"",
     "version:patch": "npm version patch",
     "version:minor": "npm version minor",
     "version:major": "npm version major",
