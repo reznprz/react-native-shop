@@ -1,4 +1,5 @@
 name: PR Temp EAS Build (Android)
+run-name: Release • ${{ github.ref_name }} • ${{ github.event_name }}
 
 on:
   workflow_call:

@@ -1,4 +1,5 @@
 name: Release Branch - Set Version
+run-name: Release • ${{ github.ref_name }} • ${{ github.event_name }}
 
 on:
   push:
