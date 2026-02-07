@@ -1,4 +1,4 @@
-name: Deploy Preview (EAS Update only)
+name: Deploy Preview (Expo Go) - EAS Update
 
 on:
   workflow_call:
@@ -9,6 +9,7 @@ on:
         required: true
       PROD_EXPO_PUBLIC_TOKEN_BASE_URL:
         required: true
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -24,8 +25,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -46,55 +45,35 @@ jobs:
           set -euo pipefail
           VERSION="$(node -p "require('./package.json').version")"
           echo "msg=v$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Preview update message: v$VERSION"
 
-      - name: Verify Expo account + project
+      # Create .env.uat on runner to match your local flow
+      - name: Create .env.uat from secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > .env.uat <<EOF
+          EXPO_PUBLIC_ENV=uat
+          EXPO_PUBLIC_DEBUG=false
+          EXPO_PUBLIC_API_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
+          EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
+          EOF
+
+      - name: Verify Expo account
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-          # mirror your local behavior (no implicit dotenv)
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
-          # preview/uat env (and your app.config.js must() values)
-          EXPO_PUBLIC_ENV: "uat"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
-        shell: bash
         run: |
           set -euo pipefail
           eas whoami
           eas project:info --non-interactive
 
-      - name: Verify Expo config (CI)
-        env:
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
-          EXPO_PUBLIC_ENV: "uat"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          npx expo config --type public
-
+      # Run EXACTLY like your local command
       - name: EAS Update (preview channel)
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-          EXPO_NO_DOTENV: "1"
-          DOTENV_FILE: ""
-
-          EXPO_PUBLIC_ENV: "uat"
-          EXPO_PUBLIC_DEBUG: "false"
-          EXPO_PUBLIC_API_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}
-          EXPO_PUBLIC_TOKEN_BASE_URL: ${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}
         shell: bash
         run: |
           set -euo pipefail
+          EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat EXPO_PUBLIC_ENV=uat \
           eas update \
             --channel preview \
             --message "${{ steps.ver.outputs.msg }}" \
