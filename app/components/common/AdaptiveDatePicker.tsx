@@ -1,10 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import React, { useEffect, useMemo, useState } from 'react';
+import { Platform, Pressable, Text, View } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-import { BaseBottomSheetModal } from "./modal/BaseBottomSheetModal";
-import BaseModal from "./modal/BaseModal";
-import { useIsDesktop } from "app/hooks/useIsDesktop";
+import { BaseBottomSheetModal } from './modal/BaseBottomSheetModal';
+import BaseModal from './modal/BaseModal';
+import { useIsDesktop } from 'app/hooks/useIsDesktop';
 
 type Props = {
   visible: boolean;
@@ -22,7 +22,7 @@ export function AdaptiveDatePicker({
   initialDate,
   onClose,
   onConfirm,
-  title = "Select date",
+  title = 'Select date',
   minDate,
   maxDate,
 }: Props) {
@@ -41,46 +41,52 @@ export function AdaptiveDatePicker({
   // Shared picker UI
   const picker = useMemo(
     () => (
-      <View style={{ marginTop: 12 }}>
+      <View
+        style={{
+          marginTop: 12,
+          height: Platform.OS === 'ios' ? 260 : undefined, // <-- key
+          justifyContent: 'center',
+        }}
+      >
         <DateTimePicker
           value={temp}
           mode="date"
-          display={Platform.OS === "ios" ? "spinner" : "default"}
+          display={isMobile ? 'spinner' : 'inline'} // Spinner on phones, inline on tablets/web
+          themeVariant={Platform.OS === 'ios' ? 'light' : undefined}
           minimumDate={minDate}
           maximumDate={maxDate}
+          style={Platform.OS === 'ios' ? { height: 260, width: '100%' } : undefined}
           onChange={(e, d) => {
             if (!d) return;
 
-            if (Platform.OS === "android") {
-              // Android: apply immediately
-              if ((e as any).type === "dismissed") return;
+            if (Platform.OS === 'android') {
+              if (e.type === 'dismissed') return;
               applyAndClose(d);
               return;
             }
 
-            // iOS: update temp; Done applies
             setTemp(d);
           }}
         />
       </View>
     ),
-    [temp, minDate, maxDate]
+    [temp, minDate, maxDate],
   );
 
   // Shared header UI (for both)
   const header = (
-    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-      <Text style={{ fontSize: 18, fontWeight: "700" }}>{title}</Text>
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+      <Text style={{ fontSize: 18, fontWeight: '700' }}>{title}</Text>
 
-      <View style={{ flexDirection: "row" }}>
+      <View style={{ flexDirection: 'row' }}>
         <Pressable onPress={onClose} style={{ padding: 10 }}>
-          <Text style={{ fontSize: 16, color: "#6B7280", fontWeight: "600" }}>Cancel</Text>
+          <Text style={{ fontSize: 16, color: '#6B7280', fontWeight: '600' }}>Cancel</Text>
         </Pressable>
 
         {/* iOS: Done applies */}
-        {Platform.OS === "ios" && (
+        {Platform.OS === 'ios' && (
           <Pressable onPress={() => applyAndClose(temp)} style={{ padding: 10 }}>
-            <Text style={{ fontSize: 16, color: "#111827", fontWeight: "800" }}>Done</Text>
+            <Text style={{ fontSize: 16, color: '#111827', fontWeight: '800' }}>Done</Text>
           </Pressable>
         )}
       </View>
@@ -88,7 +94,7 @@ export function AdaptiveDatePicker({
   );
 
   // Phones: bottom sheet
-  if (isMobile && Platform.OS !== "web") {
+  if (isMobile && Platform.OS !== 'web') {
     return (
       <BaseBottomSheetModal visible={visible} onClose={onClose} enableSwipeClose>
         {header}
@@ -110,15 +116,15 @@ export function AdaptiveDatePicker({
         </View>
       }
       footer={
-        Platform.OS !== "android" ? (
+        Platform.OS !== 'android' ? (
           // On Android picker already closes on select; footer optional
-          <View style={{ flexDirection: "row", gap: 12 }}>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
             <Pressable onPress={onClose} style={{ padding: 10 }}>
-              <Text style={{ fontSize: 16, fontWeight: "700" }}>Cancel</Text>
+              <Text style={{ fontSize: 16, fontWeight: '700' }}>Cancel</Text>
             </Pressable>
-            {Platform.OS === "ios" && (
+            {Platform.OS === 'ios' && (
               <Pressable onPress={() => applyAndClose(temp)} style={{ padding: 10 }}>
-                <Text style={{ fontSize: 16, fontWeight: "800" }}>Done</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800' }}>Done</Text>
               </Pressable>
             )}
           </View>

@@ -8,6 +8,7 @@ import DateModal from '../common/modal/DateModal';
 import ConditionalWrapper from '../common/ConditionalWrapper';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
 import { useTheme } from 'app/hooks/useTheme';
+import { AdaptiveDatePicker } from '../common/AdaptiveDatePicker';
 
 interface AddExpenseModalProps {
   visible: boolean;
@@ -164,15 +165,15 @@ const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
             </Pressable>
           </View>
 
-          <DateModal
-            isVisible={isDateModalVisible}
-            date={getPickerDate()}
-            onConfirm={(selectedDate: string) => {
-              setDate(selectedDate);
+          <AdaptiveDatePicker
+            visible={isDateModalVisible}
+            initialDate={getPickerDate()}
+            onClose={hidePicker}
+            onConfirm={(selectedDate: Date) => {
+              setDate(selectedDate.toLocaleDateString());
               hidePicker();
             }}
-            onCancel={hidePicker}
-            headerTitle="Select a Date"
+            title="Select date"
           />
 
           {error ? <ErrorMessagePopUp errorMessage={error} onClose={() => setError('')} /> : null}

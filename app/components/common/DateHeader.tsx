@@ -87,17 +87,15 @@ const DateHeader: React.FC<DateHeaderProps> = ({
       </View>
 
       {/* Mobile Date Picker */}
-      {Platform.OS !== 'web' &&
-        (console.log('Rendering DatePickerSheet with date:', getPickerDate()),
-        (
-          <AdaptiveDatePicker
-            visible={isMobileDatePickerVisible}
-            initialDate={getPickerDate()}
-            onClose={hideMobileDatePicker}
-            onConfirm={handleMobileConfirm}
-            title="Select date"
-          />
-        ))}
+      {Platform.OS !== 'web' && (
+        <AdaptiveDatePicker
+          visible={isMobileDatePickerVisible}
+          initialDate={getPickerDate()}
+          onClose={hideMobileDatePicker}
+          onConfirm={handleMobileConfirm}
+          title="Select date"
+        />
+      )}
 
       {/* Web Date Picker */}
       {Platform.OS === 'web' && (
