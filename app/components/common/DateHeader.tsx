@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, Platform, Pressable, StyleSheet } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons';
 import BaseModal from './modal/BaseModal';
 import { DateRangeSelection, DateRangeSelectionType, getDisplayDateRange } from '../date/utils';
 import { DateRangePickerModal } from '../DateRangePickerModal';
+import { AdaptiveDatePicker } from './AdaptiveDatePicker';
 
 type DateHeaderProps = {
   selectedDate: string;
@@ -86,16 +87,17 @@ const DateHeader: React.FC<DateHeaderProps> = ({
       </View>
 
       {/* Mobile Date Picker */}
-      {/* {Platform.OS !== 'web' && (
-        <DateTimePickerModal
-          isVisible={isMobileDatePickerVisible}
-          mode="date"
-          date={getPickerDate()}
-          onConfirm={handleMobileConfirm}
-          onCancel={hideMobileDatePicker}
-          themeVariant="light" // Force light theme on iOS
-        />
-      )} */}
+      {Platform.OS !== 'web' &&
+        (console.log('Rendering DatePickerSheet with date:', getPickerDate()),
+        (
+          <AdaptiveDatePicker
+            visible={isMobileDatePickerVisible}
+            initialDate={getPickerDate()}
+            onClose={hideMobileDatePicker}
+            onConfirm={handleMobileConfirm}
+            title="Select date"
+          />
+        ))}
 
       {/* Web Date Picker */}
       {Platform.OS === 'web' && (

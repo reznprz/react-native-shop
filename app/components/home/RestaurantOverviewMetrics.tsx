@@ -26,6 +26,7 @@ export const RestaurantOverviewMetrics: React.FC<RestaurantOverviewMetricsProps>
         icon={<Ionicons name="wallet" size={20} color="#3B82F6" />}
         iconBgColor={'bg-blue-200 '}
         width="w-1/4"
+        visible={false}
       />
       <HomeSummaryCard
         title="Total Orders"
@@ -33,6 +34,7 @@ export const RestaurantOverviewMetrics: React.FC<RestaurantOverviewMetricsProps>
         icon={<Feather name="bar-chart-2" size={20} color="#10B981" />}
         iconBgColor={'bg-green-100'}
         width="w-1/4"
+        visible={false}
       />
       <HomeSummaryCard
         title="Expenses"
