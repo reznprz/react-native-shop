@@ -1,6 +1,7 @@
-import React, { ReactNode } from 'react';
-import { View, Text } from 'react-native';
+import React, { ReactNode, useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useTheme } from 'app/hooks/useTheme';
+import { Ionicons } from '@expo/vector-icons';
 
 interface SummaryCardProps {
   title: string;
@@ -8,6 +9,7 @@ interface SummaryCardProps {
   icon: ReactNode;
   iconBgColor?: string;
   width?: string;
+  visible?: boolean;
 }
 
 const SummaryCard: React.FC<SummaryCardProps> = ({
@@ -16,8 +18,10 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
   icon,
   iconBgColor = '',
   width = 'w-1/3',
+  visible = true,
 }) => {
   const theme = useTheme();
+  const [isVisible, setIsVisible] = useState(visible);
 
   return (
     <View
@@ -29,9 +33,22 @@ const SummaryCard: React.FC<SummaryCardProps> = ({
           {title}
         </Text>
 
-        <Text className="text-2xl font-bold pl-1" style={{ color: theme.textSecondary }}>
-          रु {amount}
-        </Text>
+        {visible ? (
+          <Text className="text-2xl font-bold pl-1" style={{ color: theme.textSecondary }}>
+            रु {amount}
+          </Text>
+        ) : (
+          <>
+            <View className="flex-row items-center mt-1 space-x-2">
+              <Text className="text-2xl font-bold pl-1" style={{ color: theme.textSecondary }}>
+                {isVisible ? `रु ${amount}` : '****'}
+              </Text>
+              <TouchableOpacity onPress={() => setIsVisible(!isVisible)} className="p-1">
+                <Ionicons name={isVisible ? 'eye-off' : 'eye'} size={22} color={theme.buttonBg} />
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
 
       <View
