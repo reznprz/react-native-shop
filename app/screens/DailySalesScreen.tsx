@@ -235,7 +235,6 @@ const DailySalesScreen = ({ route }: DailySalesScreenProps) => {
                 >
                   <DailySalesTransactionCard
                     title={activeTab === 'Past' ? 'Sales Summary' : 'Daily Sales Summary'}
-                    showOpeningAndClosingCash={activeTab === 'Past' ? false : true}
                     salesTransaction={dailySalesTransaction}
                     fontSize={18}
                   />

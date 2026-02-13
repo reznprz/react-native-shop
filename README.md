@@ -214,3 +214,11 @@ yarn add -D dotenv-cli
 
 -- view config
 EXPO_NO_DOTENV=1 DOTENV_FILE=.env.uat npx expo config --type public
+
+-- native date picker
+
+npx expo install @react-native-community/datetimepicker
+
+-- bottom sheet UI
+
+yarn add @gorhom/bottom-sheet react-native-reanimated react-native-gesture-handler

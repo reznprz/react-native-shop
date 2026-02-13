@@ -1,4 +1,5 @@
-name: PR Preflight (Config + Bundle)
+name: PR Preflight + EAS Build (Android)
+run-name: PR Build • ${{ github.ref_name }} • ${{ github.event_name }}
 
 on:
   pull_request:
@@ -10,13 +11,12 @@ permissions:
   contents: read
 
 concurrency:
-  group: pr-preflight-${{ github.ref }}
+  group: pr-preflight-and-build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   preflight:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,7 +33,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile
 
-      # CI-only env for bundling sanity (NOT used by EAS Cloud)
       - name: Create .env.ci (public safe values)
         shell: bash
         run: |
@@ -70,9 +69,6 @@ jobs:
           must('expo.extra.app.tokenBaseURL', app.tokenBaseURL);
 
           console.log('✅ Expo config looks good.');
-          console.log('env:', extra.env);
-          console.log('name:', cfg.name);
-          console.log('version:', cfg.version);
           NODE
 
       - name: Preflight bundle (expo export ios+android)
@@ -80,3 +76,91 @@ jobs:
           EXPO_NO_DOTENV: "1"
           DOTENV_FILE: ".env.ci"
         run: npx expo export --platform ios --platform android --output-dir /tmp/dist
+
+  eas_build_android:
+    needs: preflight
+    runs-on: ubuntu-latest
+
+    # Only run if the correct label is present for the target base branch
+    if: >-
+      ${{
+        (
+          github.base_ref == 'develop' &&
+          contains(join(github.event.pull_request.labels.*.name, ','), 'ci:eas-build-uat')
+        )
+        ||
+        (
+          github.base_ref == 'master' &&
+          contains(join(github.event.pull_request.labels.*.name, ','), 'ci:eas-build-prod')
+        )
+      }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Ensure yarn.lock exists
+        run: test -f yarn.lock
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Install EAS CLI
+        run: npm i -g eas-cli
+
+      - name: Set runner env (CI-only)
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ "${{ github.base_ref }}" = "master" ]; then
+            PROFILE="production"
+            APP_ENV="prod"
+            API="${{ secrets.PROD_EXPO_PUBLIC_API_BASE_URL }}"
+            TOKEN="${{ secrets.PROD_EXPO_PUBLIC_TOKEN_BASE_URL }}"
+          else
+            PROFILE="uat"
+            APP_ENV="uat"
+            API="${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}"
+            TOKEN="${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}"
+          fi
+
+          echo "PROFILE=$PROFILE" >> "$GITHUB_ENV"
+          echo "EXPO_NO_DOTENV=1" >> "$GITHUB_ENV"
+          echo "DOTENV_FILE=" >> "$GITHUB_ENV"
+          echo "EXPO_PUBLIC_ENV=$APP_ENV" >> "$GITHUB_ENV"
+          echo "EXPO_PUBLIC_DEBUG=false" >> "$GITHUB_ENV"
+
+          if [ -z "$API" ] || [ -z "$TOKEN" ]; then
+            echo "EXPO_PUBLIC_API_BASE_URL=https://example.com/api" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_TOKEN_BASE_URL=https://example.com" >> "$GITHUB_ENV"
+          else
+            echo "EXPO_PUBLIC_API_BASE_URL=$API" >> "$GITHUB_ENV"
+            echo "EXPO_PUBLIC_TOKEN_BASE_URL=$TOKEN" >> "$GITHUB_ENV"
+          fi
+
+      - name: Authenticate EAS
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          eas whoami
+          eas project:info --non-interactive
+
+      - name: EAS Build (Android)
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          set -euo pipefail
+          eas build \
+            --profile "${{ env.PROFILE }}" \
+            --platform android \
+            --non-interactive
