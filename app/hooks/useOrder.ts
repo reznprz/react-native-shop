@@ -42,7 +42,9 @@ export const useOrder = () => {
   };
 
   const [orderStatuses, setOrderStatuses] = useState<FilterStatus[]>(() =>
-    initialFilters.orderStatuses.map((name) => ({ name, isSelected: false })),
+    initialFilters.orderStatuses.map((name) =>
+      name === 'Created' ? { name, isSelected: true } : { name, isSelected: false },
+    ),
   );
   const [paymentStatuses, setPaymentStatuses] = useState<FilterStatus[]>(() =>
     initialFilters.paymentStatuses.map((name) => ({ name, isSelected: false })),

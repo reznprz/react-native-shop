@@ -31,6 +31,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
         iconColor="#3B82F6"
         bgColor="#DBEAFE"
         iconType="FontAwesome5"
+        visible={false}
       />
 
       <MetricsSummaryCard
@@ -41,6 +42,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
         iconColor="#10B981"
         bgColor="#DCFCE7"
         iconType="FontAwesome5"
+        visible={false}
       />
 
       <MetricsSummaryCard
@@ -52,6 +54,7 @@ const OrderMetrics: React.FC<OrderMetricsProps> = ({
         bgColor="#FEE2E2"
         textColor="text-red-600"
         iconType="FontAwesome5"
+        visible={false}
       />
 
       <MetricsSummaryCard

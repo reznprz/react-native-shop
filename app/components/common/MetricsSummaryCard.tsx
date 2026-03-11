@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import IconLabel from './IconLabel';
 import { IconType } from 'app/navigation/screenConfigs';
 import { useTheme } from 'app/hooks/useTheme';
+import { Ionicons } from '@expo/vector-icons';
 
 type MetricsSummaryCardProps = {
   icon: string;
@@ -13,6 +14,7 @@ type MetricsSummaryCardProps = {
   textColor?: string;
   subtitle?: string;
   iconType?: IconType;
+  visible?: boolean;
 };
 
 export function MetricsSummaryCard({
@@ -23,9 +25,11 @@ export function MetricsSummaryCard({
   bgColor,
   textColor,
   subtitle,
+  visible = true,
   iconType = 'Ionicons',
 }: MetricsSummaryCardProps) {
   const theme = useTheme();
+  const [isVisible, setIsVisible] = useState(visible);
 
   return (
     <View
@@ -40,12 +44,26 @@ export function MetricsSummaryCard({
         iconColor={iconColor}
         bgColor={bgColor}
       />
-      <Text
-        className="text-2xl font-bold mt-1 ml-1"
-        style={{ color: textColor || theme.textSecondary }}
-      >
-        {value}
-      </Text>
+
+      {visible ? (
+        <Text
+          className="text-2xl font-bold mt-1 ml-1"
+          style={{ color: textColor || theme.textSecondary }}
+        >
+          {value}
+        </Text>
+      ) : (
+        <>
+          <View className="flex-row items-center mt-1 space-x-2">
+            <Text className="text-2xl font-bold pl-1" style={{ color: theme.textSecondary }}>
+              {isVisible ? `रु ${value}` : '****'}
+            </Text>
+            <TouchableOpacity onPress={() => setIsVisible(!isVisible)} className="p-1">
+              <Ionicons name={isVisible ? 'eye-off' : 'eye'} size={22} color={theme.buttonBg} />
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
       {/* Subtitle */}
       {subtitle && (
         <Text className="text-xs mt-1" style={{ color: theme.textSecondary }}>
