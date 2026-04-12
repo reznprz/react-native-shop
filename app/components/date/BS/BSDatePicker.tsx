@@ -46,6 +46,7 @@ type Props = {
   // Month selection
   selectedBsMonth: BsMonth;
   setSelectedBsMonth: (m: BsMonth) => void;
+  hideTimeRangeSubTabs?: boolean;
 };
 
 export const BSDatePicker: React.FC<Props> = (props) => {
@@ -79,23 +80,29 @@ export const BSDatePicker: React.FC<Props> = (props) => {
 
     selectedBsMonth,
     setSelectedBsMonth,
+
+    hideTimeRangeSubTabs = false,
   } = props;
+
+  const shouldShowTimeRangeToday =
+    !hideTimeRangeSubTabs &&
+    activeSubTab === DateRangeSelectionType.TIME_RANGE_TODAY &&
+    displayedSubTabs.includes(DateRangeSelectionType.TIME_RANGE_TODAY);
 
   return (
     <View style={{ flex: 1, minHeight: 0 }}>
-      {activeSubTab === DateRangeSelectionType.TIME_RANGE_TODAY &&
-        displayedSubTabs.includes(DateRangeSelectionType.TIME_RANGE_TODAY) && (
-          <TimeRangeTodayPanel
-            todayStartHour={todayStartHour}
-            todayStartMin={todayStartMin}
-            todayEndHour={todayEndHour}
-            todayEndMin={todayEndMin}
-            setTodayStartHour={setTodayStartHour}
-            setTodayStartMin={setTodayStartMin}
-            setTodayEndHour={setTodayEndHour}
-            setTodayEndMin={setTodayEndMin}
-          />
-        )}
+      {shouldShowTimeRangeToday && (
+        <TimeRangeTodayPanel
+          todayStartHour={todayStartHour}
+          todayStartMin={todayStartMin}
+          todayEndHour={todayEndHour}
+          todayEndMin={todayEndMin}
+          setTodayStartHour={setTodayStartHour}
+          setTodayStartMin={setTodayStartMin}
+          setTodayEndHour={setTodayEndHour}
+          setTodayEndMin={setTodayEndMin}
+        />
+      )}
 
       {!isMonthTab &&
         activeSubTab === DateRangeSelectionType.SINGLE_DATE &&

@@ -21,6 +21,7 @@ export type RootStackParamList = {
   TableManager: undefined;
   SubscriptionPlans: undefined;
   WelcomeScreen: { restaurantId: number };
+  LoginActivityScreen: undefined;
 };
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>();

@@ -31,6 +31,7 @@ type Props = {
   startDateRange: Date;
   endDateRange: Date;
   isInSelectedRange: (d: Date) => boolean;
+  hideTimeRangeSubTabs?: boolean;
 };
 
 export const ADDatePicker: React.FC<Props> = ({
@@ -51,22 +52,27 @@ export const ADDatePicker: React.FC<Props> = ({
   onNextMonth,
   onDayPress,
   isInSelectedRange,
+  hideTimeRangeSubTabs = false,
 }) => {
+  const shouldShowTimeRangeToday =
+    !hideTimeRangeSubTabs &&
+    activeSubTab === DateRangeSelectionType.TIME_RANGE_TODAY &&
+    displayedSubTabs.includes(DateRangeSelectionType.TIME_RANGE_TODAY);
+
   return (
     <View style={{ flex: 1, minHeight: 300 }}>
-      {activeSubTab === DateRangeSelectionType.TIME_RANGE_TODAY &&
-        displayedSubTabs.includes(DateRangeSelectionType.TIME_RANGE_TODAY) && (
-          <TimeRangeTodayPanel
-            todayStartHour={todayStartHour}
-            todayStartMin={todayStartMin}
-            todayEndHour={todayEndHour}
-            todayEndMin={todayEndMin}
-            setTodayStartHour={setTodayStartHour}
-            setTodayStartMin={setTodayStartMin}
-            setTodayEndHour={setTodayEndHour}
-            setTodayEndMin={setTodayEndMin}
-          />
-        )}
+      {shouldShowTimeRangeToday && (
+        <TimeRangeTodayPanel
+          todayStartHour={todayStartHour}
+          todayStartMin={todayStartMin}
+          todayEndHour={todayEndHour}
+          todayEndMin={todayEndMin}
+          setTodayStartHour={setTodayStartHour}
+          setTodayStartMin={setTodayStartMin}
+          setTodayEndHour={setTodayEndHour}
+          setTodayEndMin={setTodayEndMin}
+        />
+      )}
 
       {activeSubTab === DateRangeSelectionType.SINGLE_DATE &&
         displayedSubTabs.includes(DateRangeSelectionType.SINGLE_DATE) && (
