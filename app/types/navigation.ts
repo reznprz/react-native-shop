@@ -21,6 +21,7 @@ export enum ScreenNames {
   PROFILE = 'ProfileScreen',
   SUBSCRIPTIONPLANS = 'SubscriptionPlansScreen',
   WELCOMESCREEN = 'WelcomeScreen',
+  LOGINACTIVITY = 'LoginActivityScreen',
 }
 
 export enum ScreenDisplayNames {
@@ -40,6 +41,7 @@ export enum ScreenDisplayNames {
   PROFILE = 'Profile',
   SUBSCRIPTIONPLANS = 'Subscription Plans',
   WELCOMESCREEN = 'WelcomeScreen',
+  LOGINACTIVITY = 'Login Activity',
 }
 
 // Create a constant object for screen details
@@ -107,5 +109,9 @@ export const Screens: Record<ScreenNames, ScreenDetail> = {
   [ScreenNames.WELCOMESCREEN]: {
     screenName: ScreenNames.WELCOMESCREEN,
     screenDisplayName: ScreenDisplayNames.WELCOMESCREEN,
+  },
+  [ScreenNames.LOGINACTIVITY]: {
+    screenName: ScreenNames.LOGINACTIVITY,
+    screenDisplayName: ScreenDisplayNames.LOGINACTIVITY,
   },
 };

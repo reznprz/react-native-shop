@@ -74,6 +74,10 @@ export const useSettingsAccount = () => {
       case 'Users':
         push(ScreenNames.USER);
         break;
+      case 'LoginActivity':
+        console.log('Navigating to Login Activity');
+        push(ScreenNames.LOGINACTIVITY);
+        break;
       case 'Logout':
         Alert.alert('Logout', 'Are you sure you want to logout?', [
           { text: 'Cancel', style: 'cancel' },
@@ -113,6 +117,13 @@ export const useSettingsAccount = () => {
           icon: 'account-tie',
           iconType: 'MaterialCommunityIcons',
           onPress: () => handlePress('Users'),
+        },
+        {
+          label: 'LoginActivity',
+          icon: 'account-clock-outline',
+          iconType: 'MaterialCommunityIcons',
+          onPress: () => handlePress('LoginActivity'),
+          permission: Permission.VIEW_ACTIVITY_LOGIN,
         },
       ],
     },

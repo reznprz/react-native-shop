@@ -1,4 +1,6 @@
 import axios from 'axios';
+import Constants from 'expo-constants';
+import { Dimensions, Platform } from 'react-native';
 import { Role } from 'app/security/role';
 import { RegisterRequest } from './userService';
 import { ThemeVariant } from 'app/theme/theme';
@@ -58,6 +60,7 @@ export interface SubscriptionExpirationInfo {
   expirationBannerMessage: string;
   subscriptionExpired: boolean;
 }
+
 export interface RestaurantEmail {
   id: number;
   email: string;
@@ -110,22 +113,55 @@ export interface SuccessResponse {
   message: string;
 }
 
+const getPlatformHeader = (): string => {
+  switch (Platform.OS) {
+    case 'web':
+      return 'WEB';
+    case 'android':
+      return 'ANDROID';
+    case 'ios':
+      return 'IOS';
+    default:
+      return 'UNKNOWN';
+  }
+};
+
+const getDeviceTypeHeader = (): string => {
+  const { width } = Dimensions.get('window');
+
+  if (Platform.OS === 'web') {
+    return width >= 1024 ? 'DESKTOP' : width >= 768 ? 'TABLET' : 'MOBILE';
+  }
+
+  return width >= 768 ? 'TABLET' : 'MOBILE';
+};
+
+const getAppVersionHeader = (): string => {
+  return (
+    Constants.expoConfig?.version || Constants.manifest2?.extra?.expoClient?.version || 'UNKNOWN'
+  );
+};
+
 /**
- * Log in and store the JWT tokens in AsyncStorage (if you want).
- * Then you also dispatch setAuthData(...) in Redux to keep them in store.
+ * Log in and return auth response.
  */
 export const login = async (credentials: Credentials): Promise<AuthResponse> => {
   const response = await axios.post<AuthResponse>(
     `${config.tokenBaseURL}/auth/login`,
     credentials,
     {
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'X-Platform': getPlatformHeader(),
+        'X-Device-Type': getDeviceTypeHeader(),
+        'X-App-Version': getAppVersionHeader(),
+      },
       timeout: 10000,
     },
   );
-  const authResponse = response.data;
 
-  return authResponse;
+  return response.data;
 };
 
 export const createNewRestaurantApi = async (
@@ -139,9 +175,7 @@ export const createNewRestaurantApi = async (
       timeout: 10000,
     },
   );
-  const authResponse = response.data;
-
-  return authResponse;
+  return response.data;
 };
 
 export const refreshTokenApi = async (refreshToken: string): Promise<string> => {
@@ -179,9 +213,7 @@ export const requesOtpApi = async (otpRequest: OtpRequest): Promise<OtpRequestRe
       timeout: 10000,
     },
   );
-  const authResponse = response.data;
-
-  return authResponse;
+  return response.data;
 };
 
 export const validateOtpApi = async (request: OtpValidateRequest): Promise<OtpValidateResponse> => {
@@ -193,7 +225,5 @@ export const validateOtpApi = async (request: OtpValidateRequest): Promise<OtpVa
       timeout: 10000,
     },
   );
-  const authResponse = response.data;
-
-  return authResponse;
+  return response.data;
 };
