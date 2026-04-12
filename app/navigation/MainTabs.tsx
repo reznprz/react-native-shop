@@ -1,11 +1,6 @@
 import React from 'react';
-import { DesktopTabs, MobileTabs } from 'app/components/tabBar/CustomTabs';
-import { useIsDesktop } from 'app/hooks/useIsDesktop';
+import { MobileTabs } from 'app/components/tabBar/CustomTabs';
 
 export default function MainTabs() {
-  const { deviceType } = useIsDesktop();
-
-  const desktop = deviceType === 'Desktop';
-
-  return desktop ? <DesktopTabs /> : <MobileTabs />;
+  return <MobileTabs />;
 }

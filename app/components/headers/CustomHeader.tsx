@@ -61,7 +61,7 @@ export default function CustomHeader({ route, navigation }: CustomHeaderProps) {
         fallbackImageUri={IMAGE_URI}
       />
 
-      {isDesktop ? (
+      {false ? (
         <View style={styles.centerSection}>
           <CenterDesktopIcons
             tabScreenConfigs={tabScreenConfigs}
