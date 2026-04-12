@@ -7,7 +7,6 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
@@ -53,40 +52,116 @@ const InputModal: React.FC<InputModalProps> = ({
     />
   );
 
+  const keyboardType = placeholder.toLowerCase().includes('phone') ? 'phone-pad' : 'default';
+
   return (
-    <Modal animationType="fade" transparent visible={visible} onRequestClose={onRequestClose}>
-      {/* backdrop */}
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View
-          className="flex-1 justify-center items-center px-6"
+    <Modal
+      animationType="fade"
+      transparent
+      visible={visible}
+      onRequestClose={onRequestClose}
+      statusBarTranslucent
+    >
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 24,
+          backgroundColor: theme.backdrop,
+          ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
+        }}
+      >
+        {/* Backdrop click area */}
+        <Pressable
+          onPress={() => {
+            Keyboard.dismiss();
+            onRequestClose();
+          }}
           style={{
-            backgroundColor: theme.backdrop,
-            ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: 0,
+          }}
+        />
+
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{
+            width: '100%',
+            maxWidth: 380,
           }}
         >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            className="w-full max-w-[360px] rounded-2xl overflow-hidden"
-            style={{ backgroundColor: theme.secondaryBg }}
+          {/* Modal card */}
+          <Pressable
+            onPress={(e) => {
+              e.stopPropagation();
+            }}
+            style={{
+              width: '100%',
+              borderRadius: 16,
+              overflow: 'hidden',
+              backgroundColor: theme.secondaryBg,
+              ...(Platform.OS === 'web'
+                ? ({
+                    boxShadow: '0 12px 40px rgba(0,0,0,0.18)',
+                  } as any)
+                : {
+                    elevation: 8,
+                  }),
+            }}
           >
             {/* Header */}
             <View
-              className="flex-row justify-between items-center"
-              style={{ backgroundColor: theme.secondary, padding: 12 }}
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: theme.secondary,
+                padding: 12,
+              }}
             >
-              <Text style={{ color: theme.textPrimary }} className="text-lg font-semibold">
+              <Text
+                style={{
+                  color: theme.textPrimary,
+                  fontSize: 18,
+                  fontWeight: '600',
+                  flex: 1,
+                }}
+              >
                 {title}
               </Text>
-              <Pressable onPress={onRequestClose} className="p-1">
-                <Text style={{ color: theme.textPrimary }} className="text-xl">
-                  ✕
-                </Text>
+
+              <Pressable
+                onPress={onRequestClose}
+                style={{
+                  paddingHorizontal: 8,
+                  paddingVertical: 4,
+                  marginLeft: 12,
+                }}
+              >
+                <Text style={{ color: theme.textPrimary, fontSize: 20 }}>✕</Text>
               </Pressable>
             </View>
 
             {/* Body */}
-            <View className="px-5 pt-4 pb-4 mb-4">
-              <Text className="text-sm font-medium mb-1" style={{ color: theme.textSecondary }}>
+            <View
+              style={{
+                paddingHorizontal: 20,
+                paddingTop: 16,
+                paddingBottom: 16,
+              }}
+            >
+              <Text
+                style={{
+                  color: theme.textSecondary,
+                  fontSize: 14,
+                  fontWeight: '500',
+                  marginBottom: 6,
+                }}
+              >
                 {placeholder}
               </Text>
 
@@ -94,25 +169,39 @@ const InputModal: React.FC<InputModalProps> = ({
                 value={value}
                 onChangeText={onChangeText}
                 placeholder={placeholder}
-                keyboardType={
-                  placeholder.toLowerCase().includes('phone') ? 'phone-pad' : 'email-address'
-                }
+                keyboardType={keyboardType}
                 autoCapitalize="none"
+                autoCorrect={false}
+                placeholderTextColor={theme.mutedIcon}
+                onSubmitEditing={handleAdd}
+                returnKeyType="done"
                 style={{
+                  width: '100%',
+                  borderWidth: 1,
                   borderColor: theme.borderColor,
                   backgroundColor: theme.secondaryBg,
                   color: theme.textSecondary,
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: Platform.OS === 'web' ? 12 : 10,
+                  fontSize: 16,
+                  outlineStyle: 'none' as any,
                 }}
-                className="w-full border rounded-xl px-4 py-2 text-base"
-                placeholderTextColor={theme.mutedIcon}
               />
             </View>
 
             {/* Footer */}
-            <View className="px-5 pb-3">{footerContent}</View>
-          </KeyboardAvoidingView>
-        </View>
-      </TouchableWithoutFeedback>
+            <View
+              style={{
+                paddingHorizontal: 20,
+                paddingBottom: 14,
+              }}
+            >
+              {footerContent}
+            </View>
+          </Pressable>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 };

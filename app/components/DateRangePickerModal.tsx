@@ -36,7 +36,6 @@ export enum CalendarMode {
 
 const tabs = ['EN', 'NP'];
 type TabType = (typeof tabs)[number];
-
 type BsDate = { year: number; month: number; day: number };
 
 type DateRangePickerModalProps = {
@@ -76,22 +75,34 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   const { height: screenH, width: screenW } = useWindowDimensions();
   const { isLargeScreen } = useIsDesktop();
 
+  const isPhone = screenW < 768;
+  const isTablet = screenW >= 768 && screenW < 1024;
+  const isWebDesktop = Platform.OS === 'web' && screenW >= 1024;
+
   const displayedSubTabs = useMemo(() => {
     return hideTimeRangeSubTabs
       ? enabledSubTabs.filter((tab) => tab !== DateRangeSelectionType.TIME_RANGE_TODAY)
       : enabledSubTabs;
   }, [enabledSubTabs, hideTimeRangeSubTabs]);
 
-  // IMPORTANT: give modal an explicit height on iOS/Android
-  const modalH = Platform.OS === 'web' ? 550 : Math.min(screenH * 0.58, 760);
-  const modalW = Platform.OS === 'web' ? 800 : Math.min(screenW * 0.95, isLargeScreen ? 820 : 560);
+  const modalH = isPhone
+    ? screenH * 0.92
+    : isTablet
+      ? Math.min(screenH * 0.82, 860)
+      : Math.min(screenH * 0.78, 760);
 
-  const shouldScroll = Platform.OS !== 'web' || !isLargeScreen;
+  const modalW = isPhone
+    ? screenW * 0.98
+    : isTablet
+      ? Math.min(screenW * 0.94, 900)
+      : Math.min(screenW * 0.9, 1100);
 
-  // Parent owns "mode" + "active tab"
+  const shouldScroll = !isWebDesktop;
+  const showQuickRangeSidebar = isWebDesktop && quickRanges?.length && !hideQuickRanges;
+  const showQuickRangeTop = !isWebDesktop && quickRanges?.length && !hideQuickRanges;
+
   const [calendarMode, setCalendarMode] = useState<TabType>('NP');
   const [activeSubTab, setActiveSubTab] = useState<DateRangeSelectionType>(displayedSubTabs[0]);
-
   const [activeQuickRange, setActiveQuickRange] = useState<QuickRangePayload | null>(null);
 
   const [todayStartHour, setTodayStartHour] = useState(0);
@@ -100,14 +111,11 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   const [todayEndMin, setTodayEndMin] = useState(0);
 
   const [singleDate, setSingleDate] = useState<Date>(atMidnight(new Date()));
-
   const [startDateRange, setStartDateRange] = useState<Date>(atMidnight(new Date()));
   const [endDateRange, setEndDateRange] = useState<Date>(atMidnight(new Date()));
   const [rangeClicks, setRangeClicks] = useState(0);
-
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
-  // Parent owns BS state
   const todayBs = useMemo(() => getTodayBsInKathmandu(), []);
   const [singleBsDate, setSingleBsDate] = useState(todayBs);
   const [startBsRange, setStartBsRange] = useState(todayBs);
@@ -157,11 +165,10 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     }
   };
 
-  // AD calendar
   const adCalendarDays = useMemo(() => {
     const firstOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
     const dayOfWeek = firstOfMonth.getDay();
-    const offset = (dayOfWeek + 6) % 7; // Mon=0
+    const offset = (dayOfWeek + 6) % 7;
     const start = new Date(firstOfMonth);
     start.setDate(start.getDate() - offset);
 
@@ -218,7 +225,6 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     return t >= Math.min(s, e) && t <= Math.max(s, e);
   };
 
-  // BS month navigation
   const bsPrevMonth = () => {
     setCurrentBsMonth((m) =>
       m.month === 1 ? { year: m.year - 1, month: 12 } : { year: m.year, month: m.month - 1 },
@@ -335,7 +341,6 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     }
   };
 
-  // ---------- UI helpers (common code moved into funcs) ----------
   const colors = useMemo(() => {
     return {
       surface: theme.primaryBg,
@@ -349,7 +354,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   }, [theme]);
 
   const renderModeToggle = () => (
-    <View className="mb-4">
+    <View style={styles.modeToggleWrap}>
       <SubTab
         tabs={tabs}
         activeTab={calendarMode}
@@ -358,80 +363,101 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     </View>
   );
 
-  const renderSubTabs = () => (
-    <View style={styles.subTabRow}>
-      {displayedSubTabs.map((subTabType) => {
-        let label = '';
-        switch (subTabType) {
-          case DateRangeSelectionType.TIME_RANGE_TODAY:
-            label = 'Time Range (Today)';
-            break;
-          case DateRangeSelectionType.SINGLE_DATE:
-            label = 'Specific Date';
-            break;
-          case DateRangeSelectionType.DATE_RANGE:
-            label = 'Date Range';
-            break;
-          case DateRangeSelectionType.QUICK_RANGE:
-            label = 'Quick Range';
-            break;
-          default:
-            label = 'Unknown';
-        }
+  const renderSubTabs = () => {
+    const tabItems = (
+      <>
+        {displayedSubTabs.map((subTabType) => {
+          let label = '';
+          switch (subTabType) {
+            case DateRangeSelectionType.TIME_RANGE_TODAY:
+              label = 'Time Range (Today)';
+              break;
+            case DateRangeSelectionType.SINGLE_DATE:
+              label = 'Specific Date';
+              break;
+            case DateRangeSelectionType.DATE_RANGE:
+              label = 'Date Range';
+              break;
+            case DateRangeSelectionType.QUICK_RANGE:
+              label = 'Quick Range';
+              break;
+            default:
+              label = 'Unknown';
+          }
 
-        const active = activeSubTab === subTabType && !isBsMonthTab;
+          const active = activeSubTab === subTabType && !isBsMonthTab;
 
-        return (
+          return (
+            <Pressable
+              key={subTabType}
+              onPress={() => handleSubTabChange(subTabType)}
+              style={[
+                styles.subTabBtn,
+                isPhone && styles.subTabBtnMobile,
+                { backgroundColor: colors.tabBg },
+                active && { backgroundColor: colors.primary },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.subTabBtnText,
+                  { color: colors.textMuted },
+                  active && { color: '#FFF' },
+                ]}
+                numberOfLines={1}
+              >
+                {label}
+              </Text>
+            </Pressable>
+          );
+        })}
+
+        {calendarMode === CalendarMode.NP && (
           <Pressable
-            key={subTabType}
-            onPress={() => handleSubTabChange(subTabType)}
+            onPress={() => {
+              setIsBsMonthTab(true);
+              setActiveSubTab(DateRangeSelectionType.DATE_RANGE);
+            }}
             style={[
               styles.subTabBtn,
+              isPhone && styles.subTabBtnMobile,
               { backgroundColor: colors.tabBg },
-              active && { backgroundColor: colors.primary },
+              isBsMonthTab && { backgroundColor: colors.primary },
             ]}
           >
             <Text
               style={[
                 styles.subTabBtnText,
                 { color: colors.textMuted },
-                active && { color: '#FFF' },
+                isBsMonthTab && { color: '#FFF' },
               ]}
+              numberOfLines={1}
             >
-              {label}
+              Month
             </Text>
           </Pressable>
-        );
-      })}
+        )}
+      </>
+    );
 
-      {calendarMode === CalendarMode.NP && (
-        <Pressable
-          onPress={() => {
-            setIsBsMonthTab(true);
-            setActiveSubTab(DateRangeSelectionType.DATE_RANGE);
-          }}
-          style={[
-            styles.subTabBtn,
-            { backgroundColor: colors.tabBg },
-            isBsMonthTab && { backgroundColor: colors.primary },
-          ]}
+    if (isPhone) {
+      return (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.subTabScrollContent}
+          style={styles.subTabScroll}
         >
-          <Text
-            style={[
-              styles.subTabBtnText,
-              { color: colors.textMuted },
-              isBsMonthTab && { color: '#FFF' },
-            ]}
-          >
-            Month
-          </Text>
-        </Pressable>
-      )}
-    </View>
-  );
+          {tabItems}
+        </ScrollView>
+      );
+    }
+
+    return <View style={styles.subTabRow}>{tabItems}</View>;
+  };
 
   const renderPicker = () => (
-    <View style={{ flex: 1, minHeight: 0 }}>
+    <View style={{ flex: 1, minHeight: isPhone ? 420 : 0 }}>
       {calendarMode === CalendarMode.EN ? (
         <ADDatePicker
           activeSubTab={activeSubTab}
@@ -488,35 +514,45 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   );
 
   const renderFooter = () => (
-    <View style={[styles.footer, { borderTopColor: colors.border }]}>
-      <Pressable onPress={onClose} style={[styles.btn, { backgroundColor: colors.muted }]}>
+    <View
+      style={[
+        styles.footer,
+        isPhone && styles.footerMobile,
+        { borderTopColor: colors.border, paddingBottom: Math.max(insets.bottom, 10) },
+      ]}
+    >
+      <Pressable
+        onPress={onClose}
+        style={[styles.btn, isPhone && styles.btnMobile, { backgroundColor: colors.muted }]}
+      >
         <Text style={styles.btnText}>Cancel</Text>
       </Pressable>
-      <Pressable onPress={handleApply} style={[styles.btn, { backgroundColor: colors.primary }]}>
+      <Pressable
+        onPress={handleApply}
+        style={[styles.btn, isPhone && styles.btnMobile, { backgroundColor: colors.primary }]}
+      >
         <Text style={styles.btnText}>Apply</Text>
       </Pressable>
     </View>
   );
 
-  // ---------- render ----------
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        {/* Inner centering wrapper avoids iOS collapsing */}
-        <View style={styles.centerWrap}>
+        <View style={[styles.centerWrap, isPhone && styles.centerWrapMobile]}>
           <View
             style={[
               styles.modalContainer,
+              isPhone && styles.modalContainerMobile,
               {
                 width: modalW,
-                height: modalH, // FIX: explicit height
+                height: modalH,
                 backgroundColor: colors.surface,
-                paddingBottom: Math.max(insets.bottom, 10),
               },
             ]}
           >
-            <View style={styles.topRow}>
-              {isLargeScreen && quickRanges?.length && !hideQuickRanges ? (
+            <View style={[styles.topRow, !showQuickRangeSidebar && styles.topRowStack]}>
+              {showQuickRangeSidebar ? (
                 <QuickRangePanel
                   quickRanges={quickRanges}
                   activeQuickRange={activeQuickRange}
@@ -525,24 +561,26 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
               ) : null}
 
               <View style={styles.rightContainer}>
-                {shouldScroll ? (
-                  <ScrollView
-                    style={{ flex: 1 }}
-                    contentContainerStyle={{ flexGrow: 1 }}
-                    showsVerticalScrollIndicator={true}
-                    indicatorStyle="black"
-                  >
-                    {renderModeToggle()}
-                    {renderSubTabs()}
-                    {renderPicker()}
-                  </ScrollView>
-                ) : (
-                  <View style={{ flex: 1, minHeight: 0 }}>
-                    {renderModeToggle()}
-                    {renderSubTabs()}
-                    {renderPicker()}
-                  </View>
-                )}
+                <ScrollView
+                  style={{ flex: 1 }}
+                  contentContainerStyle={styles.contentContainer}
+                  showsVerticalScrollIndicator
+                  bounces={shouldScroll}
+                >
+                  {showQuickRangeTop ? (
+                    <View style={styles.quickRangeTopWrap}>
+                      <QuickRangePanel
+                        quickRanges={quickRanges}
+                        activeQuickRange={activeQuickRange}
+                        onSelectRange={handleQuickRange}
+                      />
+                    </View>
+                  ) : null}
+
+                  {renderModeToggle()}
+                  {renderSubTabs()}
+                  {renderPicker()}
+                </ScrollView>
 
                 {renderFooter()}
               </View>
@@ -561,58 +599,104 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'stretch',
   },
-
   centerWrap: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 12,
+    paddingVertical: 16,
   },
-
+  centerWrapMobile: {
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+    justifyContent: 'flex-end',
+  },
   modalContainer: {
-    maxWidth: 820,
+    maxWidth: 1100,
     borderRadius: 12,
     overflow: 'hidden',
   },
-
+  modalContainerMobile: {
+    borderRadius: 16,
+  },
   topRow: {
     flexDirection: 'row',
     flex: 1,
     minHeight: 0,
   },
-
+  topRowStack: {
+    flexDirection: 'column',
+  },
   rightContainer: {
     flex: 1,
     padding: 12,
     minHeight: 0,
   },
-
-  modeRow: {
+  contentContainer: {
+    flexGrow: 1,
+    paddingBottom: 12,
+  },
+  quickRangeTopWrap: {
+    marginBottom: 12,
+  },
+  modeToggleWrap: {
+    marginBottom: 12,
+  },
+  subTabRow: {
     flexDirection: 'row',
     marginBottom: 10,
-    borderRadius: 10,
-    padding: 4,
+    gap: 6,
   },
-  modeBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-  modeBtnText: { fontSize: 13, fontWeight: '900' },
-
-  subTabRow: { flexDirection: 'row', marginBottom: 10 },
+  subTabScroll: {
+    marginBottom: 10,
+  },
+  subTabScrollContent: {
+    paddingRight: 8,
+    gap: 8,
+  },
   subTabBtn: {
     flex: 1,
+    minHeight: 42,
     alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 10,
-    marginHorizontal: 2,
+    paddingHorizontal: 12,
     borderRadius: 10,
   },
-  subTabBtnText: { fontSize: 13, fontWeight: '800' },
-
+  subTabBtnMobile: {
+    flex: undefined,
+    minWidth: 130,
+    marginHorizontal: 0,
+  },
+  subTabBtnText: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     paddingTop: 12,
     borderTopWidth: 1,
     marginTop: 8,
+    gap: 10,
   },
-  btn: { paddingVertical: 12, paddingHorizontal: 26, borderRadius: 10, marginLeft: 10 },
-  btnText: { color: '#FFF', fontWeight: '900', fontSize: 16 },
+  footerMobile: {
+    justifyContent: 'space-between',
+  },
+  btn: {
+    paddingVertical: 12,
+    paddingHorizontal: 26,
+    borderRadius: 10,
+    minWidth: 110,
+    alignItems: 'center',
+  },
+  btnMobile: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  btnText: {
+    color: '#FFF',
+    fontWeight: '900',
+    fontSize: 16,
+  },
 });
