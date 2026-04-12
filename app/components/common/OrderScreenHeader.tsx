@@ -173,6 +173,8 @@ const OrderScreenHeader: React.FC<OrderScreenHeaderProps> = ({
         visible={isRangeModalVisible}
         onClose={() => setRangeModalVisible(false)}
         onApply={handleDateRangeApply}
+        hideTimeRangeSubTabs={true}
+        hideQuickRanges={true}
       />
     </View>
   );

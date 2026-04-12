@@ -100,6 +100,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   const shouldScroll = !isWebDesktop;
   const showQuickRangeSidebar = isWebDesktop && quickRanges?.length && !hideQuickRanges;
   const showQuickRangeTop = !isWebDesktop && quickRanges?.length && !hideQuickRanges;
+  const compactSubTabs = hideQuickRanges;
 
   const [calendarMode, setCalendarMode] = useState<TabType>('NP');
   const [activeSubTab, setActiveSubTab] = useState<DateRangeSelectionType>(displayedSubTabs[0]);
@@ -111,9 +112,11 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   const [todayEndMin, setTodayEndMin] = useState(0);
 
   const [singleDate, setSingleDate] = useState<Date>(atMidnight(new Date()));
+
   const [startDateRange, setStartDateRange] = useState<Date>(atMidnight(new Date()));
   const [endDateRange, setEndDateRange] = useState<Date>(atMidnight(new Date()));
   const [rangeClicks, setRangeClicks] = useState(0);
+
   const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
 
   const todayBs = useMemo(() => getTodayBsInKathmandu(), []);
@@ -345,7 +348,6 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     return {
       surface: theme.primaryBg,
       primary: theme.primary ?? '#2A4759',
-      primaryBg: theme.primaryBg ?? '#F0F2F4',
       border: theme.borderColor ?? '#DDD',
       muted: theme.mutedIcon ?? '#777',
       textMuted: '#666',
@@ -393,18 +395,19 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
               onPress={() => handleSubTabChange(subTabType)}
               style={[
                 styles.subTabBtn,
+                compactSubTabs && styles.subTabBtnCompact,
                 isPhone && styles.subTabBtnMobile,
                 { backgroundColor: colors.tabBg },
                 active && { backgroundColor: colors.primary },
               ]}
             >
               <Text
+                numberOfLines={1}
                 style={[
                   styles.subTabBtnText,
                   { color: colors.textMuted },
                   active && { color: '#FFF' },
                 ]}
-                numberOfLines={1}
               >
                 {label}
               </Text>
@@ -420,18 +423,19 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
             }}
             style={[
               styles.subTabBtn,
+              compactSubTabs && styles.subTabBtnCompact,
               isPhone && styles.subTabBtnMobile,
               { backgroundColor: colors.tabBg },
               isBsMonthTab && { backgroundColor: colors.primary },
             ]}
           >
             <Text
+              numberOfLines={1}
               style={[
                 styles.subTabBtnText,
                 { color: colors.textMuted },
                 isBsMonthTab && { color: '#FFF' },
               ]}
-              numberOfLines={1}
             >
               Month
             </Text>
@@ -445,15 +449,17 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.subTabScrollContent}
           style={styles.subTabScroll}
+          contentContainerStyle={styles.subTabScrollContent}
         >
           {tabItems}
         </ScrollView>
       );
     }
 
-    return <View style={styles.subTabRow}>{tabItems}</View>;
+    return (
+      <View style={[styles.subTabRow, compactSubTabs && styles.subTabRowCompact]}>{tabItems}</View>
+    );
   };
 
   const renderPicker = () => (
@@ -527,6 +533,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
       >
         <Text style={styles.btnText}>Cancel</Text>
       </Pressable>
+
       <Pressable
         onPress={handleApply}
         style={[styles.btn, isPhone && styles.btnMobile, { backgroundColor: colors.primary }]}
@@ -633,7 +640,7 @@ const styles = StyleSheet.create({
     minHeight: 0,
   },
   contentContainer: {
-    flexGrow: 1,
+    flexGrow: 0,
     paddingBottom: 12,
   },
   quickRangeTopWrap: {
@@ -644,32 +651,44 @@ const styles = StyleSheet.create({
   },
   subTabRow: {
     flexDirection: 'row',
-    marginBottom: 10,
-    gap: 6,
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    alignContent: 'flex-start',
+    gap: 8,
+    marginBottom: 12,
+  },
+  subTabRowCompact: {
+    justifyContent: 'flex-start',
   },
   subTabScroll: {
-    marginBottom: 10,
+    marginBottom: 12,
   },
   subTabScrollContent: {
     paddingRight: 8,
+    alignItems: 'center',
     gap: 8,
   },
   subTabBtn: {
-    flex: 1,
-    minHeight: 42,
+    minHeight: 48,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    alignSelf: 'flex-start',
+  },
+  subTabBtnCompact: {
+    flexGrow: 0,
+    flexShrink: 0,
+    minWidth: 140,
+    maxWidth: 180,
   },
   subTabBtnMobile: {
-    flex: undefined,
-    minWidth: 130,
-    marginHorizontal: 0,
+    minWidth: 132,
+    maxWidth: undefined,
   },
   subTabBtnText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '800',
   },
   footer: {
