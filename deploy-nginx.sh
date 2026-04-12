@@ -9,7 +9,6 @@ NGINX_LINK="/etc/nginx/sites-enabled/react-native-shop"
 
 echo "📦 Building Expo Web app..."
 cd "$PROJECT_DIR"
-npm install
 npx expo export --platform web --clear
 
 if [ ! -d "$BUILD_DIR" ]; then
