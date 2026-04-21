@@ -11,10 +11,16 @@ type Props = {
   initialDate: Date;
   onClose: () => void;
   onConfirm: (date: Date) => void;
-
   title?: string;
   minDate?: Date;
   maxDate?: Date;
+};
+
+const formatDate = (date: Date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
 };
 
 export function AdaptiveDatePicker({
@@ -26,11 +32,13 @@ export function AdaptiveDatePicker({
   minDate,
   maxDate,
 }: Props) {
-  const { isMobile } = useIsDesktop(); // iPhone/Android phone only
+  const { isMobile } = useIsDesktop();
   const [temp, setTemp] = useState<Date>(initialDate);
 
   useEffect(() => {
-    if (visible) setTemp(initialDate);
+    if (visible) {
+      setTemp(initialDate);
+    }
   }, [visible, initialDate]);
 
   const applyAndClose = (d: Date) => {
@@ -38,20 +46,46 @@ export function AdaptiveDatePicker({
     onClose();
   };
 
-  // Shared picker UI
-  const picker = useMemo(
-    () => (
+  const picker = useMemo(() => {
+    if (Platform.OS === 'web') {
+      return (
+        <View style={{ marginTop: 12 }}>
+          <input
+            type="date"
+            value={formatDate(temp)}
+            min={minDate ? formatDate(minDate) : undefined}
+            max={maxDate ? formatDate(maxDate) : undefined}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (!value) return;
+              setTemp(new Date(`${value}T00:00:00`));
+            }}
+            style={{
+              width: '100%',
+              height: 44,
+              padding: '0 12px',
+              borderRadius: 8,
+              border: '1px solid #ccc',
+              fontSize: 16,
+              boxSizing: 'border-box',
+            }}
+          />
+        </View>
+      );
+    }
+
+    return (
       <View
         style={{
           marginTop: 12,
-          height: Platform.OS === 'ios' ? 260 : undefined, // <-- key
+          height: Platform.OS === 'ios' ? 260 : undefined,
           justifyContent: 'center',
         }}
       >
         <DateTimePicker
           value={temp}
           mode="date"
-          display={isMobile ? 'spinner' : 'inline'} // Spinner on phones, inline on tablets/web
+          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
           themeVariant={Platform.OS === 'ios' ? 'light' : undefined}
           minimumDate={minDate}
           maximumDate={maxDate}
@@ -69,66 +103,51 @@ export function AdaptiveDatePicker({
           }}
         />
       </View>
-    ),
-    [temp, minDate, maxDate],
-  );
+    );
+  }, [temp, minDate, maxDate]);
 
-  // Shared header UI (for both)
-  const header = (
-    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Text style={{ fontSize: 18, fontWeight: '700' }}>{title}</Text>
-
-      <View style={{ flexDirection: 'row' }}>
-        <Pressable onPress={onClose} style={{ padding: 10 }}>
-          <Text style={{ fontSize: 16, color: '#6B7280', fontWeight: '600' }}>Cancel</Text>
-        </Pressable>
-
-        {/* iOS: Done applies */}
-        {Platform.OS === 'ios' && (
-          <Pressable onPress={() => applyAndClose(temp)} style={{ padding: 10 }}>
-            <Text style={{ fontSize: 16, color: '#111827', fontWeight: '800' }}>Done</Text>
-          </Pressable>
-        )}
-      </View>
-    </View>
-  );
-
-  // Phones: bottom sheet
   if (isMobile && Platform.OS !== 'web') {
     return (
       <BaseBottomSheetModal visible={visible} onClose={onClose} enableSwipeClose>
-        {header}
+        <View
+          style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: '700' }}>{title}</Text>
+
+          <View style={{ flexDirection: 'row' }}>
+            <Pressable onPress={onClose} style={{ padding: 10 }}>
+              <Text style={{ fontSize: 16, color: '#6B7280', fontWeight: '600' }}>Cancel</Text>
+            </Pressable>
+
+            {Platform.OS === 'ios' && (
+              <Pressable onPress={() => applyAndClose(temp)} style={{ padding: 10 }}>
+                <Text style={{ fontSize: 16, color: '#111827', fontWeight: '800' }}>Done</Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+
         {picker}
       </BaseBottomSheetModal>
     );
   }
 
-  // Tablets (iPad/Android tablet) + Web: centered modal
   return (
     <BaseModal
       visible={visible}
       onRequestClose={onClose}
       headerTitle={title}
-      body={
-        <View>
-          {/* For BaseModal, header is already in BaseModal */}
-          {picker}
-        </View>
-      }
+      body={<View>{picker}</View>}
       footer={
-        Platform.OS !== 'android' ? (
-          // On Android picker already closes on select; footer optional
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <Pressable onPress={onClose} style={{ padding: 10 }}>
-              <Text style={{ fontSize: 16, fontWeight: '700' }}>Cancel</Text>
-            </Pressable>
-            {Platform.OS === 'ios' && (
-              <Pressable onPress={() => applyAndClose(temp)} style={{ padding: 10 }}>
-                <Text style={{ fontSize: 16, fontWeight: '800' }}>Done</Text>
-              </Pressable>
-            )}
-          </View>
-        ) : undefined
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <Pressable onPress={onClose} style={{ padding: 10 }}>
+            <Text style={{ fontSize: 16, fontWeight: '700' }}>Cancel</Text>
+          </Pressable>
+
+          <Pressable onPress={() => applyAndClose(temp)} style={{ padding: 10 }}>
+            <Text style={{ fontSize: 16, fontWeight: '800' }}>Done</Text>
+          </Pressable>
+        </View>
       }
     />
   );
