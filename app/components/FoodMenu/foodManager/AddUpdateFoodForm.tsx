@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
 import { Feather, MaterialIcons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+
 import { Category, Food } from 'app/api/services/foodService';
 import ModalActionsButton from 'app/components/common/modal/ModalActionsButton';
-import * as ImagePicker from 'expo-image-picker';
-import { CategoryDropdown } from './CategoryDropdown';
 import CollapsibleInfo from 'app/components/common/CollapsibleInfo';
+import { CategoryDropdown } from './CategoryDropdown';
 
 interface AddUpdateFoodFormProps {
   food: Food | null;
@@ -14,6 +15,12 @@ interface AddUpdateFoodFormProps {
   onAddNewCategoryClick: () => void;
   onCancel: () => void;
 }
+
+type SelectedImage = {
+  uri: string;
+  fileName?: string;
+  mimeType?: string;
+};
 
 const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
   food,
@@ -33,49 +40,96 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
     categoryName: food?.categoryName || '',
     isKitchenFood: food?.isKitchenFood || false,
   });
-  const [imageUri, setImageUri] = useState<string | undefined>(food?.img);
+
+  const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
+    food?.img
+      ? {
+          uri: food.img,
+        }
+      : null,
+  );
+
+  const setField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
 
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
     if (status !== 'granted') {
       Alert.alert('Permission Denied', 'Please enable photo library access to upload an image.');
       return;
     }
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.7,
     });
+
     if (!result.canceled && result.assets.length > 0) {
-      setImageUri(result.assets[0].uri);
+      const asset = result.assets[0];
+
+      setSelectedImage({
+        uri: asset.uri,
+        fileName: asset.fileName ?? undefined,
+        mimeType: asset.mimeType ?? undefined,
+      });
     }
   };
 
-  const setField = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
-    setForm((p) => ({ ...p, [key]: value }));
+  const getFileNameFromUri = (uri: string) => {
+    const cleanUri = uri.split('?')[0];
+    const parts = cleanUri.split('/');
+    return parts[parts.length - 1] || 'image.jpg';
+  };
+
+  const getExtensionFromName = (fileName?: string) => {
+    if (!fileName) return undefined;
+    const match = /\.([a-zA-Z0-9]+)$/.exec(fileName);
+    return match?.[1]?.toLowerCase();
+  };
+
+  const normalizeExtension = (ext?: string) => {
+    if (!ext) return 'jpg';
+    return ext.toLowerCase() === 'jpeg' ? 'jpg' : ext.toLowerCase();
+  };
+
+  const resolveUploadFileName = (image: SelectedImage, ext: string) => {
+    const rawName = image.fileName || getFileNameFromUri(image.uri) || `image.${ext}`;
+    if (rawName.includes('.')) return rawName;
+    return `${rawName}.${ext}`;
+  };
+
+  const resolveMimeType = (image: SelectedImage, ext: string) => {
+    if (image.mimeType) return image.mimeType;
+    return `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+  };
 
   return (
     <ScrollView
       className="flex-1 bg-white px-4 py-6 md:px-8 lg:px-16"
       contentContainerStyle={{ paddingBottom: 40 }}
     >
-      {/* Header */}
       <View className="mb-8">
-        <Text className="text-3xl font-bold text-gray-900">Add New Food</Text>
-        <Text className="text-gray-500 mt-1">Fill in the details to add a new food item</Text>
+        <Text className="text-3xl font-bold text-gray-900">
+          {food ? 'Update Food' : 'Add New Food'}
+        </Text>
+        <Text className="text-gray-500 mt-1">
+          {food
+            ? 'Update the details of the food item'
+            : 'Fill in the details to add a new food item'}
+        </Text>
       </View>
 
-      {/* Main layout: image + inputs */}
       <View className="flex-col md:flex-row md:space-x-8">
-        {/* Image Upload */}
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={pickImage}
           className="border-dashed border-2 border-gray-300 rounded-2xl mb-6 md:mb-0 md:w-1/3 h-56 items-center justify-center bg-gray-50"
         >
-          {imageUri ? (
+          {selectedImage?.uri ? (
             <>
               <Image
-                source={{ uri: imageUri }}
+                source={{ uri: selectedImage.uri }}
                 resizeMode="cover"
                 className="w-full h-full rounded-2xl"
               />
@@ -87,14 +141,12 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
             <View className="items-center">
               <MaterialIcons name="cloud-upload" size={38} color="#94a3b8" />
               <Text className="text-gray-500 mt-2">Tap to upload image</Text>
-              <Text className="text-gray-400 text-xs mt-1">PNG, JPG, GIF — max 5 MB</Text>
+              <Text className="text-gray-400 text-xs mt-1">PNG, JPG, GIF — max 5 MB</Text>
             </View>
           )}
         </TouchableOpacity>
 
-        {/* Food info section */}
         <View className="flex-1 space-y-5">
-          {/* Name & Category */}
           <View className="flex-col md:flex-row md:space-x-4 md:gap-4 md:pl-8">
             <View className="flex-1">
               <Text className="text-sm font-medium text-gray-700 mb-1">Food Name*</Text>
@@ -102,14 +154,15 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
                 placeholder="Enter food name"
                 className="h-12 px-4 rounded-lg border border-gray-300 bg-gray-50 text-gray-900"
                 value={form.name}
-                onChangeText={(v) => setField('name', v)}
+                onChangeText={(value) => setField('name', value)}
               />
             </View>
+
             <View className="flex-1 mt-4 md:mt-0">
               <CategoryDropdown
                 categories={categories.map((c) => c.name)}
                 selected={form.categoryName}
-                onSelect={(v) => setField('categoryName', v)}
+                onSelect={(value) => setField('categoryName', value)}
               />
             </View>
           </View>
@@ -122,7 +175,6 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
             onPress={onAddNewCategoryClick}
           />
 
-          {/* Description */}
           <View className="md:pl-8 md:mt-6 mt-4">
             <Text className="text-sm font-medium text-gray-700 mb-1">
               Description*
@@ -134,31 +186,30 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
               multiline
               textAlignVertical="top"
               value={form.description}
-              onChangeText={(v) => setField('description', v)}
+              onChangeText={(value) => setField('description', value)}
             />
           </View>
         </View>
       </View>
 
-      {/* Pricing + Nutrition */}
       <View className="mt-10 flex-col md:flex-row md:space-x-6 md:gap-6">
-        {/* Pricing */}
         <View className="flex-1 bg-gray-50 rounded-2xl p-6 border border-gray-200 space-y-5">
           <Text className="text-lg font-semibold text-gray-800">Pricing Details</Text>
+
           {[
-            { k: 'price', l: 'Regular Price*' },
-            { k: 'touristPrice', l: 'Tourist Price*' },
-          ].map((f) => (
-            <View className={'mt-6'} key={f.k}>
-              <Text className="text-sm text-gray-700 mb-1">{f.l}</Text>
+            { key: 'price', label: 'Regular Price*' },
+            { key: 'touristPrice', label: 'Tourist Price*' },
+          ].map((field) => (
+            <View className="mt-6" key={field.key}>
+              <Text className="text-sm text-gray-700 mb-1">{field.label}</Text>
               <View className="flex-row items-center h-12 border border-gray-300 rounded-lg bg-white overflow-hidden">
                 <View className="w-12 bg-gray-100 justify-center items-center">
                   <Text className="text-gray-500 text-center">रू</Text>
                 </View>
                 <TextInput
                   keyboardType="numeric"
-                  value={String(form[f.k as keyof typeof form])}
-                  onChangeText={(v) => setField(f.k as keyof typeof form, Number(v))}
+                  value={String(form[field.key as keyof typeof form])}
+                  onChangeText={(value) => setField(field.key as keyof typeof form, Number(value))}
                   placeholder="0.00"
                   className="flex-1 h-full px-3 text-gray-900"
                 />
@@ -167,12 +218,12 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
           ))}
         </View>
 
-        {/* Nutrition */}
         <View className="flex-1 bg-gray-50 rounded-2xl p-6 border border-gray-200 space-y-5 mt-6 md:mt-0">
           <Text className="text-lg font-semibold text-gray-800">
             Nutritional Information
             <Text className="text-gray-500">(optional)</Text>
           </Text>
+
           <View className="mt-6">
             <Text className="text-sm text-gray-700 mb-1">
               Calories
@@ -182,7 +233,7 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
               <TextInput
                 keyboardType="numeric"
                 value={form.calories ? String(form.calories) : ''}
-                onChangeText={(v) => setField('calories', Number(v))}
+                onChangeText={(value) => setField('calories', Number(value))}
                 placeholder="Enter calories"
                 className="flex-1 h-full px-3 text-gray-900"
               />
@@ -201,13 +252,12 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
               placeholder="e.g., 250g"
               className="h-12 px-4 rounded-lg border border-gray-300 bg-white text-gray-900"
               value={form.servingSize}
-              onChangeText={(v) => setField('servingSize', v)}
+              onChangeText={(value) => setField('servingSize', value)}
             />
           </View>
         </View>
       </View>
 
-      {/* Kitchen toggle */}
       <TouchableOpacity
         onPress={() => setField('isKitchenFood', !form.isKitchenFood)}
         activeOpacity={0.8}
@@ -230,30 +280,36 @@ const AddUpdateFoodForm: React.FC<AddUpdateFoodFormProps> = ({
         </View>
       </TouchableOpacity>
 
-      {/* Action Buttons */}
       <ModalActionsButton
         cancelProps={{
           title: 'Cancel',
-          onPress: () => onCancel(),
+          onPress: onCancel,
         }}
         actionProps={{
-          title: 'Save Changes',
+          title: food ? 'Update Food' : 'Save Changes',
           onPress: () => {
             const matchCategory = categories.find((c) => c.name === form.categoryName);
+
             if (!matchCategory) {
-              alert('Please select a valid category');
+              Alert.alert('Invalid Category', 'Please select a valid category');
               return;
             }
 
             let filePart;
-            if (imageUri && imageUri !== food?.img) {
-              const [, ext = 'jpg'] = /\.(\w+)$/.exec(imageUri) ?? [];
+
+            if (selectedImage?.uri && selectedImage.uri !== food?.img) {
+              const extFromFileName = getExtensionFromName(selectedImage.fileName);
+              const extFromUri = getExtensionFromName(getFileNameFromUri(selectedImage.uri));
+              const normalizedExt = normalizeExtension(extFromFileName || extFromUri || 'jpg');
+              const resolvedFileName = resolveUploadFileName(selectedImage, normalizedExt);
+
               filePart = {
-                uri: imageUri,
-                name: `restaurant.${ext}`,
-                type: `image/${ext === 'jpg' ? 'jpeg' : ext}`,
+                uri: selectedImage.uri,
+                name: resolvedFileName,
+                type: resolveMimeType(selectedImage, normalizedExt),
               };
             }
+
             onSubmit(form, matchCategory.id, filePart);
           },
         }}
