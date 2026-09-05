@@ -13,7 +13,7 @@ import {
   OtpValidateRequest,
   OtpValidateResponse,
 } from 'app/api/services/authService';
-import { UseMutationResult } from '@tanstack/react-query/build/legacy';
+import { UseMutationResult } from '@tanstack/react-query';
 import { useTheme } from 'app/hooks/useTheme';
 
 interface AddUserModalProps {

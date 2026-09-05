@@ -25,9 +25,9 @@ interface ResponsiveListProps<T> {
   /** Unique key extractor for each item. */
   keyExtractor: (item: T, index: number) => string;
   /** Render function for each item. */
-  renderItem: (item: T, index: number) => JSX.Element;
+  renderItem: (item: T, index: number) => React.JSX.Element;
   /** If no data, show this component. */
-  ListEmptyComponent?: JSX.Element;
+  ListEmptyComponent?: React.JSX.Element;
   /** Additional styles for the underlying ScrollView/FlatList. */
   contentContainerStyle?: StyleProp<ViewStyle>;
   /** Whether to show vertical scroll bar. Default = true. */
@@ -152,6 +152,6 @@ function BaseResponsiveList<T>(
  */
 const ResponsiveList = memo(forwardRef(BaseResponsiveList)) as <T>(
   props: ResponsiveListProps<T> & { ref?: React.Ref<ResponsiveListHandle> },
-) => JSX.Element;
+) => React.JSX.Element;
 
 export default ResponsiveList;

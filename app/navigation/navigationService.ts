@@ -35,7 +35,7 @@ export function navigate<Name extends RouteName>(
 ) {
   const [routeName, routeParams] = args;
   if (navigationRef.isReady()) {
-    navigationRef.navigate(routeName, routeParams as any);
+    (navigationRef.navigate as (name: Name, params?: unknown) => void)(routeName, routeParams);
   }
 }
 
