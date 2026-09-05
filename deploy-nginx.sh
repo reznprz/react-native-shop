@@ -5,10 +5,17 @@ set -e
 PROJECT_DIR="/opt/react-native-shop"
 BUILD_DIR="$PROJECT_DIR/dist"
 NGINX_DIR="/var/www/react-native-shop"
+DOTENV_FILE="${DOTENV_FILE:-.env.uat}"
 
-echo "📦 Building Expo Web app (no cache)..."
 cd "$PROJECT_DIR"
-npx expo export --platform web --clear
+
+if [ ! -f "$PROJECT_DIR/$DOTENV_FILE" ]; then
+  echo "❌ Missing $PROJECT_DIR/$DOTENV_FILE (set DOTENV_FILE=... to use a different file)"
+  exit 1
+fi
+
+echo "📦 Building Expo Web app (no cache) using $DOTENV_FILE..."
+EXPO_NO_DOTENV=1 DOTENV_FILE="$DOTENV_FILE" npx expo export --platform web --clear
 
 echo "🧹 Clearing old deployment..."
 sudo rm -rf $NGINX_DIR/*

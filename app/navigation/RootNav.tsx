@@ -20,6 +20,7 @@ const LazySubscriptionPlansScreen = createLazyScreen(
   () => import('app/screens/SubscriptionPlansScreen'),
 );
 const LazyWelcomeScreen = createLazyScreen(() => import('app/screens/WelcomeScreen'));
+const LoginActivityScreen = createLazyScreen(() => import('app/screens/LoginActivityScreen'));
 
 // function LazyQrMenuItemsScreen(props: any) {
 //   return (
@@ -230,6 +231,24 @@ export default function RootNav() {
         component={LazySubscriptionPlansScreen}
         options={{
           title: ScreenDisplayNames.SUBSCRIPTIONPLANS,
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: theme.secondary,
+          },
+          headerBackTitle: 'Go Back',
+          headerTintColor: '#ffffff',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 18,
+          },
+        }}
+      />
+
+      <Stack.Screen
+        name={ScreenNames.LOGINACTIVITY}
+        component={LoginActivityScreen}
+        options={{
+          title: ScreenDisplayNames.LOGINACTIVITY,
           headerShown: true,
           headerStyle: {
             backgroundColor: theme.secondary,

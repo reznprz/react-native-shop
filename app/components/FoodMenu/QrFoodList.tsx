@@ -7,7 +7,6 @@ interface QrFoodListProps {
   categories: string[] | null;
   filteredFoods: Food[];
   onCategoryLayout: (category: string, event: any) => void;
-  foodItem: Food; // Added this line
 }
 
 const QrFoodList: React.FC<QrFoodListProps> = ({ categories, filteredFoods, onCategoryLayout }) => {

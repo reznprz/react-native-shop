@@ -45,6 +45,8 @@ type DateRangePickerModalProps = {
   onApply: (result: DateRangeSelection) => void;
   quickRanges?: QuickRangeItem[];
   enabledSubTabs?: DateRangeSelectionType[];
+  hideTimeRangeSubTabs?: boolean;
+  hideQuickRanges?: boolean;
 };
 
 export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
@@ -66,13 +68,19 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
     DateRangeSelectionType.SINGLE_DATE,
     DateRangeSelectionType.DATE_RANGE,
   ],
+  hideTimeRangeSubTabs = false,
+  hideQuickRanges = false,
 }) => {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const { height: screenH, width: screenW } = useWindowDimensions();
   const { isLargeScreen } = useIsDesktop();
 
-  const displayedSubTabs = enabledSubTabs;
+  const displayedSubTabs = useMemo(() => {
+    return hideTimeRangeSubTabs
+      ? enabledSubTabs.filter((tab) => tab !== DateRangeSelectionType.TIME_RANGE_TODAY)
+      : enabledSubTabs;
+  }, [enabledSubTabs, hideTimeRangeSubTabs]);
 
   // IMPORTANT: give modal an explicit height on iOS/Android
   const modalH = Platform.OS === 'web' ? 550 : Math.min(screenH * 0.58, 760);
@@ -81,7 +89,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
   const shouldScroll = Platform.OS !== 'web' || !isLargeScreen;
 
   // Parent owns "mode" + "active tab"
-  const [calendarMode, setCalendarMode] = useState<TabType>('EN');
+  const [calendarMode, setCalendarMode] = useState<TabType>('NP');
   const [activeSubTab, setActiveSubTab] = useState<DateRangeSelectionType>(displayedSubTabs[0]);
 
   const [activeQuickRange, setActiveQuickRange] = useState<QuickRangePayload | null>(null);
@@ -445,6 +453,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
           startDateRange={startDateRange}
           endDateRange={endDateRange}
           isInSelectedRange={isInAdSelectedRange}
+          hideTimeRangeSubTabs={hideTimeRangeSubTabs}
         />
       ) : (
         <BSDatePicker
@@ -472,6 +481,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
           onNextBsMonth={bsNextMonth}
           selectedBsMonth={selectedBsMonth}
           setSelectedBsMonth={setSelectedBsMonth}
+          hideTimeRangeSubTabs={hideTimeRangeSubTabs}
         />
       )}
     </View>
@@ -506,7 +516,7 @@ export const DateRangePickerModal: React.FC<DateRangePickerModalProps> = ({
             ]}
           >
             <View style={styles.topRow}>
-              {isLargeScreen && quickRanges?.length ? (
+              {isLargeScreen && quickRanges?.length && !hideQuickRanges ? (
                 <QuickRangePanel
                   quickRanges={quickRanges}
                   activeQuickRange={activeQuickRange}
