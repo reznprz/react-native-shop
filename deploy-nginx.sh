@@ -6,10 +6,17 @@ BUILD_DIR="$PROJECT_DIR/dist"
 NGINX_DIR="/var/www/react-native-shop"
 NGINX_SITE="/etc/nginx/sites-available/react-native-shop"
 NGINX_LINK="/etc/nginx/sites-enabled/react-native-shop"
+DOTENV_FILE="${DOTENV_FILE:-.env.uat}"
 
-echo "📦 Building Expo Web app..."
 cd "$PROJECT_DIR"
-npx expo export --platform web --clear
+
+if [ ! -f "$PROJECT_DIR/$DOTENV_FILE" ]; then
+  echo "❌ Missing $PROJECT_DIR/$DOTENV_FILE (set DOTENV_FILE=... to use a different file)"
+  exit 1
+fi
+
+echo "📦 Building Expo Web app using $DOTENV_FILE..."
+EXPO_NO_DOTENV=1 DOTENV_FILE="$DOTENV_FILE" npx expo export --platform web --clear
 
 if [ ! -d "$BUILD_DIR" ]; then
   echo "❌ Build directory not found: $BUILD_DIR"
