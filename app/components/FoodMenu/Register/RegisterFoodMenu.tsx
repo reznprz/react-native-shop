@@ -11,7 +11,7 @@ import { useIsDesktop } from 'app/hooks/useIsDesktop';
 import { SubTabType } from '../FoodsMenu';
 import { ButtonState } from 'app/components/common/button/LoadingButton';
 import { useTheme } from 'app/hooks/useTheme';
-import { MutationStatus } from '@tanstack/react-query/build/legacy';
+import { MutationStatus } from '@tanstack/react-query';
 
 type ActiveView = 'categories' | 'food' | 'table';
 type ActiveSubFoodView = 'all' | 'breakfast' | 'lunch' | 'drinks';

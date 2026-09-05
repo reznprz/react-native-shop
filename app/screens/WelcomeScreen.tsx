@@ -169,7 +169,7 @@ const WelcomeScreen: React.FC = () => {
     >
       {/* Gradient background layer */}
       {(isTablet || isDesktop) && (
-        <View style={StyleSheet.absoluteFillObject}>
+        <View style={StyleSheet.absoluteFill}>
           <LinearGradient
             colors={[
               theme.primaryBg,
@@ -179,7 +179,7 @@ const WelcomeScreen: React.FC = () => {
             ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFillObject}
+            style={StyleSheet.absoluteFill}
           />
         </View>
       )}
