@@ -1,0 +1,11 @@
+services:
+  web-uat:
+    container_name: web-uat
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ENV_FILE: .env.uat
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8091:80"
