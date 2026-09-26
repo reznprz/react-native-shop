@@ -1,8 +1,8 @@
-name: Deploy UAT Web on PR merge to develop
+name: Deploy UAT Web on PR merge to develop-web
 
 on:
   pull_request:
-    branches: [develop]
+    branches: [develop-web]
     types: [closed]
   workflow_dispatch:
 
@@ -95,12 +95,12 @@ jobs:
               ;;
 
             git)
-              echo "3) GIT PULL (develop)"
+              echo "3) GIT PULL (develop-web)"
               cd "$APP_DIR"
               git config --global --add safe.directory "$APP_DIR"
               git fetch --all
-              git checkout develop
-              git pull origin develop
+              git checkout develop-web
+              git pull origin develop-web
               echo "✅ Latest commit: $(git log --oneline -1)"
               ;;
 
@@ -208,7 +208,7 @@ jobs:
       - name: 2. Check project path
         run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh path'"
 
-      - name: 3. Git pull develop
+      - name: 3. Git pull develop-web
         run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh git'"
 
       - name: 4. Recreate .env.uat

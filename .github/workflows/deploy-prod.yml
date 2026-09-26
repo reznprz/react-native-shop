@@ -1,8 +1,8 @@
-name: Deploy Prod Web on push to master
+name: Deploy Prod Web on push to master-web
 
 on:
   push:
-    branches: [master]
+    branches: [master-web]
   workflow_dispatch:
     inputs:
       force_deploy:
@@ -43,7 +43,7 @@ jobs:
             });
 
             const hasProdLabel = prs.data.some(pr =>
-              (pr.base.ref === "main" || pr.base.ref === "master") &&
+              (pr.base.ref === "main" || pr.base.ref === "master-web") &&
               pr.labels.some(label => label.name === "ci:deploy:prod")
             );
 
@@ -139,12 +139,12 @@ jobs:
               ;;
 
             git)
-              echo "3) GIT PULL (master)"
+              echo "3) GIT PULL (master-web)"
               cd "$APP_DIR"
               git config --global --add safe.directory "$APP_DIR"
               git fetch --all
-              git checkout master
-              git pull origin master
+              git checkout master-web
+              git pull origin master-web
               echo "✅ Latest commit: $(git log --oneline -1)"
               ;;
 
@@ -252,7 +252,7 @@ jobs:
       - name: 2. Check project path
         run: ssh prod-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-prod-web.sh path'"
 
-      - name: 3. Git pull master
+      - name: 3. Git pull master-web
         run: ssh prod-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-prod-web.sh git'"
 
       - name: 4. Recreate .env.prod
