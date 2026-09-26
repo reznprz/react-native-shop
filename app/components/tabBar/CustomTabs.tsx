@@ -24,26 +24,17 @@ export function MobileTabs() {
         return {
           headerShown: false,
           tabBarShowLabel: true,
-          tabBarLabelPosition: 'below-icon',
-          tabBarLabelStyle: {
-            fontSize: 12,
-            marginTop: 1,
-          },
           tabBarActiveTintColor: theme.secondary,
           tabBarInactiveTintColor: theme.mutedIcon,
-
-          tabBarStyle: isTablet
-            ? {
-                alignSelf: 'center',
-                width: 445,
-                marginVertical: 0,
-                paddingVertical: 0,
-              }
-            : {},
-
+          tabBarStyle: {
+            height: 65,
+          },
+          tabBarLabelStyle: {
+            fontSize: 12,
+          },
           tabBarItemStyle: {
-            marginHorizontal: 0,
-            paddingHorizontal: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
           },
 
           tabBarIcon: ({ focused, color }) => {

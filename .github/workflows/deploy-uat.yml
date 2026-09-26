@@ -1,0 +1,249 @@
+name: Deploy UAT Web on PR merge to develop-web
+
+on:
+  pull_request:
+    branches: [develop-web]
+    types: [closed]
+  workflow_dispatch:
+
+jobs:
+  deploy-uat:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true }}
+    runs-on: ubuntu-latest
+
+    env:
+      VM_HOST: ${{ secrets.UAT_VM_HOST }}
+      VM_USER: ${{ secrets.UAT_VM_USER }}
+      VM_PORT: ${{ secrets.UAT_VM_PORT }}
+      SSH_KEY: ${{ secrets.UAT_VM_SSH_KEY }}
+      APP_DIR: ${{ secrets.UAT_COMPOSE_DIR }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install cloudflared
+        run: |
+          set -euo pipefail
+          curl -L --output cloudflared.deb \
+            https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared.deb
+          cloudflared --version
+
+      - name: Setup SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          echo "${SSH_KEY}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          cat > ~/.ssh/config <<EOF
+          Host uat-web-vm
+            HostName ${VM_HOST}
+            User ${VM_USER}
+            Port ${VM_PORT}
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            ProxyCommand cloudflared access ssh --hostname %h
+          EOF
+
+          chmod 600 ~/.ssh/config
+
+      - name: Upload deploy helper script
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat > run-step-uat-web.sh <<'SCRIPT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          APP_DIR="${APP_DIR:-/opt/react-native-shop}"
+          COMPOSE_FILE="docker-compose.uat.yml"
+          ENV_FILE=".env.uat"
+          CONTAINER="web-uat"
+          HEALTH_PORT="8091"
+
+          require_dir() { [ -d "$1" ] || { echo "❌ Directory not found: $1"; exit 1; }; }
+          require_file() { [ -f "$1" ] || { echo "❌ File not found: $1"; exit 1; }; }
+          require_docker() {
+            command -v docker >/dev/null 2>&1 || { echo "❌ docker not installed"; exit 1; }
+            docker version >/dev/null 2>&1 || { echo "❌ docker daemon not reachable"; exit 1; }
+          }
+
+          step="${1:-}"
+
+          case "$step" in
+            login)
+              echo "1) LOGIN CHECK"
+              echo "User: $(whoami)"
+              echo "Host: $(hostname)"
+              echo "Pwd : $(pwd)"
+              uptime || true
+              ;;
+
+            path)
+              echo "2) CHECK PATH"
+              require_dir "$APP_DIR"
+              cd "$APP_DIR"
+              git config --global --add safe.directory "$APP_DIR"
+              echo "✅ In: $(pwd)"
+              ;;
+
+            git)
+              echo "3) GIT PULL (develop-web)"
+              cd "$APP_DIR"
+              git config --global --add safe.directory "$APP_DIR"
+              git fetch --all
+              git checkout develop-web
+              git pull origin develop-web
+              echo "✅ Latest commit: $(git log --oneline -1)"
+              ;;
+
+            env-refresh)
+              echo "4) REFRESH .env.uat"
+              cd "$APP_DIR"
+
+              if [ -z "${UAT_ENV_FILE_CONTENT:-}" ]; then
+                echo "❌ UAT_ENV_FILE_CONTENT not set"
+                exit 1
+              fi
+
+              rm -f "$ENV_FILE"
+              printf '%s\n' "$UAT_ENV_FILE_CONTENT" > "$ENV_FILE"
+              chmod 600 "$ENV_FILE"
+
+              require_file "$ENV_FILE"
+              ls -la "$ENV_FILE"
+              ;;
+
+            files)
+              echo "5) CHECK REQUIRED FILES"
+              cd "$APP_DIR"
+              require_file "$COMPOSE_FILE"
+              require_file "$ENV_FILE"
+              require_file "Dockerfile"
+              echo "✅ Required files present"
+              ;;
+
+            down)
+              echo "6) DOCKER COMPOSE DOWN"
+              require_docker
+              cd "$APP_DIR"
+              docker compose -f "$COMPOSE_FILE" down --remove-orphans || true
+              ;;
+
+            build)
+              echo "7) DOCKER COMPOSE BUILD"
+              require_docker
+              cd "$APP_DIR"
+              docker compose -f "$COMPOSE_FILE" build --no-cache
+              ;;
+
+            up)
+              echo "8) DOCKER COMPOSE UP"
+              require_docker
+              cd "$APP_DIR"
+              docker compose -f "$COMPOSE_FILE" up -d
+              ;;
+
+            health)
+              echo "9) CONTAINER HEALTH CHECK"
+              require_docker
+              cd "$APP_DIR"
+              docker compose -f "$COMPOSE_FILE" ps
+              ;;
+
+            ready)
+              echo "10) HTTP READINESS CHECK"
+
+              echo "Checking $CONTAINER..."
+              for i in $(seq 1 40); do
+                if docker exec "$CONTAINER" sh -c 'wget --no-verbose --tries=1 --spider http://localhost/' >/dev/null 2>&1; then
+                  echo "✅ $CONTAINER responding"
+                  break
+                fi
+                echo "  $CONTAINER attempt $i/40 — sleeping 5s"
+                sleep 5
+                if [ "$i" -eq 40 ]; then
+                  echo "❌ $CONTAINER did not start in time"
+                  exit 1
+                fi
+              done
+
+              echo "Checking published port $HEALTH_PORT on host..."
+              curl -fsS -o /dev/null "http://127.0.0.1:${HEALTH_PORT}" && echo "✅ host port ${HEALTH_PORT} responding"
+              ;;
+
+            logs)
+              echo "11) CONTAINER LOGS"
+              cd "$APP_DIR"
+              docker compose -f "$COMPOSE_FILE" logs --tail=200 || true
+              ;;
+
+            cleanup)
+              echo "12) CLEANUP OLD IMAGES"
+              docker image prune -f || true
+              echo "✅ Dangling images removed"
+              ;;
+
+            *)
+              echo "❌ Unknown step: $step"
+              echo "Allowed: login path git env-refresh files down build up health ready logs cleanup"
+              exit 2
+              ;;
+          esac
+          SCRIPT
+
+          scp run-step-uat-web.sh uat-web-vm:/tmp/run-step-uat-web.sh
+          ssh uat-web-vm "bash -lc 'chmod +x /tmp/run-step-uat-web.sh && ls -l /tmp/run-step-uat-web.sh'"
+
+      - name: 1. Login check
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh login'"
+
+      - name: 2. Check project path
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh path'"
+
+      - name: 3. Git pull develop-web
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh git'"
+
+      - name: 4. Recreate .env.uat
+        env:
+          UAT_ENV_FILE_CONTENT: |
+            EXPO_PUBLIC_ENV=uat
+            EXPO_PUBLIC_DEBUG=false
+            EXPO_PUBLIC_API_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_API_BASE_URL }}
+            EXPO_PUBLIC_TOKEN_BASE_URL=${{ secrets.UAT_EXPO_PUBLIC_TOKEN_BASE_URL }}
+        run: |
+          ssh uat-web-vm "APP_DIR='${APP_DIR}' UAT_ENV_FILE_CONTENT='${UAT_ENV_FILE_CONTENT}' bash -lc '/tmp/run-step-uat-web.sh env-refresh'"
+
+      - name: 5. Check required files exist
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh files'"
+
+      - name: 6. Docker compose down
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh down'"
+
+      - name: 7. Docker compose build --no-cache
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh build'"
+        timeout-minutes: 20
+
+      - name: 8. Docker compose up -d
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh up'"
+
+      - name: 9. Container health check
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh health'"
+
+      - name: 10. HTTP readiness check
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh ready'"
+
+      - name: 11. Container logs
+        if: always()
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh logs' || true"
+
+      - name: 12. Cleanup old images
+        if: always()
+        run: ssh uat-web-vm "APP_DIR='${APP_DIR}' bash -lc '/tmp/run-step-uat-web.sh cleanup' || true"

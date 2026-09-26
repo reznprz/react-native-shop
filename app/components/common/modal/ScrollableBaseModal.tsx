@@ -4,9 +4,11 @@ import {
   View,
   StyleSheet,
   Platform,
-  Dimensions,
+  useWindowDimensions,
   ScrollView,
   ModalProps,
+  ViewStyle,
+  StyleProp,
 } from 'react-native';
 import { useTheme } from 'app/hooks/useTheme';
 
@@ -16,6 +18,7 @@ interface ScrollableBaseModalProps extends ModalProps {
   header?: React.ReactNode;
   body?: React.ReactNode;
   footer?: React.ReactNode;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 const ScrollableBaseModal: React.FC<ScrollableBaseModalProps> = ({
@@ -24,14 +27,27 @@ const ScrollableBaseModal: React.FC<ScrollableBaseModalProps> = ({
   header,
   body,
   footer,
+  containerStyle,
   ...rest
 }) => {
   const theme = useTheme();
+  const { width, height } = useWindowDimensions();
 
-  // Dynamically calculate modal dimensions
-  const { width, height } = Dimensions.get('window');
-  const modalWidth = Math.min(width * 0.66, 500); // 2/3 of screen width or max 700
-  const modalHeight = Math.min(height * 0.5, 500); // 1/2 of screen height or max 600
+  const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1100;
+  const isLargeScreen = width >= 1100;
+
+  const modalWidth = isMobile
+    ? width * 0.96
+    : isTablet
+      ? Math.min(width * 0.9, 760)
+      : Math.min(width * 0.78, 980);
+
+  const modalHeight = isMobile
+    ? height * 0.88
+    : isTablet
+      ? Math.min(height * 0.8, 760)
+      : Math.min(height * 0.78, 820);
 
   return (
     <Modal
@@ -45,20 +61,30 @@ const ScrollableBaseModal: React.FC<ScrollableBaseModalProps> = ({
         <View
           style={[
             styles.modalBox,
-            { width: modalWidth, height: modalHeight, backgroundColor: theme.secondaryBg },
+            {
+              width: modalWidth,
+              height: modalHeight,
+              backgroundColor: theme.secondaryBg,
+              borderRadius: isMobile ? 16 : 12,
+            },
+            containerStyle,
           ]}
         >
-          {/* Header */}
           {header && (
             <View style={[styles.header, { backgroundColor: theme.secondary }]}>{header}</View>
           )}
-          {/* Body wrapped in a ScrollView to enable scrolling if content overflows */}
+
           {body && (
-            <ScrollView style={styles.bodyScroll} contentContainerStyle={styles.bodyScrollContent}>
+            <ScrollView
+              style={styles.bodyScroll}
+              contentContainerStyle={styles.bodyScrollContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator
+            >
               <View style={styles.body}>{body}</View>
             </ScrollView>
           )}
-          {/* Footer */}
+
           {footer && <View style={styles.footer}>{footer}</View>}
         </View>
       </View>
@@ -70,20 +96,18 @@ export default ScrollableBaseModal;
 
 const styles = StyleSheet.create({
   backdropContainer: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    flex: 1,
     backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
     alignItems: 'center',
-    // Web-only: add a blur effect behind the modal (cast as any to bypass TypeScript restrictions)
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     ...(Platform.OS === 'web' ? ({ backdropFilter: 'blur(8px)' } as any) : {}),
   },
   modalBox: {
-    borderRadius: 10,
-    overflow: 'hidden', // Keep rounded corners intact
+    overflow: 'hidden',
+    maxWidth: '100%',
+    maxHeight: '100%',
   },
   header: {
     padding: 18,
@@ -93,6 +117,7 @@ const styles = StyleSheet.create({
   },
   bodyScrollContent: {
     paddingBottom: 12,
+    flexGrow: 1,
   },
   body: {
     paddingHorizontal: 16,

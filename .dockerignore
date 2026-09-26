@@ -1,0 +1,22 @@
+node_modules
+.expo
+.expo-shared
+dist
+android
+ios
+.git
+.github
+.vscode
+.idea
+*.log
+coverage
+docs
+screenshots
+
+# .env.uat / .env.prod ARE needed in the build context (written by CI right
+# before `docker compose build`) so they are intentionally not ignored here.
+.env
+.env.local
+.env.local.debug
+.env.uat.debug
+.env.ci

@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, Text, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  useWindowDimensions,
+} from 'react-native';
 import ScrollableBaseModal from '../common/modal/ScrollableBaseModal';
 import ErrorMessagePopUp from '../common/ErrorMessagePopUp';
 import ModalActionsButton from '../common/modal/ModalActionsButton';
@@ -22,8 +29,6 @@ interface AddUserModalProps {
   primaryPhone: string;
   onRequestClose: () => void;
   onAddUser: (newUser: User) => void;
-
-  // otp
   sendOtpState: UseMutationResult<OtpRequestResponse, unknown, OtpRequest>;
   verifyOtpState: UseMutationResult<OtpValidateResponse, unknown, OtpValidateRequest>;
 }
@@ -38,8 +43,15 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   verifyOtpState,
 }) => {
   const theme = useTheme();
+  const { width } = useWindowDimensions();
 
-  // form state
+  const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1100;
+  const isLargeScreen = width >= 1100;
+
+  const contentMaxWidth = isLargeScreen ? 980 : isTablet ? 760 : '100%';
+  const formGap = isMobile ? 0 : 12;
+
   const [accessLevel, setAccessLevel] = useState<Role>(Role.STAFF);
   const [passcode, setPasscode] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -52,11 +64,10 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   const [localOtpVerified, setLocalOtpVerified] = useState(false);
   const [verifyApiError, setVerifyApiError] = useState('');
 
-  // DESCTRUCTURE only the `reset` functions from each mutation:
   const { reset: sendOtpReset } = sendOtpState;
   const { reset: verifyOtpReset } = verifyOtpState;
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setAccessLevel(Role.STAFF);
     setPasscode('');
     setFirstName('');
@@ -68,7 +79,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     setVerifyApiError('');
     setLocalOtpVerified(false);
     setShowOtp(false);
-  };
+  }, []);
 
   useEffect(() => {
     if (localOtpVerified) {
@@ -86,7 +97,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     return true;
   }, [firstName, lastName, username, passcode, phoneNumber, email, accessLevel]);
 
-  // otp actions
   const sendOtp = (method: 'sms' | 'email') => {
     const target = method === 'sms' ? primaryPhone.trim() : primaryEmail.trim();
     sendOtpState.mutate({ target, channel: method });
@@ -105,8 +115,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     );
   };
 
-  // final action
-  const handleAddUser = () => {
+  const handleAddUser = useCallback(() => {
     if (!validate || !localOtpVerified) return;
 
     const newUser: User = {
@@ -125,12 +134,71 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     onAddUser(newUser);
     resetForm();
     onRequestClose();
-  };
+  }, [
+    validate,
+    localOtpVerified,
+    accessLevel,
+    passcode,
+    firstName,
+    lastName,
+    username,
+    phoneNumber,
+    email,
+    onAddUser,
+    resetForm,
+    onRequestClose,
+  ]);
 
   const renderFooter = useCallback(() => {
-    // phase 1 – still on details form
+    const footerInnerStyle = {
+      width: '100%' as const,
+      maxWidth: contentMaxWidth as number | '100%',
+      alignSelf: 'center' as const,
+    };
+
     if (!showOtp) {
       return (
+        <View style={footerInnerStyle}>
+          <ModalActionsButton
+            cancelProps={{
+              title: 'Cancel',
+              onPress: () => {
+                resetForm();
+                onRequestClose();
+              },
+            }}
+            actionProps={{
+              title: 'Send Verification Code',
+              disable: !validate,
+              onPress: () => setShowOtp(true),
+            }}
+          />
+        </View>
+      );
+    }
+
+    if (!localOtpVerified) {
+      return (
+        <View style={footerInnerStyle}>
+          <ModalActionsButton
+            cancelProps={{
+              title: 'Back',
+              onPress: () => {
+                setShowOtp(false);
+              },
+            }}
+            actionProps={{
+              title: 'Add User',
+              onPress: handleAddUser,
+              disable: !localOtpVerified,
+            }}
+          />
+        </View>
+      );
+    }
+
+    return (
+      <View style={footerInnerStyle}>
         <ModalActionsButton
           cancelProps={{
             title: 'Cancel',
@@ -139,159 +207,195 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
               onRequestClose();
             },
           }}
-          actionProps={{
-            title: 'Send Verification Code',
-            disable: !validate,
-            onPress: () => setShowOtp(true),
-          }}
+          actionProps={{ title: 'Add User', onPress: handleAddUser }}
         />
-      );
-    }
-
-    // phase 2 – OTP screen visible but not yet verified
-    if (!localOtpVerified) {
-      return (
-        <ModalActionsButton
-          cancelProps={{
-            title: 'Back',
-            onPress: () => {
-              setShowOtp(false);
-            },
-          }}
-          actionProps={{
-            title: 'Add User',
-            onPress: handleAddUser,
-            disable: !localOtpVerified,
-          }}
-        />
-      );
-    }
-
-    // phase 3 – OTP verified
-    return (
-      <ModalActionsButton
-        cancelProps={{
-          title: 'Cancel',
-          onPress: () => {
-            resetForm();
-            onRequestClose();
-          },
-        }}
-        actionProps={{ title: 'Add User', onPress: handleAddUser }}
-      />
+      </View>
     );
-  }, [resetForm, onRequestClose, handleAddUser, showOtp, validate, localOtpVerified]);
+  }, [
+    contentMaxWidth,
+    resetForm,
+    onRequestClose,
+    handleAddUser,
+    showOtp,
+    validate,
+    localOtpVerified,
+  ]);
+
+  const renderField = (
+    label: string,
+    value: string,
+    onChange: (text: string) => void,
+    extra?: Partial<React.ComponentProps<typeof InputField>>,
+  ) => (
+    <View
+      style={{
+        width: isMobile ? '100%' : '48.8%',
+        marginBottom: isMobile ? 10 : 2,
+      }}
+    >
+      <InputField label={label} value={value} onChange={onChange} {...extra} />
+    </View>
+  );
+
+  const innerContainerStyle = {
+    width: '100%' as const,
+    maxWidth: contentMaxWidth as number | '100%',
+    alignSelf: 'center' as const,
+  };
 
   return (
     <ScrollableBaseModal
       visible={visible}
       onRequestClose={onRequestClose}
+      containerStyle={{
+        width: '100%',
+        maxWidth: contentMaxWidth as any,
+        alignSelf: 'center',
+      }}
       header={
-        <View className="flex-row items-center justify-between">
-          <Text className="text-lg font-semibold" style={{ color: theme.headerText }}>
-            Add New User
-          </Text>
-          <Pressable onPress={onRequestClose} className="p-1">
-            <Text style={{ color: theme.headerText, fontSize: 20 }}>✕</Text>
-          </Pressable>
+        <View style={innerContainerStyle}>
+          <View className="flex-row items-center justify-between">
+            <Text className="text-lg font-semibold" style={{ color: theme.headerText }}>
+              Add New User
+            </Text>
+            <Pressable
+              onPress={() => {
+                resetForm();
+                onRequestClose();
+              }}
+              className="p-1"
+            >
+              <Text style={{ color: theme.headerText, fontSize: 20 }}>✕</Text>
+            </Pressable>
+          </View>
         </View>
       }
       body={
-        <ConditionalWrapper>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-            className="flex-1"
-          >
-            {showOtp ? (
-              <OtpVerification
-                phone={primaryPhone}
-                email={primaryEmail}
-                localOtpVerified={localOtpVerified}
-                isSending={sendOtpState.isPending}
-                sendError={(sendOtpState.error as Error | undefined)?.message}
-                isVerifying={verifyOtpState.isPending}
-                verifyError={verifyApiError || (verifyOtpState.error as Error | undefined)?.message}
-                validateError={error}
-                setValidateError={setError}
-                onResend={sendOtp}
-                onVerify={verifyOtp}
-              />
-            ) : (
-              <View className="px-2">
-                {error && <ErrorMessagePopUp errorMessage={error} onClose={() => setError('')} />}
+        <View style={innerContainerStyle}>
+          <ConditionalWrapper>
+            <KeyboardAvoidingView
+              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+              style={{ flex: 1 }}
+            >
+              {showOtp ? (
+                <View
+                  style={{
+                    width: '100%',
+                    maxWidth: isLargeScreen ? 560 : '100%',
+                    alignSelf: 'center',
+                    paddingHorizontal: isMobile ? 4 : 8,
+                  }}
+                >
+                  <OtpVerification
+                    phone={primaryPhone}
+                    email={primaryEmail}
+                    localOtpVerified={localOtpVerified}
+                    isSending={sendOtpState.isPending}
+                    sendError={(sendOtpState.error as Error | undefined)?.message}
+                    isVerifying={verifyOtpState.isPending}
+                    verifyError={
+                      verifyApiError || (verifyOtpState.error as Error | undefined)?.message
+                    }
+                    validateError={error}
+                    setValidateError={setError}
+                    onResend={sendOtp}
+                    onVerify={verifyOtp}
+                  />
+                </View>
+              ) : (
+                <View
+                  style={{
+                    paddingHorizontal: isMobile ? 4 : 8,
+                    paddingBottom: isMobile ? 6 : 12,
+                    width: '100%',
+                    alignSelf: 'center',
+                  }}
+                >
+                  {error && <ErrorMessagePopUp errorMessage={error} onClose={() => setError('')} />}
 
-                {/* Access level toggle */}
-                <View className="mb-3">
-                  <Text className="mb-1 text-lg font-medium" style={{ color: theme.textSecondary }}>
-                    Access&nbsp;Level
-                  </Text>
+                  <View style={{ marginBottom: 14 }}>
+                    <Text
+                      className="mb-1 text-lg font-medium"
+                      style={{ color: theme.textSecondary }}
+                    >
+                      Access Level
+                    </Text>
 
-                  <View
-                    className="flex-row rounded-lg overflow-hidden"
-                    style={{
-                      backgroundColor: theme.primaryBg,
-                      borderWidth: 1,
-                      borderColor: theme.secondaryBtnBg,
-                    }}
-                  >
-                    {[Role.ADMIN, Role.STAFF].map((lvl) => {
-                      const active = lvl === accessLevel;
-                      return (
-                        <Pressable
-                          key={lvl}
-                          onPress={() => setAccessLevel(lvl)}
-                          className="flex-1 py-3 items-center"
-                          style={{
-                            backgroundColor: active ? theme.buttonBg : 'transparent',
-                          }}
-                        >
-                          <Text
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        borderRadius: 12,
+                        overflow: 'hidden',
+                        backgroundColor: theme.primaryBg,
+                        borderWidth: 1,
+                        borderColor: theme.secondaryBtnBg,
+                      }}
+                    >
+                      {[Role.ADMIN, Role.STAFF].map((lvl) => {
+                        const active = lvl === accessLevel;
+                        return (
+                          <Pressable
+                            key={lvl}
+                            onPress={() => setAccessLevel(lvl)}
                             style={{
-                              fontWeight: '500',
-                              color: active ? theme.textPrimary : theme.textSecondary,
+                              flex: 1,
+                              minHeight: isMobile ? 44 : 48,
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: active ? theme.buttonBg : 'transparent',
+                              paddingHorizontal: 12,
                             }}
                           >
-                            {lvl === Role.ADMIN ? 'Admin' : 'Staff'}
-                          </Text>
-                        </Pressable>
-                      );
+                            <Text
+                              style={{
+                                fontWeight: '500',
+                                color: active ? theme.textPrimary : theme.textSecondary,
+                                fontSize: isMobile ? 14 : 15,
+                              }}
+                            >
+                              {lvl === Role.ADMIN ? 'Admin' : 'Staff'}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                  </View>
+
+                  <View
+                    style={{
+                      flexDirection: isMobile ? 'column' : 'row',
+                      flexWrap: 'wrap',
+                      justifyContent: 'space-between',
+                      columnGap: formGap,
+                    }}
+                  >
+                    {renderField('First Name', firstName, setFirstName)}
+                    {renderField('Last Name', lastName, setLastName)}
+
+                    {accessLevel === Role.ADMIN && renderField('Username', username, setUsername)}
+
+                    {renderField('Phone Number', phoneNumber, setPhoneNumber, {
+                      placeholder: '+1 555 123 4567',
+                      keyboardType: 'phone-pad',
+                      maxLength: 15,
+                    })}
+
+                    {renderField('E-mail', email, setEmail, {
+                      placeholder: 'me@example.com',
+                      keyboardType: 'email-address',
+                    })}
+
+                    {renderField('Password', passcode, setPasscode, {
+                      secureTextEntry: true,
+                      maxLength: 6,
+                      keyboardType: 'numeric',
                     })}
                   </View>
                 </View>
-
-                {/* form fields */}
-                <InputField label="First Name" value={firstName} onChange={setFirstName} />
-                <InputField label="Last Name" value={lastName} onChange={setLastName} />
-                {accessLevel === Role.ADMIN && (
-                  <InputField label="Username" value={username} onChange={setUsername} />
-                )}
-                <InputField
-                  label="Phone Number"
-                  value={phoneNumber}
-                  onChange={setPhoneNumber}
-                  placeholder="+1 555 123 4567"
-                  keyboardType="phone-pad"
-                  maxLength={15}
-                />
-                <InputField
-                  label="E-mail"
-                  value={email}
-                  onChange={setEmail}
-                  placeholder="me@example.com"
-                  keyboardType="email-address"
-                />
-                <InputField
-                  label="Password"
-                  value={passcode}
-                  onChange={setPasscode}
-                  secureTextEntry
-                  maxLength={6}
-                  keyboardType="numeric"
-                />
-              </View>
-            )}
-          </KeyboardAvoidingView>
-        </ConditionalWrapper>
+              )}
+            </KeyboardAvoidingView>
+          </ConditionalWrapper>
+        </View>
       }
       footer={renderFooter()}
     />

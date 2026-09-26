@@ -19,7 +19,7 @@ import { DateRangeSelectionType, LoginActivity } from 'app/api/services/loginAct
 import { DateRangeSelection, getDisplayDateRange } from 'app/components/date/utils';
 
 /* ─── constants ─── */
-const tabs = ['Past Logins', 'Todays'] as const;
+const tabs = ['Past Logins', 'Todays'];
 type TabType = (typeof tabs)[number];
 
 const formatLast7DaysSelection = (): DateRangeSelection => {
@@ -179,7 +179,10 @@ const LoginActivityScreen = ({ navigation }: { navigation: any }) => {
 
   const [activeTab, setActiveTab] = useState<TabType>('Todays');
   const [isRangeModalVisible, setRangeModalVisible] = useState(false);
-  const [selectedRange, setSelectedRange] = useState<DateRangeSelection>(initialSelectedDateRange);
+  const [selectedRange, setSelectedRange] = useState<DateRangeSelection>({
+    selectionType: DateRangeSelectionType.SINGLE_DATE,
+    date: 'Today',
+  });
   const [displayDateRange, setDisplayDateRange] = useState(
     getDisplayDateRange(initialSelectedDateRange),
   );
@@ -232,13 +235,13 @@ const LoginActivityScreen = ({ navigation }: { navigation: any }) => {
   }, [fetchTodayLoginActivities]);
 
   const handlePastTab = useCallback(() => {
-    const selection = selectedRange ?? initialSelectedDateRange;
+    const selection = initialSelectedDateRange;
     setDisplayDateRange(getDisplayDateRange(selection));
     applySelectionToApi(selection);
   }, [applySelectionToApi, selectedRange]);
 
   useEffect(() => {
-    handlePastTab();
+    handleTodayTab();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -272,14 +275,13 @@ const LoginActivityScreen = ({ navigation }: { navigation: any }) => {
         {/* sub tabs — full width, no padding */}
         <View style={styles.subTabWrap}>
           <SubTab
-            tabs={tabs as unknown as string[]}
+            tabs={tabs}
             activeTab={activeTab}
             onTabChange={(newTab) => {
-              const nextTab = newTab as TabType;
-              setActiveTab(nextTab);
+              setActiveTab(newTab);
               setSearchTerm('');
-              navigation?.setParams?.({ selectedTab: nextTab });
-              if (nextTab === 'Todays') handleTodayTab();
+              navigation?.setParams?.({ selectedTab: newTab });
+              if (newTab === 'Todays') handleTodayTab();
               else handlePastTab();
             }}
           />

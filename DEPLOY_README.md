@@ -1,5 +1,11 @@
 🚀 React Native Web Deployment (Expo → Nginx)
 
+> Automated UAT/Prod deploys now run via Docker + GitHub Actions — see
+> `docs/docker-deploy.md`, `.github/workflows/deploy-uat.yml` and
+> `.github/workflows/deploy-prod.yml`. This document remains useful for manual/local
+> deploys and for understanding the host Nginx + Cloudflare Tunnel setup those workflows
+> build on top of.
+
 This guide describes how to build and deploy a React Native (Expo) web app on an Ubuntu VM using Nginx, with a domain such as:
 
 https://ui.shk-uat-chipie.uk
