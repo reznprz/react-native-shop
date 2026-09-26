@@ -3,6 +3,12 @@
     "name": "shk25",
     "slug": "sajilohisabkitab",
     "owner": "shk25",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "@react-native-community/datetimepicker",
+      "expo-asset",
+      "expo-font"
+    ],
     "extra": {
       "eas": {
         "projectId": "589511b4-857b-41b4-92c8-3b1a4df4e2a2"

@@ -15,7 +15,7 @@ if [ ! -f "$PROJECT_DIR/$DOTENV_FILE" ]; then
   exit 1
 fi
 
-echo "📦 Building Expo Web app using $DOTENV_FILE..."
+echo "📦 Building Expo Web app (no cache) using $DOTENV_FILE..."
 EXPO_NO_DOTENV=1 DOTENV_FILE="$DOTENV_FILE" npx expo export --platform web --clear
 
 if [ ! -d "$BUILD_DIR" ]; then

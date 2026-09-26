@@ -83,13 +83,13 @@ const SkeletonResponsiveGrid: React.FC<SkeletonResponsiveGridProps> = ({ rows })
             {/* Shimmer */}
             <Animated.View
               pointerEvents="none"
-              style={[StyleSheet.absoluteFillObject, { transform: [{ translateX }] }]}
+              style={[StyleSheet.absoluteFill, { transform: [{ translateX }] }]}
             >
               <LinearGradient
                 colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.5)', 'rgba(255,255,255,0)']}
                 start={{ x: 0, y: 0.5 }}
                 end={{ x: 1, y: 0.5 }}
-                style={StyleSheet.absoluteFillObject}
+                style={StyleSheet.absoluteFill}
               />
             </Animated.View>
           </View>

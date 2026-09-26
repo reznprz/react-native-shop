@@ -14,7 +14,7 @@ import { Food } from 'app/api/services/foodService';
 import Header from './Header';
 import CategoryBar from './CategoryBar';
 import QrFoodList from './QrFoodList';
-import ResponsiveList from '../common/ResponsiveList';
+import ResponsiveList, { ResponsiveListHandle } from '../common/ResponsiveList';
 import Notification from '../Notification';
 
 interface QrFoodItemProps {
@@ -24,8 +24,7 @@ interface QrFoodItemProps {
 const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Updated ref to handle both ScrollView and FlatList
-  const scrollViewRef = useRef<ScrollView | FlatList<any> | null>(null);
+  const scrollViewRef = useRef<ResponsiveListHandle | null>(null);
   const categoryRefs = useRef<{ [key: string]: number }>({});
 
   const subCategoryMapMemo = useMemo(() => {
@@ -76,29 +75,8 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
 
   const handleScrollToCategory = (category: string) => {
     const position = categoryRefs.current[category];
-    if (position !== undefined && scrollViewRef.current) {
-      const ref = scrollViewRef.current;
-
-      if (Platform.OS === 'web') {
-        // For web, assuming it's a ScrollView
-        (ref as ScrollView).scrollTo({ y: position, animated: true });
-      } else {
-        // For mobile platforms
-        if ('scrollTo' in ref && typeof ref.scrollTo === 'function') {
-          // It's a ScrollView
-          ref.scrollTo({ y: position, animated: true });
-        } else if ('scrollToOffset' in ref && typeof ref.scrollToOffset === 'function') {
-          // It's a FlatList
-          ref.scrollToOffset({ offset: position, animated: true });
-        } else {
-          Alert.alert(
-            'Unsupported Scroll Method',
-            'The current scrollable component does not support the scrollTo method.',
-          );
-          return;
-        }
-      }
-
+    if (position !== undefined && scrollViewRef.current?.scrollToOffset) {
+      scrollViewRef.current.scrollToOffset({ offset: position, animated: true });
       setSelectedCategory(category);
     } else {
       Alert.alert('Category not found', 'Unable to scroll to the selected category.');
@@ -114,7 +92,7 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
   return (
     <View style={styles.container}>
       <PrimaryImage
-        src="/shajhya.jpg"
+        src={require('../../../assets/shajhya.jpg')}
         alt="Shajhya"
         mobileHeight={175}
         desktopHeight={300}
@@ -140,10 +118,8 @@ const QrFoodItem: React.FC<QrFoodItemProps> = ({ subCategoryMap }) => {
             onCategoryLayout={onCategoryLayout}
           />
         )}
-        scrollViewProps={{
-          contentContainerStyle: styles.scrollViewContent,
-          showsVerticalScrollIndicator: false,
-        }}
+        contentContainerStyle={styles.scrollViewContent}
+        showsVerticalScrollIndicator={false}
       />
       {errorMessage !== '' && (
         <Notification message={errorMessage} onClose={closeError} type={'error'} />

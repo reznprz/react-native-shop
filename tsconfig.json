@@ -4,7 +4,6 @@
     "module": "esnext",
     "jsx": "react",
     "strict": true,
-    "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -15,14 +14,15 @@
       "expo",
       "node"
     ],
-    "baseUrl": ".", // This sets the root directory for absolute imports
     "paths": {
       "app/*": [
-        "app/*"
+        "./app/*"
       ], // Maps "app/" to your "app" directory
-      "*": [
-        "node_modules/*"
-      ] // Default node_modules resolution
+      // Workaround: this package's exports map has no "types" condition,
+      // so bundler resolution can't find its otherwise-valid index.d.ts.
+      "@remotemerge/nepali-date-converter": [
+        "./node_modules/@remotemerge/nepali-date-converter/index.d.ts"
+      ]
     }
   },
   "include": [
