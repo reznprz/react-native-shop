@@ -17,6 +17,7 @@ import {
   StyleProp,
   ViewStyle,
   ListRenderItem,
+  type ScrollViewInstance,
 } from 'react-native';
 
 /** Props for our ResponsiveList. */
@@ -54,14 +55,14 @@ function BaseResponsiveList<T>(
   ref: React.Ref<ResponsiveListHandle>,
 ) {
   // Internal ref to either a ScrollView or FlatList
-  const scrollRef = useRef<ScrollView | FlatList<T>>(null);
+  const scrollRef = useRef<ScrollViewInstance | FlatList<T>>(null);
 
   // Let parent components imperatively call scrollToOffset
   useImperativeHandle(ref, () => ({
     scrollToOffset: ({ offset, animated = true }) => {
       if (Platform.OS === 'web') {
         // On web, our ref is a ScrollView with .scrollTo
-        (scrollRef.current as ScrollView)?.scrollTo({
+        (scrollRef.current as ScrollViewInstance)?.scrollTo({
           x: 0,
           y: offset,
           animated,
@@ -98,7 +99,7 @@ function BaseResponsiveList<T>(
     if (Platform.OS === 'web') {
       return (
         <ScrollView
-          ref={scrollRef as React.RefObject<ScrollView>}
+          ref={scrollRef as React.RefObject<ScrollViewInstance>}
           contentContainerStyle={contentContainerStyle}
           showsVerticalScrollIndicator={showsVerticalScrollIndicator}
         >
@@ -124,7 +125,7 @@ function BaseResponsiveList<T>(
     // --- Web: ScrollView with children ---
     return (
       <ScrollView
-        ref={scrollRef as React.RefObject<ScrollView>}
+        ref={scrollRef as React.RefObject<ScrollViewInstance>}
         contentContainerStyle={contentContainerStyle}
         showsVerticalScrollIndicator={showsVerticalScrollIndicator}
       >
