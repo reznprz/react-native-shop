@@ -4,6 +4,7 @@ This repository contains a React Native project configured to work with Expo. Be
 
 ---
 
+
 ## Prerequisites
 
 Before starting, ensure you have the following installed:

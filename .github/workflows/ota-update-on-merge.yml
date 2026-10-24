@@ -151,6 +151,7 @@ jobs:
   # PROD (Expo Go production)
   # Runs when:
   # - PR merged into master AND label includes "ci:prod-update"
+  # - OR PR merged into develop AND label is "ci:prod-update"
   # - OR workflow_dispatch target is prod/both
   # =========================
   prod_update:
@@ -164,6 +165,13 @@ jobs:
           github.event.pull_request.merged == true &&
           github.event.pull_request.base.ref == 'master' &&
           contains(join(github.event.pull_request.labels.*.name, ','), 'ci:prod-update')
+        )
+        ||
+        (
+          github.event_name == 'pull_request' &&
+          github.event.pull_request.merged == true &&
+          github.event.pull_request.base.ref == 'develop' &&
+          contains(github.event.pull_request.labels.*.name, 'ci:prod-update')
         )
       }}
     runs-on: ubuntu-latest
